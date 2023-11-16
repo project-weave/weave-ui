@@ -2,38 +2,43 @@ import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 
 import { Button } from "../ui/button";
-import { AvailabilityDateTime, getAvailabilityDateTimeFormat } from "./availability-grid";
+import {
+  AvailabilityDate,
+  AvailabilityDateTime,
+  AvailabilityTime,
+  getAvailabilityDateTimeFormat
+} from "./availability-grid";
 
 type AvailabilityGridColumnHeaderProps = {
   areAllDatesInSameMonth: boolean;
   areAllDatesInSameYear: boolean;
-  dateStrUTC: string;
-  isDateGapLeft: boolean;
-  selectedAvailability: Set<AvailabilityDateTime>;
-  setSelectedAvailabilty: (newSelection: Set<AvailabilityDateTime>) => void;
-  sortedTimesUTC: string[];
+  availabilityDate: AvailabilityDate;
+  isDateGapRight: boolean;
+  selectedAvailabilities: Set<AvailabilityDateTime>;
+  setSelectedAvailabilties: (newSelection: Set<AvailabilityDateTime>) => void;
+  sortedAvailabilityTimes: AvailabilityTime[];
 };
 
 export default function AvailabilityGridColumnHeader({
   areAllDatesInSameMonth,
   areAllDatesInSameYear,
-  dateStrUTC,
-  isDateGapLeft,
-  sortedTimesUTC,
-  selectedAvailability,
-  setSelectedAvailabilty
+  availabilityDate,
+  isDateGapRight,
+  selectedAvailabilities,
+  setSelectedAvailabilties,
+  sortedAvailabilityTimes
 }: AvailabilityGridColumnHeaderProps) {
-  const parsedDate = parseISO(dateStrUTC);
+  const parsedDate = parseISO(availabilityDate);
 
-  const allAvailabilitiesForDate = sortedTimesUTC.map((timeStrUTC) =>
-    getAvailabilityDateTimeFormat(timeStrUTC, dateStrUTC)
+  const allAvailabilitiesForDate = sortedAvailabilityTimes.map((availabilityTime) =>
+    getAvailabilityDateTimeFormat(availabilityTime, availabilityDate)
   );
   const isAllAvailabilitiesForDateSelected = allAvailabilitiesForDate.every((availability) =>
-    selectedAvailability.has(availability)
+    selectedAvailabilities.has(availability)
   );
 
   function dateClickedHandler() {
-    const newSelection = new Set<AvailabilityDateTime>(selectedAvailability);
+    const newSelection = new Set<AvailabilityDateTime>(selectedAvailabilities);
 
     allAvailabilitiesForDate.forEach((availability) => {
       if (isAllAvailabilitiesForDateSelected) {
@@ -42,15 +47,24 @@ export default function AvailabilityGridColumnHeader({
         newSelection.add(availability);
       }
     });
-    setSelectedAvailabilty(newSelection);
+    setSelectedAvailabilties(newSelection);
   }
 
   return (
-    <div className={cn("text-center", { "ml-2": isDateGapLeft })} key={`availability-grid-column-header-${dateStrUTC}`}>
-      <h3 className="mb-3 text-lg font-medium text-secondary-light">{format(parsedDate, "EEE")}</h3>
+    <div className={cn("text-center", { "mr-2": isDateGapRight })}>
+      {(!areAllDatesInSameMonth || !areAllDatesInSameYear) && (
+        <h3 className="font-bold text-primary">{format(parsedDate, "MMM")}</h3>
+      )}
+      <h3
+        className={cn("mb-4 mt-2 text-sm font-medium text-secondary-light", {
+          "mb-2 mt-[1px] text-xs": !areAllDatesInSameMonth || !areAllDatesInSameYear
+        })}
+      >
+        {format(parsedDate, "EEE")}
+      </h3>
       <Button
         className={cn(
-          "rounded-sm border-none bg-purple-100 text-lg font-semibold tracking-wide text-secondary transition-all hover:bg-purple-200 hover:bg-opacity-100",
+          "h-8 w-10 rounded-sm border-none bg-purple-100 font-semibold tracking-wide text-secondary transition-all hover:bg-purple-200 hover:bg-opacity-100",
           {
             "bg-primary bg-opacity-100 text-white hover:bg-primary hover:bg-opacity-70":
               isAllAvailabilitiesForDateSelected
@@ -58,7 +72,7 @@ export default function AvailabilityGridColumnHeader({
         )}
         onClick={dateClickedHandler}
       >
-        {format(parsedDate, areAllDatesInSameMonth && areAllDatesInSameYear ? "dd" : "MMM dd")}
+        {format(parsedDate, "d")}
       </Button>
     </div>
   );

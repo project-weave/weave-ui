@@ -16,20 +16,23 @@ export default function AvailabilityGridHeader({
   latestDate
 }: AvailabilityGridHeaderProps) {
   let heading = "";
+
   if (!areAllDatesInSameYear) {
-    heading = `${format(earliestDate, "yyyy")} - ${format(latestDate, "yyyy")} `;
+    heading = `${format(earliestDate, "MMM yyyy")} - ${format(latestDate, "MMM yyyy")} `;
   } else if (areAllDatesInSameMonth) {
-    heading = format(earliestDate, "MMMM yyyy");
+    heading = format(earliestDate, "MMM yyyy");
   } else {
-    heading = format(earliestDate, "yyyy");
+    heading = `${format(earliestDate, "MMM")} - ${format(latestDate, "MMM yyyy")}`;
   }
 
   return (
     <div className={boxClassName}>
       <div className="flex">
-        <h1 className="mb-2 mr-32 whitespace-nowrap text-3xl font-semibold tracking-wide text-secondary">{heading}</h1>
+        <h1 className="mb-[2px] mr-32 whitespace-nowrap text-xl font-semibold tracking-wide text-secondary">
+          {heading}
+        </h1>
       </div>
-      <p className="mb-2 text-sm tracking-wider text-primary">GMT-07</p>
+      <p className="text-2xs mb-2 tracking-wider text-primary">GMT-07</p>
       <hr className="h-[2px] bg-secondary" />
     </div>
   );

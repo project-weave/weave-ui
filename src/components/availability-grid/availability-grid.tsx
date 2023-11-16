@@ -1,12 +1,20 @@
+"use client";
 import { isConsecutiveDay } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
 // import { formatInTimeZone, utcToZonedTime } from "date-fns-tz";
 import { addMinutes, format, parseISO } from "date-fns";
 import { useMemo, useState } from "react";
 
+import AvailabilityGridCell, { AvailabilityGridCellBase } from "./availability-grid-cell";
 import AvailabilityGridColumnHeader from "./availability-grid-column-header";
 import AvailabilityGridHeader from "./availability-grid-header";
 import AvailabilityGridRowHeader from "./availability-grid-row-header";
+
+// Availability is the date portion of aan ISO formatted date string for a single availbability, ie: 2000-11-29
+export type AvailabilityDate = string;
+
+// AvailabilityTime is the time portion of aan ISO formatted date string for a single availbability, ie: 12:00:00
+export type AvailabilityTime = string;
 
 // AvailabilityDateTime is an ISO formatted date string that represents a single availbability
 export type AvailabilityDateTime = string;
@@ -18,267 +26,239 @@ export type AvailabilityCellPosition = {
 };
 
 // assuming that when only time is passed in as a parameter, we're only interested in time so we we can use an aribtrary date to parse
-export function getAvailabilityDateTimeFormat(time: string, date: string = "2000-11-29"): AvailabilityDateTime {
+export function getAvailabilityDateTimeFormat(
+  time: AvailabilityTime,
+  date: AvailabilityDate = "2000-11-29"
+): AvailabilityDateTime {
   return date + "T" + time;
 }
 
-// TODO: fetch data from backend and pass in as prop
-const sampleData = {
-  eventName: "test",
-  eventDatesUTC: [
-    "2023-10-01",
-    "2023-10-15",
-    "2023-10-17",
-    "2023-10-18",
-    "2023-10-20",
-    "2023-10-21",
-    "2023-10-22",
-    "2023-10-23",
-    "2023-10-24",
-    "2023-10-26"
-  ],
-  startTimeUTC: "08:00:00",
-  endTimeUTC: "16:00:00",
-  eventTimeZone: "America/Vancouver"
+type AvailabilityGridProps = {
+  availabilitiesToUsers?: Record<AvailabilityDateTime, string[]>;
+  availabilityDates: AvailabilityDate[];
+  endAvailabilityTime: AvailabilityTime;
+  eventTimeZone: string;
+  startAvailabilityTime: AvailabilityTime;
+  usersToAvailabilities?: Record<string, AvailabilityDateTime[]>;
 };
 
-export default function AvailabilityGrid() {
+export default function AvailabilityGrid({
+  availabilityDates,
+  endAvailabilityTime,
+  startAvailabilityTime
+}: AvailabilityGridProps) {
   const [isSelecting, setIsSelecting] = useState(false);
-  const [isAdding, setIsAdding] = useState(true);
-  const [selectedAvailability, setSelectedAvailabilty] = useState<Set<AvailabilityDateTime>>(new Set());
-  const [selectionStartCell, setSelectionStartCell] = useState<AvailabilityCellPosition | null>(null);
-  const [selectionEndCell, setSelectionEndCell] = useState<AvailabilityCellPosition | null>(null);
-  const [hoveredTime, setHoveredTime] = useState<null | string>(null);
+  const [dragIsAdding, setDragIsAdding] = useState(false);
+  const [selectedAvailabilities, setSelectedAvailabilties] = useState<Set<AvailabilityDateTime>>(new Set());
+  const [dragStartCellPosition, setDragStartCellPosition] = useState<AvailabilityCellPosition | null>(null);
+  const [dragEndCellPosition, setDragEndCellPosition] = useState<AvailabilityCellPosition | null>(null);
+  const [hoveredTime, setHoveredTime] = useState<AvailabilityTime | null>(null);
 
   // TODO: add timezone conversion
   // const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-  const sortedTimesUTC = useMemo(() => {
-    const timesUTC = [];
+  const sortedAvailabilityTimes = useMemo(() => {
+    const times = [];
     const timeSlotMinutes = 30;
 
-    let currentTime = parseISO(getAvailabilityDateTimeFormat(sampleData.startTimeUTC));
-    const endTime = parseISO(getAvailabilityDateTimeFormat(sampleData.endTimeUTC));
+    let currentTime = parseISO(getAvailabilityDateTimeFormat(startAvailabilityTime));
+    const endTime = parseISO(getAvailabilityDateTimeFormat(endAvailabilityTime));
 
     while (currentTime < endTime) {
-      timesUTC.push(format(currentTime, "HH:mm"));
+      times.push(format(currentTime, "HH:mm"));
       currentTime = addMinutes(currentTime, timeSlotMinutes);
     }
-    return timesUTC;
-  }, []);
+    return times;
+  }, [startAvailabilityTime, endAvailabilityTime]);
 
-  const sortedDatesUTC = useMemo(
+  const sortedAvailabilityDates = useMemo(
     () =>
-      sampleData.eventDatesUTC.sort((date1, date2) => {
-        return new Date(date1).getTime() - new Date(date2).getTime();
+      availabilityDates.sort((date1, date2) => {
+        return parseISO(date1).getTime() - parseISO(date2).getTime();
       }),
-    []
+    [availabilityDates]
   );
 
   function handleAvailabilityCellMouseEnter(cellPosition: AvailabilityCellPosition) {
-    if (isSelecting && selectionStartCell && selectionEndCell) {
-      setSelectionEndCell({ row: cellPosition.row, col: cellPosition.col });
+    if (isSelecting && dragStartCellPosition && dragEndCellPosition) {
+      setDragEndCellPosition({ col: cellPosition.col, row: cellPosition.row });
     }
-    setHoveredTime(sortedTimesUTC[cellPosition.row]);
+    setHoveredTime(sortedAvailabilityTimes[cellPosition.row]);
   }
 
   function handleAvailabilityCellMouseDown(cellPosition: AvailabilityCellPosition) {
     setIsSelecting(true);
-    setSelectionStartCell({ row: cellPosition.row, col: cellPosition.col });
-    setSelectionEndCell({ row: cellPosition.row, col: cellPosition.col });
-    if (selectedAvailability.has(cellPositionToAvailabilityDateTime(cellPosition))) {
-      setIsAdding(false);
+    setDragStartCellPosition({ col: cellPosition.col, row: cellPosition.row });
+    setDragEndCellPosition({ col: cellPosition.col, row: cellPosition.row });
+    if (selectedAvailabilities.has(cellPositionToAvailabilityDateTime(cellPosition))) {
+      setDragIsAdding(false);
     } else {
-      setIsAdding(true);
+      setDragIsAdding(true);
     }
   }
 
   function cellPositionToAvailabilityDateTime(cellPosition: AvailabilityCellPosition): AvailabilityDateTime {
-    const cellDate = sortedDatesUTC[cellPosition.col];
-    const cellTime = sortedTimesUTC[cellPosition.row];
-    return getAvailabilityDateTimeFormat(cellTime, cellDate);
+    const availabilityDate = sortedAvailabilityDates[cellPosition.col];
+    const availabilityTime = sortedAvailabilityTimes[cellPosition.row];
+    return getAvailabilityDateTimeFormat(availabilityTime, availabilityDate);
   }
 
   function saveCurrentSelection() {
     if (isSelecting === false) return;
 
-    const newSelection = new Set<AvailabilityDateTime>(selectedAvailability);
-    const selectedAvailabilities = generateAvailabilitiesInSelectionArea();
+    const newSelection = new Set<AvailabilityDateTime>(selectedAvailabilities);
+    const dragSelectedAvailabilities = generateAvailabilitiesInSelectionArea();
 
-    selectedAvailabilities.forEach((availability) => {
-      if (isAdding) {
+    dragSelectedAvailabilities.forEach((availability) => {
+      if (dragIsAdding) {
         newSelection.add(availability);
       } else {
         newSelection.delete(availability);
       }
     });
-    setSelectedAvailabilty(newSelection);
+    setSelectedAvailabilties(newSelection);
     cancelCurrentSelection();
   }
 
   function cancelCurrentSelection() {
     setIsSelecting(false);
-    setSelectionStartCell(null);
-    setSelectionEndCell(null);
+    setDragStartCellPosition(null);
+    setDragEndCellPosition(null);
   }
 
   // generates a list of AvailabilityDateTime that are in the current selection area
   function generateAvailabilitiesInSelectionArea() {
-    if (selectionStartCell === null || selectionEndCell === null) return [];
+    if (dragStartCellPosition === null || dragEndCellPosition === null) return [];
     const [minRow, maxRow] = [
-      Math.min(selectionStartCell.row, selectionEndCell.row),
-      Math.max(selectionStartCell.row, selectionEndCell.row)
+      Math.min(dragStartCellPosition.row, dragEndCellPosition.row),
+      Math.max(dragStartCellPosition.row, dragEndCellPosition.row)
     ];
     const [minCol, maxCol] = [
-      Math.min(selectionStartCell.col, selectionEndCell.col),
-      Math.max(selectionStartCell.col, selectionEndCell.col)
+      Math.min(dragStartCellPosition.col, dragEndCellPosition.col),
+      Math.max(dragStartCellPosition.col, dragEndCellPosition.col)
     ];
     const availabilities: AvailabilityDateTime[] = [];
     for (let row = minRow; row <= maxRow; row++) {
       for (let col = minCol; col <= maxCol; col++) {
-        const cellPosition: AvailabilityCellPosition = { row: row, col: col };
+        const cellPosition: AvailabilityCellPosition = { col: col, row: row };
         availabilities.push(cellPositionToAvailabilityDateTime(cellPosition));
       }
     }
     return availabilities;
   }
 
-  function isCellInSelectionArea(cellPosition: AvailabilityCellPosition): boolean {
-    if (selectionStartCell === null || selectionEndCell === null) return false;
-    const [minRow, maxRow] = [
-      Math.min(selectionStartCell.row, selectionEndCell.row),
-      Math.max(selectionStartCell.row, selectionEndCell.row)
-    ];
-    const [minCol, maxCol] = [
-      Math.min(selectionStartCell.col, selectionEndCell.col),
-      Math.max(selectionStartCell.col, selectionEndCell.col)
-    ];
-    return (
-      minRow <= cellPosition.row &&
-      cellPosition.row <= maxRow &&
-      minCol <= cellPosition.col &&
-      cellPosition.col <= maxCol
-    );
-  }
-
-  const earliestDate = parseISO(sortedDatesUTC[0]);
-  const latestDate = parseISO(sortedDatesUTC[sortedDatesUTC.length - 1]);
+  const earliestDate = parseISO(sortedAvailabilityDates[0]);
+  const latestDate = parseISO(sortedAvailabilityDates[sortedAvailabilityDates.length - 1]);
   const areAllDatesInSameMonth = earliestDate.getMonth() === latestDate.getMonth();
   const areAllDatesInSameYear = earliestDate.getFullYear() === latestDate.getFullYear();
 
-  const gridTemplateRowStying = `5.5rem 1.5rem repeat(${sortedTimesUTC.length}, minmax(2rem, 1fr)) 1.5rem`;
+  const cellRowGridTemplateStyling = `4.7rem 1.2rem repeat(${sortedAvailabilityTimes.length}, minmax(1.4rem, 1fr)) 1.2rem`;
 
   return (
     <div
-      className="grid w-full select-none grid-cols-availability-grid rounded-xl border-2 border-primary bg-purple-50 bg-opacity-[0.6] py-5 pl-2 pr-10"
+      className="grid w-full select-none grid-cols-availability-grid grid-rows-availability-grid rounded-xl border-2 border-primary bg-purple-50 bg-opacity-[0.6] py-5 pl-2 pr-10"
       onMouseLeave={cancelCurrentSelection}
       // putting saveCurrentSelection here to handle the case where the user lets go of the mouse outside of the grid cells
       onMouseUp={saveCurrentSelection}
+      style={{
+        gridTemplateColumns: "3.5rem 1fr",
+        gridTemplateRows: "auto 1fr"
+      }}
     >
       <AvailabilityGridHeader
         areAllDatesInSameMonth={areAllDatesInSameMonth}
         areAllDatesInSameYear={areAllDatesInSameYear}
-        boxClassName="col-start-2 col-span-3 mb-4"
+        boxClassName="col-start-2 mb-2"
         earliestDate={earliestDate}
         latestDate={latestDate}
       />
 
       {/* time labels */}
-      <div className="col-start-1 grid" style={{ gridTemplateRows: gridTemplateRowStying }}>
+      <div className="col-start-1 grid" style={{ gridTemplateRows: cellRowGridTemplateStyling }}>
         <p className="h-full">&nbsp;</p>
         <p className="h-full">&nbsp;</p>
-        {sortedTimesUTC.map((timeStrUTC, gridRow) => {
-          return (
-            <AvailabilityGridRowHeader
-              hoveredTime={hoveredTime}
-              key={`availability-grid-row-header-${gridRow}`}
-              timeStrUTC={timeStrUTC}
-            />
-          );
-        })}
-        <AvailabilityGridRowHeader hoveredTime={hoveredTime} timeStrUTC={sampleData.endTimeUTC} />
+        {sortedAvailabilityTimes.map((availabilityTime, gridRow) => (
+          <AvailabilityGridRowHeader
+            availabilityTime={availabilityTime}
+            hoveredTime={hoveredTime}
+            key={`availability-grid-row-header-${gridRow}`}
+          />
+        ))}
+        <AvailabilityGridRowHeader
+          availabilityTime={endAvailabilityTime}
+          key={`availability-grid-row-header-${sortedAvailabilityDates.length}`}
+        />
       </div>
 
-      {/* availability columns */}
+      {/* availability cells */}
       <div className="col-start-2 grid cursor-pointer grid-flow-col" onMouseLeave={() => setHoveredTime(null)}>
-        {sortedDatesUTC.map((dateStrUTC, gridCol) => {
-          const isFirstColumn = gridCol === 0;
-          const isLastColumn = gridCol === sortedDatesUTC.length - 1;
+        {sortedAvailabilityDates.map((availabilityDate, gridCol) => {
+          const lastRow = sortedAvailabilityTimes.length - 1;
+          const lastColumn = sortedAvailabilityDates.length - 1;
 
-          const previousDateStr = sortedDatesUTC[gridCol - 1];
-          const nextDateStr = sortedDatesUTC[gridCol + 1];
+          const previousAvailabilityDate = sortedAvailabilityDates[gridCol - 1];
+          const nextAvailabilityDate = sortedAvailabilityDates[gridCol + 1];
 
-          const isDateGapLeft = !isFirstColumn && !isConsecutiveDay(parseISO(previousDateStr), parseISO(dateStrUTC));
-          const isDateGapRight = !isLastColumn && !isConsecutiveDay(parseISO(dateStrUTC), parseISO(nextDateStr));
+          const isDateGapLeft =
+            gridCol !== 0 && !isConsecutiveDay(parseISO(previousAvailabilityDate), parseISO(availabilityDate));
+          const isDateGapRight =
+            gridCol !== lastColumn && !isConsecutiveDay(parseISO(availabilityDate), parseISO(nextAvailabilityDate));
 
-          const emptyTopRowCell = (
-            <div
-              className={cn("h-6 border-2 border-b-0 border-l-0 border-t-0 border-primary-light", {
-                "border-r-0": isLastColumn,
-                "ml-2 border-l-2 border-l-primary": isDateGapLeft,
-                "border-r-primary": isDateGapRight
-              })}
-              onMouseEnter={() => setHoveredTime(null)}
-            />
-          );
-          const emptyBottomRowCell = (
-            <div
-              className={cn("h-6 border-2 border-b-0 border-l-0 border-primary-light", {
-                "border-r-0": isLastColumn,
-                "ml-2 border-l-2 border-l-primary": isDateGapLeft,
-                "border-r-primary": isDateGapRight
-              })}
-              onMouseEnter={() => setHoveredTime(null)}
-            />
-          );
-
-          // column component
+          // grid columns
           return (
             <div
-              className="grid"
+              className="grid h-full"
               key={`availability-column-${gridCol}`}
-              style={{ gridTemplateRows: gridTemplateRowStying }}
+              style={{ gridTemplateRows: cellRowGridTemplateStyling }}
             >
               <AvailabilityGridColumnHeader
                 areAllDatesInSameMonth={areAllDatesInSameMonth}
                 areAllDatesInSameYear={areAllDatesInSameYear}
-                dateStrUTC={dateStrUTC}
-                isDateGapLeft={isDateGapLeft}
-                selectedAvailability={selectedAvailability}
-                setSelectedAvailabilty={setSelectedAvailabilty}
-                sortedTimesUTC={sortedTimesUTC}
+                availabilityDate={availabilityDate}
+                isDateGapRight={isDateGapRight}
+                key={`availability-grid-column-header-${gridCol}`}
+                selectedAvailabilities={selectedAvailabilities}
+                setSelectedAvailabilties={setSelectedAvailabilties}
+                sortedAvailabilityTimes={sortedAvailabilityTimes}
               />
-              {emptyTopRowCell}
-              {sortedTimesUTC.map((timeStrUTC, gridRow) => {
-                const availabilitySlot = getAvailabilityDateTimeFormat(timeStrUTC, dateStrUTC);
-                const cellPosition: AvailabilityCellPosition = { row: gridRow, col: gridCol };
+              {/* placeholder top row */}
+              <AvailabilityGridCellBase
+                className={cn("border-t-0", { "border-l-0": gridCol === 0 })}
+                gridCol={lastColumn + 1}
+                isDateGapLeft={isDateGapLeft}
+                isDateGapRight={isDateGapRight}
+                key={`availability-grid-cell-${gridCol}-${-1}`}
+                onMouseEnter={() => setHoveredTime(null)}
+              />
 
-                const isSelected = selectedAvailability.has(availabilitySlot);
-                const isBeingAdded = isAdding && isSelecting && isCellInSelectionArea(cellPosition);
-                const isBeingRemoved = !isAdding && isSelecting && isCellInSelectionArea(cellPosition);
-                const isTimeHovered = timeStrUTC === hoveredTime;
+              {sortedAvailabilityTimes.map((availabilityTime, gridRow) => (
+                <AvailabilityGridCell
+                  availabilityDate={availabilityDate}
+                  availabilityTime={availabilityTime}
+                  dragEndCellPosition={dragEndCellPosition}
+                  dragIsAdding={dragIsAdding}
+                  dragStartCellPosition={dragStartCellPosition}
+                  gridCol={gridCol}
+                  gridRow={gridRow}
+                  handleAvailabilityCellMouseDown={handleAvailabilityCellMouseDown}
+                  handleAvailabilityCellMouseEnter={handleAvailabilityCellMouseEnter}
+                  hoveredTime={hoveredTime}
+                  isDateGapLeft={isDateGapLeft}
+                  isDateGapRight={isDateGapRight}
+                  key={`availability-grid-cell-${gridCol}-${gridRow}`}
+                  selectedAvailabilities={selectedAvailabilities}
+                />
+              ))}
 
-                // cells component
-                return (
-                  <div
-                    className={cn(
-                      "border-2 border-b-0 border-l-0 border-primary-light text-center hover:bg-purple-100",
-                      {
-                        "bg-primary hover:bg-primary hover:bg-opacity-70": isSelected || isBeingAdded,
-                        "bg-opacity-25 hover:bg-opacity-40": isBeingRemoved,
-                        "border-r-0": isLastColumn,
-                        "ml-2 border-l-2 border-l-primary": isDateGapLeft,
-                        "border-r-primary": isDateGapRight,
-                        "border-t-4": isTimeHovered
-                      }
-                    )}
-                    key={`availability-cell-${gridCol}-${gridRow}`}
-                    onMouseDown={() => handleAvailabilityCellMouseDown(cellPosition)}
-                    onMouseEnter={() => handleAvailabilityCellMouseEnter(cellPosition)}
-                  />
-                );
-              })}
-              {emptyBottomRowCell}
+              {/* placeholder bottom row */}
+              <AvailabilityGridCellBase
+                className={cn("border-b-0", { "border-l-0": gridCol === 0 })}
+                gridCol={lastColumn + 1}
+                isDateGapLeft={isDateGapLeft}
+                isDateGapRight={isDateGapRight}
+                key={`availability-grid-cell-${gridCol}-${lastRow + 1}`}
+                onMouseEnter={() => setHoveredTime(null)}
+              />
             </div>
           );
         })}

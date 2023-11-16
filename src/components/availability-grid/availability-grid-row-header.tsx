@@ -1,24 +1,27 @@
 import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 
-import { getAvailabilityDateTimeFormat } from "./availability-grid";
+import { AvailabilityTime, getAvailabilityDateTimeFormat } from "./availability-grid";
 
 type AvailabilityGridRowHeaderProps = {
-  hoveredTime: null | string;
-  timeStrUTC: string;
+  availabilityTime: string;
+  hoveredTime?: AvailabilityTime | null;
 };
 
-export default function AvailabilityGridRowHeader({ timeStrUTC, hoveredTime }: AvailabilityGridRowHeaderProps) {
-  const parsedDateTime = parseISO(getAvailabilityDateTimeFormat(timeStrUTC));
+export default function AvailabilityGridRowHeader({ availabilityTime, hoveredTime }: AvailabilityGridRowHeaderProps) {
+  const parsedDate = parseISO(getAvailabilityDateTimeFormat(availabilityTime));
+
   return (
     <p
-      className={cn("ml-2 mr-2 -translate-y-2 text-right text-xs text-primary duration-300", {
-        "opacity-0": parsedDateTime.getMinutes() !== 0,
-        "font-bold opacity-100": hoveredTime === timeStrUTC
-      })}
-      key={`availability-grid-row-header-${timeStrUTC}`}
+      className={cn(
+        "ml-2 mr-2 -translate-y-2 text-right text-xs text-primary duration-300",
+        { "text-[0.7rem] opacity-0": parsedDate.getMinutes() !== 0 },
+        {
+          "font-bold opacity-100": hoveredTime === availabilityTime
+        }
+      )}
     >
-      {format(parsedDateTime, "h:mm a")}
+      {format(parsedDate, parsedDate.getMinutes() === 0 ? "h a" : "h:mm")}
     </p>
   );
 }

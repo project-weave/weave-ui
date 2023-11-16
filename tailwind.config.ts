@@ -2,6 +2,7 @@
 
 module.exports = {
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  plugins: [require("tailwindcss-animate")],
   theme: {
     container: {
       center: true,
@@ -11,17 +12,22 @@ module.exports = {
       }
     },
     extend: {
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)"
+      },
       colors: {
-        border: "rgb(var(--border), <alpha-value>)",
-        input: "rgb(var(--input), <alpha-value>)",
-        ring: "rgb(var(--ring), <alpha-value>)",
         background: "rgb(var(--background), <alpha-value>)",
+        border: "rgb(var(--border), <alpha-value>)",
         foreground: "rgb(var(--foreground), <alpha-value>)",
+        input: "rgb(var(--input), <alpha-value>)",
         primary: {
           DEFAULT: "rgb(var(--primary), <alpha-value>)",
           foreground: "rgb(var(--primary-foreground), <alpha-value>)",
           light: "rgb(var(--primary-light), <alpha-value>)"
         },
+        ring: "rgb(var(--ring), <alpha-value>)",
         secondary: {
           DEFAULT: "rgb(var(--secondary), <alpha-value>)",
           foreground: "rgb(var(--secondary-foreground), <alpha-value>)",
@@ -32,16 +38,10 @@ module.exports = {
           light: "rgb(var(--text-light), <alpha-value>)"
         }
       },
-      gridTemplateColumns: {
-        "availability-grid": "5rem 1fr"
-      },
-      gridTemplateRows: {
-        "availability-grid": "auto 1fr"
-      },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)"
+      fontSize: {
+        "2xs": "0.7rem",
+        "3xs": "0.65rem",
+        "4xs": "0.6rem"
       }
       // keyframes: {
       //   "accordion-down": {
@@ -58,6 +58,5 @@ module.exports = {
       //   "accordion-up": "accordion-up 0.2s ease-out"
       // }
     }
-  },
-  plugins: [require("tailwindcss-animate")]
+  }
 };

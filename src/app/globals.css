@@ -77,8 +77,3 @@
   }
 }
 
-@layer utilities {
-  .availability-grid-rows {
-    grid-template-rows: 2rem repeat(var(--grid-rows), minmax(2rem, 1fr));
-  }
-}
