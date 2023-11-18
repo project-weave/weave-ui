@@ -10,8 +10,6 @@ import {
 } from "./availability-grid";
 
 type AvailabilityGridColumnHeaderProps = {
-  areAllDatesInSameMonth: boolean;
-  areAllDatesInSameYear: boolean;
   availabilityDate: AvailabilityDate;
   isDateGapRight: boolean;
   selectedAvailabilities: Set<AvailabilityDateTime>;
@@ -20,8 +18,6 @@ type AvailabilityGridColumnHeaderProps = {
 };
 
 export default function AvailabilityGridColumnHeader({
-  areAllDatesInSameMonth,
-  areAllDatesInSameYear,
   availabilityDate,
   isDateGapRight,
   selectedAvailabilities,
@@ -52,16 +48,8 @@ export default function AvailabilityGridColumnHeader({
 
   return (
     <div className={cn("text-center", { "mr-2": isDateGapRight })}>
-      {(!areAllDatesInSameMonth || !areAllDatesInSameYear) && (
-        <h3 className="font-bold text-primary">{format(parsedDate, "MMM")}</h3>
-      )}
-      <h3
-        className={cn("mb-4 mt-2 text-sm font-medium text-secondary-light", {
-          "mb-2 mt-[1px] text-xs": !areAllDatesInSameMonth || !areAllDatesInSameYear
-        })}
-      >
-        {format(parsedDate, "EEE")}
-      </h3>
+      <h3 className="font-bold text-primary">{format(parsedDate, "MMM")}</h3>
+      <h3 className="mb-2 mt-[1px] text-xs font-medium text-secondary-light">{format(parsedDate, "EEE")}</h3>
       <Button
         className={cn(
           "h-8 w-10 rounded-sm border-none bg-purple-100 font-semibold tracking-wide text-secondary transition-all hover:bg-purple-200 hover:bg-opacity-100",

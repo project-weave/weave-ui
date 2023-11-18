@@ -2,7 +2,8 @@
 
 module.exports = {
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
-  plugins: [require("tailwindcss-animate")],
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  plugins: [require("tailwindcss-animate"), require("tailwind-scrollbar")({ nocompatible: true })],
   theme: {
     container: {
       center: true,

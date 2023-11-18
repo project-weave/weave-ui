@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import React, { MouseEventHandler } from "react";
+import { MouseEventHandler } from "react";
 
 import {
   AvailabilityCellPosition,
@@ -70,7 +70,7 @@ export default function AvailabilityGridCell({
         className={cn("h-full w-full border-0 border-primary-light hover:bg-purple-100", {
           "bg-opacity-25 hover:bg-opacity-40": isBeingRemoved,
           "bg-primary hover:bg-primary hover:bg-opacity-70": isSelected || isBeingAdded,
-          "border-t-2": isTimeHovered
+          "border-t-[1.5px]": isTimeHovered
         })}
         onMouseDown={() => handleAvailabilityCellMouseDown(cellPosition)}
         onMouseEnter={() => handleAvailabilityCellMouseEnter(cellPosition)}

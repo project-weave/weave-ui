@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 255, 255, 255;
+    --background: 256, 252, 252;
     --foreground: 13, 14, 15;
 
     --card: 255, 255, 255;
@@ -32,7 +32,7 @@
 
     --border: 234, 236, 238;
     --input: 234, 236, 238;
-    --ring: 13, 14, 15;
+    --ring: 159, 110, 249;
 
     --radius: 0.8rem;
   }
@@ -53,7 +53,7 @@
     --secondary: 44, 45, 46;
     --secondary-foreground: 252, 252, 254;
 
-    --muted: 44, 45, 46;
+    --muted: 44, 45, 46;  
     --muted-foreground: 167, 168, 172;
 
     --accent: 44, 45, 46;
@@ -73,7 +73,13 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-white text-foreground;
+  }
+}
+
+@layer components {
+  .card {
+    @apply h-full w-full rounded-xl border-[1px] border-primary bg-background px-8 py-5;
   }
 }
 

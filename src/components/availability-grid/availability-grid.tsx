@@ -1,4 +1,5 @@
 "use client";
+import { useElementsOnScreen } from "@/hooks/useElementsOnScreen";
 import { isConsecutiveDay } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
 // import { formatInTimeZone, utcToZonedTime } from "date-fns-tz";
@@ -56,7 +57,6 @@ export default function AvailabilityGrid({
 
   // TODO: add timezone conversion
   // const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
   const sortedAvailabilityTimes = useMemo(() => {
     const times = [];
     const timeSlotMinutes = 30;
@@ -78,6 +78,25 @@ export default function AvailabilityGrid({
       }),
     [availabilityDates]
   );
+
+  // NOTE: can assume columnRefs are in same order as sortedAvailabilityDates because they are generated in the same loop
+  const [columnRefs, visibleColumnIds] = useElementsOnScreen<AvailabilityDate>(sortedAvailabilityDates);
+
+  const [sortedVisibleColumnNums, sortedVisibleAvailabilityDates] = useMemo<[number[], AvailabilityDate[]]>(() => {
+    const sortedColumnNums = Array.from(visibleColumnIds)
+      .map((colStr) => {
+        const colNum = parseInt(colStr);
+        if (colNum === undefined || colNum < 0 || colNum >= sortedAvailabilityDates.length) {
+          return -1;
+        }
+        return colNum;
+      })
+      .filter((colNum) => colNum !== -1)
+      .sort((colNum1, colNum2) => colNum1 - colNum2);
+    const sortedDates = sortedColumnNums.map((colNum) => sortedAvailabilityDates[colNum]);
+
+    return [sortedColumnNums, sortedDates];
+  }, [visibleColumnIds, sortedAvailabilityDates]);
 
   function handleAvailabilityCellMouseEnter(cellPosition: AvailabilityCellPosition) {
     if (isSelecting && dragStartCellPosition && dragEndCellPosition) {
@@ -106,17 +125,20 @@ export default function AvailabilityGrid({
   function saveCurrentSelection() {
     if (isSelecting === false) return;
 
-    const newSelection = new Set<AvailabilityDateTime>(selectedAvailabilities);
-    const dragSelectedAvailabilities = generateAvailabilitiesInSelectionArea();
+    setSelectedAvailabilties((prevSelected: Set<AvailabilityDateTime>) => {
+      const newSelection = new Set<AvailabilityDateTime>(prevSelected);
+      const dragSelectedAvailabilities = generateAvailabilitiesInSelectionArea();
 
-    dragSelectedAvailabilities.forEach((availability) => {
-      if (dragIsAdding) {
-        newSelection.add(availability);
-      } else {
-        newSelection.delete(availability);
-      }
+      dragSelectedAvailabilities.forEach((availability) => {
+        if (dragIsAdding) {
+          newSelection.add(availability);
+        } else {
+          newSelection.delete(availability);
+        }
+      });
+      return newSelection;
     });
-    setSelectedAvailabilties(newSelection);
+
     cancelCurrentSelection();
   }
 
@@ -147,16 +169,9 @@ export default function AvailabilityGrid({
     return availabilities;
   }
 
-  const earliestDate = parseISO(sortedAvailabilityDates[0]);
-  const latestDate = parseISO(sortedAvailabilityDates[sortedAvailabilityDates.length - 1]);
-  const areAllDatesInSameMonth = earliestDate.getMonth() === latestDate.getMonth();
-  const areAllDatesInSameYear = earliestDate.getFullYear() === latestDate.getFullYear();
-
-  const cellRowGridTemplateStyling = `4.7rem 1.2rem repeat(${sortedAvailabilityTimes.length}, minmax(1.4rem, 1fr)) 1.2rem`;
-
   return (
     <div
-      className="grid w-full select-none grid-cols-availability-grid grid-rows-availability-grid rounded-xl border-2 border-primary bg-purple-50 bg-opacity-[0.6] py-5 pl-2 pr-10"
+      className="card grid select-none border-2 pl-2 pr-10"
       onMouseLeave={cancelCurrentSelection}
       // putting saveCurrentSelection here to handle the case where the user lets go of the mouse outside of the grid cells
       onMouseUp={saveCurrentSelection}
@@ -165,16 +180,23 @@ export default function AvailabilityGrid({
         gridTemplateRows: "auto 1fr"
       }}
     >
-      <AvailabilityGridHeader
-        areAllDatesInSameMonth={areAllDatesInSameMonth}
-        areAllDatesInSameYear={areAllDatesInSameYear}
-        boxClassName="col-start-2 mb-2"
-        earliestDate={earliestDate}
-        latestDate={latestDate}
-      />
+      <div className="col-start-2 mb-2">
+        <AvailabilityGridHeader
+          earliestAvailabilityDate={sortedAvailabilityDates[0]}
+          lastColumn={sortedAvailabilityDates.length - 1}
+          latestAvailabilityDate={sortedAvailabilityDates[sortedAvailabilityDates.length - 1]}
+          sortedColumnRefs={columnRefs}
+          sortedVisibleColumnNums={sortedVisibleColumnNums}
+        />
+      </div>
 
       {/* time labels */}
-      <div className="col-start-1 grid" style={{ gridTemplateRows: cellRowGridTemplateStyling }}>
+      <div
+        className="col-start-1 grid"
+        style={{
+          gridTemplateRows: `4.7rem 1.2rem repeat(${sortedAvailabilityTimes.length}, minmax(1.4rem, 1fr)) 1.2rem 8px`
+        }}
+      >
         <p className="h-full">&nbsp;</p>
         <p className="h-full">&nbsp;</p>
         {sortedAvailabilityTimes.map((availabilityTime, gridRow) => (
@@ -191,7 +213,10 @@ export default function AvailabilityGrid({
       </div>
 
       {/* availability cells */}
-      <div className="col-start-2 grid cursor-pointer grid-flow-col" onMouseLeave={() => setHoveredTime(null)}>
+      <div
+        className="scrollbar-thin scrollbar-track-full scrollbar-track-transparent scrollbar-thumb-rounded-full scrollbar-rounded-full scrollbar-thumb-primary col-start-2 grid cursor-pointer snap-x scroll-mt-2 grid-flow-col overflow-x-scroll scroll-smooth"
+        onMouseLeave={() => setHoveredTime(null)}
+      >
         {sortedAvailabilityDates.map((availabilityDate, gridCol) => {
           const lastRow = sortedAvailabilityTimes.length - 1;
           const lastColumn = sortedAvailabilityDates.length - 1;
@@ -207,20 +232,23 @@ export default function AvailabilityGrid({
           // grid columns
           return (
             <div
-              className="grid h-full"
+              className="grid h-full min-w-[6rem] snap-start"
               key={`availability-column-${gridCol}`}
-              style={{ gridTemplateRows: cellRowGridTemplateStyling }}
+              style={{
+                gridTemplateRows: `4.7rem 1rem repeat(${sortedAvailabilityTimes.length}, minmax(1.2rem, 1fr)) 1rem`
+              }}
             >
-              <AvailabilityGridColumnHeader
-                areAllDatesInSameMonth={areAllDatesInSameMonth}
-                areAllDatesInSameYear={areAllDatesInSameYear}
-                availabilityDate={availabilityDate}
-                isDateGapRight={isDateGapRight}
-                key={`availability-grid-column-header-${gridCol}`}
-                selectedAvailabilities={selectedAvailabilities}
-                setSelectedAvailabilties={setSelectedAvailabilties}
-                sortedAvailabilityTimes={sortedAvailabilityTimes}
-              />
+              <div observable-el-id={gridCol} ref={(el) => (columnRefs.current[gridCol] = el)}>
+                <AvailabilityGridColumnHeader
+                  availabilityDate={availabilityDate}
+                  isDateGapRight={isDateGapRight}
+                  key={`availability-grid-column-header-${gridCol}`}
+                  selectedAvailabilities={selectedAvailabilities}
+                  setSelectedAvailabilties={setSelectedAvailabilties}
+                  sortedAvailabilityTimes={sortedAvailabilityTimes}
+                />
+              </div>
+
               {/* placeholder top row */}
               <AvailabilityGridCellBase
                 className={cn("border-t-0", { "border-l-0": gridCol === 0 })}
