@@ -1,24 +1,17 @@
 "use client";
+import { EventDate, EventTime, TimeSlot } from "@/app/(event)/[eventId]/page";
 import { useElementsOnScreen } from "@/hooks/useElementsOnScreen";
 import { isConsecutiveDay } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
 // import { formatInTimeZone, utcToZonedTime } from "date-fns-tz";
 import { addMinutes, format, parseISO } from "date-fns";
+import { useAnimationControls } from "framer-motion";
 import { useMemo, useState } from "react";
 
 import AvailabilityGridCell, { AvailabilityGridCellBase } from "./availability-grid-cell";
 import AvailabilityGridColumnHeader from "./availability-grid-column-header";
 import AvailabilityGridHeader from "./availability-grid-header";
 import AvailabilityGridRowHeader from "./availability-grid-row-header";
-
-// Availability is the date portion of aan ISO formatted date string for a single availbability, ie: 2000-11-29
-export type AvailabilityDate = string;
-
-// AvailabilityTime is the time portion of aan ISO formatted date string for a single availbability, ie: 12:00:00
-export type AvailabilityTime = string;
-
-// AvailabilityDateTime is an ISO formatted date string that represents a single availbability
-export type AvailabilityDateTime = string;
 
 // AvailabilityCellPosition contains a row and column index that represents the position of a single cell in the availability grid
 export type AvailabilityCellPosition = {
@@ -27,129 +20,155 @@ export type AvailabilityCellPosition = {
 };
 
 // assuming that when only time is passed in as a parameter, we're only interested in time so we we can use an aribtrary date to parse
-export function getAvailabilityDateTimeFormat(
-  time: AvailabilityTime,
-  date: AvailabilityDate = "2000-11-29"
-): AvailabilityDateTime {
+export function getTimeSlotFormat(time: EventTime, date: EventDate = "2000-11-29"): TimeSlot {
   return date + "T" + time;
 }
 
 type AvailabilityGridProps = {
-  availabilitiesToUsers?: Record<AvailabilityDateTime, string[]>;
-  availabilityDates: AvailabilityDate[];
-  endAvailabilityTime: AvailabilityTime;
+  eventDates: EventDate[];
+  eventTimeEnd: EventTime;
+  eventTimeStart: EventTime;
   eventTimeZone: string;
-  startAvailabilityTime: AvailabilityTime;
-  usersToAvailabilities?: Record<string, AvailabilityDateTime[]>;
+  participantsToTimeSlots: Readonly<Record<string, TimeSlot[]>>;
+  saveUserAvailability: (user: string, timeSlots: TimeSlot[]) => void;
 };
 
+const testUser = "Alex Ma";
+
 export default function AvailabilityGrid({
-  availabilityDates,
-  endAvailabilityTime,
-  startAvailabilityTime
+  eventDates,
+  eventTimeEnd,
+  eventTimeStart,
+  participantsToTimeSlots,
+  saveUserAvailability
 }: AvailabilityGridProps) {
-  const [isSelecting, setIsSelecting] = useState(false);
+  const [isViewMode, setIsViewMode] = useState(true);
+  const [isDragSelecting, setIsDragSelecting] = useState(false);
   const [dragIsAdding, setDragIsAdding] = useState(false);
-  const [selectedAvailabilities, setSelectedAvailabilties] = useState<Set<AvailabilityDateTime>>(new Set());
+  const [selectedTimeSlots, setSelectedTimeSlots] = useState(new Set(participantsToTimeSlots[testUser] ?? []));
   const [dragStartCellPosition, setDragStartCellPosition] = useState<AvailabilityCellPosition | null>(null);
   const [dragEndCellPosition, setDragEndCellPosition] = useState<AvailabilityCellPosition | null>(null);
-  const [hoveredTime, setHoveredTime] = useState<AvailabilityTime | null>(null);
+  const [hoveredTime, setHoveredTime] = useState<EventTime | null>(null);
 
   // TODO: add timezone conversion
   // const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const sortedAvailabilityTimes = useMemo(() => {
+
+  const sortedEventTimes = useMemo(() => {
     const times = [];
     const timeSlotMinutes = 30;
 
-    let currentTime = parseISO(getAvailabilityDateTimeFormat(startAvailabilityTime));
-    const endTime = parseISO(getAvailabilityDateTimeFormat(endAvailabilityTime));
+    let currentTime = parseISO(getTimeSlotFormat(eventTimeStart));
+    const endTime = parseISO(getTimeSlotFormat(eventTimeEnd));
 
     while (currentTime < endTime) {
-      times.push(format(currentTime, "HH:mm"));
+      times.push(format(currentTime, "HH:mm:ss"));
       currentTime = addMinutes(currentTime, timeSlotMinutes);
     }
     return times;
-  }, [startAvailabilityTime, endAvailabilityTime]);
+  }, [eventTimeStart, eventTimeEnd]);
 
-  const sortedAvailabilityDates = useMemo(
+  const sortedEventDates = useMemo(
     () =>
-      availabilityDates.sort((date1, date2) => {
+      eventDates.sort((date1, date2) => {
         return parseISO(date1).getTime() - parseISO(date2).getTime();
       }),
-    [availabilityDates]
+    [eventDates]
   );
 
-  // NOTE: can assume columnRefs are in same order as sortedAvailabilityDates because they are generated in the same loop
-  const [columnRefs, visibleColumnIds] = useElementsOnScreen<AvailabilityDate>(sortedAvailabilityDates);
+  // NOTE: can assume columnRefs are in same order as sortedEventDates because they are generated in the same loop
+  const [columnRefs, visibleColumnIds] = useElementsOnScreen<EventDate>(sortedEventDates);
 
-  const [sortedVisibleColumnNums, sortedVisibleAvailabilityDates] = useMemo<[number[], AvailabilityDate[]]>(() => {
+  const [sortedVisibleColumnNums, sortedVisibleEventDates] = useMemo<[number[], EventDate[]]>(() => {
     const sortedColumnNums = Array.from(visibleColumnIds)
       .map((colStr) => {
         const colNum = parseInt(colStr);
-        if (colNum === undefined || colNum < 0 || colNum >= sortedAvailabilityDates.length) {
+        if (colNum === undefined || colNum < 0 || colNum >= sortedEventDates.length) {
           return -1;
         }
         return colNum;
       })
       .filter((colNum) => colNum !== -1)
       .sort((colNum1, colNum2) => colNum1 - colNum2);
-    const sortedDates = sortedColumnNums.map((colNum) => sortedAvailabilityDates[colNum]);
+    const sortedDates = sortedColumnNums.map((colNum) => sortedEventDates[colNum]);
 
     return [sortedColumnNums, sortedDates];
-  }, [visibleColumnIds, sortedAvailabilityDates]);
+  }, [visibleColumnIds, sortedEventDates]);
 
-  function handleAvailabilityCellMouseEnter(cellPosition: AvailabilityCellPosition) {
-    if (isSelecting && dragStartCellPosition && dragEndCellPosition) {
+  const timeSlotsToParticipants = useMemo<Readonly<Record<TimeSlot, string[]>>>(() => {
+    const record: Record<TimeSlot, string[]> = {};
+    Object.entries(participantsToTimeSlots).forEach(([participant, timeSlots]) => {
+      timeSlots.forEach((timeSlot) => {
+        if (record[timeSlot] === undefined) {
+          record[timeSlot] = [];
+        }
+        record[timeSlot].push(participant);
+      });
+    });
+    return record;
+  }, [participantsToTimeSlots]);
+
+  function handleCellMouseEnter(cellPosition: AvailabilityCellPosition) {
+    if (!isViewMode && isDragSelecting && dragStartCellPosition && dragEndCellPosition) {
       setDragEndCellPosition({ col: cellPosition.col, row: cellPosition.row });
     }
-    setHoveredTime(sortedAvailabilityTimes[cellPosition.row]);
+    setHoveredTime(sortedEventTimes[cellPosition.row]);
   }
 
-  function handleAvailabilityCellMouseDown(cellPosition: AvailabilityCellPosition) {
-    setIsSelecting(true);
+  const editButtonAnimationControls = useAnimationControls();
+
+  function handleCellMouseDown(cellPosition: AvailabilityCellPosition) {
+    if (isViewMode) {
+      editButtonAnimationControls.start({
+        transition: { duration: 0.5, ease: "easeInOut" },
+        x: [0, -5, 5, -5, 5, 0]
+      });
+      return;
+    }
+
+    setIsDragSelecting(true);
     setDragStartCellPosition({ col: cellPosition.col, row: cellPosition.row });
     setDragEndCellPosition({ col: cellPosition.col, row: cellPosition.row });
-    if (selectedAvailabilities.has(cellPositionToAvailabilityDateTime(cellPosition))) {
+    if (selectedTimeSlots.has(cellPositionToeventDateTime(cellPosition))) {
       setDragIsAdding(false);
     } else {
       setDragIsAdding(true);
     }
   }
 
-  function cellPositionToAvailabilityDateTime(cellPosition: AvailabilityCellPosition): AvailabilityDateTime {
-    const availabilityDate = sortedAvailabilityDates[cellPosition.col];
-    const availabilityTime = sortedAvailabilityTimes[cellPosition.row];
-    return getAvailabilityDateTimeFormat(availabilityTime, availabilityDate);
+  function cellPositionToeventDateTime(cellPosition: AvailabilityCellPosition): TimeSlot {
+    const eventDate = sortedEventDates[cellPosition.col];
+    const eventTime = sortedEventTimes[cellPosition.row];
+    return getTimeSlotFormat(eventTime, eventDate);
   }
 
-  function saveCurrentSelection() {
-    if (isSelecting === false) return;
+  function saveDragSelection() {
+    if (isViewMode || !isDragSelecting) return;
 
-    setSelectedAvailabilties((prevSelected: Set<AvailabilityDateTime>) => {
-      const newSelection = new Set<AvailabilityDateTime>(prevSelected);
-      const dragSelectedAvailabilities = generateAvailabilitiesInSelectionArea();
-
-      dragSelectedAvailabilities.forEach((availability) => {
-        if (dragIsAdding) {
-          newSelection.add(availability);
-        } else {
-          newSelection.delete(availability);
-        }
-      });
-      return newSelection;
+    setSelectedTimeSlots((prevSelected) => {
+      const selection = generateTimeSlotsInSelectionArea();
+      if (!dragIsAdding) {
+        return new Set([...prevSelected].filter((timeSlot) => !selection.includes(timeSlot)));
+      } else {
+        return new Set([...prevSelected, ...selection]);
+      }
     });
 
-    cancelCurrentSelection();
+    cancelDragSelection();
   }
 
-  function cancelCurrentSelection() {
-    setIsSelecting(false);
+  function cancelDragSelection() {
+    setIsDragSelecting(false);
     setDragStartCellPosition(null);
     setDragEndCellPosition(null);
   }
 
-  // generates a list of AvailabilityDateTime that are in the current selection area
-  function generateAvailabilitiesInSelectionArea() {
+  function handleSaveUserAvailability() {
+    setIsViewMode(true);
+    saveUserAvailability(testUser, Array.from(selectedTimeSlots));
+  }
+
+  // generates a list of TimeSlot that are in the current selection area
+  function generateTimeSlotsInSelectionArea() {
     if (dragStartCellPosition === null || dragEndCellPosition === null) return [];
     const [minRow, maxRow] = [
       Math.min(dragStartCellPosition.row, dragEndCellPosition.row),
@@ -159,22 +178,22 @@ export default function AvailabilityGrid({
       Math.min(dragStartCellPosition.col, dragEndCellPosition.col),
       Math.max(dragStartCellPosition.col, dragEndCellPosition.col)
     ];
-    const availabilities: AvailabilityDateTime[] = [];
+    const timeSlots: TimeSlot[] = [];
     for (let row = minRow; row <= maxRow; row++) {
       for (let col = minCol; col <= maxCol; col++) {
-        const cellPosition: AvailabilityCellPosition = { col: col, row: row };
-        availabilities.push(cellPositionToAvailabilityDateTime(cellPosition));
+        const cellPosition = { col: col, row: row } as AvailabilityCellPosition;
+        timeSlots.push(cellPositionToeventDateTime(cellPosition));
       }
     }
-    return availabilities;
+    return timeSlots;
   }
 
   return (
     <div
       className="card grid select-none border-2 pl-2 pr-10"
-      onMouseLeave={cancelCurrentSelection}
-      // putting saveCurrentSelection here to handle the case where the user lets go of the mouse outside of the grid cells
-      onMouseUp={saveCurrentSelection}
+      onMouseLeave={cancelDragSelection}
+      // putting saveDragtSelection here to handle the case where the user lets go of the mouse outside of the grid cells
+      onMouseUp={saveDragSelection}
       style={{
         gridTemplateColumns: "3.5rem 1fr",
         gridTemplateRows: "auto 1fr"
@@ -182,9 +201,14 @@ export default function AvailabilityGrid({
     >
       <div className="col-start-2 mb-2">
         <AvailabilityGridHeader
-          earliestAvailabilityDate={sortedAvailabilityDates[0]}
-          lastColumn={sortedAvailabilityDates.length - 1}
-          latestAvailabilityDate={sortedAvailabilityDates[sortedAvailabilityDates.length - 1]}
+          earliestEventDate={sortedEventDates[0]}
+          editButtonAnimationControls={editButtonAnimationControls}
+          handleSaveUserAvailability={handleSaveUserAvailability}
+          hasUserAddedAvailability={participantsToTimeSlots[testUser]?.length > 0}
+          isViewMode={isViewMode}
+          lastColumn={sortedEventDates.length - 1}
+          latestEventDate={sortedEventDates[sortedEventDates.length - 1]}
+          setIsViewMode={setIsViewMode}
           sortedColumnRefs={columnRefs}
           sortedVisibleColumnNums={sortedVisibleColumnNums}
         />
@@ -194,40 +218,39 @@ export default function AvailabilityGrid({
       <div
         className="col-start-1 grid"
         style={{
-          gridTemplateRows: `4.7rem 1.2rem repeat(${sortedAvailabilityTimes.length}, minmax(1.4rem, 1fr)) 1.2rem 8px`
+          gridTemplateRows: `4.7rem 1.2rem repeat(${sortedEventTimes.length}, minmax(1.4rem, 1fr)) 1.2rem 8px`
         }}
       >
         <p className="h-full">&nbsp;</p>
         <p className="h-full">&nbsp;</p>
-        {sortedAvailabilityTimes.map((availabilityTime, gridRow) => (
+        {sortedEventTimes.map((eventTime, gridRow) => (
           <AvailabilityGridRowHeader
-            availabilityTime={availabilityTime}
+            eventTime={eventTime}
             hoveredTime={hoveredTime}
             key={`availability-grid-row-header-${gridRow}`}
           />
         ))}
         <AvailabilityGridRowHeader
-          availabilityTime={endAvailabilityTime}
-          key={`availability-grid-row-header-${sortedAvailabilityDates.length}`}
+          eventTime={eventTimeEnd}
+          key={`availability-grid-row-header-${sortedEventDates.length}`}
         />
       </div>
 
       {/* availability cells */}
       <div
-        className="scrollbar-thin scrollbar-track-full scrollbar-track-transparent scrollbar-thumb-rounded-full scrollbar-rounded-full scrollbar-thumb-primary col-start-2 grid cursor-pointer snap-x scroll-mt-2 grid-flow-col overflow-x-scroll scroll-smooth"
+        className="scrollbar-track-full scrollbar-rounded-full col-start-2 grid cursor-pointer snap-x scroll-mt-2 grid-flow-col overflow-x-scroll scroll-smooth scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full"
         onMouseLeave={() => setHoveredTime(null)}
       >
-        {sortedAvailabilityDates.map((availabilityDate, gridCol) => {
-          const lastRow = sortedAvailabilityTimes.length - 1;
-          const lastColumn = sortedAvailabilityDates.length - 1;
+        {sortedEventDates.map((eventDate, gridCol) => {
+          const lastRow = sortedEventTimes.length - 1;
+          const lastColumn = sortedEventDates.length - 1;
 
-          const previousAvailabilityDate = sortedAvailabilityDates[gridCol - 1];
-          const nextAvailabilityDate = sortedAvailabilityDates[gridCol + 1];
+          const prevEventDate = sortedEventDates[gridCol - 1];
+          const nextEventDate = sortedEventDates[gridCol + 1];
 
-          const isDateGapLeft =
-            gridCol !== 0 && !isConsecutiveDay(parseISO(previousAvailabilityDate), parseISO(availabilityDate));
+          const isDateGapLeft = gridCol !== 0 && !isConsecutiveDay(parseISO(prevEventDate), parseISO(eventDate));
           const isDateGapRight =
-            gridCol !== lastColumn && !isConsecutiveDay(parseISO(availabilityDate), parseISO(nextAvailabilityDate));
+            gridCol !== lastColumn && !isConsecutiveDay(parseISO(eventDate), parseISO(nextEventDate));
 
           // grid columns
           return (
@@ -235,17 +258,19 @@ export default function AvailabilityGrid({
               className="grid h-full min-w-[6rem] snap-start"
               key={`availability-column-${gridCol}`}
               style={{
-                gridTemplateRows: `4.7rem 1rem repeat(${sortedAvailabilityTimes.length}, minmax(1.2rem, 1fr)) 1rem`
+                gridTemplateRows: `4.7rem 1rem repeat(${sortedEventTimes.length}, minmax(1.2rem, 1fr)) 1rem`
               }}
             >
               <div observable-el-id={gridCol} ref={(el) => (columnRefs.current[gridCol] = el)}>
                 <AvailabilityGridColumnHeader
-                  availabilityDate={availabilityDate}
+                  eventDate={eventDate}
+                  hasUserAddedAvailability={Object.keys(participantsToTimeSlots).includes(testUser)}
                   isDateGapRight={isDateGapRight}
+                  isViewMode={isViewMode}
                   key={`availability-grid-column-header-${gridCol}`}
-                  selectedAvailabilities={selectedAvailabilities}
-                  setSelectedAvailabilties={setSelectedAvailabilties}
-                  sortedAvailabilityTimes={sortedAvailabilityTimes}
+                  selectedTimeSlots={selectedTimeSlots}
+                  setSelectedTimeSlots={setSelectedTimeSlots}
+                  sortedEventTimes={sortedEventTimes}
                 />
               </div>
 
@@ -259,24 +284,27 @@ export default function AvailabilityGrid({
                 onMouseEnter={() => setHoveredTime(null)}
               />
 
-              {sortedAvailabilityTimes.map((availabilityTime, gridRow) => (
-                <AvailabilityGridCell
-                  availabilityDate={availabilityDate}
-                  availabilityTime={availabilityTime}
-                  dragEndCellPosition={dragEndCellPosition}
-                  dragIsAdding={dragIsAdding}
-                  dragStartCellPosition={dragStartCellPosition}
-                  gridCol={gridCol}
-                  gridRow={gridRow}
-                  handleAvailabilityCellMouseDown={handleAvailabilityCellMouseDown}
-                  handleAvailabilityCellMouseEnter={handleAvailabilityCellMouseEnter}
-                  hoveredTime={hoveredTime}
-                  isDateGapLeft={isDateGapLeft}
-                  isDateGapRight={isDateGapRight}
-                  key={`availability-grid-cell-${gridCol}-${gridRow}`}
-                  selectedAvailabilities={selectedAvailabilities}
-                />
-              ))}
+              {sortedEventTimes.map((eventTime, gridRow) => {
+                const TimeSlot = getTimeSlotFormat(eventTime, eventDate);
+                return (
+                  <AvailabilityGridCell
+                    dragEndCellPosition={dragEndCellPosition}
+                    dragIsAdding={dragIsAdding}
+                    dragStartCellPosition={dragStartCellPosition}
+                    gridCol={gridCol}
+                    gridRow={gridRow}
+                    handleCellMouseDown={handleCellMouseDown}
+                    handleCellMouseEnter={handleCellMouseEnter}
+                    isDateGapLeft={isDateGapLeft}
+                    isDateGapRight={isDateGapRight}
+                    isSelected={selectedTimeSlots.has(TimeSlot)}
+                    isViewMode={isViewMode}
+                    key={`availability-grid-cell-${gridCol}-${gridRow}`}
+                    participantsSelected={timeSlotsToParticipants[TimeSlot] ?? []}
+                    totalParticipants={Object.keys(participantsToTimeSlots).length}
+                  />
+                );
+              })}
 
               {/* placeholder bottom row */}
               <AvailabilityGridCellBase

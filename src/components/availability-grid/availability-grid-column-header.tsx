@@ -1,67 +1,67 @@
+import { EventDate, EventTime, TimeSlot } from "@/app/(event)/[eventId]/page";
 import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
+import { motion } from "framer-motion";
+import { Dispatch, SetStateAction } from "react";
 
 import { Button } from "../ui/button";
-import {
-  AvailabilityDate,
-  AvailabilityDateTime,
-  AvailabilityTime,
-  getAvailabilityDateTimeFormat
-} from "./availability-grid";
+import { getTimeSlotFormat } from "./availability-grid";
 
 type AvailabilityGridColumnHeaderProps = {
-  availabilityDate: AvailabilityDate;
+  eventDate: EventDate;
+  hasUserAddedAvailability: boolean;
   isDateGapRight: boolean;
-  selectedAvailabilities: Set<AvailabilityDateTime>;
-  setSelectedAvailabilties: (newSelection: Set<AvailabilityDateTime>) => void;
-  sortedAvailabilityTimes: AvailabilityTime[];
+  isViewMode: boolean;
+  selectedTimeSlots: Set<TimeSlot>;
+  setSelectedTimeSlots: Dispatch<SetStateAction<Set<TimeSlot>>>;
+  sortedEventTimes: EventTime[];
 };
 
 export default function AvailabilityGridColumnHeader({
-  availabilityDate,
+  eventDate,
   isDateGapRight,
-  selectedAvailabilities,
-  setSelectedAvailabilties,
-  sortedAvailabilityTimes
+  isViewMode,
+  selectedTimeSlots,
+  setSelectedTimeSlots,
+  sortedEventTimes
 }: AvailabilityGridColumnHeaderProps) {
-  const parsedDate = parseISO(availabilityDate);
+  const parsedDate = parseISO(eventDate);
 
-  const allAvailabilitiesForDate = sortedAvailabilityTimes.map((availabilityTime) =>
-    getAvailabilityDateTimeFormat(availabilityTime, availabilityDate)
-  );
-  const isAllAvailabilitiesForDateSelected = allAvailabilitiesForDate.every((availability) =>
-    selectedAvailabilities.has(availability)
-  );
+  const allTimeSlotsForDate = sortedEventTimes.map((eventTime) => getTimeSlotFormat(eventTime, eventDate));
+  const isAllTimeSlotForDateSelected = allTimeSlotsForDate.every((timeSlot) => selectedTimeSlots.has(timeSlot));
 
   function dateClickedHandler() {
-    const newSelection = new Set<AvailabilityDateTime>(selectedAvailabilities);
+    if (isViewMode) return;
 
-    allAvailabilitiesForDate.forEach((availability) => {
-      if (isAllAvailabilitiesForDateSelected) {
-        newSelection.delete(availability);
+    setSelectedTimeSlots((prevSelected) => {
+      if (isAllTimeSlotForDateSelected) {
+        return new Set([...prevSelected].filter((timeSlot) => !allTimeSlotsForDate.includes(timeSlot)));
       } else {
-        newSelection.add(availability);
+        return new Set([...prevSelected, ...allTimeSlotsForDate]);
       }
     });
-    setSelectedAvailabilties(newSelection);
   }
-
   return (
     <div className={cn("text-center", { "mr-2": isDateGapRight })}>
-      <h3 className="font-bold text-primary">{format(parsedDate, "MMM")}</h3>
-      <h3 className="mb-2 mt-[1px] text-xs font-medium text-secondary-light">{format(parsedDate, "EEE")}</h3>
-      <Button
-        className={cn(
-          "h-8 w-10 rounded-sm border-none bg-purple-100 font-semibold tracking-wide text-secondary transition-all hover:bg-purple-200 hover:bg-opacity-100",
-          {
-            "bg-primary bg-opacity-100 text-white hover:bg-primary hover:bg-opacity-70":
-              isAllAvailabilitiesForDateSelected
-          }
-        )}
-        onClick={dateClickedHandler}
-      >
-        {format(parsedDate, "d")}
-      </Button>
+      <h3 className="pb-0 text-lg font-bold text-primary">{format(parsedDate, "MMM")}</h3>
+      <h3 className={cn("mb-2 text-sm font-medium leading-4 text-secondary-light")}>{format(parsedDate, "EEE")}</h3>
+      <motion.div whileTap={!isViewMode ? { scale: 0.9 } : {}}>
+        <Button
+          className={cn(
+            "h-8 w-10 rounded-sm border-none bg-purple-100 text-lg font-semibold tracking-wide text-secondary transition-all hover:bg-purple-200 hover:bg-opacity-100",
+            {
+              "bg-primary-dark bg-opacity-100 text-white hover:bg-primary hover:bg-opacity-80":
+                isAllTimeSlotForDateSelected
+            },
+            {
+              "bg-background text-xl text-secondary hover:bg-background": isViewMode
+            }
+          )}
+          onClick={dateClickedHandler}
+        >
+          {format(parsedDate, "d")}
+        </Button>
+      </motion.div>
     </div>
   );
 }

@@ -24,6 +24,7 @@ module.exports = {
         foreground: "rgb(var(--foreground), <alpha-value>)",
         input: "rgb(var(--input), <alpha-value>)",
         primary: {
+          dark: "rgb(var(--primary-dark), <alpha-value>)",
           DEFAULT: "rgb(var(--primary), <alpha-value>)",
           foreground: "rgb(var(--primary-foreground), <alpha-value>)",
           light: "rgb(var(--primary-light), <alpha-value>)"

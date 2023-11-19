@@ -1,82 +1,95 @@
 import { cn } from "@/lib/utils";
 import { MouseEventHandler } from "react";
+import React from "react";
 
-import {
-  AvailabilityCellPosition,
-  AvailabilityDate,
-  AvailabilityTime,
-  getAvailabilityDateTimeFormat
-} from "./availability-grid";
+import { AvailabilityCellPosition } from "./availability-grid";
 
 type AvailabilityGridCellProps = Omit<AvailabilityGridCellBaseProps, "children"> & {
-  availabilityDate: AvailabilityDate;
-  availabilityTime: AvailabilityTime;
   dragEndCellPosition: AvailabilityCellPosition | null;
   dragIsAdding: boolean;
   dragStartCellPosition: AvailabilityCellPosition | null;
   gridCol: number;
   gridRow: number;
-  handleAvailabilityCellMouseDown: (cellPosition: AvailabilityCellPosition) => void;
-  handleAvailabilityCellMouseEnter: (cellPosition: AvailabilityCellPosition) => void;
-  hoveredTime: AvailabilityTime | null;
+  handleCellMouseDown: (cellPosition: AvailabilityCellPosition) => void;
+  handleCellMouseEnter: (cellPosition: AvailabilityCellPosition) => void;
   isDateGapLeft: boolean;
   isDateGapRight: boolean;
-  selectedAvailabilities: Set<AvailabilityTime>;
+  isSelected: boolean;
+  isViewMode: boolean;
+  participantsSelected: string[];
+  totalParticipants: number;
 };
 
-export default function AvailabilityGridCell({
-  availabilityDate,
-  availabilityTime,
-  dragEndCellPosition,
-  dragIsAdding,
-  dragStartCellPosition,
-  gridCol,
-  gridRow,
-  handleAvailabilityCellMouseDown,
-  handleAvailabilityCellMouseEnter,
-  hoveredTime,
-  selectedAvailabilities,
-  ...props
-}: AvailabilityGridCellProps) {
-  const availabilityDateTime = getAvailabilityDateTimeFormat(availabilityTime, availabilityDate);
-  const cellPosition: AvailabilityCellPosition = { col: gridCol, row: gridRow };
+const AvailabilityGridCell = React.memo(
+  ({
+    dragEndCellPosition,
+    dragIsAdding,
+    dragStartCellPosition,
+    gridCol,
+    gridRow,
+    handleCellMouseDown,
+    handleCellMouseEnter,
+    isSelected,
+    isViewMode,
+    participantsSelected,
+    totalParticipants,
+    ...props
+  }: AvailabilityGridCellProps) => {
+    const cellPosition: AvailabilityCellPosition = { col: gridCol, row: gridRow };
+    function isCellInDragSelectionArea(cellPosition: AvailabilityCellPosition): boolean {
+      if (dragStartCellPosition === null || dragEndCellPosition === null) return false;
+      const [minRow, maxRow] = [
+        Math.min(dragStartCellPosition.row, dragEndCellPosition.row),
+        Math.max(dragStartCellPosition.row, dragEndCellPosition.row)
+      ];
+      const [minCol, maxCol] = [
+        Math.min(dragStartCellPosition.col, dragEndCellPosition.col),
+        Math.max(dragStartCellPosition.col, dragEndCellPosition.col)
+      ];
+      return (
+        minRow <= cellPosition.row &&
+        cellPosition.row <= maxRow &&
+        minCol <= cellPosition.col &&
+        cellPosition.col <= maxCol
+      );
+    }
 
-  function isCellInDragSelectionArea(cellPosition: AvailabilityCellPosition): boolean {
-    if (dragStartCellPosition === null || dragEndCellPosition === null) return false;
-    const [minRow, maxRow] = [
-      Math.min(dragStartCellPosition.row, dragEndCellPosition.row),
-      Math.max(dragStartCellPosition.row, dragEndCellPosition.row)
-    ];
-    const [minCol, maxCol] = [
-      Math.min(dragStartCellPosition.col, dragEndCellPosition.col),
-      Math.max(dragStartCellPosition.col, dragEndCellPosition.col)
-    ];
+    const isBeingAdded = dragIsAdding && isCellInDragSelectionArea(cellPosition);
+    const isBeingRemoved = !dragIsAdding && isCellInDragSelectionArea(cellPosition);
+
     return (
-      minRow <= cellPosition.row &&
-      cellPosition.row <= maxRow &&
-      minCol <= cellPosition.col &&
-      cellPosition.col <= maxCol
+      <AvailabilityGridCellBase gridCol={gridCol} {...props}>
+        <div
+          className={cn("h-full w-full border-0 border-primary-light duration-100 hover:bg-purple-100", {
+            "bg-opacity-25 hover:bg-opacity-40": isBeingRemoved,
+            "bg-primary-dark hover:bg-primary-dark hover:bg-opacity-70": isSelected || isBeingAdded
+          })}
+          onMouseDown={() => handleCellMouseDown(cellPosition)}
+          onMouseEnter={() => handleCellMouseEnter(cellPosition)}
+          style={
+            isViewMode ? { backgroundColor: interpolateColor(participantsSelected.length, totalParticipants) } : {}
+          }
+        />
+      </AvailabilityGridCellBase>
     );
   }
+);
 
-  const isSelected = selectedAvailabilities.has(availabilityDateTime);
-  const isBeingAdded = dragIsAdding && isCellInDragSelectionArea(cellPosition);
-  const isBeingRemoved = !dragIsAdding && isCellInDragSelectionArea(cellPosition);
-  const isTimeHovered = availabilityTime === hoveredTime;
+export default AvailabilityGridCell;
 
-  return (
-    <AvailabilityGridCellBase gridCol={gridCol} {...props}>
-      <div
-        className={cn("h-full w-full border-0 border-primary-light hover:bg-purple-100", {
-          "bg-opacity-25 hover:bg-opacity-40": isBeingRemoved,
-          "bg-primary hover:bg-primary hover:bg-opacity-70": isSelected || isBeingAdded,
-          "border-t-[1.5px]": isTimeHovered
-        })}
-        onMouseDown={() => handleAvailabilityCellMouseDown(cellPosition)}
-        onMouseEnter={() => handleAvailabilityCellMouseEnter(cellPosition)}
-      />
-    </AvailabilityGridCellBase>
-  );
+function interpolateColor(numParticipants: number, maxParticipants: number) {
+  // white
+  const startColor = { b: 255, g: 255, r: 255 };
+  // primary-dark colour
+  const endColor = { b: 255, g: 71, r: 151 };
+
+  const ratio = numParticipants / maxParticipants;
+
+  const r = Math.round(startColor.r + ratio * (endColor.r - startColor.r));
+  const g = Math.round(startColor.g + ratio * (endColor.g - startColor.g));
+  const b = Math.round(startColor.b + ratio * (endColor.b - startColor.b));
+
+  return `rgb(${r}, ${g}, ${b})`;
 }
 
 type AvailabilityGridCellBaseProps = {
