@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Dispatch, SetStateAction } from "react";
 
 import { Button } from "../ui/button";
-import { getTimeSlotFormat } from "./availability-grid";
+import { getTimeSlot } from "./availability-grid";
 
 type AvailabilityGridColumnHeaderProps = {
   eventDate: EventDate;
@@ -27,7 +27,7 @@ export default function AvailabilityGridColumnHeader({
 }: AvailabilityGridColumnHeaderProps) {
   const parsedDate = parseISO(eventDate);
 
-  const allTimeSlotsForDate = sortedEventTimes.map((eventTime) => getTimeSlotFormat(eventTime, eventDate));
+  const allTimeSlotsForDate = sortedEventTimes.map((eventTime) => getTimeSlot(eventTime, eventDate));
   const isAllTimeSlotForDateSelected = allTimeSlotsForDate.every((timeSlot) => selectedTimeSlots.has(timeSlot));
 
   function dateClickedHandler() {

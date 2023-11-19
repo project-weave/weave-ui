@@ -2,7 +2,7 @@ import { EventTime } from "@/app/(event)/[eventId]/page";
 import { cn } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 
-import { getTimeSlotFormat } from "./availability-grid";
+import { getTimeSlot } from "./availability-grid";
 
 type AvailabilityGridRowHeaderProps = {
   eventTime: string;
@@ -10,7 +10,7 @@ type AvailabilityGridRowHeaderProps = {
 };
 
 export default function AvailabilityGridRowHeader({ eventTime, hoveredTime }: AvailabilityGridRowHeaderProps) {
-  const parsedDateTime = parseISO(getTimeSlotFormat(eventTime));
+  const parsedDateTime = parseISO(getTimeSlot(eventTime));
 
   return (
     <p

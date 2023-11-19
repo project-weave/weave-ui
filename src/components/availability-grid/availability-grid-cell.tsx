@@ -2,16 +2,13 @@ import { cn } from "@/lib/utils";
 import { MouseEventHandler } from "react";
 import React from "react";
 
-import { AvailabilityCellPosition } from "./availability-grid";
-
 type AvailabilityGridCellProps = Omit<AvailabilityGridCellBaseProps, "children"> & {
-  dragEndCellPosition: AvailabilityCellPosition | null;
-  dragIsAdding: boolean;
-  dragStartCellPosition: AvailabilityCellPosition | null;
   gridCol: number;
   gridRow: number;
-  handleCellMouseDown: (cellPosition: AvailabilityCellPosition) => void;
-  handleCellMouseEnter: (cellPosition: AvailabilityCellPosition) => void;
+  handleCellMouseDown: (row: number, col: number) => void;
+  handleCellMouseEnter: (row: number, col: number) => void;
+  isBeingAdded: boolean;
+  isBeingRemoved: boolean;
   isDateGapLeft: boolean;
   isDateGapRight: boolean;
   isSelected: boolean;
@@ -22,41 +19,18 @@ type AvailabilityGridCellProps = Omit<AvailabilityGridCellBaseProps, "children">
 
 const AvailabilityGridCell = React.memo(
   ({
-    dragEndCellPosition,
-    dragIsAdding,
-    dragStartCellPosition,
     gridCol,
     gridRow,
     handleCellMouseDown,
     handleCellMouseEnter,
+    isBeingAdded,
+    isBeingRemoved,
     isSelected,
     isViewMode,
     participantsSelected,
     totalParticipants,
     ...props
   }: AvailabilityGridCellProps) => {
-    const cellPosition: AvailabilityCellPosition = { col: gridCol, row: gridRow };
-    function isCellInDragSelectionArea(cellPosition: AvailabilityCellPosition): boolean {
-      if (dragStartCellPosition === null || dragEndCellPosition === null) return false;
-      const [minRow, maxRow] = [
-        Math.min(dragStartCellPosition.row, dragEndCellPosition.row),
-        Math.max(dragStartCellPosition.row, dragEndCellPosition.row)
-      ];
-      const [minCol, maxCol] = [
-        Math.min(dragStartCellPosition.col, dragEndCellPosition.col),
-        Math.max(dragStartCellPosition.col, dragEndCellPosition.col)
-      ];
-      return (
-        minRow <= cellPosition.row &&
-        cellPosition.row <= maxRow &&
-        minCol <= cellPosition.col &&
-        cellPosition.col <= maxCol
-      );
-    }
-
-    const isBeingAdded = dragIsAdding && isCellInDragSelectionArea(cellPosition);
-    const isBeingRemoved = !dragIsAdding && isCellInDragSelectionArea(cellPosition);
-
     return (
       <AvailabilityGridCellBase gridCol={gridCol} {...props}>
         <div
@@ -64,8 +38,8 @@ const AvailabilityGridCell = React.memo(
             "bg-opacity-25 hover:bg-opacity-40": isBeingRemoved,
             "bg-primary-dark hover:bg-primary-dark hover:bg-opacity-70": isSelected || isBeingAdded
           })}
-          onMouseDown={() => handleCellMouseDown(cellPosition)}
-          onMouseEnter={() => handleCellMouseEnter(cellPosition)}
+          onMouseDown={() => handleCellMouseDown(gridRow, gridCol)}
+          onMouseEnter={() => handleCellMouseEnter(gridRow, gridCol)}
           style={
             isViewMode ? { backgroundColor: interpolateColor(participantsSelected.length, totalParticipants) } : {}
           }
