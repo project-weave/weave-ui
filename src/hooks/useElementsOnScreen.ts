@@ -1,8 +1,12 @@
+import { setDeepEquals } from "@/lib/list-utils";
 import { MutableRefObject, useEffect, useRef, useState } from "react";
 
-export function useElementsOnScreen<T>(elements: T[]): [MutableRefObject<(HTMLDivElement | null)[]>, Set<string>] {
+export function useElementsOnScreen<T>(
+  elements: T[]
+): [MutableRefObject<HTMLDivElement | null>, MutableRefObject<(HTMLDivElement | null)[]>, Set<string>] {
   const [visibleElementIds, setVisibleElementIds] = useState<Set<string>>(new Set());
 
+  const elementContainerRef = useRef<HTMLDivElement | null>(null);
   const elementRefs = useRef<(HTMLDivElement | null)[]>(new Array(elements.length).fill(null));
 
   useEffect(() => {
@@ -21,18 +25,12 @@ export function useElementsOnScreen<T>(elements: T[]): [MutableRefObject<(HTMLDi
           }
         });
 
-        if (
-          newVisibleElementIds.size !== prevVisibleElementIds.size ||
-          Array.from(newVisibleElementIds).some((element) => !prevVisibleElementIds.has(element))
-        ) {
-          return newVisibleElementIds;
-        }
-
-        return prevVisibleElementIds;
+        if (setDeepEquals(prevVisibleElementIds, newVisibleElementIds)) return prevVisibleElementIds;
+        return newVisibleElementIds;
       });
     };
     const observerOptions = {
-      root: null,
+      root: elementContainerRef.current,
       threshold: 0
     } as IntersectionObserverInit;
 
@@ -49,7 +47,7 @@ export function useElementsOnScreen<T>(elements: T[]): [MutableRefObject<(HTMLDi
         if (ref) observer.unobserve(ref);
       });
     };
-  }, [elementRefs, elements]);
+  }, [elementRefs, elements, elementContainerRef]);
 
-  return [elementRefs, visibleElementIds];
+  return [elementContainerRef, elementRefs, visibleElementIds];
 }

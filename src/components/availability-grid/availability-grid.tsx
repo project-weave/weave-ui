@@ -1,13 +1,23 @@
 "use client";
-import { EventDate, EventTime, TimeSlot } from "@/app/(event)/[eventId]/page";
 import { useElementsOnScreen } from "@/hooks/useElementsOnScreen";
 import useGridDragSelect from "@/hooks/useGridDragSelect";
 import { isConsecutiveDay } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
+import {
+  AvailabilityGridMode,
+  EventDate,
+  EventTime,
+  getTimeFromTimeSlot,
+  getTimeSlot,
+  isEditMode,
+  isViewMode,
+  TimeSlot
+} from "@/store/availabilityGridStore";
+import useAvailabilityGridStore from "@/store/availabilityGridStore";
 // import { formatInTimeZone, utcToZonedTime } from "date-fns-tz";
 import { addMinutes, format, parseISO } from "date-fns";
 import { useAnimationControls } from "framer-motion";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import AvailabilityGridCell, { AvailabilityGridCellBase } from "./availability-grid-cell";
 import AvailabilityGridColumnHeader from "./availability-grid-column-header";
@@ -20,34 +30,21 @@ export type AvailabilityCellPosition = {
   row: number;
 };
 
-// assuming that when only time is passed in as a parameter, we're only interested in time so we we can use an aribtrary date to parse
-export function getTimeSlot(time: EventTime, date: EventDate = "2000-11-29"): TimeSlot {
-  return date + "T" + time;
-}
+export default function AvailabilityGrid() {
+  const user = useAvailabilityGridStore((state) => state.user);
+  const eventDates = useAvailabilityGridStore((state) => state.eventData.eventDates);
+  const eventTimeEnd = useAvailabilityGridStore((state) => state.eventData.endTimeUTC);
+  const eventTimeStart = useAvailabilityGridStore((state) => state.eventData.startTimeUTC);
+  const participantsToTimeSlots = useAvailabilityGridStore((state) => state.eventData.userAvailability);
+  const saveUserAvailability = useAvailabilityGridStore((state) => state.saveUserAvailability);
+  const [userFilter, setUserFilter] = useAvailabilityGridStore((state) => [state.userFilter, state.setUserFilter]);
+  const [mode, setMode] = useAvailabilityGridStore((state) => [state.mode, state.setMode]);
+  const [hoveredTimeSlot, setHoveredTimeSlot] = useAvailabilityGridStore((state) => [
+    state.hoveredTimeSlot,
+    state.setHoveredTimeSlot
+  ]);
 
-type AvailabilityGridProps = {
-  eventDates: EventDate[];
-  eventTimeEnd: EventTime;
-  eventTimeStart: EventTime;
-  eventTimeZone: string;
-  participantsToTimeSlots: Readonly<Record<string, TimeSlot[]>>;
-  saveUserAvailability: (user: string, timeSlots: TimeSlot[]) => void;
-};
-
-const testUser = "Alex Ma";
-
-export default function AvailabilityGrid({
-  eventDates,
-  eventTimeEnd,
-  eventTimeStart,
-  participantsToTimeSlots,
-  saveUserAvailability
-}: AvailabilityGridProps) {
-  const [isViewMode, setIsViewMode] = useState(true);
-  const [selectedTimeSlots, setSelectedTimeSlots] = useState<Set<TimeSlot>>(
-    new Set(participantsToTimeSlots[testUser] ?? [])
-  );
-  const [hoveredTime, setHoveredTime] = useState<EventTime | null>(null);
+  const [selectedTimeSlots, setSelectedTimeSlots] = useState(new Set(participantsToTimeSlots[user] ?? []));
 
   // TODO: add timezone conversion
   // const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -75,7 +72,7 @@ export default function AvailabilityGrid({
   );
 
   // NOTE: can assume columnRefs are in same order as sortedEventDates because they are generated in the same loop
-  const [columnRefs, visibleColumnIds] = useElementsOnScreen<EventDate>(sortedEventDates);
+  const [columnContainerRef, columnRefs, visibleColumnIds] = useElementsOnScreen<EventDate>(sortedEventDates);
 
   const [sortedVisibleColumnNums, sortedVisibleEventDates] = useMemo<[number[], EventDate[]]>(() => {
     const sortedColumnNums = Array.from(visibleColumnIds)
@@ -108,6 +105,8 @@ export default function AvailabilityGrid({
     setSelectedTimeSlots
   );
 
+  const allParticipants = Object.keys(participantsToTimeSlots);
+
   const timeSlotsToParticipants = useMemo<Readonly<Record<TimeSlot, string[]>>>(() => {
     const record: Record<TimeSlot, string[]> = {};
     Object.entries(participantsToTimeSlots).forEach(([participant, timeSlots]) => {
@@ -121,36 +120,48 @@ export default function AvailabilityGrid({
     return record;
   }, [participantsToTimeSlots]);
 
-  function handleCellMouseEnter(row: number, col: number) {
-    if (!isViewMode) {
-      onDragSelectMouseEnter(row, col);
-    }
-    setHoveredTime(sortedEventTimes[row]);
-  }
+  const handleCellMouseEnter = useCallback(
+    (row: number, col: number) => {
+      if (isEditMode(mode)) {
+        onDragSelectMouseEnter(row, col);
+      }
+      setHoveredTimeSlot(getTimeSlot(sortedEventTimes[row], sortedEventDates[col]));
+    },
+    [mode, sortedEventTimes, sortedEventDates, onDragSelectMouseEnter]
+  );
 
   const editButtonAnimationControls = useAnimationControls();
 
-  function handleCellMouseDown(row: number, col: number) {
-    if (isViewMode) {
-      editButtonAnimationControls.start({
-        transition: { duration: 0.5, ease: "easeInOut" },
-        x: [0, -5, 5, -5, 5, 0]
-      });
-    } else {
-      onDragSelectMouseDown(row, col);
-    }
+  const handleCellMouseDown = useCallback(
+    (row: number, col: number) => {
+      if (isViewMode(mode)) {
+        editButtonAnimationControls.start({
+          transition: { duration: 0.5, ease: "easeInOut" },
+          x: [0, -5, 5, -5, 5, 0]
+        });
+      } else {
+        onDragSelectMouseDown(row, col);
+      }
+    },
+    [mode, onDragSelectMouseDown]
+  );
+  function handleSaveUserAvailability() {
+    setMode(AvailabilityGridMode.VIEW);
+    saveUserAvailability(Array.from(selectedTimeSlots));
   }
 
-  function handleSaveUserAvailability() {
-    setIsViewMode(true);
-    saveUserAvailability(testUser, Array.from(selectedTimeSlots));
+  function handleEditUserAvailability() {
+    setMode(AvailabilityGridMode.EDIT);
+    setUserFilter([]);
   }
 
   return (
     <div
       className="card grid select-none border-2 pl-2 pr-10"
+      // mouseUp is cancelled when onContextMenu is triggered so we need to save the selection here as well
+      onContextMenu={saveDragSelection}
       onMouseLeave={clearDragSelection}
-      // putting saveDragtSelection here to handle the case where the user lets go of the mouse outside of the grid cells
+      // putting saveDragSelection here to handle the case where the user lets go of the mouse outside of the grid cells
       onMouseUp={saveDragSelection}
       style={{
         gridTemplateColumns: "3.5rem 1fr",
@@ -161,32 +172,26 @@ export default function AvailabilityGrid({
         <AvailabilityGridHeader
           earliestEventDate={sortedEventDates[0]}
           editButtonAnimationControls={editButtonAnimationControls}
+          handleEditUserAvailability={handleEditUserAvailability}
           handleSaveUserAvailability={handleSaveUserAvailability}
-          hasUserAddedAvailability={participantsToTimeSlots[testUser]?.length > 0}
-          isViewMode={isViewMode}
+          hasUserAddedAvailability={participantsToTimeSlots[user]?.length > 0}
           lastColumn={sortedEventDates.length - 1}
           latestEventDate={sortedEventDates[sortedEventDates.length - 1]}
-          setIsViewMode={setIsViewMode}
+          mode={mode}
           sortedColumnRefs={columnRefs}
           sortedVisibleColumnNums={sortedVisibleColumnNums}
         />
       </div>
 
-      {/* time labels */}
       <div
         className="col-start-1 grid"
         style={{
-          gridTemplateRows: `4.7rem 1.2rem repeat(${sortedEventTimes.length}, minmax(1.4rem, 1fr)) 1.2rem 8px`
+          gridTemplateRows: `5.8rem repeat(${sortedEventTimes.length}, minmax(0.8rem, 1fr)) 0.7rem 8px`
         }}
       >
         <p className="h-full">&nbsp;</p>
-        <p className="h-full">&nbsp;</p>
         {sortedEventTimes.map((eventTime, gridRow) => (
-          <AvailabilityGridRowHeader
-            eventTime={eventTime}
-            hoveredTime={hoveredTime}
-            key={`availability-grid-row-header-${gridRow}`}
-          />
+          <AvailabilityGridRowHeader eventTime={eventTime} key={`availability-grid-row-header-${gridRow}`} />
         ))}
         <AvailabilityGridRowHeader
           eventTime={eventTimeEnd}
@@ -194,10 +199,10 @@ export default function AvailabilityGrid({
         />
       </div>
 
-      {/* availability cells */}
       <div
-        className="scrollbar-track-full scrollbar-rounded-full col-start-2 grid cursor-pointer snap-x scroll-mt-2 grid-flow-col overflow-x-scroll scroll-smooth scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full"
-        onMouseLeave={() => setHoveredTime(null)}
+        className="col-start-2 grid h-full snap-x scroll-mt-2 grid-flow-col overflow-x-scroll scroll-smooth scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full"
+        onMouseLeave={() => setHoveredTimeSlot(null)}
+        ref={columnContainerRef}
       >
         {sortedEventDates.map((eventDate, gridCol) => {
           const lastRow = sortedEventTimes.length - 1;
@@ -210,40 +215,47 @@ export default function AvailabilityGrid({
           const isDateGapRight =
             gridCol !== lastColumn && !isConsecutiveDay(parseISO(eventDate), parseISO(nextEventDate));
 
-          // grid columns
           return (
             <div
-              className="grid h-full min-w-[6rem] snap-start"
+              className="grid h-full min-w-[5rem] snap-start"
               key={`availability-column-${gridCol}`}
               style={{
-                gridTemplateRows: `4.7rem 1rem repeat(${sortedEventTimes.length}, minmax(1.2rem, 1fr)) 1rem`
+                gridTemplateRows: `5.1rem 0.7rem repeat(${sortedEventTimes.length}, minmax(0.8rem, 1fr)) 0.7rem`
               }}
             >
               <div observable-el-id={gridCol} ref={(el) => (columnRefs.current[gridCol] = el)}>
                 <AvailabilityGridColumnHeader
                   eventDate={eventDate}
-                  hasUserAddedAvailability={Object.keys(participantsToTimeSlots).includes(testUser)}
+                  hasUserAddedAvailability={allParticipants.includes(user)}
                   isDateGapRight={isDateGapRight}
-                  isViewMode={isViewMode}
                   key={`availability-grid-column-header-${gridCol}`}
+                  mode={mode}
                   selectedTimeSlots={selectedTimeSlots}
                   setSelectedTimeSlots={setSelectedTimeSlots}
                   sortedEventTimes={sortedEventTimes}
                 />
               </div>
 
-              {/* placeholder top row */}
+              {/* top row cell for styling */}
               <AvailabilityGridCellBase
                 className={cn("border-t-0", { "border-l-0": gridCol === 0 })}
-                gridCol={lastColumn + 1}
+                gridCol={gridCol}
+                gridRow={-1}
+                handleCellMouseDown={() => {}}
+                handleCellMouseEnter={() => setHoveredTimeSlot(null)}
                 isDateGapLeft={isDateGapLeft}
                 isDateGapRight={isDateGapRight}
+                isTimeHovered={false}
+                isTimeSlotHovered={false}
                 key={`availability-grid-cell-${gridCol}-${-1}`}
-                onMouseEnter={() => setHoveredTime(null)}
+                mode={mode}
               />
 
               {sortedEventTimes.map((eventTime, gridRow) => {
-                const TimeSlot = getTimeSlot(eventTime, eventDate);
+                const timeSlot = getTimeSlot(eventTime, eventDate);
+
+                const participantsSelectedTimeSlot = timeSlotsToParticipants[timeSlot] ?? [];
+                const filteredParticipants = userFilter.length === 0 ? allParticipants : userFilter;
 
                 return (
                   <AvailabilityGridCell
@@ -255,23 +267,32 @@ export default function AvailabilityGrid({
                     isBeingRemoved={!isDragAdding && isCellInDragSelectionArea(gridRow, gridCol)}
                     isDateGapLeft={isDateGapLeft}
                     isDateGapRight={isDateGapRight}
-                    isSelected={selectedTimeSlots.has(TimeSlot)}
-                    isViewMode={isViewMode}
+                    isSelected={selectedTimeSlots.has(timeSlot)}
+                    isTimeHovered={getTimeFromTimeSlot(hoveredTimeSlot) === eventTime}
+                    isTimeSlotHovered={hoveredTimeSlot === timeSlot}
                     key={`availability-grid-cell-${gridCol}-${gridRow}`}
-                    participantsSelected={timeSlotsToParticipants[TimeSlot] ?? []}
-                    totalParticipants={Object.keys(participantsToTimeSlots).length}
+                    mode={mode}
+                    participantsSelectedCount={
+                      filteredParticipants.filter((p) => participantsSelectedTimeSlot.includes(p)).length
+                    }
+                    totalParticipants={filteredParticipants.length}
                   />
                 );
               })}
 
-              {/* placeholder bottom row */}
+              {/* bottom row cell for styling */}
               <AvailabilityGridCellBase
                 className={cn("border-b-0", { "border-l-0": gridCol === 0 })}
-                gridCol={lastColumn + 1}
+                gridCol={gridCol}
+                gridRow={lastRow + 1}
+                handleCellMouseDown={() => {}}
+                handleCellMouseEnter={() => setHoveredTimeSlot(null)}
                 isDateGapLeft={isDateGapLeft}
                 isDateGapRight={isDateGapRight}
-                key={`availability-grid-cell-${gridCol}-${lastRow + 1}`}
-                onMouseEnter={() => setHoveredTime(null)}
+                isTimeHovered={false}
+                isTimeSlotHovered={false}
+                key={`availability-grid-cell-${gridCol}-${lastRow + 1}}`}
+                mode={mode}
               />
             </div>
           );

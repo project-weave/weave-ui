@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useRef, useState } from "react";
 
 export type CellPosition = {
   col: number;
@@ -29,39 +29,43 @@ export default function useGridDragSelect<T, U, V>(
   selected: Set<V>,
   setSelected: Dispatch<SetStateAction<Set<V>>>
 ): useGridDragSelectReturn<V> {
-  const [startCellPosition, setStartCellPosition] = useState<CellPosition | null>(null);
-  const [endCellPosition, setEndCellPosition] = useState<CellPosition | null>(null);
+  const startCellPositionRef = useRef<CellPosition | null>(null);
+  const endCellPositionRef = useRef<CellPosition | null>(null);
 
   const [isSelecting, setIsSelecting] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
 
-  function cellPositionToElement(row: number, col: number): V {
-    return mappingFunction(sortedRows[row], sortedCols[col]);
-  }
+  const onMouseEnter = useCallback(
+    (row: number, col: number) => {
+      if (isSelecting && startCellPositionRef.current && endCellPositionRef.current) {
+        endCellPositionRef.current = { col, row };
+      }
+    },
+    [isSelecting]
+  );
 
-  const onMouseEnter: DragMouseEnterHandler = (row: number, col: number) => {
-    if (isSelecting && startCellPosition && endCellPosition) {
-      setEndCellPosition({ col, row });
-    }
-  };
+  const onMouseDown = useCallback(
+    (row: number, col: number) => {
+      setIsSelecting(true);
+      startCellPositionRef.current = { col, row };
+      endCellPositionRef.current = { col, row };
 
-  const onMouseDown: DragMouseDownHandler = (row: number, col: number) => {
-    setIsSelecting(true);
-    setStartCellPosition({ col, row });
-    setEndCellPosition({ col, row });
+      const element = mappingFunction(sortedRows[row], sortedCols[col]);
 
-    if (selected.has(cellPositionToElement(row, col))) {
-      setIsAdding(false);
-    } else {
-      setIsAdding(true);
-    }
-  };
+      if (selected.has(element)) {
+        setIsAdding(false);
+      } else {
+        setIsAdding(true);
+      }
+    },
+    [selected, sortedCols, sortedRows]
+  );
 
   const saveSelection: DragSaveHandler = () => {
     if (!isSelecting) return;
+    const selection = generateAllElementsWithinSelectionArea();
 
     setSelected((prevSelected) => {
-      const selection = generateAllElementsWithinSelectionArea();
       if (!isAdding) {
         return new Set([...prevSelected].filter((el) => !selection.includes(el)));
       } else {
@@ -73,19 +77,20 @@ export default function useGridDragSelect<T, U, V>(
   };
 
   function generateAllElementsWithinSelectionArea() {
-    if (startCellPosition === null || endCellPosition === null) return [];
+    if (startCellPositionRef.current === null || endCellPositionRef.current === null) return [];
     const [minRow, maxRow] = [
-      Math.min(startCellPosition.row, endCellPosition.row),
-      Math.max(startCellPosition.row, endCellPosition.row)
+      Math.min(startCellPositionRef.current.row, endCellPositionRef.current.row),
+      Math.max(startCellPositionRef.current.row, endCellPositionRef.current.row)
     ];
     const [minCol, maxCol] = [
-      Math.min(startCellPosition.col, endCellPosition.col),
-      Math.max(startCellPosition.col, endCellPosition.col)
+      Math.min(startCellPositionRef.current.col, endCellPositionRef.current.col),
+      Math.max(startCellPositionRef.current.col, endCellPositionRef.current.col)
     ];
     const elements = [] as V[];
     for (let row = minRow; row <= maxRow; row++) {
       for (let col = minCol; col <= maxCol; col++) {
-        elements.push(cellPositionToElement(row, col));
+        const element = mappingFunction(sortedRows[row], sortedCols[col]);
+        elements.push(element);
       }
     }
     return elements;
@@ -93,19 +98,19 @@ export default function useGridDragSelect<T, U, V>(
 
   const clearSelection: DragClearHandler = () => {
     setIsSelecting(false);
-    setStartCellPosition(null);
-    setEndCellPosition(null);
+    startCellPositionRef.current = null;
+    endCellPositionRef.current = null;
   };
 
   const isCellInSelectionArea: DragSelectionCellCheck = (row: number, col: number): boolean => {
-    if (startCellPosition === null || endCellPosition === null) return false;
+    if (startCellPositionRef.current === null || endCellPositionRef.current === null) return false;
     const [minRow, maxRow] = [
-      Math.min(startCellPosition.row, endCellPosition.row),
-      Math.max(startCellPosition.row, endCellPosition.row)
+      Math.min(startCellPositionRef.current.row, endCellPositionRef.current.row),
+      Math.max(startCellPositionRef.current.row, endCellPositionRef.current.row)
     ];
     const [minCol, maxCol] = [
-      Math.min(startCellPosition.col, endCellPosition.col),
-      Math.max(startCellPosition.col, endCellPosition.col)
+      Math.min(startCellPositionRef.current.col, endCellPositionRef.current.col),
+      Math.max(startCellPositionRef.current.col, endCellPositionRef.current.col)
     ];
     return minRow <= row && row <= maxRow && minCol <= col && col <= maxCol;
   };

@@ -1,20 +1,21 @@
-import { EventDate } from "@/app/(event)/[eventId]/page";
+import { cn } from "@/lib/utils";
+import { AvailabilityGridMode, EventDate, isViewMode } from "@/store/availabilityGridStore";
 import { format, isEqual, parseISO } from "date-fns";
 import { AnimationControls, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Dispatch, MutableRefObject, SetStateAction } from "react";
+import { MutableRefObject } from "react";
 
 import { Button } from "../ui/button";
 
 type AvailabilityGridHeaderProps = {
   earliestEventDate: EventDate;
   editButtonAnimationControls: AnimationControls;
+  handleEditUserAvailability: () => void;
   handleSaveUserAvailability: () => void;
   hasUserAddedAvailability: boolean;
-  isViewMode: boolean;
   lastColumn: number;
   latestEventDate: EventDate;
-  setIsViewMode: Dispatch<SetStateAction<boolean>>;
+  mode: AvailabilityGridMode;
   sortedColumnRefs: MutableRefObject<(HTMLDivElement | null)[]>;
   sortedVisibleColumnNums: number[];
 };
@@ -22,18 +23,17 @@ type AvailabilityGridHeaderProps = {
 export default function AvailabilityGridHeader({
   earliestEventDate,
   editButtonAnimationControls,
+  handleEditUserAvailability,
   handleSaveUserAvailability,
   hasUserAddedAvailability,
-  isViewMode,
   lastColumn,
   latestEventDate,
-  setIsViewMode,
+  mode,
   sortedColumnRefs,
   sortedVisibleColumnNums
 }: AvailabilityGridHeaderProps) {
   const earliestDate = parseISO(earliestEventDate);
   const latestDate = parseISO(latestEventDate);
-
   let heading = "";
 
   if (isEqual(earliestDate, latestDate)) {
@@ -60,7 +60,7 @@ export default function AvailabilityGridHeader({
   }
 
   const saveUserAvailabilityButton = (
-    <motion.div className="h-8" whileTap={{ scale: 0.94 }}>
+    <motion.div className="h-8 outline-none" whileTap={{ scale: 0.94 }}>
       <Button className="h-full rounded-md" onClick={handleSaveUserAvailability}>
         Save Availability
       </Button>
@@ -68,8 +68,8 @@ export default function AvailabilityGridHeader({
   );
 
   const editUserAvailabilityButton = (
-    <motion.div animate={editButtonAnimationControls} className="h-8" whileTap={{ scale: 0.94 }}>
-      <Button className="h-full rounded-md" onClick={() => setIsViewMode(false)}>
+    <motion.div animate={editButtonAnimationControls} className="h-8 outline-none" whileTap={{ scale: 0.94 }}>
+      <Button className="h-full rounded-md" onClick={handleEditUserAvailability}>
         {hasUserAddedAvailability ? "Edit Availability" : "Add Availability"}
       </Button>
     </motion.div>
@@ -85,24 +85,26 @@ export default function AvailabilityGridHeader({
           <p className="mb-[1px] text-2xs tracking-wider text-primary">GMT-07</p>
         </div>
         <div className="mb-2 flex items-center">
-          {isViewMode ? editUserAvailabilityButton : saveUserAvailabilityButton}
+          {isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}
           {(!lastColInView || !firstColInView) && (
             <div className="ml-8 flex h-7 whitespace-nowrap">
-              <motion.div whileTap={!firstColInView ? { scale: 0.88 } : {}}>
+              <motion.div className="outline-none" whileTap={!firstColInView ? { scale: 0.88 } : {}}>
                 <Button
-                  className="h-full rounded-sm border-none p-0 px-[2px]"
+                  className={cn("h-full rounded-sm border-none p-0 px-[2px]", { "opacity-30": firstColInView })}
                   onClick={scrollPrev}
                   variant={firstColInView ? "outline" : "default"}
                 >
+                  <span className="sr-only">Previous Columns</span>
                   <ChevronLeft className="h-6 w-6 stroke-[3px]" />
                 </Button>
               </motion.div>
-              <motion.div className="ml-[5px]" whileTap={!lastColInView ? { scale: 0.88 } : {}}>
+              <motion.div className="ml-[5px] outline-none" whileTap={!lastColInView ? { scale: 0.88 } : {}}>
                 <Button
-                  className="h-full rounded-sm border-none p-0 px-[2px]"
+                  className={cn("h-full rounded-sm border-none p-0 px-[2px]", { "opacity-30": lastColInView })}
                   onClick={scrollNext}
                   variant={lastColInView ? "outline" : "default"}
                 >
+                  <span className="sr-only">Next Columns</span>
                   <ChevronRight className="h-6 w-6 stroke-[3px]" />
                 </Button>
               </motion.div>
