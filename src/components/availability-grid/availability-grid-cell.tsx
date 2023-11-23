@@ -30,9 +30,9 @@ const AvailabilityGridCell = React.memo(
     return (
       <AvailabilityGridCellBase gridCol={gridCol} gridRow={gridRow} mode={mode} {...props}>
         <div
-          className={cn("h-full w-full border-0 border-primary-light hover:bg-purple-100", {
-            "bg-opacity-25 hover:bg-opacity-40": isBeingRemoved,
-            "bg-primary-dark hover:bg-primary-dark hover:bg-opacity-70": isSelected || isBeingAdded
+          className={cn("hover:bg-accent h-full w-full border-0 border-primary-light", {
+            "bg-accent hover:bg-purple-300": isBeingRemoved,
+            "bg-primary-dark hover:bg-primary-dark/70": (isSelected || isBeingAdded) && !isBeingRemoved
           })}
           style={
             isViewMode(mode) ? { backgroundColor: interpolateColour(participantsSelectedCount, totalParticipants) } : {}
@@ -45,16 +45,17 @@ const AvailabilityGridCell = React.memo(
     return (
       prevProps.gridCol === nextProps.gridCol &&
       prevProps.gridRow === nextProps.gridRow &&
-      prevProps.isBeingAdded === nextProps.isBeingAdded &&
-      prevProps.isBeingRemoved === nextProps.isBeingRemoved &&
-      prevProps.isSelected === nextProps.isSelected &&
-      prevProps.totalParticipants === nextProps.totalParticipants &&
-      prevProps.isTimeSlotHovered === nextProps.isTimeSlotHovered &&
-      prevProps.isTimeHovered === nextProps.isTimeHovered &&
       prevProps.handleCellMouseDown === nextProps.handleCellMouseDown &&
       prevProps.handleCellMouseEnter === nextProps.handleCellMouseEnter &&
+      prevProps.isBeingAdded === nextProps.isBeingAdded &&
+      prevProps.isBeingRemoved === nextProps.isBeingRemoved &&
+      prevProps.isLastCol === nextProps.isLastCol &&
+      prevProps.isSelected === nextProps.isSelected &&
+      prevProps.isTimeHovered === nextProps.isTimeHovered &&
+      prevProps.isTimeSlotHovered === nextProps.isTimeSlotHovered &&
       prevProps.mode === nextProps.mode &&
-      prevProps.participantsSelectedCount === nextProps.participantsSelectedCount
+      prevProps.participantsSelectedCount === nextProps.participantsSelectedCount &&
+      prevProps.totalParticipants === nextProps.totalParticipants
     );
   }
 );
@@ -86,6 +87,7 @@ type AvailabilityGridCellBaseProps = {
   handleCellMouseEnter: (row: number, col: number) => void;
   isDateGapLeft: boolean;
   isDateGapRight: boolean;
+  isLastCol: boolean;
   isTimeHovered: boolean;
   isTimeSlotHovered: boolean;
   mode: AvailabilityGridMode;
@@ -101,6 +103,7 @@ export const AvailabilityGridCellBase = React.memo(
     handleCellMouseEnter,
     isDateGapLeft,
     isDateGapRight,
+    isLastCol,
     isTimeHovered,
     isTimeSlotHovered,
     mode
@@ -108,10 +111,11 @@ export const AvailabilityGridCellBase = React.memo(
     return (
       <button
         className={cn(
-          "cursor-pointer border-[1px] border-primary-light",
+          "cursor-pointer border-[1px] border-primary-light outline-none",
           {
             "border-l-0": gridCol === 0,
             "border-l-2 border-l-primary": isDateGapLeft,
+            "border-r-0": isLastCol,
             "border-t-[3px]": isTimeHovered && isEditMode(mode),
             "border-t-2 border-t-secondary": isTimeHovered && isViewMode(mode),
             "mr-2 border-r-2 border-r-primary": isDateGapRight
@@ -134,16 +138,17 @@ export const AvailabilityGridCellBase = React.memo(
   },
   (prevProps, nextProps) => {
     return (
+      prevProps.children === nextProps.children &&
       prevProps.gridCol === nextProps.gridCol &&
-      prevProps.mode === nextProps.mode &&
-      prevProps.isDateGapLeft === nextProps.isDateGapLeft &&
-      prevProps.isDateGapRight === nextProps.isDateGapRight &&
       prevProps.gridRow === nextProps.gridRow &&
-      prevProps.isTimeSlotHovered === nextProps.isTimeSlotHovered &&
-      prevProps.isTimeHovered === nextProps.isTimeHovered &&
       prevProps.handleCellMouseDown === nextProps.handleCellMouseDown &&
       prevProps.handleCellMouseEnter === nextProps.handleCellMouseEnter &&
-      prevProps.children === nextProps.children
+      prevProps.isDateGapLeft === nextProps.isDateGapLeft &&
+      prevProps.isDateGapRight === nextProps.isDateGapRight &&
+      prevProps.isLastCol === nextProps.isLastCol &&
+      prevProps.isTimeHovered === nextProps.isTimeHovered &&
+      prevProps.isTimeSlotHovered === nextProps.isTimeSlotHovered &&
+      prevProps.mode === nextProps.mode
     );
   }
 );

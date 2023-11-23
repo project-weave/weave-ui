@@ -19,6 +19,11 @@ module.exports = {
         sm: "calc(var(--radius) - 4px)"
       },
       colors: {
+        accent: {
+          dark: "rgb(var(--accent-dark), <alpha-value>)",
+          DEFAULT: "rgb(var(--accent), <alpha-value>)",
+          light: "rgb(var(--accent-light), <alpha-value>)"
+        },
         background: "rgb(var(--background), <alpha-value>)",
         border: "rgb(var(--border), <alpha-value>)",
         foreground: "rgb(var(--foreground), <alpha-value>)",

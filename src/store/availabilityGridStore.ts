@@ -2,6 +2,7 @@ import { create } from "zustand";
 
 // EventDate is the date portion of a TimeSlot, ie. 2000-11-29
 export type EventDate = string;
+export const EVENT_DATE_FORMAT = "yyyy-MM-dd";
 
 // EventTime is the time portion of a TimeSlot in 24 hour format, ie. 12:00:00
 export type EventTime = string;

@@ -25,8 +25,9 @@
     --muted: 246, 246, 249;
     --muted-foreground: 119, 121, 125;
 
-    --accent: 246, 246, 249;
-    --accent-foreground: 29, 30, 32;
+    --accent: 233, 213, 255;
+    --accent-light: 243, 232, 255;
+    --accent-foreground: 255, 255, 255;
 
     --destructive: 153, 25, 25;
     --destructive-foreground: 252, 252, 254;

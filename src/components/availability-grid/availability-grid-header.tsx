@@ -1,4 +1,3 @@
-import { cn } from "@/lib/utils";
 import { AvailabilityGridMode, EventDate, isViewMode } from "@/store/availabilityGridStore";
 import { format, isEqual, parseISO } from "date-fns";
 import { AnimationControls, motion } from "framer-motion";
@@ -6,6 +5,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { MutableRefObject } from "react";
 
 import { Button } from "../ui/button";
+
+const ADD_AVAILABILITY_BUTTON_TEXT = "Add Availability";
+const EDIT_AVAILABILITY_BUTTON_TEXT = "Edit Availability";
+const SAVE_AVAILABILITY_BUTTON_TEXT = "Save Availability";
 
 type AvailabilityGridHeaderProps = {
   earliestEventDate: EventDate;
@@ -59,20 +62,29 @@ export default function AvailabilityGridHeader({
     secondColumn?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "end" });
   }
 
+  const MotionButton = motion(Button);
+
   const saveUserAvailabilityButton = (
-    <motion.div className="h-8 outline-none" whileTap={{ scale: 0.94 }}>
-      <Button className="h-full rounded-md" onClick={handleSaveUserAvailability}>
-        Save Availability
-      </Button>
-    </motion.div>
+    <MotionButton
+      className="h-8 rounded-md"
+      onClick={handleSaveUserAvailability}
+      variant="dark"
+      whileTap={{ scale: 0.94 }}
+    >
+      {SAVE_AVAILABILITY_BUTTON_TEXT}
+    </MotionButton>
   );
 
   const editUserAvailabilityButton = (
-    <motion.div animate={editButtonAnimationControls} className="h-8 outline-none" whileTap={{ scale: 0.94 }}>
-      <Button className="h-full rounded-md" onClick={handleEditUserAvailability}>
-        {hasUserAddedAvailability ? "Edit Availability" : "Add Availability"}
-      </Button>
-    </motion.div>
+    <MotionButton
+      animate={editButtonAnimationControls}
+      className="h-8 rounded-md"
+      onClick={handleEditUserAvailability}
+      variant="dark"
+      whileTap={{ scale: 0.94 }}
+    >
+      {hasUserAddedAvailability ? EDIT_AVAILABILITY_BUTTON_TEXT : ADD_AVAILABILITY_BUTTON_TEXT}
+    </MotionButton>
   );
 
   return (
@@ -88,26 +100,24 @@ export default function AvailabilityGridHeader({
           {isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}
           {(!lastColInView || !firstColInView) && (
             <div className="ml-8 flex h-7 whitespace-nowrap">
-              <motion.div className="outline-none" whileTap={!firstColInView ? { scale: 0.88 } : {}}>
-                <Button
-                  className={cn("h-full rounded-sm border-none p-0 px-[2px]", { "opacity-30": firstColInView })}
-                  onClick={scrollPrev}
-                  variant={firstColInView ? "outline" : "default"}
-                >
-                  <span className="sr-only">Previous Columns</span>
-                  <ChevronLeft className="h-6 w-6 stroke-[3px]" />
-                </Button>
-              </motion.div>
-              <motion.div className="ml-[5px] outline-none" whileTap={!lastColInView ? { scale: 0.88 } : {}}>
-                <Button
-                  className={cn("h-full rounded-sm border-none p-0 px-[2px]", { "opacity-30": lastColInView })}
-                  onClick={scrollNext}
-                  variant={lastColInView ? "outline" : "default"}
-                >
-                  <span className="sr-only">Next Columns</span>
-                  <ChevronRight className="h-6 w-6 stroke-[3px]" />
-                </Button>
-              </motion.div>
+              <MotionButton
+                className="h-full rounded-sm px-[2px] py-0"
+                onClick={scrollPrev}
+                variant={firstColInView ? "dark-disabled" : "dark"}
+                whileTap={!firstColInView ? { scale: 0.88 } : {}}
+              >
+                <span className="sr-only">Previous Columns</span>
+                <ChevronLeft className="h-6 w-6 stroke-[3px]" />
+              </MotionButton>
+              <MotionButton
+                className="ml-[5px] h-full rounded-sm px-[2px] py-0"
+                onClick={scrollNext}
+                variant={lastColInView ? "dark-disabled" : "dark"}
+                whileTap={!lastColInView ? { scale: 0.88 } : {}}
+              >
+                <span className="sr-only">Next Columns</span>
+                <ChevronRight className="h-6 w-6 stroke-[3px]" />
+              </MotionButton>
             </div>
           )}
         </div>

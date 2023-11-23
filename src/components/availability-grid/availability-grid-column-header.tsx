@@ -48,27 +48,23 @@ export default function AvailabilityGridColumnHeader({
       }
     });
   }
+
+  const MotionButton = motion(Button);
+
   return (
     <div className={cn("text-center", { "mr-2": isDateGapRight })}>
       <h3 className="pb-0 text-lg font-bold text-primary">{format(parsedDate, "MMM")}</h3>
       <h3 className={cn("mb-2 text-sm font-medium leading-4 text-secondary-light")}>{format(parsedDate, "EEE")}</h3>
-      <motion.div className="outline-none" whileTap={isEditMode(mode) ? { scale: 0.9 } : {}}>
-        <Button
-          className={cn(
-            "h-8 w-10 rounded-sm  border-none bg-purple-100 text-lg font-semibold tracking-wide text-secondary transition-all hover:bg-purple-200 hover:bg-opacity-100",
-            {
-              "bg-primary-dark bg-opacity-100 text-white hover:bg-primary hover:bg-opacity-80":
-                isAllTimeSlotForDateSelected
-            },
-            {
-              "cursor-default bg-background text-xl text-secondary hover:bg-background": isViewMode(mode)
-            }
-          )}
-          onClick={dateClickedHandler}
-        >
-          <time dateTime={eventDate}>{format(parsedDate, "d")}</time>
-        </Button>
-      </motion.div>
+      <MotionButton
+        className={cn("h-8 w-10 rounded-sm border-none text-lg font-semibold tracking-wide transition-all", {
+          "cursor-default bg-background text-xl text-secondary hover:bg-background": isViewMode(mode)
+        })}
+        onClick={dateClickedHandler}
+        variant={isAllTimeSlotForDateSelected ? "dark" : "outline"}
+        whileTap={isEditMode(mode) ? { scale: 0.9 } : {}}
+      >
+        <time dateTime={eventDate}>{format(parsedDate, "d")}</time>
+      </MotionButton>
     </div>
   );
 }

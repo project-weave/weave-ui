@@ -1,5 +1,6 @@
-import Calendar from "@/components/calendar";
-import useAvailabilityGridStore, { isEditMode, TimeSlot } from "@/store/availabilityGridStore";
+import EventDateCalendar from "@/components/event-date-calendar";
+import useAvailabilityGridStore, { EventDate, isEditMode, TimeSlot } from "@/store/availabilityGridStore";
+import { parseISO } from "date-fns";
 import { Link2 } from "lucide-react";
 import { useMemo } from "react";
 
@@ -7,8 +8,17 @@ import AvailabilityGridResponseFilterButton from "./availability-grid-response-f
 
 const RESPONSES_TITLE = "Responses";
 
-export default function AvailbilityGridInfoPanel() {
+type AvailabilityGridInfoPanelProps = {
+  eventDatesToColumnRefs: Readonly<Record<EventDate, HTMLDivElement | null>>;
+  sortedVisibleEventDates: EventDate[];
+};
+
+export default function AvailbilityGridInfoPanel({
+  eventDatesToColumnRefs,
+  sortedVisibleEventDates
+}: AvailabilityGridInfoPanelProps) {
   const eventName = useAvailabilityGridStore((state) => state.eventData.eventName);
+  const eventDates = useAvailabilityGridStore((state) => state.eventData.eventDates);
   const participantsToTimeSlots = useAvailabilityGridStore((state) => state.eventData.userAvailability);
   const userFilter = useAvailabilityGridStore((state) => state.userFilter);
   const setUserFilter = useAvailabilityGridStore((state) => state.setUserFilter);
@@ -31,6 +41,29 @@ export default function AvailbilityGridInfoPanel() {
     return record;
   }, [participantsToTimeSlots]);
 
+  const sortedEventDates = useMemo(
+    () =>
+      eventDates.sort((date1, date2) => {
+        return parseISO(date1).getTime() - parseISO(date2).getTime();
+      }),
+    [eventDates]
+  );
+
+  function onNotVisibleSelectedDateClick(date: EventDate) {
+    const columnRef = eventDatesToColumnRefs[date];
+    columnRef?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+  }
+
+  // scroll aligns date with left side of grid
+  // if date is first, or if last column is in view the date is currently in view, the dates are not clickable
+  function isDateClickable(date: EventDate) {
+    if (sortedVisibleEventDates[0] === date) return false;
+
+    const lastEventDate = sortedEventDates[sortedEventDates.length - 1];
+    const lastEventDateInView = sortedVisibleEventDates.includes(lastEventDate);
+    return !(lastEventDateInView && sortedVisibleEventDates.includes(date));
+  }
+
   function filterUserHandler(user: string) {
     if (isEditMode(mode)) return;
 
@@ -40,7 +73,6 @@ export default function AvailbilityGridInfoPanel() {
     } else {
       newUserFilter.push(user);
     }
-
     setUserFilter(newUserFilter);
   }
 
@@ -61,7 +93,7 @@ export default function AvailbilityGridInfoPanel() {
     : Math.min(totalResponseCount, filteredUsersSelectedHoveredTimeSlot.length);
 
   return (
-    <div className="card h-auto cursor-pointer px-4">
+    <div className="card flex h-full cursor-pointer flex-col px-4">
       <div className="flex justify-between text-ellipsis rounded-2xl border-2 border-primary px-3 py-2 font-medium text-secondary">
         {eventName}
         <Link2 />
@@ -92,6 +124,18 @@ export default function AvailbilityGridInfoPanel() {
             />
           ))}
         </div>
+      </div>
+      <div className="mt-auto self-end">
+        <EventDateCalendar
+          earliestSelectedDate={sortedEventDates[0]}
+          id="availability-grid-event-calendar"
+          isDateClickable={isDateClickable}
+          isViewMode={true}
+          latestSelectedDate={sortedEventDates[sortedEventDates.length - 1]}
+          onNotVisibleSelectedDateClick={onNotVisibleSelectedDateClick}
+          selected={new Set(eventDates)}
+          sortedVisibleSelectedDates={sortedVisibleEventDates}
+        />
       </div>
     </div>
   );

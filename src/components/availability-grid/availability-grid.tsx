@@ -1,5 +1,4 @@
 "use client";
-import { useElementsOnScreen } from "@/hooks/useElementsOnScreen";
 import useGridDragSelect from "@/hooks/useGridDragSelect";
 import { isConsecutiveDay } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
@@ -30,7 +29,17 @@ export type AvailabilityCellPosition = {
   row: number;
 };
 
-export default function AvailabilityGrid() {
+type AvailbilityGridProps = {
+  columnContainerRef: React.RefObject<HTMLDivElement>;
+  sortedColumnRefs: React.MutableRefObject<(HTMLDivElement | null)[]>;
+  sortedVisibleColumnNums: number[];
+};
+
+export default function AvailabilityGrid({
+  columnContainerRef,
+  sortedColumnRefs,
+  sortedVisibleColumnNums
+}: AvailbilityGridProps) {
   const user = useAvailabilityGridStore((state) => state.user);
   const eventDates = useAvailabilityGridStore((state) => state.eventData.eventDates);
   const eventTimeEnd = useAvailabilityGridStore((state) => state.eventData.endTimeUTC);
@@ -63,6 +72,7 @@ export default function AvailabilityGrid() {
     return times;
   }, [eventTimeStart, eventTimeEnd]);
 
+  // TODO: handle case when there are no event dates, waiting to fetch
   const sortedEventDates = useMemo(
     () =>
       eventDates.sort((date1, date2) => {
@@ -70,25 +80,6 @@ export default function AvailabilityGrid() {
       }),
     [eventDates]
   );
-
-  // NOTE: can assume columnRefs are in same order as sortedEventDates because they are generated in the same loop
-  const [columnContainerRef, columnRefs, visibleColumnIds] = useElementsOnScreen<EventDate>(sortedEventDates);
-
-  const [sortedVisibleColumnNums, sortedVisibleEventDates] = useMemo<[number[], EventDate[]]>(() => {
-    const sortedColumnNums = Array.from(visibleColumnIds)
-      .map((colStr) => {
-        const colNum = parseInt(colStr);
-        if (colNum === undefined || colNum < 0 || colNum >= sortedEventDates.length) {
-          return -1;
-        }
-        return colNum;
-      })
-      .filter((colNum) => colNum !== -1)
-      .sort((colNum1, colNum2) => colNum1 - colNum2);
-    const sortedDates = sortedColumnNums.map((colNum) => sortedEventDates[colNum]);
-
-    return [sortedColumnNums, sortedDates];
-  }, [visibleColumnIds, sortedEventDates]);
 
   const {
     clearSelection: clearDragSelection,
@@ -178,15 +169,16 @@ export default function AvailabilityGrid() {
           lastColumn={sortedEventDates.length - 1}
           latestEventDate={sortedEventDates[sortedEventDates.length - 1]}
           mode={mode}
-          sortedColumnRefs={columnRefs}
+          sortedColumnRefs={sortedColumnRefs}
           sortedVisibleColumnNums={sortedVisibleColumnNums}
         />
       </div>
 
       <div
-        className="col-start-1 grid"
+        // add invisible scrollbar for time label column as scrollbar on grid adds some padding to the bottom of the grid causes the grid to be misaligned wiht time labels
+        className="col-start-1 grid overflow-x-scroll scrollbar-thin scrollbar-track-transparent scrollbar-thumb-transparent"
         style={{
-          gridTemplateRows: `5.8rem repeat(${sortedEventTimes.length}, minmax(0.8rem, 1fr)) 0.7rem 8px`
+          gridTemplateRows: `5.8rem repeat(${sortedEventTimes.length}, minmax(0.8rem, 1fr)) 0.7rem `
         }}
       >
         <p className="h-full">&nbsp;</p>
@@ -200,20 +192,19 @@ export default function AvailabilityGrid() {
       </div>
 
       <div
-        className="col-start-2 grid h-full snap-x scroll-mt-2 grid-flow-col overflow-x-scroll scroll-smooth scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full"
+        className="col-start-2 grid h-full grid-flow-col overflow-x-scroll scroll-smooth scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full"
         onMouseLeave={() => setHoveredTimeSlot(null)}
         ref={columnContainerRef}
       >
         {sortedEventDates.map((eventDate, gridCol) => {
           const lastRow = sortedEventTimes.length - 1;
-          const lastColumn = sortedEventDates.length - 1;
+          const lastCol = sortedEventDates.length - 1;
 
           const prevEventDate = sortedEventDates[gridCol - 1];
           const nextEventDate = sortedEventDates[gridCol + 1];
 
           const isDateGapLeft = gridCol !== 0 && !isConsecutiveDay(parseISO(prevEventDate), parseISO(eventDate));
-          const isDateGapRight =
-            gridCol !== lastColumn && !isConsecutiveDay(parseISO(eventDate), parseISO(nextEventDate));
+          const isDateGapRight = gridCol !== lastCol && !isConsecutiveDay(parseISO(eventDate), parseISO(nextEventDate));
 
           return (
             <div
@@ -223,7 +214,7 @@ export default function AvailabilityGrid() {
                 gridTemplateRows: `5.1rem 0.7rem repeat(${sortedEventTimes.length}, minmax(0.8rem, 1fr)) 0.7rem`
               }}
             >
-              <div observable-el-id={gridCol} ref={(el) => (columnRefs.current[gridCol] = el)}>
+              <div observable-el-id={gridCol} ref={(el) => (sortedColumnRefs.current[gridCol] = el)}>
                 <AvailabilityGridColumnHeader
                   eventDate={eventDate}
                   hasUserAddedAvailability={allParticipants.includes(user)}
@@ -245,6 +236,7 @@ export default function AvailabilityGrid() {
                 handleCellMouseEnter={() => setHoveredTimeSlot(null)}
                 isDateGapLeft={isDateGapLeft}
                 isDateGapRight={isDateGapRight}
+                isLastCol={gridCol === lastCol}
                 isTimeHovered={false}
                 isTimeSlotHovered={false}
                 key={`availability-grid-cell-${gridCol}-${-1}`}
@@ -267,6 +259,7 @@ export default function AvailabilityGrid() {
                     isBeingRemoved={!isDragAdding && isCellInDragSelectionArea(gridRow, gridCol)}
                     isDateGapLeft={isDateGapLeft}
                     isDateGapRight={isDateGapRight}
+                    isLastCol={gridCol === lastCol}
                     isSelected={selectedTimeSlots.has(timeSlot)}
                     isTimeHovered={getTimeFromTimeSlot(hoveredTimeSlot) === eventTime}
                     isTimeSlotHovered={hoveredTimeSlot === timeSlot}
@@ -289,6 +282,7 @@ export default function AvailabilityGrid() {
                 handleCellMouseEnter={() => setHoveredTimeSlot(null)}
                 isDateGapLeft={isDateGapLeft}
                 isDateGapRight={isDateGapRight}
+                isLastCol={gridCol === lastCol}
                 isTimeHovered={false}
                 isTimeSlotHovered={false}
                 key={`availability-grid-cell-${gridCol}-${lastRow + 1}}`}

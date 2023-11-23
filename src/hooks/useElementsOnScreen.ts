@@ -31,7 +31,7 @@ export function useElementsOnScreen<T>(
     };
     const observerOptions = {
       root: elementContainerRef.current,
-      threshold: 0
+      threshold: 0.8
     } as IntersectionObserverInit;
 
     const observer = new IntersectionObserver(observerCallback, observerOptions);
