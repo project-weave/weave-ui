@@ -42,6 +42,7 @@ export function isViewMode(mode: AvailabilityGridMode): boolean {
   return mode === AvailabilityGridMode.VIEW;
 }
 
+// TODO: only take event dates that fall within the event date/time range
 const testEventData: EventData = {
   endTimeUTC: "22:00:00",
   eventDates: [
@@ -69,7 +70,7 @@ const testEventData: EventData = {
   ],
   eventName: "Weave Team Meeting",
   eventTimeZone: "America/Vancouver",
-  startTimeUTC: "09:00:00",
+  startTimeUTC: "08:00:00",
 
   // temporarily using, user names rather than ids
   // assume time slots are parsed based on the correct timeslot length

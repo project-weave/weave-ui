@@ -53,6 +53,7 @@ export default function AvailabilityGrid({
     state.setHoveredTimeSlot
   ]);
 
+  const [isBestTimesEnabled, setIsBestTimesEnabled] = useState(false);
   const [selectedTimeSlots, setSelectedTimeSlots] = useState(new Set(participantsToTimeSlots[user] ?? []));
 
   // TODO: add timezone conversion
@@ -143,6 +144,7 @@ export default function AvailabilityGrid({
 
   function handleEditUserAvailability() {
     setMode(AvailabilityGridMode.EDIT);
+    setIsBestTimesEnabled(false);
     setUserFilter([]);
   }
 
@@ -166,9 +168,11 @@ export default function AvailabilityGrid({
           handleEditUserAvailability={handleEditUserAvailability}
           handleSaveUserAvailability={handleSaveUserAvailability}
           hasUserAddedAvailability={participantsToTimeSlots[user]?.length > 0}
+          isBestTimesEnabled={isBestTimesEnabled}
           lastColumn={sortedEventDates.length - 1}
           latestEventDate={sortedEventDates[sortedEventDates.length - 1]}
           mode={mode}
+          setIsBestTimesEnabled={setIsBestTimesEnabled}
           sortedColumnRefs={sortedColumnRefs}
           sortedVisibleColumnNums={sortedVisibleColumnNums}
         />
@@ -183,11 +187,16 @@ export default function AvailabilityGrid({
       >
         <p className="h-full">&nbsp;</p>
         {sortedEventTimes.map((eventTime, gridRow) => (
-          <AvailabilityGridRowHeader eventTime={eventTime} key={`availability-grid-row-header-${gridRow}`} />
+          <AvailabilityGridRowHeader
+            eventTime={eventTime}
+            key={`availability-grid-row-header-${gridRow}`}
+            mode={mode}
+          />
         ))}
         <AvailabilityGridRowHeader
           eventTime={eventTimeEnd}
           key={`availability-grid-row-header-${sortedEventDates.length}`}
+          mode={mode}
         />
       </div>
 
@@ -249,6 +258,20 @@ export default function AvailabilityGrid({
                 const participantsSelectedTimeSlot = timeSlotsToParticipants[timeSlot] ?? [];
                 const filteredParticipants = userFilter.length === 0 ? allParticipants : userFilter;
 
+                const filteredParticipantCountForTimeSlot = filteredParticipants.filter((participant) =>
+                  participantsSelectedTimeSlot.includes(participant)
+                ).length;
+
+                const filteredMaxParticipantsForAllTimeSlots = Object.values(timeSlotsToParticipants).reduce(
+                  (maxCount, paricipants) => {
+                    const filteredCount = filteredParticipants.filter((participant) =>
+                      paricipants.includes(participant)
+                    ).length;
+                    return Math.max(maxCount, filteredCount);
+                  },
+                  0
+                );
+
                 return (
                   <AvailabilityGridCell
                     gridCol={gridCol}
@@ -257,6 +280,7 @@ export default function AvailabilityGrid({
                     handleCellMouseEnter={handleCellMouseEnter}
                     isBeingAdded={isDragAdding && isCellInDragSelectionArea(gridRow, gridCol)}
                     isBeingRemoved={!isDragAdding && isCellInDragSelectionArea(gridRow, gridCol)}
+                    isBestTimesEnabled={isBestTimesEnabled}
                     isDateGapLeft={isDateGapLeft}
                     isDateGapRight={isDateGapRight}
                     isLastCol={gridCol === lastCol}
@@ -264,10 +288,9 @@ export default function AvailabilityGrid({
                     isTimeHovered={getTimeFromTimeSlot(hoveredTimeSlot) === eventTime}
                     isTimeSlotHovered={hoveredTimeSlot === timeSlot}
                     key={`availability-grid-cell-${gridCol}-${gridRow}`}
+                    maxParticipantsCountForAllTimeSlots={filteredMaxParticipantsForAllTimeSlots}
                     mode={mode}
-                    participantsSelectedCount={
-                      filteredParticipants.filter((p) => participantsSelectedTimeSlot.includes(p)).length
-                    }
+                    participantsSelectedCount={filteredParticipantCountForTimeSlot}
                     totalParticipants={filteredParticipants.length}
                   />
                 );

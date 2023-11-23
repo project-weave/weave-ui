@@ -2,13 +2,16 @@ import { AvailabilityGridMode, EventDate, isViewMode } from "@/store/availabilit
 import { format, isEqual, parseISO } from "date-fns";
 import { AnimationControls, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { MutableRefObject } from "react";
+import { Dispatch, MutableRefObject, SetStateAction } from "react";
 
 import { Button } from "../ui/button";
+import { Label } from "../ui/label";
+import { Switch } from "../ui/switch";
 
 const ADD_AVAILABILITY_BUTTON_TEXT = "Add Availability";
 const EDIT_AVAILABILITY_BUTTON_TEXT = "Edit Availability";
 const SAVE_AVAILABILITY_BUTTON_TEXT = "Save Availability";
+const BEST_TIMES_BUTTON_TEXT = "Best Times";
 
 type AvailabilityGridHeaderProps = {
   earliestEventDate: EventDate;
@@ -16,9 +19,11 @@ type AvailabilityGridHeaderProps = {
   handleEditUserAvailability: () => void;
   handleSaveUserAvailability: () => void;
   hasUserAddedAvailability: boolean;
+  isBestTimesEnabled: boolean;
   lastColumn: number;
   latestEventDate: EventDate;
   mode: AvailabilityGridMode;
+  setIsBestTimesEnabled: Dispatch<SetStateAction<boolean>>;
   sortedColumnRefs: MutableRefObject<(HTMLDivElement | null)[]>;
   sortedVisibleColumnNums: number[];
 };
@@ -29,9 +34,11 @@ export default function AvailabilityGridHeader({
   handleEditUserAvailability,
   handleSaveUserAvailability,
   hasUserAddedAvailability,
+  isBestTimesEnabled,
   lastColumn,
   latestEventDate,
   mode,
+  setIsBestTimesEnabled,
   sortedColumnRefs,
   sortedVisibleColumnNums
 }: AvailabilityGridHeaderProps) {
@@ -66,7 +73,7 @@ export default function AvailabilityGridHeader({
 
   const saveUserAvailabilityButton = (
     <MotionButton
-      className="h-8 rounded-md"
+      className="h-8 whitespace-nowrap rounded-md"
       onClick={handleSaveUserAvailability}
       variant="dark"
       whileTap={{ scale: 0.94 }}
@@ -78,7 +85,7 @@ export default function AvailabilityGridHeader({
   const editUserAvailabilityButton = (
     <MotionButton
       animate={editButtonAnimationControls}
-      className="h-8 rounded-md"
+      className="h-8 whitespace-nowrap rounded-md "
       onClick={handleEditUserAvailability}
       variant="dark"
       whileTap={{ scale: 0.94 }}
@@ -97,6 +104,20 @@ export default function AvailabilityGridHeader({
           <p className="mb-[1px] text-2xs tracking-wider text-primary">GMT-07</p>
         </div>
         <div className="mb-2 flex items-center">
+          {isViewMode(mode) && (
+            <div className="mr-14 flex items-center space-x-2">
+              <Label className="cursor-pointer whitespace-nowrap font-semibold text-secondary" htmlFor="best-times">
+                {BEST_TIMES_BUTTON_TEXT}
+              </Label>
+              <Switch
+                checked={isBestTimesEnabled}
+                className="data-[state=unchecked]:bg-accent data-[state=checked]:bg-primary-dark"
+                id="best-times"
+                onClick={() => setIsBestTimesEnabled((isEnabled) => !isEnabled)}
+              />
+            </div>
+          )}
+
           {isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}
           {(!lastColInView || !firstColInView) && (
             <div className="ml-8 flex h-7 whitespace-nowrap">

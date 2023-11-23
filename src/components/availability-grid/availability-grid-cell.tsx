@@ -7,9 +7,11 @@ type AvailabilityGridCellProps = Omit<AvailabilityGridCellBaseProps, "children">
   gridRow: number;
   isBeingAdded: boolean;
   isBeingRemoved: boolean;
+  isBestTimesEnabled: boolean;
   isDateGapLeft: boolean;
   isDateGapRight: boolean;
   isSelected: boolean;
+  maxParticipantsCountForAllTimeSlots: number;
   mode: AvailabilityGridMode;
   participantsSelectedCount: number;
   totalParticipants: number;
@@ -21,12 +23,31 @@ const AvailabilityGridCell = React.memo(
     gridRow,
     isBeingAdded,
     isBeingRemoved,
+    isBestTimesEnabled,
     isSelected,
+    maxParticipantsCountForAllTimeSlots,
     mode,
     participantsSelectedCount,
     totalParticipants,
     ...props
   }: AvailabilityGridCellProps) => {
+    function getViewModeCellColour() {
+      if (totalParticipants === 0 || participantsSelectedCount === 0) return "transparent";
+      // primary-dark
+      const darkestColour = { b: 255, g: 71, r: 151 };
+      let ratio = participantsSelectedCount / totalParticipants;
+
+      if (isBestTimesEnabled) {
+        if (maxParticipantsCountForAllTimeSlots === 0) return "transparent";
+        if (maxParticipantsCountForAllTimeSlots === participantsSelectedCount) {
+          ratio = 1;
+        } else {
+          ratio = 0.08;
+        }
+      }
+      return `rgb(${darkestColour.r}, ${darkestColour.g}, ${darkestColour.b}, ${ratio})`;
+    }
+
     return (
       <AvailabilityGridCellBase gridCol={gridCol} gridRow={gridRow} mode={mode} {...props}>
         <div
@@ -34,9 +55,7 @@ const AvailabilityGridCell = React.memo(
             "bg-accent hover:bg-purple-300": isBeingRemoved,
             "bg-primary-dark hover:bg-primary-dark/70": (isSelected || isBeingAdded) && !isBeingRemoved
           })}
-          style={
-            isViewMode(mode) ? { backgroundColor: interpolateColour(participantsSelectedCount, totalParticipants) } : {}
-          }
+          style={isViewMode(mode) ? { backgroundColor: getViewModeCellColour() } : {}}
         />
       </AvailabilityGridCellBase>
     );
@@ -47,12 +66,14 @@ const AvailabilityGridCell = React.memo(
       prevProps.gridRow === nextProps.gridRow &&
       prevProps.handleCellMouseDown === nextProps.handleCellMouseDown &&
       prevProps.handleCellMouseEnter === nextProps.handleCellMouseEnter &&
+      prevProps.isBestTimesEnabled === nextProps.isBestTimesEnabled &&
       prevProps.isBeingAdded === nextProps.isBeingAdded &&
       prevProps.isBeingRemoved === nextProps.isBeingRemoved &&
       prevProps.isLastCol === nextProps.isLastCol &&
       prevProps.isSelected === nextProps.isSelected &&
       prevProps.isTimeHovered === nextProps.isTimeHovered &&
       prevProps.isTimeSlotHovered === nextProps.isTimeSlotHovered &&
+      prevProps.maxParticipantsCountForAllTimeSlots === nextProps.maxParticipantsCountForAllTimeSlots &&
       prevProps.mode === nextProps.mode &&
       prevProps.participantsSelectedCount === nextProps.participantsSelectedCount &&
       prevProps.totalParticipants === nextProps.totalParticipants
@@ -61,22 +82,6 @@ const AvailabilityGridCell = React.memo(
 );
 
 export default AvailabilityGridCell;
-
-function interpolateColour(numParticipants: number, maxParticipants: number) {
-  // background colour
-  const startColor = { b: 252, g: 252, r: 256 };
-  if (maxParticipants === 0) return `rgb(${startColor.r}, ${startColor.g}, ${startColor.b})`;
-  // primary-dark colour
-  const endColor = { b: 255, g: 71, r: 151 };
-
-  const ratio = numParticipants / maxParticipants;
-
-  const r = Math.round(startColor.r + ratio * (endColor.r - startColor.r));
-  const g = Math.round(startColor.g + ratio * (endColor.g - startColor.g));
-  const b = Math.round(startColor.b + ratio * (endColor.b - startColor.b));
-
-  return `rgb(${r}, ${g}, ${b})`;
-}
 
 type AvailabilityGridCellBaseProps = {
   children?: React.ReactNode;
