@@ -222,6 +222,8 @@ export default function EventDateCalendar({
                 const isPrevDayVisible = sortedVisibleSelectedDates?.includes(formattedPrevDay);
                 const isNextDayVisible = sortedVisibleSelectedDates?.includes(formattedNextDay);
 
+                const isFirstVisibleDay = sortedVisibleSelectedDates?.[0] === formattedDay;
+
                 return (
                   <div
                     className={cn("duration-150", dayIndex === 0 ? colStartClasses[getDay(day)] : "", "py-1")}
@@ -230,7 +232,7 @@ export default function EventDateCalendar({
                   >
                     <Button
                       className={cn(
-                        "duration-400 flex h-full w-full select-none items-center justify-center rounded-full border-[1px] border-transparent p-0 text-sm font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
+                        "duration-400 flex h-full w-full select-none items-center justify-center rounded-full border-2 border-transparent p-0 text-sm font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
                         !isDaySelected && {
                           "bg-white": true,
                           "text-gray-300": !isToday(day) && !isSameMonth(day, firstDayCurrentMonth),
@@ -245,6 +247,7 @@ export default function EventDateCalendar({
                           "rounded-r-full": isPrevDaySelected && !isNextDaySelected
                         },
                         isViewMode && {
+                          "border-secondary/80": isFirstVisibleDay,
                           "hover:bg-background": !isDaySelected,
                           "hover:bg-primary": isDaySelected && !isDateClickable(formattedDay),
                           "hover:bg-secondary": isDaySelected && !isDateClickable(formattedDay) && isToday(day),
