@@ -2,29 +2,28 @@ import EventDateCalendar from "@/components/event-date-calendar";
 import useAvailabilityGridStore, { EventDate, isEditMode, TimeSlot } from "@/store/availabilityGridStore";
 import { parseISO } from "date-fns";
 import { Link2 } from "lucide-react";
-import { useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
+import { VariableSizeList } from "react-window";
+import { useShallow } from "zustand/react/shallow";
 
 import AvailabilityGridResponseFilterButton from "./availability-grid-response-filter-button";
 
 const RESPONSES_TITLE = "Responses";
 
 type AvailabilityGridInfoPanelProps = {
-  eventDatesToColumnRefs: Readonly<Record<EventDate, HTMLDivElement | null>>;
-  sortedVisibleEventDates: EventDate[];
+  gridContainerRef: React.MutableRefObject<null | VariableSizeList>;
 };
 
-export default function AvailbilityGridInfoPanel({
-  eventDatesToColumnRefs,
-  sortedVisibleEventDates
-}: AvailabilityGridInfoPanelProps) {
+export default function AvailbilityGridInfoPanel({ gridContainerRef }: AvailabilityGridInfoPanelProps) {
   const eventName = useAvailabilityGridStore((state) => state.eventData.eventName);
-  const eventDates = useAvailabilityGridStore((state) => state.eventData.eventDates);
-  const participantsToTimeSlots = useAvailabilityGridStore((state) => state.eventData.userAvailability);
-  const userFilter = useAvailabilityGridStore((state) => state.userFilter);
+  const eventDates = useAvailabilityGridStore(useShallow((state) => state.eventData.eventDates));
+  const participantsToTimeSlots = useAvailabilityGridStore(useShallow((state) => state.eventData.userAvailability));
+  const userFilter = useAvailabilityGridStore(useShallow((state) => state.userFilter));
   const setUserFilter = useAvailabilityGridStore((state) => state.setUserFilter);
   const mode = useAvailabilityGridStore((state) => state.mode);
   const user = useAvailabilityGridStore((state) => state.user);
-  const hoveredTimeSlot = useAvailabilityGridStore((state) => state.hoveredTimeSlot);
+  const visibleColumnRange = useAvailabilityGridStore((state) => state.visibleColumnRange);
+  const setFocusedDate = useAvailabilityGridStore((state) => state.setFocusedDate);
 
   const allParticipants = Object.keys(participantsToTimeSlots);
 
@@ -41,6 +40,19 @@ export default function AvailbilityGridInfoPanel({
     return record;
   }, [participantsToTimeSlots]);
 
+  const hoveredTimeSlot = useAvailabilityGridStore((state) => state.hoveredTimeSlot);
+
+  let filteredUsersSelectedHoveredTimeSlot = [] as string[];
+  if (hoveredTimeSlot === null) {
+    filteredUsersSelectedHoveredTimeSlot = allParticipants;
+  } else if (userFilter.length === 0) {
+    filteredUsersSelectedHoveredTimeSlot = timeSlotsToParticipants[hoveredTimeSlot] ?? [];
+  } else {
+    filteredUsersSelectedHoveredTimeSlot = (timeSlotsToParticipants[hoveredTimeSlot] ?? []).filter((user) =>
+      userFilter.includes(user)
+    );
+  }
+
   const sortedEventDates = useMemo(
     () =>
       eventDates.sort((date1, date2) => {
@@ -48,21 +60,40 @@ export default function AvailbilityGridInfoPanel({
       }),
     [eventDates]
   );
+  const sortedCalendarVisibleEventDates = useMemo(() => {
+    const startIndex = visibleColumnRange.start === 0 ? 0 : visibleColumnRange.start - 1;
+    return sortedEventDates.slice(startIndex, visibleColumnRange.end);
+  }, [visibleColumnRange.start, visibleColumnRange.end, sortedEventDates]);
 
-  function onNotVisibleSelectedDateClick(date: EventDate) {
-    const columnRef = eventDatesToColumnRefs[date];
-    columnRef?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
-  }
+  const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
+  const onViewModeDateClick = useCallback(
+    (date: EventDate) => {
+      function scrollToDate() {
+        const indexOfDate = sortedEventDates.indexOf(date);
+        if (indexOfDate === -1 || gridContainerRef.current === null) return;
 
-  // scroll aligns date with left side of grid
-  // if date is first, or if last column is in view the date is currently in view, the dates are not clickable
-  function isDateClickable(date: EventDate) {
-    if (sortedVisibleEventDates[0] === date) return false;
+        let columnNum = indexOfDate + 1;
+        if (indexOfDate === 0) {
+          columnNum = 0;
+        }
+        gridContainerRef.current.scrollToItem(columnNum, "start");
+      }
 
-    const lastEventDate = sortedEventDates[sortedEventDates.length - 1];
-    const lastEventDateInView = sortedVisibleEventDates.includes(lastEventDate);
-    return !(lastEventDateInView && sortedVisibleEventDates.includes(date));
-  }
+      function setFocusedDateTimeout() {
+        if (timeoutIdRef.current !== null) {
+          clearTimeout(timeoutIdRef.current);
+        }
+        timeoutIdRef.current = setTimeout(() => {
+          setFocusedDate(null);
+        }, 5000);
+        setFocusedDate(date);
+      }
+
+      scrollToDate();
+      setFocusedDateTimeout();
+    },
+    [gridContainerRef, setFocusedDate, sortedEventDates]
+  );
 
   function filterUserHandler(user: string) {
     if (isEditMode(mode)) return;
@@ -74,17 +105,6 @@ export default function AvailbilityGridInfoPanel({
       newUserFilter.push(user);
     }
     setUserFilter(newUserFilter);
-  }
-
-  let filteredUsersSelectedHoveredTimeSlot = [] as string[];
-  if (hoveredTimeSlot === null) {
-    filteredUsersSelectedHoveredTimeSlot = allParticipants;
-  } else if (userFilter.length === 0) {
-    filteredUsersSelectedHoveredTimeSlot = timeSlotsToParticipants[hoveredTimeSlot] ?? [];
-  } else {
-    filteredUsersSelectedHoveredTimeSlot = (timeSlotsToParticipants[hoveredTimeSlot] ?? []).filter((user) =>
-      userFilter.includes(user)
-    );
   }
 
   const totalResponseCount = userFilter.length === 0 ? allParticipants.length : userFilter.length;
@@ -129,12 +149,11 @@ export default function AvailbilityGridInfoPanel({
         <EventDateCalendar
           earliestSelectedDate={sortedEventDates[0]}
           id="availability-grid-event-calendar"
-          isDateClickable={isDateClickable}
           isViewMode={true}
           latestSelectedDate={sortedEventDates[sortedEventDates.length - 1]}
-          onNotVisibleSelectedDateClick={onNotVisibleSelectedDateClick}
-          selected={new Set(eventDates)}
-          sortedVisibleSelectedDates={sortedVisibleEventDates}
+          onViewModeDateClick={onViewModeDateClick}
+          selected={sortedEventDates}
+          visibleEventDates={sortedCalendarVisibleEventDates}
         />
       </div>
     </div>

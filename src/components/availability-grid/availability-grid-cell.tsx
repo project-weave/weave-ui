@@ -1,15 +1,32 @@
+import { CellBorderCheck } from "@/hooks/useGridDragSelect";
 import { cn } from "@/lib/utils";
-import { AvailabilityGridMode, isEditMode, isViewMode } from "@/store/availabilityGridStore";
+import useAvailabilityGridStore, {
+  AvailabilityGridMode,
+  EventDate,
+  EventTime,
+  getTimeFromTimeSlot,
+  getTimeSlot,
+  isEditMode,
+  isViewMode
+} from "@/store/availabilityGridStore";
+import { parseISO } from "date-fns";
 import React from "react";
 
-type AvailabilityGridCellProps = Omit<AvailabilityGridCellBaseProps, "children"> & {
+type AvailabilityGridCellProps = {
+  eventDate: EventDate;
+  eventTime: EventTime;
   gridCol: number;
   gridRow: number;
-  isBeingAdded: boolean;
-  isBeingRemoved: boolean;
+  handleCellMouseDown: (row: number, col: number) => void;
+  handleCellMouseEnter: (row: number, col: number) => void;
+  handleCellMouseLeave: () => void;
   isBestTimesEnabled: boolean;
+  isCellBorderOfDragSelectionArea: (row: number, col: number) => CellBorderCheck;
+  isCellInDragSelectionArea: (row: number, col: number) => boolean;
   isDateGapLeft: boolean;
   isDateGapRight: boolean;
+  isDragAdding: boolean;
+  isLastCol: boolean;
   isSelected: boolean;
   maxParticipantsCountForAllTimeSlots: number;
   mode: AvailabilityGridMode;
@@ -17,143 +34,97 @@ type AvailabilityGridCellProps = Omit<AvailabilityGridCellBaseProps, "children">
   totalParticipants: number;
 };
 
-const AvailabilityGridCell = React.memo(
-  ({
-    gridCol,
-    gridRow,
-    isBeingAdded,
-    isBeingRemoved,
-    isBestTimesEnabled,
-    isSelected,
-    maxParticipantsCountForAllTimeSlots,
-    mode,
-    participantsSelectedCount,
-    totalParticipants,
-    ...props
-  }: AvailabilityGridCellProps) => {
-    function getViewModeCellColour() {
-      if (totalParticipants === 0 || participantsSelectedCount === 0) return "transparent";
-      // primary-dark
-      const darkestColour = { b: 255, g: 71, r: 151 };
-      let ratio = participantsSelectedCount / totalParticipants;
+export default function AvailabilityGridCell({
+  eventDate,
+  eventTime,
+  gridCol,
+  gridRow,
+  handleCellMouseDown,
+  handleCellMouseEnter,
+  handleCellMouseLeave,
+  isBestTimesEnabled,
+  isCellBorderOfDragSelectionArea,
+  isCellInDragSelectionArea,
+  isDateGapLeft,
+  isDateGapRight,
+  isDragAdding,
+  isLastCol,
+  isSelected,
+  maxParticipantsCountForAllTimeSlots,
+  mode,
+  participantsSelectedCount,
+  totalParticipants
+}: AvailabilityGridCellProps) {
+  const timeSlot = getTimeSlot(eventTime, eventDate);
+  const isTimeHovered = getTimeFromTimeSlot(useAvailabilityGridStore((state) => state.hoveredTimeSlot)) === eventTime;
+  const isTimeSlotHovered = useAvailabilityGridStore((state) => state.hoveredTimeSlot) === timeSlot;
 
-      if (isBestTimesEnabled) {
-        if (maxParticipantsCountForAllTimeSlots === 0) return "transparent";
-        if (maxParticipantsCountForAllTimeSlots === participantsSelectedCount) {
-          ratio = 1;
-        } else {
-          ratio = 0.08;
-        }
+  const isBeingAdded = isDragAdding && isCellInDragSelectionArea(gridRow, gridCol);
+  const isBeingRemoved = !isDragAdding && isCellInDragSelectionArea(gridRow, gridCol);
+
+  const { isBottomBorder, isLeftBorder, isRightBorder, isTopBorder } = isCellBorderOfDragSelectionArea(
+    gridRow,
+    gridCol
+  );
+
+  function getViewModeCellColour() {
+    if (totalParticipants === 0 || participantsSelectedCount === 0) return "transparent";
+    // primary-dark
+    const darkestColour = { b: 255, g: 71, r: 151 };
+    let ratio = participantsSelectedCount / totalParticipants;
+
+    if (isBestTimesEnabled) {
+      if (maxParticipantsCountForAllTimeSlots === 0) return "transparent";
+      if (maxParticipantsCountForAllTimeSlots === participantsSelectedCount) {
+        ratio = 1;
+      } else {
+        ratio = 0.08;
       }
-      return `rgb(${darkestColour.r}, ${darkestColour.g}, ${darkestColour.b}, ${ratio})`;
     }
-
-    return (
-      <AvailabilityGridCellBase gridCol={gridCol} gridRow={gridRow} mode={mode} {...props}>
-        <div
-          className={cn("hover:bg-accent h-full w-full border-0 border-primary-light", {
-            "bg-accent hover:bg-purple-300": isBeingRemoved,
-            "bg-primary-dark hover:bg-primary-dark/70": (isSelected || isBeingAdded) && !isBeingRemoved
-          })}
-          style={isViewMode(mode) ? { backgroundColor: getViewModeCellColour() } : {}}
-        />
-      </AvailabilityGridCellBase>
-    );
-  },
-  (prevProps, nextProps) => {
-    return (
-      prevProps.gridCol === nextProps.gridCol &&
-      prevProps.gridRow === nextProps.gridRow &&
-      prevProps.handleCellMouseDown === nextProps.handleCellMouseDown &&
-      prevProps.handleCellMouseEnter === nextProps.handleCellMouseEnter &&
-      prevProps.isBestTimesEnabled === nextProps.isBestTimesEnabled &&
-      prevProps.isBeingAdded === nextProps.isBeingAdded &&
-      prevProps.isBeingRemoved === nextProps.isBeingRemoved &&
-      prevProps.isLastCol === nextProps.isLastCol &&
-      prevProps.isSelected === nextProps.isSelected &&
-      prevProps.isTimeHovered === nextProps.isTimeHovered &&
-      prevProps.isTimeSlotHovered === nextProps.isTimeSlotHovered &&
-      prevProps.maxParticipantsCountForAllTimeSlots === nextProps.maxParticipantsCountForAllTimeSlots &&
-      prevProps.mode === nextProps.mode &&
-      prevProps.participantsSelectedCount === nextProps.participantsSelectedCount &&
-      prevProps.totalParticipants === nextProps.totalParticipants
-    );
+    return `rgb(${darkestColour.r}, ${darkestColour.g}, ${darkestColour.b}, ${ratio})`;
   }
-);
 
-export default AvailabilityGridCell;
+  const shouldDisplayBorder = eventTime && parseISO(getTimeSlot(eventTime)).getMinutes() === 0;
 
-type AvailabilityGridCellBaseProps = {
-  children?: React.ReactNode;
-  className?: string;
-  gridCol: number;
-  gridRow: number;
-  handleCellMouseDown: (row: number, col: number) => void;
-  handleCellMouseEnter: (row: number, col: number) => void;
-  isDateGapLeft: boolean;
-  isDateGapRight: boolean;
-  isLastCol: boolean;
-  isTimeHovered: boolean;
-  isTimeSlotHovered: boolean;
-  mode: AvailabilityGridMode;
-};
-
-export const AvailabilityGridCellBase = React.memo(
-  ({
-    children,
-    className,
-    gridCol,
-    gridRow,
-    handleCellMouseDown,
-    handleCellMouseEnter,
-    isDateGapLeft,
-    isDateGapRight,
-    isLastCol,
-    isTimeHovered,
-    isTimeSlotHovered,
-    mode
-  }: AvailabilityGridCellBaseProps) => {
-    return (
-      <button
+  return (
+    <button
+      className={cn(
+        "cursor-pointer border-[1px] border-b-0 border-t-2 border-primary-light outline-none",
+        {
+          "border-l-0": gridCol === 0,
+          "border-l-2 border-l-primary": isDateGapLeft,
+          "border-r-0": isLastCol,
+          "border-t-[3px]": isTimeHovered && isEditMode(mode),
+          "border-t-0": !shouldDisplayBorder && !isTimeHovered,
+          "border-t-2 border-t-secondary": isTimeHovered && isViewMode(mode),
+          "mr-2 border-r-2 border-r-primary": isDateGapRight
+        },
+        isViewMode(mode) &&
+          isTimeSlotHovered && {
+            "border-[3px] border-secondary": true,
+            "border-l-[3px]": isDateGapLeft,
+            "border-r-[3px]": isDateGapRight
+          }
+      )}
+      onMouseDown={() => handleCellMouseDown(gridRow, gridCol)}
+      onMouseEnter={() => handleCellMouseEnter(gridRow, gridCol)}
+      onMouseLeave={handleCellMouseLeave}
+      type="button"
+    >
+      <div
         className={cn(
-          "cursor-pointer border-[1px] border-primary-light outline-none",
-          {
-            "border-l-0": gridCol === 0,
-            "border-l-2 border-l-primary": isDateGapLeft,
-            "border-r-0": isLastCol,
-            "border-t-[3px]": isTimeHovered && isEditMode(mode),
-            "border-t-2 border-t-secondary": isTimeHovered && isViewMode(mode),
-            "mr-2 border-r-2 border-r-primary": isDateGapRight
-          },
-          isViewMode(mode) &&
-            isTimeSlotHovered && {
-              "border-[3px] border-secondary": true,
-              "border-l-[3px]": isDateGapLeft,
-              "border-r-[3px]": isDateGapRight
-            },
-          className
+          "h-full w-full border-0 border-primary-light hover:bg-accent",
+          { "bg-primary-dark hover:bg-primary-dark/70": (isSelected || isBeingAdded) && !isBeingRemoved },
+          isBeingRemoved && {
+            "border-b-4": isBottomBorder,
+            "border-l-4": isLeftBorder,
+            "border-r-4": isRightBorder,
+            "border-secondary bg-background": true,
+            "border-t-4": isTopBorder
+          }
         )}
-        onMouseDown={() => handleCellMouseDown(gridRow, gridCol)}
-        onMouseEnter={() => handleCellMouseEnter(gridRow, gridCol)}
-        type="button"
-      >
-        {children}
-      </button>
-    );
-  },
-  (prevProps, nextProps) => {
-    return (
-      prevProps.children === nextProps.children &&
-      prevProps.gridCol === nextProps.gridCol &&
-      prevProps.gridRow === nextProps.gridRow &&
-      prevProps.handleCellMouseDown === nextProps.handleCellMouseDown &&
-      prevProps.handleCellMouseEnter === nextProps.handleCellMouseEnter &&
-      prevProps.isDateGapLeft === nextProps.isDateGapLeft &&
-      prevProps.isDateGapRight === nextProps.isDateGapRight &&
-      prevProps.isLastCol === nextProps.isLastCol &&
-      prevProps.isTimeHovered === nextProps.isTimeHovered &&
-      prevProps.isTimeSlotHovered === nextProps.isTimeSlotHovered &&
-      prevProps.mode === nextProps.mode
-    );
-  }
-);
+        style={isViewMode(mode) ? { backgroundColor: getViewModeCellColour() } : {}}
+      />
+    </button>
+  );
+}

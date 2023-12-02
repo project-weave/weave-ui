@@ -1,8 +1,16 @@
-import { AvailabilityGridMode, EventDate, isViewMode } from "@/store/availabilityGridStore";
+import { cn } from "@/lib/utils";
+import useAvailabilityGridStore, {
+  AvailabilityGridMode,
+  EventDate,
+  isEditMode,
+  isViewMode
+} from "@/store/availabilityGridStore";
 import { format, isEqual, parseISO } from "date-fns";
 import { AnimationControls, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Dispatch, MutableRefObject, SetStateAction } from "react";
+import { Dispatch, SetStateAction } from "react";
+import { VariableSizeList } from "react-window";
+import { useShallow } from "zustand/react/shallow";
 
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
@@ -16,6 +24,7 @@ const BEST_TIMES_BUTTON_TEXT = "Best Times";
 type AvailabilityGridHeaderProps = {
   earliestEventDate: EventDate;
   editButtonAnimationControls: AnimationControls;
+  gridContainerRef: React.MutableRefObject<null | VariableSizeList>;
   handleEditUserAvailability: () => void;
   handleSaveUserAvailability: () => void;
   hasUserAddedAvailability: boolean;
@@ -24,13 +33,12 @@ type AvailabilityGridHeaderProps = {
   latestEventDate: EventDate;
   mode: AvailabilityGridMode;
   setIsBestTimesEnabled: Dispatch<SetStateAction<boolean>>;
-  sortedColumnRefs: MutableRefObject<(HTMLDivElement | null)[]>;
-  sortedVisibleColumnNums: number[];
 };
 
 export default function AvailabilityGridHeader({
   earliestEventDate,
   editButtonAnimationControls,
+  gridContainerRef,
   handleEditUserAvailability,
   handleSaveUserAvailability,
   hasUserAddedAvailability,
@@ -38,12 +46,12 @@ export default function AvailabilityGridHeader({
   lastColumn,
   latestEventDate,
   mode,
-  setIsBestTimesEnabled,
-  sortedColumnRefs,
-  sortedVisibleColumnNums
+  setIsBestTimesEnabled
 }: AvailabilityGridHeaderProps) {
   const earliestDate = parseISO(earliestEventDate);
   const latestDate = parseISO(latestEventDate);
+  const visibleColumnRange = useAvailabilityGridStore(useShallow((state) => state.visibleColumnRange));
+
   let heading = "";
 
   if (isEqual(earliestDate, latestDate)) {
@@ -54,19 +62,17 @@ export default function AvailabilityGridHeader({
     heading = `${format(earliestDate, "MMM d")} - ${format(latestDate, "MMM d yyyy")}`;
   }
 
-  const lastColInView = sortedVisibleColumnNums.length === 0 || sortedVisibleColumnNums.includes(lastColumn);
-  const firstColInView = sortedVisibleColumnNums.length === 0 || sortedVisibleColumnNums.includes(0);
+  const lastColNotInView = visibleColumnRange.end <= lastColumn + 1;
+  const firstColNotInView = visibleColumnRange.start >= 1;
 
   function scrollNext() {
-    if (lastColInView || sortedVisibleColumnNums.length <= 2) return;
-    const secondLastColumn = sortedColumnRefs.current[sortedVisibleColumnNums[sortedVisibleColumnNums.length - 1]];
-    secondLastColumn?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+    if (!lastColNotInView || gridContainerRef.current === null) return;
+    gridContainerRef.current.scrollToItem(visibleColumnRange.end, "start");
   }
 
   function scrollPrev() {
-    if (firstColInView || sortedVisibleColumnNums.length <= 2) return;
-    const secondColumn = sortedColumnRefs.current[sortedVisibleColumnNums[0]];
-    secondColumn?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "end" });
+    if (!firstColNotInView || gridContainerRef.current === null) return;
+    gridContainerRef.current.scrollToItem(visibleColumnRange.start, "end");
   }
 
   const MotionButton = motion(Button);
@@ -96,7 +102,7 @@ export default function AvailabilityGridHeader({
 
   return (
     <>
-      <div className="flex items-center justify-between">
+      <div className="flex w-[54rem] items-center justify-between">
         <div>
           <h1 className="mb-[2px] mr-32 whitespace-nowrap text-2xl font-semibold tracking-wide text-secondary">
             {heading}
@@ -104,43 +110,40 @@ export default function AvailabilityGridHeader({
           <p className="mb-[1px] text-2xs tracking-wider text-primary">GMT-07</p>
         </div>
         <div className="mb-2 flex items-center">
-          {isViewMode(mode) && (
-            <div className="mr-14 flex items-center space-x-2">
-              <Label className="cursor-pointer whitespace-nowrap font-semibold text-secondary" htmlFor="best-times">
-                {BEST_TIMES_BUTTON_TEXT}
-              </Label>
-              <Switch
-                checked={isBestTimesEnabled}
-                className="data-[state=unchecked]:bg-accent data-[state=checked]:bg-primary-dark"
-                id="best-times"
-                onClick={() => setIsBestTimesEnabled((isEnabled) => !isEnabled)}
-              />
-            </div>
-          )}
+          <div className={cn("mr-14 flex items-center space-x-2", { hidden: isEditMode(mode) })}>
+            <Label className="cursor-pointer whitespace-nowrap font-semibold text-secondary" htmlFor="best-times">
+              {BEST_TIMES_BUTTON_TEXT}
+            </Label>
+            <Switch
+              checked={isBestTimesEnabled}
+              className="data-[state=checked]:bg-primary-dark data-[state=unchecked]:bg-accent"
+              id="best-times"
+              onClick={() => setIsBestTimesEnabled((isEnabled) => !isEnabled)}
+            />
+          </div>
 
           {isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}
-          {(!lastColInView || !firstColInView) && (
-            <div className="ml-8 flex h-7 whitespace-nowrap">
-              <MotionButton
-                className="h-full rounded-sm px-[2px] py-0"
-                onClick={scrollPrev}
-                variant={firstColInView ? "dark-disabled" : "dark"}
-                whileTap={!firstColInView ? { scale: 0.88 } : {}}
-              >
-                <span className="sr-only">Previous Columns</span>
-                <ChevronLeft className="h-6 w-6 stroke-[3px]" />
-              </MotionButton>
-              <MotionButton
-                className="ml-[5px] h-full rounded-sm px-[2px] py-0"
-                onClick={scrollNext}
-                variant={lastColInView ? "dark-disabled" : "dark"}
-                whileTap={!lastColInView ? { scale: 0.88 } : {}}
-              >
-                <span className="sr-only">Next Columns</span>
-                <ChevronRight className="h-6 w-6 stroke-[3px]" />
-              </MotionButton>
-            </div>
-          )}
+
+          <div className={cn("ml-8 flex h-7 whitespace-nowrap", { hidden: !lastColNotInView && !firstColNotInView })}>
+            <MotionButton
+              className="h-full rounded-sm px-[2px] py-0"
+              onClick={scrollPrev}
+              variant={!firstColNotInView ? "dark-disabled" : "dark"}
+              whileTap={firstColNotInView ? { scale: 0.88 } : {}}
+            >
+              <span className="sr-only">Previous Columns</span>
+              <ChevronLeft className="h-6 w-6 stroke-[3px]" />
+            </MotionButton>
+            <MotionButton
+              className="ml-[5px] h-full rounded-sm px-[2px] py-0"
+              onClick={scrollNext}
+              variant={!lastColNotInView ? "dark-disabled" : "dark"}
+              whileTap={lastColNotInView ? { scale: 0.88 } : {}}
+            >
+              <span className="sr-only">Next Columns</span>
+              <ChevronRight className="h-6 w-6 stroke-[3px]" />
+            </MotionButton>
+          </div>
         </div>
       </div>
 

@@ -30,7 +30,7 @@ export default function AvailbilityGridBResponseFilterButton({
   return (
     <motion.button
       className={cn(
-        "bg-accent-light hover:bg-accent inline-flex w-min flex-row items-center rounded-md border-2 px-1 py-[1.5px] outline-none duration-100",
+        "inline-flex w-min flex-row items-center rounded-md border-2 border-primary-light bg-accent-light px-1 py-[1.5px] outline-none duration-100 hover:bg-accent",
         isFilterApplied && {
           "border-2 border-primary font-semibold hover:bg-purple-200": userFilter.includes(name) && isViewMode(mode),
           "border-gray-200 bg-transparent text-gray-300 line-through hover:bg-gray-50 hover:text-gray-400":
@@ -38,7 +38,7 @@ export default function AvailbilityGridBResponseFilterButton({
         },
         isEditMode(mode) && {
           "border-transparent bg-transparent text-gray-400 line-through hover:bg-transparent": name !== user,
-          "hover:bg-accent-light border-transparent font-medium text-secondary no-underline": name === user
+          "border-transparent font-medium text-secondary no-underline hover:bg-accent-light": name === user
         },
         {
           "border-gray-100 bg-transparent text-gray-300": noFilterAndSelectedHoveredTime,

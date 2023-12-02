@@ -15,6 +15,11 @@ export enum AvailabilityGridMode {
   EDIT
 }
 
+type VisibleColumnRange = {
+  end: number;
+  start: number;
+};
+
 type EventData = {
   endTimeUTC: EventTime;
   eventDates: EventDate[];
@@ -66,7 +71,10 @@ const testEventData: EventData = {
     "2023-12-22",
     "2023-12-23",
     "2023-12-24",
-    "2023-12-26"
+    "2023-12-26",
+    "2024-01-01",
+    "2024-01-12",
+    "2024-01-03"
   ],
   eventName: "Weave Team Meeting",
   eventTimeZone: "America/Vancouver",
@@ -278,18 +286,23 @@ const testEventData: EventData = {
 // Temporarily storing user data/event data here
 type AvailabilityGridState = {
   eventData: EventData;
+  focusedDate: EventDate | null;
   hoveredTimeSlot: null | TimeSlot;
   mode: AvailabilityGridMode;
   saveUserAvailability: (timeSlots: TimeSlot[]) => void;
+  setFocusedDate: (focusedDate: EventDate | null) => void;
   setHoveredTimeSlot: (hoveredTimeSlot: null | TimeSlot) => void;
   setMode: (mode: AvailabilityGridMode) => void;
   setUserFilter: (filteredUsers: string[]) => void;
+  setVisibleColumnRange: (start: number, end: number) => void;
   user: string;
   userFilter: string[];
+  visibleColumnRange: VisibleColumnRange;
 };
 
 const useAvailabilityGridStore = create<AvailabilityGridState>()((set) => ({
   eventData: testEventData,
+  focusedDate: null,
   hoveredTimeSlot: null,
   mode: AvailabilityGridMode.VIEW,
   saveUserAvailability: (timeSlots: TimeSlot[]) =>
@@ -302,11 +315,17 @@ const useAvailabilityGridStore = create<AvailabilityGridState>()((set) => ({
         }
       }
     })),
+  setFocusedDate: (focusedDate: EventDate | null) => set({ focusedDate }),
   setHoveredTimeSlot: (hoveredTimeSlot: null | TimeSlot) => set({ hoveredTimeSlot }),
   setMode: (mode: AvailabilityGridMode) => set({ mode }),
   setUserFilter: (userFilter: string[]) => set({ userFilter }),
+  setVisibleColumnRange: (start: number, end: number) => set({ visibleColumnRange: { end, start } }),
   user: "Alex Ma",
-  userFilter: []
+  userFilter: [],
+  visibleColumnRange: {
+    end: -1,
+    start: -1
+  }
 }));
 
 export default useAvailabilityGridStore;

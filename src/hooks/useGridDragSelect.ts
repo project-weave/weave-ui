@@ -5,21 +5,28 @@ export type CellPosition = {
   row: number;
 };
 
+export type CellBorderCheck = {
+  isBottomBorder: boolean;
+  isLeftBorder: boolean;
+  isRightBorder: boolean;
+  isTopBorder: boolean;
+};
+
 export type DragClearHandler = () => void;
 export type DragMouseDownHandler = (row: number, col: number) => void;
 export type DragMouseEnterHandler = (row: number, col: number) => void;
 export type DragSaveHandler = () => void;
 export type DragSelectionCellCheck = (row: number, col: number) => boolean;
+export type DragSelectionCellBorderCheck = (row: number, col: number) => CellBorderCheck;
 
-type useGridDragSelectReturn<V> = {
+type useGridDragSelectReturn = {
   clearSelection: DragClearHandler;
   isAdding: boolean;
+  isCellBorderOfSelectionArea: DragSelectionCellBorderCheck;
   isCellInSelectionArea: DragSelectionCellCheck;
   onMouseDown: DragMouseDownHandler;
   onMouseEnter: DragMouseEnterHandler;
   saveSelection: DragSaveHandler;
-  selected: Set<V>;
-  setSelected: Dispatch<SetStateAction<Set<V>>>;
 };
 
 export default function useGridDragSelect<T, U, V>(
@@ -28,7 +35,7 @@ export default function useGridDragSelect<T, U, V>(
   mappingFunction: (arg1: T, arg2: U) => V,
   selected: Set<V>,
   setSelected: Dispatch<SetStateAction<Set<V>>>
-): useGridDragSelectReturn<V> {
+): useGridDragSelectReturn {
   const startCellPositionRef = useRef<CellPosition | null>(null);
   const endCellPositionRef = useRef<CellPosition | null>(null);
 
@@ -51,7 +58,6 @@ export default function useGridDragSelect<T, U, V>(
       endCellPositionRef.current = { col, row };
 
       const element = mappingFunction(sortedRows[row], sortedCols[col]);
-
       if (selected.has(element)) {
         setIsAdding(false);
       } else {
@@ -61,7 +67,7 @@ export default function useGridDragSelect<T, U, V>(
     [selected, sortedCols, sortedRows]
   );
 
-  const saveSelection: DragSaveHandler = () => {
+  const saveSelection: DragSaveHandler = useCallback(() => {
     if (!isSelecting) return;
     const selection = generateAllElementsWithinSelectionArea();
 
@@ -74,7 +80,7 @@ export default function useGridDragSelect<T, U, V>(
     });
 
     clearSelection();
-  };
+  }, [isAdding, isSelecting]);
 
   function generateAllElementsWithinSelectionArea() {
     if (startCellPositionRef.current === null || endCellPositionRef.current === null) return [];
@@ -96,11 +102,11 @@ export default function useGridDragSelect<T, U, V>(
     return elements;
   }
 
-  const clearSelection: DragClearHandler = () => {
+  const clearSelection: DragClearHandler = useCallback(() => {
     setIsSelecting(false);
     startCellPositionRef.current = null;
     endCellPositionRef.current = null;
-  };
+  }, []);
 
   const isCellInSelectionArea: DragSelectionCellCheck = (row: number, col: number): boolean => {
     if (startCellPositionRef.current === null || endCellPositionRef.current === null) return false;
@@ -115,14 +121,40 @@ export default function useGridDragSelect<T, U, V>(
     return minRow <= row && row <= maxRow && minCol <= col && col <= maxCol;
   };
 
+  const isCellBorderOfSelectionArea: DragSelectionCellBorderCheck = (row: number, col: number): CellBorderCheck => {
+    if (startCellPositionRef.current === null || endCellPositionRef.current === null) {
+      return {
+        isBottomBorder: false,
+        isLeftBorder: false,
+        isRightBorder: false,
+        isTopBorder: false
+      };
+    }
+
+    const [minRow, maxRow] = [
+      Math.min(startCellPositionRef.current.row, endCellPositionRef.current.row),
+      Math.max(startCellPositionRef.current.row, endCellPositionRef.current.row)
+    ];
+    const [minCol, maxCol] = [
+      Math.min(startCellPositionRef.current.col, endCellPositionRef.current.col),
+      Math.max(startCellPositionRef.current.col, endCellPositionRef.current.col)
+    ];
+
+    return {
+      isBottomBorder: maxRow === row && minCol <= col && col <= maxCol,
+      isLeftBorder: minCol === col && minRow <= row && row <= maxRow,
+      isRightBorder: maxCol === col && minRow <= row && row <= maxRow,
+      isTopBorder: minRow === row && minCol <= col && col <= maxCol
+    };
+  };
+
   return {
     clearSelection,
     isAdding,
+    isCellBorderOfSelectionArea,
     isCellInSelectionArea,
     onMouseDown,
     onMouseEnter,
-    saveSelection,
-    selected,
-    setSelected
+    saveSelection
   };
 }

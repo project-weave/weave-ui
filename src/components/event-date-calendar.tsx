@@ -17,46 +17,44 @@ import {
 } from "date-fns";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { Button } from "./ui/button";
 
 type EventDateCalendarViewModeProps = {
   earliestSelectedDate: EventDate;
   id: string;
-  isDateClickable: (date: string) => boolean;
   isViewMode: true;
   latestSelectedDate: EventDate;
-  onNotVisibleSelectedDateClick: (date: EventDate) => void;
-  selected: Set<EventDate>;
-  sortedVisibleSelectedDates: EventDate[];
+  onViewModeDateClick: (date: EventDate) => void;
+  selected: EventDate[];
+  visibleEventDates: EventDate[];
 };
 
 type EventDateCalendarEditModeProps = {
   earliestSelectedDate?: never;
   id: string;
-  isDateClickable?: never;
   isViewMode: false;
   latestSelectedDate?: never;
-  onNotVisibleSelectedDateClick?: never;
-  selected: Set<EventDate>;
-  sortedVisibleSelectedDates?: never;
+  onViewModeDateClick?: never;
+  selected: EventDate[];
+  visibleEventDates?: never;
 };
 
 type EventDateCalendarProps = EventDateCalendarEditModeProps | EventDateCalendarViewModeProps;
 
-export default function EventDateCalendar({
+export const MONTH_FORMAT = "yyyy-MM";
+
+const EventDateCalendar = ({
   earliestSelectedDate,
   id,
-  isDateClickable,
   isViewMode,
   latestSelectedDate,
-  onNotVisibleSelectedDateClick,
+  onViewModeDateClick,
   selected,
-  sortedVisibleSelectedDates
-}: EventDateCalendarProps) {
+  visibleEventDates
+}: EventDateCalendarProps) => {
   const today = startOfToday();
-  const MONTH_FORMAT = "yyyy-MM";
 
   const defaultMonth = isViewMode ? format(parseISO(earliestSelectedDate), MONTH_FORMAT) : format(today, MONTH_FORMAT);
 
@@ -64,12 +62,6 @@ export default function EventDateCalendar({
   const [currentMonth, setCurrentMonth] = useState(defaultMonth);
   const [isDragging, setIsDragging] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-
-  useEffect(() => {
-    if (isViewMode && sortedVisibleSelectedDates.length > 0) {
-      setCurrentMonth(format(parseISO(sortedVisibleSelectedDates[0]), MONTH_FORMAT));
-    }
-  }, [sortedVisibleSelectedDates, isViewMode]);
 
   const days = eachDayOfInterval({
     end: getLastDayOfCalendar(currentMonth),
@@ -92,7 +84,7 @@ export default function EventDateCalendar({
   function handleMouseDown(day: EventDate) {
     if (isViewMode) {
       if (selectedDates.has(day)) {
-        onNotVisibleSelectedDateClick(day);
+        onViewModeDateClick(day);
       }
     } else {
       setIsDragging(true);
@@ -218,21 +210,21 @@ export default function EventDateCalendar({
                 const isPrevDaySelected = selectedDates.has(formattedPrevDay);
                 const isNextDaySelected = selectedDates.has(formattedNextDay);
 
-                const isDayVisible = sortedVisibleSelectedDates?.includes(formattedDay);
-                const isPrevDayVisible = sortedVisibleSelectedDates?.includes(formattedPrevDay);
-                const isNextDayVisible = sortedVisibleSelectedDates?.includes(formattedNextDay);
+                const isDayVisible = visibleEventDates?.includes(formattedDay);
+                const isPrevDayVisible = visibleEventDates?.includes(formattedPrevDay);
+                const isNextDayVisible = visibleEventDates?.includes(formattedNextDay);
 
-                const isFirstVisibleDay = sortedVisibleSelectedDates?.[0] === formattedDay;
+                const isFirstVisibleDay = visibleEventDates?.[0] === formattedDay;
 
                 return (
                   <div
-                    className={cn("duration-150", dayIndex === 0 ? colStartClasses[getDay(day)] : "", "py-1")}
+                    className={cn(dayIndex === 0 ? colStartClasses[getDay(day)] : "", "py-1")}
                     id={id}
                     key={`calendar-day-${formattedDay}`}
                   >
                     <Button
                       className={cn(
-                        "duration-400 flex h-full w-full select-none items-center justify-center rounded-full border-2 border-transparent p-0 text-sm font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
+                        "flex h-full w-full select-none items-center justify-center rounded-full border-2 border-transparent p-0 text-sm font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
                         !isDaySelected && {
                           "bg-white": true,
                           "text-gray-300": !isToday(day) && !isSameMonth(day, firstDayCurrentMonth),
@@ -248,17 +240,14 @@ export default function EventDateCalendar({
                         },
                         isViewMode && {
                           "border-secondary/80": isFirstVisibleDay,
-                          "hover:bg-background": !isDaySelected,
-                          "hover:bg-primary": isDaySelected && !isDateClickable(formattedDay),
-                          "hover:bg-secondary": isDaySelected && !isDateClickable(formattedDay) && isToday(day),
-                          "hover:bg-secondary/80": isDaySelected && isDateClickable(formattedDay) && isToday(day)
+                          "hover:bg-background": !isDaySelected
                         },
                         isViewMode &&
                           !isDayVisible &&
                           isDaySelected && {
-                            "bg-accent-light hover:bg-accent border-primary-light text-secondary": true,
                             "bg-primary/40 hover:bg-primary/60": isToday(day),
                             "border-l-0": !isPrevDayVisible && isPrevDaySelected && day.getDay() !== 0,
+                            "border-primary-light bg-accent-light text-secondary hover:bg-accent": true,
                             "border-r-0": !isNextDayVisible && isNextDaySelected && day.getDay() !== 6
                           }
                       )}
@@ -278,4 +267,6 @@ export default function EventDateCalendar({
       </div>
     </div>
   );
-}
+};
+
+export default React.memo(EventDateCalendar);
