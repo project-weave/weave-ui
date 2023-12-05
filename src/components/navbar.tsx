@@ -3,11 +3,17 @@ import Image from "next/image";
 
 export default function NavBar() {
   return (
-    <nav className="mb-9 flex w-full justify-between">
-      <Image alt="weave-logo" className="h-[38px] w-[35px] opacity-70" height={40} src="/favicon.ico" width={40} />
+    <nav className="relative z-50 m-auto flex justify-between bg-white py-6">
+      <Image
+        alt="weave-logo"
+        className="h-8 w-8 opacity-70 2xl:h-9 2xl:w-9"
+        height={40}
+        src="/favicon.ico"
+        width={40}
+      />
       <ul>
         <li>
-          <UserCircle className="h-[38px] w-[35px] text-gray-600 opacity-90" />
+          <UserCircle className="h-8 w-8 text-gray-600 opacity-90 2xl:h-9 2xl:w-9" />
         </li>
       </ul>
     </nav>
