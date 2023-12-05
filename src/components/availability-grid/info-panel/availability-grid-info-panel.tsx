@@ -95,6 +95,10 @@ export default function AvailbilityGridInfoPanel({ gridContainerRef }: Availabil
     [gridContainerRef, setFocusedDate, sortedEventDates]
   );
 
+  const eventDatesSet = useMemo(() => {
+    return new Set<EventDate>(eventDates);
+  }, [eventDates]);
+
   function filterUserHandler(user: string) {
     if (isEditMode(mode)) return;
 
@@ -152,7 +156,7 @@ export default function AvailbilityGridInfoPanel({ gridContainerRef }: Availabil
           isViewMode={true}
           latestSelectedDate={sortedEventDates[sortedEventDates.length - 1]}
           onViewModeDateClick={onViewModeDateClick}
-          selected={sortedEventDates}
+          selectedDates={eventDatesSet}
           visibleEventDates={sortedCalendarVisibleEventDates}
         />
       </div>

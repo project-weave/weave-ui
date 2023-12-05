@@ -9,12 +9,10 @@ export default function EventPage() {
 
   return (
     <div className="grid h-full grid-flow-col justify-center gap-3 pb-4">
-      <div className="min-w-[20rem]">
+      <div className="w-[20rem]">
         <AvailabilityGridInfoPanel gridContainerRef={gridContainerRef} />
       </div>
-      <div className="h-full w-full">
-        <AvailabilityGrid gridContainerRef={gridContainerRef} />
-      </div>
+      <AvailabilityGrid gridContainerRef={gridContainerRef} />
     </div>
   );
 }
