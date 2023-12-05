@@ -142,7 +142,7 @@ export default function TimeInputWithLabel({
     <div className="relative w-full">
       <div
         className={cn(
-          "box-border flex h-[2.3rem] w-32 items-center rounded-2xl bg-background px-4 pb-2.5 pt-3 text-sm outline outline-2 outline-primary/40 focus-within:outline-[3px] focus-within:outline-primary hover:outline-primary",
+          "peer box-border flex h-[2.3rem] w-32 items-center rounded-2xl bg-background px-4 pb-2.5 pt-3 text-sm outline outline-2 outline-primary/40 focus-within:outline-primary hover:outline-primary",
           {
             "outline-red-600/40 focus-within:outline-red-600 hover:outline-red-600": variant === "error"
           }
@@ -150,7 +150,7 @@ export default function TimeInputWithLabel({
       >
         <input
           className={cn(
-            "selection-transparent w-5 select-none appearance-none rounded-[4px] border-0 pr-[1px] text-end caret-transparent outline-none focus:bg-accent",
+            "selection-transparent peer w-5 select-none appearance-none rounded-[4px] border-0 pr-[1px] text-end caret-transparent outline-none focus:bg-accent",
             {
               "focus:bg-red-100": variant === "error"
             }
@@ -181,7 +181,7 @@ export default function TimeInputWithLabel({
         />
         <input
           className={cn(
-            "selection-transparent ml-[1px] w-6 rounded-[4px] border-0 pl-[1px] caret-transparent outline-none focus:bg-accent",
+            "selection-transparent peer ml-[1px] w-6 rounded-[4px] border-0 pl-[1px] caret-transparent outline-none focus:bg-accent",
             {
               "focus:bg-red-100": variant === "error"
             }
@@ -196,7 +196,7 @@ export default function TimeInputWithLabel({
       </div>
       <Label
         className={cn(
-          "absolute left-1 top-1 z-10 origin-[0] -translate-y-4 scale-75 transform rounded-sm bg-background px-2 text-sm text-black duration-300"
+          "absolute left-1 top-1 z-10 origin-[0] -translate-y-4 scale-75 transform rounded-sm bg-background px-3 text-sm text-black duration-300 peer-focus-within:px-2"
         )}
         htmlFor={id}
       >

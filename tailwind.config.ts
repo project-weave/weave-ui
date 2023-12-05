@@ -30,8 +30,10 @@ module.exports = {
         input: "rgb(var(--input), <alpha-value>)",
         primary: {
           dark: "rgb(var(--primary-dark), <alpha-value>)",
+          "dark-hover": "rgb(var(--primary-dark-hover), <alpha-value>)",
           DEFAULT: "rgb(var(--primary), <alpha-value>)",
           foreground: "rgb(var(--primary-foreground), <alpha-value>)",
+          hover: "rgb(var(--primary-hover), <alpha-value>)",
           light: "rgb(var(--primary-light), <alpha-value>)"
         },
         ring: "rgb(var(--ring), <alpha-value>)",

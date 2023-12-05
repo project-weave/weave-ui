@@ -18,9 +18,9 @@ const buttonVariants = cva(
         sm: "h-9 rounded-lg px-3"
       },
       variant: {
-        dark: "bg-primary-dark text-primary-foreground hover:bg-primary-dark/80",
+        dark: "bg-primary-dark text-primary-foreground hover:bg-primary-dark-hover",
         "dark-disabled": "text-primary-dark bg-primary-foreground",
-        default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        default: "bg-primary text-primary-foreground hover:bg-primary-hover",
         "default-disabled": "text-primary bg-primary-foreground",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         ghost: "hover:bg-accent hover:text-accent-foreground",

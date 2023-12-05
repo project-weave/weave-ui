@@ -1,7 +1,8 @@
 import EventDateCalendar from "@/components/event-date-calendar";
+import { Button } from "@/components/ui/button";
 import useAvailabilityGridStore, { EventDate, isEditMode, TimeSlot } from "@/store/availabilityGridStore";
 import { parseISO } from "date-fns";
-import { Link2 } from "lucide-react";
+import { Copy } from "lucide-react";
 import { useCallback, useMemo, useRef } from "react";
 import { VariableSizeList } from "react-window";
 import { useShallow } from "zustand/react/shallow";
@@ -118,9 +119,14 @@ export default function AvailbilityGridInfoPanel({ gridContainerRef }: Availabil
 
   return (
     <div className="card flex h-full cursor-pointer flex-col px-4">
-      <div className="flex justify-between text-ellipsis rounded-2xl border-2 border-primary px-3 py-2 font-medium text-secondary">
+      <div className="relative flex justify-between text-ellipsis rounded-2xl border-2 border-primary px-3 py-2 text-sm font-medium text-secondary">
         {eventName}
-        <Link2 />
+        <Button
+          className="hover:bg-primary-dark-hover absolute -end-1 -top-[1.5px] h-10 rounded-2xl hover:opacity-100"
+          variant="dark"
+        >
+          <Copy className="h-4 w-4" />
+        </Button>
       </div>
 
       <div className="m-3 select-none">
