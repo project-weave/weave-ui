@@ -11,10 +11,9 @@ export default function NavBar() {
         src="/favicon.ico"
         width={40}
       />
-      <ul>
-        <li>
-          <UserCircle className="h-8 w-8 text-gray-600 opacity-90 2xl:h-9 2xl:w-9" />
-        </li>
+      <ul className="flex pd">
+        <button className="font-bold transition-transform transform duration-200 ease-in-out hover:scale-110"> Sign up </button>
+        <button className="font-bold px-5 bg-white border-2 border-primary rounded-2xl ml-12 transition-transform transform duration-200 ease-in-out hover:scale-110"> Log in </button>        
       </ul>
     </nav>
   );

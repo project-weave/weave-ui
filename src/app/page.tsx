@@ -9,7 +9,7 @@ export default function Home() {
       <Button>Event Page!</Button>
       </Link>
 
-      <Link href="/landng-page.tsx">
+      <Link href="/landing-page">
       <Button>landing page!</Button>
       </Link>
     </main>

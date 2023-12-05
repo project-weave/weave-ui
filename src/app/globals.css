@@ -37,6 +37,8 @@
     --ring: 159, 110, 249;
 
     --radius: 0.8rem;
+
+    scroll-behavior: smooth;
   }
 
   .dark {
