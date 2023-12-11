@@ -22,7 +22,7 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
   return (
     <div
       className={cn("card flex h-[14rem] flex-col border-2 px-5 pt-4", {
-        "h-full w-full px-8": size === "large"
+        "h-full w-full px-8 pb-8": size === "large"
       })}
       onMouseUp={onDragSelectMouseUp}
     >
