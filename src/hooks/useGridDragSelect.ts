@@ -12,21 +12,21 @@ export type CellBorderCheck = {
   isTopBorder: boolean;
 };
 
-export type DragClearHandler = () => void;
-export type DragMouseDownHandler = (row: number, col: number) => void;
-export type DragMouseEnterHandler = (row: number, col: number) => void;
-export type DragSaveHandler = () => void;
-export type DragSelectionCellCheck = (row: number, col: number) => boolean;
-export type DragSelectionCellBorderCheck = (row: number, col: number) => CellBorderCheck;
+export type GridDragClearHandler = () => void;
+export type GridDragMouseDownHandler = (row: number, col: number) => void;
+export type GridDragMouseEnterHandler = (row: number, col: number) => void;
+export type GridDragSaveHandler = () => void;
+export type GridDragSelectionCellCheck = (row: number, col: number) => boolean;
+export type GridDragSelectionCellBorderCheck = (row: number, col: number) => CellBorderCheck;
 
 type useGridDragSelectReturn = {
-  clearSelection: DragClearHandler;
+  clearSelection: GridDragClearHandler;
   isAdding: boolean;
-  isCellBorderOfSelectionArea: DragSelectionCellBorderCheck;
-  isCellInSelectionArea: DragSelectionCellCheck;
-  onMouseDown: DragMouseDownHandler;
-  onMouseEnter: DragMouseEnterHandler;
-  saveSelection: DragSaveHandler;
+  isCellBorderOfSelectionArea: GridDragSelectionCellBorderCheck;
+  isCellInSelectionArea: GridDragSelectionCellCheck;
+  onMouseDown: GridDragMouseDownHandler;
+  onMouseEnter: GridDragMouseEnterHandler;
+  saveSelection: GridDragSaveHandler;
 };
 
 export default function useGridDragSelect<T, U, V>(
@@ -67,7 +67,7 @@ export default function useGridDragSelect<T, U, V>(
     [selected, sortedCols, sortedRows]
   );
 
-  const saveSelection: DragSaveHandler = useCallback(() => {
+  const saveSelection: GridDragSaveHandler = useCallback(() => {
     if (!isSelecting) return;
     const selection = generateAllElementsWithinSelectionArea();
 
@@ -102,13 +102,13 @@ export default function useGridDragSelect<T, U, V>(
     return elements;
   }
 
-  const clearSelection: DragClearHandler = useCallback(() => {
+  const clearSelection: GridDragClearHandler = useCallback(() => {
     setIsSelecting(false);
     startCellPositionRef.current = null;
     endCellPositionRef.current = null;
   }, []);
 
-  const isCellInSelectionArea: DragSelectionCellCheck = (row: number, col: number): boolean => {
+  const isCellInSelectionArea: GridDragSelectionCellCheck = (row: number, col: number): boolean => {
     if (startCellPositionRef.current === null || endCellPositionRef.current === null) return false;
     const [minRow, maxRow] = [
       Math.min(startCellPositionRef.current.row, endCellPositionRef.current.row),
@@ -121,7 +121,7 @@ export default function useGridDragSelect<T, U, V>(
     return minRow <= row && row <= maxRow && minCol <= col && col <= maxCol;
   };
 
-  const isCellBorderOfSelectionArea: DragSelectionCellBorderCheck = (row: number, col: number): CellBorderCheck => {
+  const isCellBorderOfSelectionArea: GridDragSelectionCellBorderCheck = (row: number, col: number): CellBorderCheck => {
     if (startCellPositionRef.current === null || endCellPositionRef.current === null) {
       return {
         isBottomBorder: false,

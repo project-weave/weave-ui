@@ -1,4 +1,5 @@
 "use client";
+import useDragSelect from "@/hooks/useDragSelect";
 import { cn } from "@/lib/utils";
 import { EventDate } from "@/store/availabilityGridStore";
 import { EVENT_DATE_FORMAT } from "@/store/availabilityGridStore";
@@ -74,8 +75,12 @@ const EventDateCalendar = ({
     defaultMonth = currentMonthOverride;
   }
   const [currentMonth, setCurrentMonth] = useState(defaultMonth);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isAdding, setIsAdding] = useState(false);
+
+  const {
+    onMouseDown: onDragSelectMouseDown,
+    onMouseEnter: onDragSelectMouseEnter,
+    onMouseUp: onDragSelectMouseUp
+  } = useDragSelect<EventDate>(selectedDates, setSelectedDates!);
 
   useEffect(() => {
     if (currentMonthOverride !== undefined) {
@@ -107,48 +112,20 @@ const EventDateCalendar = ({
         onViewModeDateClick(day);
       }
     } else {
-      if (isBefore(parseISO(day), today)) return;
-
-      setIsDragging(true);
-      setSelectedDates((prevDates) => {
-        const newSelected = new Set(prevDates);
-        if (selectedDates.has(day)) {
-          setIsAdding(false);
-          newSelected.delete(day);
-        } else {
-          setIsAdding(true);
-          newSelected.add(day);
-        }
-        return newSelected;
-      });
-    }
-  }
-
-  function handleMouseEnter(day: EventDate) {
-    if (
-      isViewMode ||
-      !isDragging ||
-      isBefore(parseISO(day), today) ||
-      (selectedDates.has(day) && isAdding) ||
-      (!selectedDates.has(day) && !isAdding)
-    ) {
-      return;
-    }
-
-    setSelectedDates((prevDates) => {
-      const newSelected = new Set(prevDates);
-      if (selectedDates.has(day) && !isAdding) {
-        newSelected.delete(day);
-      } else {
-        newSelected.add(day);
+      if (!isBefore(parseISO(day), today)) {
+        onDragSelectMouseDown(day);
       }
-      return newSelected;
-    });
+    }
   }
-
+  function handleMouseEnter(day: EventDate) {
+    if (!isViewMode && !isBefore(parseISO(day), today)) {
+      onDragSelectMouseEnter(day);
+    }
+  }
   function handleMouseUp() {
-    if (isViewMode) return;
-    setIsDragging(false);
+    if (!isViewMode) {
+      onDragSelectMouseUp();
+    }
   }
 
   const firstDayCurrentMonth = parse(currentMonth, MONTH_FORMAT, today);
@@ -193,7 +170,7 @@ const EventDateCalendar = ({
 
   return (
     <div
-      className={cn("box-border select-none rounded-lg border-2 border-primary bg-background px-5 py-3", {
+      className={cn("card select-none border-2 px-5 py-3", {
         "h-full w-full px-12 pb-5 pt-8": size === "large"
       })}
       onContextMenu={handleMouseUp}

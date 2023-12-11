@@ -3,6 +3,16 @@ import { create } from "zustand";
 // EventDate is the date portion of a TimeSlot, ie. 2000-11-29
 export type EventDate = string;
 export const EVENT_DATE_FORMAT = "yyyy-MM-dd";
+// date representation of days of week from sunday to saturday
+export const DAYS_OF_WEEK_DATES: EventDate[] = [
+  "2023-01-01",
+  "2023-01-02",
+  "2023-01-03",
+  "2023-01-04",
+  "2023-01-05",
+  "2023-01-06",
+  "2023-01-07"
+];
 
 // EventTime is the time portion of a TimeSlot in 24 hour format, ie. 12:00:00
 export type EventTime = string;
@@ -29,7 +39,7 @@ type EventData = {
   userAvailability: Record<string, TimeSlot[]>;
 };
 
-// assuming that when only time is passed in as a parameter, we're only interested in time so we we can use an aribtrary date to parse
+// assume that when only time is passed in as a parameter, we're only interested in time so we we can use an aribtrary date to parse
 export function getTimeSlot(time: EventTime, date: EventDate = "2000-11-29"): TimeSlot {
   return date + "T" + time;
 }

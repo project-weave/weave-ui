@@ -1,4 +1,6 @@
 "use client";
+import { EventType } from "@/app/(event)/new/page";
+import DaysOfWeekPicker from "@/components/days-of-week-picker";
 import Calendar from "@/components/event-date-calendar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -8,11 +10,6 @@ import { cn } from "@/lib/utils";
 import { EventDate } from "@/store/availabilityGridStore";
 import { isBefore, isEqual, parse } from "date-fns";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-
-enum EventType {
-  DAYS_OF_WEEK,
-  SPECIFIC_DATES
-}
 
 const EVENT_NAME_LABEL = "Event Name";
 const START_TIME_LABEL = "Start Time";
@@ -28,21 +25,28 @@ const CREATE_EVENT = "Create Event";
 const TO = "to";
 const OR = "or";
 
-type EvenFormProps = {
+type EventFormProps = {
   currentCalendarMonth: string;
+  eventType: EventType;
   selectedDates: Set<EventDate>;
+  selectedDaysOfWeek: Set<EventDate>;
   setCurrentCalendarMonth: Dispatch<SetStateAction<string>>;
+  setEventType: Dispatch<SetStateAction<EventType>>;
   setSelectedDates: Dispatch<SetStateAction<Set<EventDate>>>;
+  setSelectedDaysOfWeek: Dispatch<SetStateAction<Set<EventDate>>>;
 };
 
-export default function EVENT_DATE_FORMAT({
+export default function EventForm({
   currentCalendarMonth,
+  eventType,
   selectedDates,
+  selectedDaysOfWeek,
   setCurrentCalendarMonth,
-  setSelectedDates
-}: EvenFormProps) {
+  setEventType,
+  setSelectedDates,
+  setSelectedDaysOfWeek
+}: EventFormProps) {
   const [eventName, setEventName] = useState("");
-  const [eventType, setEventType] = useState(EventType.SPECIFIC_DATES);
 
   const [startTimeHour, setStartTimeHour] = useState("9");
   const [startTimeMinute, setStartTimeMinute] = useState("00");
@@ -67,18 +71,23 @@ export default function EVENT_DATE_FORMAT({
   }, [startTimeAmPm, startTimeHour, startTimeMinute, endTimeAmPm, endTimeHour, endTimeMinute]);
 
   useEffect(() => {
-    if (eventName.trim() === "" || selectedDates.size === 0 || !isTimeRangeValid) {
+    if (
+      eventName.trim() === "" ||
+      (eventType === EventType.SPECIFIC_DATES && selectedDates.size === 0) ||
+      (eventType === EventType.DAYS_OF_WEEK && selectedDaysOfWeek.size === 0) ||
+      !isTimeRangeValid
+    ) {
       setIsFormValid(false);
     } else {
       setIsFormValid(true);
     }
-  }, [eventName, selectedDates, isTimeRangeValid]);
+  }, [eventName, selectedDates, isTimeRangeValid, eventType, selectedDaysOfWeek]);
 
   return (
-    <div className="card max-w-[24rem]">
+    <div className="card flex h-full flex-col">
       <form
         autoComplete="off"
-        className="flex flex-col"
+        className="flex h-full flex-col"
         onSubmit={(e) => {
           e.preventDefault();
         }}
@@ -155,27 +164,31 @@ export default function EVENT_DATE_FORMAT({
           </div>
         </div>
 
-        <div className="mb-4">
-          <Calendar
-            currentMonthOverride={currentCalendarMonth}
-            id="create-event-calendar-sm"
-            isViewMode={false}
-            selectedDates={selectedDates}
-            setCurrentMonthOverride={setCurrentCalendarMonth}
-            setSelectedDates={setSelectedDates}
-            size="small"
-          />
+        <div className="mb-4 flex-grow">
+          {eventType === EventType.SPECIFIC_DATES ? (
+            <Calendar
+              currentMonthOverride={currentCalendarMonth}
+              id="create-event-calendar-sm"
+              isViewMode={false}
+              selectedDates={selectedDates}
+              setCurrentMonthOverride={setCurrentCalendarMonth}
+              setSelectedDates={setSelectedDates}
+              size="small"
+            />
+          ) : (
+            <DaysOfWeekPicker selectedDaysOfWeek={selectedDaysOfWeek} setSelectedDaysOfWeek={setSelectedDaysOfWeek} />
+          )}
         </div>
 
         {/* <div className="mb-2 ml-1 flex items-center text-sm">
-  <Checkbox className="h-4 w-4" id="avail-notif" />
-  <label className="ml-2 pt-0 text-xs text-secondary" htmlFor="avail-notif">
-    {I_WANT_TO_BE_NOTIFIED}
-  </label>
-</div> */}
+              <Checkbox className="h-4 w-4" id="avail-notif" />
+              <label className="ml-2 pt-0 text-xs text-secondary" htmlFor="avail-notif">
+                {I_WANT_TO_BE_NOTIFIED}
+              </label>
+            </div> */}
 
         <Button
-          className="mt-3 h-auto w-full rounded-2xl border-[1px] border-primary py-4"
+          className="mt-3 h-auto w-full rounded-2xl border-[1px] border-primary py-4 align-bottom"
           disabled={!isFormValid}
           type="submit"
         >
