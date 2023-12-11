@@ -24,6 +24,8 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
       className={cn("card flex h-[14rem] flex-col border-2 px-5 pt-4", {
         "h-full w-full px-8 pb-8": size === "large"
       })}
+      onContextMenu={onDragSelectMouseUp}
+      onMouseLeave={onDragSelectMouseUp}
       onMouseUp={onDragSelectMouseUp}
     >
       {size === "large" && (
