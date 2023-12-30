@@ -185,8 +185,8 @@ const EventDateCalendar = ({
         >
           <h1 className="flex-auto font-semibold text-secondary">{format(firstDayCurrentMonth, "MMMM yyyy")}</h1>
           <MotionButton
-            className={cn("ml-1 h-4 rounded-[.4rem] border-none px-[1px]", {
-              "mr-1 h-7 w-7": size === "large"
+            className={cn("ml-1 h-4 rounded-[.3rem] border-none px-[1px]", {
+              "mr-1 h-7 w-7 rounded-[.4rem]": size === "large"
             })}
             onClick={setPrevMonth}
             variant={isCurrentMonthEarliest ? "default-disabled" : "default"}
@@ -201,8 +201,8 @@ const EventDateCalendar = ({
           </MotionButton>
 
           <MotionButton
-            className={cn("ml-1 h-4 rounded-[.4rem] border-none px-[1px]", {
-              "h-7 w-7": size === "large"
+            className={cn("ml-1 h-4 rounded-[.3rem] border-none px-[1px]", {
+              "h-7 w-7 rounded-[.4rem]": size === "large"
             })}
             onClick={setNextMonth}
             variant={isCurrentMonthLatest ? "default-disabled" : "default"}

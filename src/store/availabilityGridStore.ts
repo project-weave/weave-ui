@@ -25,6 +25,11 @@ export enum AvailabilityGridMode {
   EDIT
 }
 
+export enum AvailabilityType {
+  SPECIFIC_DATES,
+  DAYS_OF_WEEK
+}
+
 type VisibleColumnRange = {
   end: number;
   start: number;
@@ -86,6 +91,7 @@ const testEventData: EventData = {
     "2024-01-12",
     "2024-01-03"
   ],
+  // eventDates: ["2023-01-01", "2023-01-02", "2023-01-03", "2023-01-04", "2023-01-05", "2023-01-06", "2023-01-07"],
   eventName: "Weave Team Meeting",
   eventTimeZone: "America/Vancouver",
   startTimeUTC: "08:00:00",
@@ -295,6 +301,7 @@ const testEventData: EventData = {
 
 // Temporarily storing user data/event data here
 type AvailabilityGridState = {
+  availabilityType: AvailabilityType;
   eventData: EventData;
   focusedDate: EventDate | null;
   hoveredTimeSlot: null | TimeSlot;
@@ -311,6 +318,7 @@ type AvailabilityGridState = {
 };
 
 const useAvailabilityGridStore = create<AvailabilityGridState>()((set) => ({
+  availabilityType: AvailabilityType.SPECIFIC_DATES,
   eventData: testEventData,
   focusedDate: null,
   hoveredTimeSlot: null,

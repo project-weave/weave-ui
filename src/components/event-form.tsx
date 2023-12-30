@@ -1,5 +1,4 @@
 "use client";
-import { EventType } from "@/app/(event)/new/page";
 import DaysOfWeekPicker from "@/components/days-of-week-picker";
 import Calendar from "@/components/event-date-calendar";
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import InputWithLabel from "@/components/ui/input-with-label";
 import TimeInputWithLabel from "@/components/ui/time-input-with-label";
 import { cn } from "@/lib/utils";
+import { AvailabilityType } from "@/store/availabilityGridStore";
 import { EventDate } from "@/store/availabilityGridStore";
 import { isBefore, isEqual, parse } from "date-fns";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
@@ -26,23 +26,23 @@ const TO = "to";
 const OR = "or";
 
 type EventFormProps = {
+  availabilityType: AvailabilityType;
   currentCalendarMonth: string;
-  eventType: EventType;
   selectedDates: Set<EventDate>;
   selectedDaysOfWeek: Set<EventDate>;
+  setAvailabilityType: Dispatch<SetStateAction<AvailabilityType>>;
   setCurrentCalendarMonth: Dispatch<SetStateAction<string>>;
-  setEventType: Dispatch<SetStateAction<EventType>>;
   setSelectedDates: Dispatch<SetStateAction<Set<EventDate>>>;
   setSelectedDaysOfWeek: Dispatch<SetStateAction<Set<EventDate>>>;
 };
 
 export default function EventForm({
+  availabilityType,
   currentCalendarMonth,
-  eventType,
   selectedDates,
   selectedDaysOfWeek,
+  setAvailabilityType,
   setCurrentCalendarMonth,
-  setEventType,
   setSelectedDates,
   setSelectedDaysOfWeek
 }: EventFormProps) {
@@ -73,15 +73,15 @@ export default function EventForm({
   useEffect(() => {
     if (
       eventName.trim() === "" ||
-      (eventType === EventType.SPECIFIC_DATES && selectedDates.size === 0) ||
-      (eventType === EventType.DAYS_OF_WEEK && selectedDaysOfWeek.size === 0) ||
+      (availabilityType === AvailabilityType.SPECIFIC_DATES && selectedDates.size === 0) ||
+      (availabilityType === AvailabilityType.DAYS_OF_WEEK && selectedDaysOfWeek.size === 0) ||
       !isTimeRangeValid
     ) {
       setIsFormValid(false);
     } else {
       setIsFormValid(true);
     }
-  }, [eventName, selectedDates, isTimeRangeValid, eventType, selectedDaysOfWeek]);
+  }, [eventName, selectedDates, isTimeRangeValid, availabilityType, selectedDaysOfWeek]);
 
   return (
     <div className="card flex h-full flex-col">
@@ -142,22 +142,22 @@ export default function EventForm({
           <div className="flex w-full items-center">
             <Button
               className={cn("leading-0 h-auto w-full border-[1px] border-primary text-sm", {
-                "hover:bg-primary": eventType === EventType.SPECIFIC_DATES
+                "hover:bg-primary": availabilityType === AvailabilityType.SPECIFIC_DATES
               })}
-              onClick={() => setEventType(EventType.SPECIFIC_DATES)}
+              onClick={() => setAvailabilityType(AvailabilityType.SPECIFIC_DATES)}
               type="button"
-              variant={eventType === EventType.SPECIFIC_DATES ? "default" : "outline"}
+              variant={availabilityType === AvailabilityType.SPECIFIC_DATES ? "default" : "outline"}
             >
               {SPECIFIC_DATES}
             </Button>
             <p className="mx-6 text-xs text-secondary"> {OR} </p>
             <Button
               className={cn("leading-0 h-auto w-full border-[1px] border-primary text-sm", {
-                "hover:bg-primary": eventType === EventType.DAYS_OF_WEEK
+                "hover:bg-primary": availabilityType === AvailabilityType.DAYS_OF_WEEK
               })}
-              onClick={() => setEventType(EventType.DAYS_OF_WEEK)}
+              onClick={() => setAvailabilityType(AvailabilityType.DAYS_OF_WEEK)}
               type="button"
-              variant={eventType === EventType.DAYS_OF_WEEK ? "default" : "outline"}
+              variant={availabilityType === AvailabilityType.DAYS_OF_WEEK ? "default" : "outline"}
             >
               {DAYS_OF_WEEK}
             </Button>
@@ -165,7 +165,7 @@ export default function EventForm({
         </div>
 
         <div className="mb-4 flex-grow">
-          {eventType === EventType.SPECIFIC_DATES ? (
+          {availabilityType === AvailabilityType.SPECIFIC_DATES ? (
             <Calendar
               currentMonthOverride={currentCalendarMonth}
               id="create-event-calendar-sm"

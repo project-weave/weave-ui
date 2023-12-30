@@ -24,7 +24,7 @@ export default function LandingPage() {
           gridTemplateRows: "40% 20% 40%"
         }}
       >
-        <div className="flex h-full w-full items-center justify-between pt-10 text-xl text-white">
+        <div className="flex h-full w-full items-center justify-between pt-6 text-xl text-white">
           <div className="mr-20 flex flex-row self-end">
             <SpeechBubble
               animationDelay={0.5}
@@ -94,7 +94,7 @@ export default function LandingPage() {
         </div>
       </div>
 
-      <div className="my-16 cursor-pointer">
+      <div className="mb-8 mt-14 cursor-pointer">
         <ChevronDown
           className="duration-100 hover:translate-y-2"
           height={60}
@@ -105,12 +105,12 @@ export default function LandingPage() {
         />
       </div>
 
-      <div className="tracing-wider pt-32 font-semibold" ref={titleRef}>
+      <div className="tracing-wider pt-24 font-semibold" ref={titleRef}>
         <h1 className="text-3xl">{TITLE}</h1>
         <h3 className="mt-4 text-center text-lg">{SUBTITLE}</h3>
       </div>
 
-      <div className="pb-20 pt-20">
+      <div className="pb-24 pt-10">
         <NewEventPage />
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import useAvailabilityGridStore, {
   AvailabilityGridMode,
+  AvailabilityType,
   EventDate,
   isEditMode,
   isViewMode
@@ -29,6 +30,7 @@ type AvailabilityGridHeaderProps = {
   handleSaveUserAvailability: () => void;
   hasUserAddedAvailability: boolean;
   isBestTimesEnabled: boolean;
+  isPageLoading: boolean;
   lastColumn: number;
   latestEventDate: EventDate;
   mode: AvailabilityGridMode;
@@ -43,14 +45,16 @@ export default function AvailabilityGridHeader({
   handleSaveUserAvailability,
   hasUserAddedAvailability,
   isBestTimesEnabled,
+  isPageLoading,
   lastColumn,
   latestEventDate,
   mode,
   setIsBestTimesEnabled
 }: AvailabilityGridHeaderProps) {
+  const availabilityType = useAvailabilityGridStore((state) => state.availabilityType);
+  const visibleColumnRange = useAvailabilityGridStore(useShallow((state) => state.visibleColumnRange));
   const earliestDate = parseISO(earliestEventDate);
   const latestDate = parseISO(latestEventDate);
-  const visibleColumnRange = useAvailabilityGridStore(useShallow((state) => state.visibleColumnRange));
 
   let heading = "";
 
@@ -62,16 +66,17 @@ export default function AvailabilityGridHeader({
     heading = `${format(earliestDate, "MMM d")} - ${format(latestDate, "MMM d yyyy")}`;
   }
 
-  const lastColNotInView = visibleColumnRange.end <= lastColumn + 1;
-  const firstColNotInView = visibleColumnRange.start >= 1;
+  const lastColInView = visibleColumnRange.end === lastColumn;
+  const firstColInView = visibleColumnRange.start === 0;
+  const visibleColumnRangeNotLoaded = visibleColumnRange.start === -1 || visibleColumnRange.end === -1;
 
   function scrollNext() {
-    if (!lastColNotInView || gridContainerRef.current === null) return;
+    if (lastColInView || gridContainerRef.current === null) return;
     gridContainerRef.current.scrollToItem(visibleColumnRange.end, "start");
   }
 
   function scrollPrev() {
-    if (!firstColNotInView || gridContainerRef.current === null) return;
+    if (firstColInView || gridContainerRef.current === null) return;
     gridContainerRef.current.scrollToItem(visibleColumnRange.start, "end");
   }
 
@@ -79,7 +84,7 @@ export default function AvailabilityGridHeader({
 
   const saveUserAvailabilityButton = (
     <MotionButton
-      className="h-8 whitespace-nowrap rounded-md"
+      className="h-8 whitespace-nowrap rounded-[.4rem]"
       onClick={handleSaveUserAvailability}
       variant="dark"
       whileTap={{ scale: 0.94 }}
@@ -91,7 +96,7 @@ export default function AvailabilityGridHeader({
   const editUserAvailabilityButton = (
     <MotionButton
       animate={editButtonAnimationControls}
-      className="h-8 whitespace-nowrap rounded-md "
+      className="h-8 whitespace-nowrap rounded-[.4rem]"
       onClick={handleEditUserAvailability}
       variant="dark"
       whileTap={{ scale: 0.94 }}
@@ -104,11 +109,19 @@ export default function AvailabilityGridHeader({
     <>
       <div className="flex w-[54rem] items-center justify-between">
         <div>
-          <h1 className="mb-[2px] mr-32 whitespace-nowrap text-2xl font-semibold tracking-wide text-secondary">
-            {heading}
-          </h1>
-          <p className="mb-[1px] text-2xs tracking-wider text-primary">GMT-07</p>
+          <h4 className="mb-[2px] text-secondary">
+            {"You're now"} <span className="font-bold">{`${isEditMode(mode) ? "editing" : "viewing"}`} </span>
+            {`${isEditMode(mode) ? "your availability" : "all availability"}`}
+          </h4>
+          {availabilityType === AvailabilityType.SPECIFIC_DATES && (
+            <h1 className="mb-[2px] mr-32 whitespace-nowrap text-2xl font-semibold tracking-wide text-secondary">
+              {heading}
+            </h1>
+          )}
         </div>
+
+        {availabilityType === AvailabilityType.DAYS_OF_WEEK && <div className="h-12"></div>}
+
         <div className="mb-2 flex items-center">
           <div className={cn("mr-14 flex items-center space-x-2", { hidden: isEditMode(mode) })}>
             <Label className="cursor-pointer whitespace-nowrap font-semibold text-secondary" htmlFor="best-times">
@@ -124,26 +137,28 @@ export default function AvailabilityGridHeader({
 
           {isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}
 
-          <div className={cn("ml-8 flex h-7 whitespace-nowrap", { hidden: !lastColNotInView && !firstColNotInView })}>
-            <MotionButton
-              className="h-full rounded-sm px-[2px] py-0"
-              onClick={scrollPrev}
-              variant={!firstColNotInView ? "dark-disabled" : "dark"}
-              whileTap={firstColNotInView ? { scale: 0.88 } : {}}
-            >
-              <span className="sr-only">Previous Columns</span>
-              <ChevronLeft className="h-6 w-6 stroke-[3px]" />
-            </MotionButton>
-            <MotionButton
-              className="ml-[5px] h-full rounded-sm px-[2px] py-0"
-              onClick={scrollNext}
-              variant={!lastColNotInView ? "dark-disabled" : "dark"}
-              whileTap={lastColNotInView ? { scale: 0.88 } : {}}
-            >
-              <span className="sr-only">Next Columns</span>
-              <ChevronRight className="h-6 w-6 stroke-[3px]" />
-            </MotionButton>
-          </div>
+          {(!firstColInView || !lastColInView || visibleColumnRangeNotLoaded) && !isPageLoading && (
+            <div className="ml-8 flex h-7 whitespace-nowrap">
+              <MotionButton
+                className="h-7 w-7 rounded-sm px-[2px] py-0"
+                onClick={scrollPrev}
+                variant={firstColInView ? "dark-disabled" : "dark"}
+                whileTap={!firstColInView ? { scale: 0.88 } : {}}
+              >
+                <span className="sr-only">Previous Columns</span>
+                <ChevronLeft className="h-7 w-7 stroke-[3px]" />
+              </MotionButton>
+              <MotionButton
+                className="ml-[5px] h-7 w-7 rounded-sm px-[2px] py-0"
+                onClick={scrollNext}
+                variant={lastColInView ? "dark-disabled" : "dark"}
+                whileTap={!lastColInView ? { scale: 0.88 } : {}}
+              >
+                <span className="sr-only">Next Columns</span>
+                <ChevronRight className="h-7 w-7 stroke-[3px]" />
+              </MotionButton>
+            </div>
+          )}
         </div>
       </div>
 

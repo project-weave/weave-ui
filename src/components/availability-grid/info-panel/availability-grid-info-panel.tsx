@@ -1,6 +1,11 @@
 import EventDateCalendar from "@/components/event-date-calendar";
 import { Button } from "@/components/ui/button";
-import useAvailabilityGridStore, { EventDate, isEditMode, TimeSlot } from "@/store/availabilityGridStore";
+import useAvailabilityGridStore, {
+  AvailabilityType,
+  EventDate,
+  isEditMode,
+  TimeSlot
+} from "@/store/availabilityGridStore";
 import { parseISO } from "date-fns";
 import { Copy } from "lucide-react";
 import { useCallback, useMemo, useRef } from "react";
@@ -22,6 +27,7 @@ export default function AvailbilityGridInfoPanel({ gridContainerRef }: Availabil
   const userFilter = useAvailabilityGridStore(useShallow((state) => state.userFilter));
   const setUserFilter = useAvailabilityGridStore((state) => state.setUserFilter);
   const mode = useAvailabilityGridStore((state) => state.mode);
+  const availabilityType = useAvailabilityGridStore((state) => state.availabilityType);
   const user = useAvailabilityGridStore((state) => state.user);
   const visibleColumnRange = useAvailabilityGridStore((state) => state.visibleColumnRange);
   const setFocusedDate = useAvailabilityGridStore((state) => state.setFocusedDate);
@@ -122,7 +128,7 @@ export default function AvailbilityGridInfoPanel({ gridContainerRef }: Availabil
       <div className="relative flex justify-between text-ellipsis rounded-2xl border-2 border-primary px-3 py-2 text-sm font-medium text-secondary">
         {eventName}
         <Button
-          className="hover:bg-primary-dark-hover absolute -end-1 -top-[1.5px] h-10 rounded-2xl hover:opacity-100"
+          className="absolute -end-1 -top-[1.5px] h-10 rounded-2xl hover:bg-primary-dark-hover hover:opacity-100"
           variant="dark"
         >
           <Copy className="h-4 w-4" />
@@ -155,17 +161,19 @@ export default function AvailbilityGridInfoPanel({ gridContainerRef }: Availabil
           ))}
         </div>
       </div>
-      <div className="mt-auto self-end">
-        <EventDateCalendar
-          earliestSelectedDate={sortedEventDates[0]}
-          id="availability-grid-event-calendar"
-          isViewMode={true}
-          latestSelectedDate={sortedEventDates[sortedEventDates.length - 1]}
-          onViewModeDateClick={onViewModeDateClick}
-          selectedDates={eventDatesSet}
-          visibleEventDates={sortedCalendarVisibleEventDates}
-        />
-      </div>
+      {availabilityType === AvailabilityType.SPECIFIC_DATES && (
+        <div className="mt-auto self-end">
+          <EventDateCalendar
+            earliestSelectedDate={sortedEventDates[0]}
+            id="availability-grid-event-calendar"
+            isViewMode={true}
+            latestSelectedDate={sortedEventDates[sortedEventDates.length - 1]}
+            onViewModeDateClick={onViewModeDateClick}
+            selectedDates={eventDatesSet}
+            visibleEventDates={sortedCalendarVisibleEventDates}
+          />
+        </div>
+      )}
     </div>
   );
 }

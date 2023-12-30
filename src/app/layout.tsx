@@ -29,7 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={cn(inter.className)}>
-        <div className="flex w-full flex-col items-center">
+        <div className="flex h-screen w-full flex-col items-center">
           <div className="fixed z-50 w-[66rem] 2xl:w-[84rem]">
             <MainNav />
           </div>

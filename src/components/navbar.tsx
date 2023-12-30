@@ -17,12 +17,12 @@ export default function NavBar() {
       />
       <ul className="items-enter flex">
         <li>
-          <Button className="h-8 rounded-xl border-none bg-transparent text-sm text-black hover:bg-accent-light">
+          <Button className="h-8 rounded-2xl border-none bg-transparent text-sm text-black hover:bg-accent-light">
             {SIGN_UP}
           </Button>
         </li>
         <li>
-          <Button className="ml-6 h-8 rounded-xl border-2 border-primary-light bg-transparent text-sm text-black hover:bg-accent-light">
+          <Button className="ml-6 h-8 rounded-2xl border-2 border-primary-light bg-transparent text-sm text-black hover:bg-accent-light">
             {LOGIN}
           </Button>
         </li>
