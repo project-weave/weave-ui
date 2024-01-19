@@ -4,13 +4,11 @@ import useAvailabilityGridStore, {
   AvailabilityGridMode,
   EventDate,
   EventTime,
-  getTimeFromTimeSlot,
   getTimeSlot,
-  isEditMode,
   isViewMode
 } from "@/store/availabilityGridStore";
 import { parseISO } from "date-fns";
-import React from "react";
+import { useMemo } from "react";
 
 type AvailabilityGridCellProps = {
   eventDate: EventDate;
@@ -35,7 +33,6 @@ type AvailabilityGridCellProps = {
 };
 
 export default function AvailabilityGridCell({
-  eventDate,
   eventTime,
   gridCol,
   gridRow,
@@ -55,17 +52,17 @@ export default function AvailabilityGridCell({
   participantsSelectedCount,
   totalParticipants
 }: AvailabilityGridCellProps) {
-  const timeSlot = getTimeSlot(eventTime, eventDate);
-  const isTimeHovered = getTimeFromTimeSlot(useAvailabilityGridStore((state) => state.hoveredTimeSlot)) === eventTime;
-  const isTimeSlotHovered = useAvailabilityGridStore((state) => state.hoveredTimeSlot) === timeSlot;
+  const hoveredTimeSlot = useAvailabilityGridStore((state) => state.hoveredTimeSlot);
 
-  const isBeingAdded = isDragAdding && isCellInDragSelectionArea(gridRow, gridCol);
-  const isBeingRemoved = !isDragAdding && isCellInDragSelectionArea(gridRow, gridCol);
-
-  const { isBottomBorder, isLeftBorder, isRightBorder, isTopBorder } = isCellBorderOfDragSelectionArea(
-    gridRow,
-    gridCol
-  );
+  const { isBeingAdded, isBeingRemoved, isBottomBorder, isLeftBorder, isRightBorder, isTopBorder } = useMemo(() => {
+    const isBeingAdded = isDragAdding && isCellInDragSelectionArea(gridRow, gridCol);
+    const isBeingRemoved = !isDragAdding && isCellInDragSelectionArea(gridRow, gridCol);
+    const { isBottomBorder, isLeftBorder, isRightBorder, isTopBorder } = isCellBorderOfDragSelectionArea(
+      gridRow,
+      gridCol
+    );
+    return { isBeingAdded, isBeingRemoved, isBottomBorder, isLeftBorder, isRightBorder, isTopBorder };
+  }, [hoveredTimeSlot]);
 
   function getViewModeCellColour() {
     if (totalParticipants === 0 || participantsSelectedCount === 0) return "transparent";
@@ -94,17 +91,14 @@ export default function AvailabilityGridCell({
           "border-l-0": gridCol === 0,
           "border-l-2 border-l-primary": isDateGapLeft,
           "border-r-0": isLastCol,
-          "border-t-[3px]": isTimeHovered && isEditMode(mode),
-          "border-t-0": !shouldDisplayBorder && !isTimeHovered,
-          "border-t-2 border-t-secondary": isTimeHovered && isViewMode(mode),
+          "border-t-0": !shouldDisplayBorder,
           "mr-2 border-r-2 border-r-primary": isDateGapRight
         },
-        isViewMode(mode) &&
-          isTimeSlotHovered && {
-            "border-[3px] border-secondary": true,
-            "border-l-[3px]": isDateGapLeft,
-            "border-r-[3px]": isDateGapRight
-          }
+        isViewMode(mode) && {
+          "hover:border-[3px] hover:border-secondary": true,
+          "hover:border-l-[3px]": isDateGapLeft,
+          "hover:border-r-[3px]": isDateGapRight
+        }
       )}
       onMouseDown={() => handleCellMouseDown(gridRow, gridCol)}
       onMouseEnter={() => handleCellMouseEnter(gridRow, gridCol)}
