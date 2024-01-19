@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import MainNav from "@/components/navbar";
+import { Toaster } from "@/components/ui/toaster";
 import { cn } from "@/lib/utils";
 import { Inter } from "next/font/google";
 
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {children}
           </div>
         </div>
+        <Toaster />
       </body>
     </html>
   );

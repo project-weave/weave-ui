@@ -17,6 +17,7 @@ import useAvailabilityGridStore from "@/store/availabilityGridStore";
 import { addMinutes, format, parseISO } from "date-fns";
 import { useAnimationControls } from "framer-motion";
 import debounce from "lodash.debounce";
+import { CheckCircle2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { isFirefox } from "react-device-detect";
 import AutoSizer from "react-virtualized-auto-sizer";
@@ -24,6 +25,7 @@ import { VariableSizeList } from "react-window";
 import { useShallow } from "zustand/react/shallow";
 
 import { Skeleton } from "../ui/skeleton";
+import { useToast } from "../ui/use-toast";
 import AvailabilityGridCell from "./availability-grid-cell";
 import AvailabilityGridColumnHeader from "./availability-grid-column-header";
 import AvailabilityGridHeader from "./availability-grid-header";
@@ -38,6 +40,8 @@ export type AvailabilityCellPosition = {
 type AvailbilityGridProps = {
   gridContainerRef: React.RefObject<VariableSizeList>;
 };
+
+const SUCCESSFULLY_SAVED = "Your availability has been successfully recorded.";
 
 export default function AvailabilityGrid({ gridContainerRef }: AvailbilityGridProps) {
   const user = useAvailabilityGridStore((state) => state.user);
@@ -59,6 +63,8 @@ export default function AvailabilityGrid({ gridContainerRef }: AvailbilityGridPr
 
   const [isLoading, setIsLoading] = useState(true);
 
+  const { toast } = useToast();
+
   // TODO: add timezone conversion
   // const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -70,6 +76,12 @@ export default function AvailabilityGrid({ gridContainerRef }: AvailbilityGridPr
   useEffect(() => {
     gridContainerRef.current?.resetAfterIndex(0);
   }, [eventDates, eventTimeStart, eventTimeEnd, gridContainerRef]);
+
+  useEffect(() => {
+    setSelectedTimeSlots(new Set(participantsToTimeSlots[user] ?? []));
+    setUserFilter([]);
+    setIsBestTimesEnabled(false);
+  }, [user, participantsToTimeSlots]);
 
   const sortedEventTimes = useMemo(() => {
     const times = [];
@@ -158,12 +170,16 @@ export default function AvailabilityGrid({ gridContainerRef }: AvailbilityGridPr
   function handleSaveUserAvailability() {
     setMode(AvailabilityGridMode.VIEW);
     saveUserAvailability(Array.from(selectedTimeSlots));
-  }
-
-  function handleEditUserAvailability() {
-    setMode(AvailabilityGridMode.EDIT);
-    setIsBestTimesEnabled(false);
-    setUserFilter([]);
+    toast({
+      action: (
+        <div className="-ml-4 flex w-full items-center">
+          <CheckCircle2 className="mr-2 h-6 w-6 text-green-800" />
+          <div className="text-sm">{SUCCESSFULLY_SAVED}</div>
+        </div>
+      ),
+      //description: "Successfully saved availability.",
+      variant: "success"
+    });
   }
 
   const columnHeaderHeight = availabilityType === AvailabilityType.SPECIFIC_DATES ? "5.1rem" : "3rem";
@@ -186,7 +202,6 @@ export default function AvailabilityGrid({ gridContainerRef }: AvailbilityGridPr
           earliestEventDate={sortedEventDates[0]}
           editButtonAnimationControls={editButtonAnimationControls}
           gridContainerRef={gridContainerRef}
-          handleEditUserAvailability={handleEditUserAvailability}
           handleSaveUserAvailability={handleSaveUserAvailability}
           hasUserAddedAvailability={participantsToTimeSlots[user]?.length > 0}
           isBestTimesEnabled={isBestTimesEnabled}
@@ -259,7 +274,7 @@ export default function AvailabilityGrid({ gridContainerRef }: AvailbilityGridPr
                       setVisibleColumnRange(visibleStartIndex, visibleStopIndex),
                     60
                   )}
-                  overscanCount={5}
+                  overscanCount={8}
                   ref={gridContainerRef}
                   width={width}
                 >

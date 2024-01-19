@@ -32,7 +32,14 @@ export default function AvailbilityGridInfoPanel({ gridContainerRef }: Availabil
   const visibleColumnRange = useAvailabilityGridStore((state) => state.visibleColumnRange);
   const setFocusedDate = useAvailabilityGridStore((state) => state.setFocusedDate);
 
-  const allParticipants = Object.keys(participantsToTimeSlots);
+  const allParticipants = useMemo(() => {
+    let users = Object.keys(participantsToTimeSlots);
+    if (!users.includes(user) && isEditMode(mode)) {
+      users = [...users, user];
+    }
+    users.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+    return users;
+  }, [participantsToTimeSlots, user]);
 
   const timeSlotsToParticipants = useMemo<Readonly<Record<TimeSlot, string[]>>>(() => {
     const record: Record<TimeSlot, string[]> = {};
@@ -125,10 +132,10 @@ export default function AvailbilityGridInfoPanel({ gridContainerRef }: Availabil
 
   return (
     <div className="card flex h-full cursor-pointer flex-col px-4">
-      <div className="relative flex justify-between text-ellipsis rounded-2xl border-2 border-primary px-3 py-2 text-sm font-medium text-secondary">
+      <div className="text-md relative flex justify-between text-ellipsis rounded-2xl border-2 border-primary px-3 py-2 font-medium text-secondary">
         {eventName}
         <Button
-          className="absolute -end-1 -top-[1.5px] h-10 rounded-2xl hover:bg-primary-dark-hover hover:opacity-100"
+          className="absolute -end-1 -top-[1.5px] h-11 rounded-2xl hover:bg-primary-dark-hover hover:opacity-100"
           variant="dark"
         >
           <Copy className="h-4 w-4" />

@@ -1,3 +1,7 @@
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import useAvailabilityGridStore, {
   AvailabilityGridMode,
@@ -13,11 +17,8 @@ import { Dispatch, SetStateAction } from "react";
 import { VariableSizeList } from "react-window";
 import { useShallow } from "zustand/react/shallow";
 
-import { Button } from "../ui/button";
-import { Label } from "../ui/label";
-import { Switch } from "../ui/switch";
+import EditAvailabilityDialog from "./dialog/edit-availability-dialog";
 
-const ADD_AVAILABILITY_BUTTON_TEXT = "Add Availability";
 const EDIT_AVAILABILITY_BUTTON_TEXT = "Edit Availability";
 const SAVE_AVAILABILITY_BUTTON_TEXT = "Save Availability";
 const BEST_TIMES_BUTTON_TEXT = "Best Times";
@@ -26,7 +27,6 @@ type AvailabilityGridHeaderProps = {
   earliestEventDate: EventDate;
   editButtonAnimationControls: AnimationControls;
   gridContainerRef: React.MutableRefObject<null | VariableSizeList>;
-  handleEditUserAvailability: () => void;
   handleSaveUserAvailability: () => void;
   hasUserAddedAvailability: boolean;
   isBestTimesEnabled: boolean;
@@ -41,9 +41,7 @@ export default function AvailabilityGridHeader({
   earliestEventDate,
   editButtonAnimationControls,
   gridContainerRef,
-  handleEditUserAvailability,
   handleSaveUserAvailability,
-  hasUserAddedAvailability,
   isBestTimesEnabled,
   isPageLoading,
   lastColumn,
@@ -94,15 +92,18 @@ export default function AvailabilityGridHeader({
   );
 
   const editUserAvailabilityButton = (
-    <MotionButton
-      animate={editButtonAnimationControls}
-      className="h-8 whitespace-nowrap rounded-[.4rem]"
-      onClick={handleEditUserAvailability}
-      variant="dark"
-      whileTap={{ scale: 0.94 }}
-    >
-      {hasUserAddedAvailability ? EDIT_AVAILABILITY_BUTTON_TEXT : ADD_AVAILABILITY_BUTTON_TEXT}
-    </MotionButton>
+    <Dialog>
+      <DialogTrigger asChild>
+        <MotionButton
+          animate={editButtonAnimationControls}
+          className="h-8 whitespace-nowrap rounded-[.4rem]"
+          variant="dark"
+        >
+          {EDIT_AVAILABILITY_BUTTON_TEXT}
+        </MotionButton>
+      </DialogTrigger>
+      <EditAvailabilityDialog />
+    </Dialog>
   );
 
   return (
