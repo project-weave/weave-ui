@@ -11,6 +11,7 @@ import { parseISO } from "date-fns";
 import { useMemo } from "react";
 
 type AvailabilityGridCellProps = {
+  borderStyle: (isDateGapLeft: boolean, isDateGapRight: boolean) => string;
   eventDate: EventDate;
   eventTime: EventTime;
   gridCol: number;
@@ -24,7 +25,6 @@ type AvailabilityGridCellProps = {
   isDateGapLeft: boolean;
   isDateGapRight: boolean;
   isDragAdding: boolean;
-  isLastCol: boolean;
   isSelected: boolean;
   maxParticipantsCountForAllTimeSlots: number;
   mode: AvailabilityGridMode;
@@ -33,6 +33,7 @@ type AvailabilityGridCellProps = {
 };
 
 export default function AvailabilityGridCell({
+  borderStyle,
   eventTime,
   gridCol,
   gridRow,
@@ -45,7 +46,6 @@ export default function AvailabilityGridCell({
   isDateGapLeft,
   isDateGapRight,
   isDragAdding,
-  isLastCol,
   isSelected,
   maxParticipantsCountForAllTimeSlots,
   mode,
@@ -86,11 +86,10 @@ export default function AvailabilityGridCell({
   return (
     <button
       className={cn(
-        "cursor-pointer border-[1px] border-b-0 border-t-2 border-primary-light outline-none",
+        "cursor-pointer border-b-0 border-l-2 border-t-2 border-primary-light outline-none",
         {
           "border-l-0": gridCol === 0,
           "border-l-2 border-l-primary": isDateGapLeft,
-          "border-r-0": isLastCol,
           "border-t-0": !shouldDisplayBorder,
           "mr-2 border-r-2 border-r-primary": isDateGapRight
         },
@@ -103,6 +102,7 @@ export default function AvailabilityGridCell({
       onMouseDown={() => handleCellMouseDown(gridRow, gridCol)}
       onMouseEnter={() => handleCellMouseEnter(gridRow, gridCol)}
       onMouseLeave={handleCellMouseLeave}
+      style={{ borderStyle: borderStyle(isDateGapLeft, isDateGapRight) }}
       type="button"
     >
       <div

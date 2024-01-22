@@ -184,6 +184,19 @@ export default function AvailabilityGrid({ gridContainerRef }: AvailbilityGridPr
 
   const columnHeaderHeight = availabilityType === AvailabilityType.SPECIFIC_DATES ? "5.1rem" : "3rem";
 
+  function borderStyle(isDateGapLeft: boolean, isDateGapRight: boolean) {
+    if (isViewMode(mode)) return "solid";
+    if (isDateGapRight && isDateGapLeft) {
+      return "dashed solid dashed solid";
+    } else if (isDateGapLeft) {
+      return "dashed dashed dashed solid";
+    } else if (isDateGapRight) {
+      return "dashed solid dashed dashed";
+    } else {
+      return "dashed";
+    }
+  }
+
   return (
     <div
       className="card grid select-none border-2 pl-2 pr-10"
@@ -318,12 +331,14 @@ export default function AvailabilityGrid({ gridContainerRef }: AvailbilityGridPr
                         />
                         {/* top row cell for styling */}
                         <div
-                          className={cn("border-[1px] border-b-0 border-t-0 border-primary-light", {
+                          className={cn("border-b-0 border-l-2 border-t-0 border-primary-light", {
                             "border-l-0": gridCellCol === 0,
                             "border-l-2 border-l-primary": isDateGapLeft,
-                            "border-r-0": gridCellCol === lastCellCol,
                             "mr-2 border-r-2 border-r-primary": isDateGapRight
                           })}
+                          style={{
+                            borderStyle: borderStyle(isDateGapLeft, isDateGapRight)
+                          }}
                         />
                         {sortedEventTimes.map((eventTime, gridRow) => {
                           const timeSlot = getTimeSlot(eventTime, eventDate);
@@ -346,6 +361,7 @@ export default function AvailabilityGrid({ gridContainerRef }: AvailbilityGridPr
 
                           return (
                             <AvailabilityGridCell
+                              borderStyle={borderStyle}
                               eventDate={eventDate}
                               eventTime={eventTime}
                               gridCol={gridCellCol}
@@ -359,7 +375,6 @@ export default function AvailabilityGrid({ gridContainerRef }: AvailbilityGridPr
                               isDateGapLeft={isDateGapLeft}
                               isDateGapRight={isDateGapRight}
                               isDragAdding={isDragAdding}
-                              isLastCol={gridCellCol === lastCellCol}
                               isSelected={selectedTimeSlots.has(timeSlot)}
                               key={`availability-grid-cell-${gridCellCol}-${gridRow}`}
                               maxParticipantsCountForAllTimeSlots={filteredMaxParticipantsForAllTimeSlots}
@@ -371,12 +386,14 @@ export default function AvailabilityGrid({ gridContainerRef }: AvailbilityGridPr
                         })}
                         {/* bottom row cell for styling */}
                         <div
-                          className={cn("border-[1px] border-b-0 border-t-2 border-primary-light", {
+                          className={cn("border-b-0 border-l-2 border-t-2 border-primary-light", {
                             "border-l-0": gridCellCol === 0,
                             "border-l-2 border-l-primary": isDateGapLeft,
-                            "border-r-0": gridCellCol === lastCellCol,
                             "mr-2 border-r-2 border-r-primary": isDateGapRight
                           })}
+                          style={{
+                            borderStyle: borderStyle(isDateGapLeft, isDateGapRight)
+                          }}
                         />
                       </div>
                     );
