@@ -142,7 +142,7 @@ export default function TimeInputWithLabel({
     <div className="relative w-full">
       <div
         className={cn(
-          "peer box-border flex h-[2.3rem] w-32 items-center rounded-2xl bg-background px-4 pb-2.5 pt-3 text-sm outline outline-2 outline-primary/40 focus-within:outline-primary hover:outline-primary",
+          "peer box-border flex h-10 w-32 items-center rounded-2xl bg-background px-4 pb-2.5 pt-3 text-sm outline outline-2 outline-primary/40 focus-within:outline-primary hover:outline-primary",
           {
             "outline-red-600/40 focus-within:outline-red-600 hover:outline-red-600": variant === "error"
           }
@@ -196,7 +196,7 @@ export default function TimeInputWithLabel({
       </div>
       <Label
         className={cn(
-          "absolute left-1 top-1 z-10 origin-[0] -translate-y-4 scale-75 transform rounded-sm bg-background px-3 text-sm text-black duration-300 peer-focus-within:px-2"
+          "absolute left-1 top-1.5 z-10 origin-[0] -translate-y-4 scale-75 transform rounded-sm bg-background px-3 text-sm text-black duration-300 peer-focus-within:px-2"
         )}
         htmlFor={id}
       >

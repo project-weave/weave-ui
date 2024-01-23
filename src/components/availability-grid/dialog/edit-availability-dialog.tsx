@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import InputWithError from "@/components/ui/input-with-error";
 import { cn } from "@/lib/utils";
 import useAvailabilityGridStore, { AvailabilityGridMode } from "@/store/availabilityGridStore";
 import { Label } from "@radix-ui/react-label";
@@ -95,7 +95,7 @@ export default function EditAvailabilityDialog() {
           <Label className="text-top mb-2 mr-3 text-xs font-medium text-secondary" htmlFor="name">
             {WHAT_IS_YOUR_NAME}
           </Label>
-          <Input
+          <InputWithError
             className="mx-auto w-[97%]"
             errorText={nameAlreadyTaken ? "Name already taken" : undefined}
             id="name"
