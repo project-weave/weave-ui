@@ -24,7 +24,7 @@ export default function EditAvailabilityDialog() {
   const [validUserName, setValidUserName] = useState(false);
   const [nameAlreadyTaken, setNameAlreadyTaken] = useState(false);
 
-  const users = useAvailabilityGridStore((state) => Object.keys(state.eventData.userAvailability));
+  const users = useAvailabilityGridStore((state) => Object.keys(state.eventUserAvailability));
   const setUser = useAvailabilityGridStore((state) => state.setUser);
   const setMode = useAvailabilityGridStore((state) => state.setMode);
 

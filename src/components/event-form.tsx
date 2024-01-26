@@ -6,9 +6,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import InputWithLabel from "@/components/ui/input-with-label";
 import TimeInputWithLabel from "@/components/ui/time-input-with-label";
 import { cn } from "@/lib/utils";
-import { AvailabilityType } from "@/store/availabilityGridStore";
+import useAvailabilityGridStore, { AvailabilityType } from "@/store/availabilityGridStore";
 import { EventDate } from "@/store/availabilityGridStore";
-import { isBefore, isEqual, parse } from "date-fns";
+import { format, isBefore, isEqual, parse } from "date-fns";
+import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 const EVENT_NAME_LABEL = "Event Name";
@@ -46,6 +47,8 @@ export default function EventForm({
   setSelectedDates,
   setSelectedDaysOfWeek
 }: EventFormProps) {
+  const router = useRouter();
+
   const [eventName, setEventName] = useState("");
 
   const [startTimeHour, setStartTimeHour] = useState("9");
@@ -59,11 +62,14 @@ export default function EventForm({
   const [isFormValid, setIsFormValid] = useState(false);
   const [isTimeRangeValid, setIsTimeRangeValid] = useState(true);
 
+  const setSpecificDatesEvent = useAvailabilityGridStore((state) => state.setSpecificDatesEvent);
+  const setDaysOfTheWeekEvent = useAvailabilityGridStore((state) => state.setDaysOfTheWeekEvent);
+
   useEffect(() => {
     const startTime = parse(`${startTimeHour}:${startTimeMinute} ${startTimeAmPm}`, "h:mm a", new Date());
-    const endtime = parse(`${endTimeHour}:${endTimeMinute} ${endTimeAmPm}`, "h:mm a", new Date());
+    const endTime = parse(`${endTimeHour}:${endTimeMinute} ${endTimeAmPm}`, "h:mm a", new Date());
 
-    if (isBefore(endtime, startTime) || isEqual(endtime, startTime)) {
+    if (isBefore(endTime, startTime) || isEqual(endTime, startTime)) {
       setIsTimeRangeValid(false);
     } else {
       setIsTimeRangeValid(true);
@@ -82,6 +88,24 @@ export default function EventForm({
       setIsFormValid(true);
     }
   }, [eventName, selectedDates, isTimeRangeValid, availabilityType, selectedDaysOfWeek]);
+
+  function createEventHandler() {
+    const startTime = parse(`${startTimeHour}:${startTimeMinute} ${startTimeAmPm}`, "h:mm a", new Date());
+    const endTime = parse(`${endTimeHour}:${endTimeMinute} ${endTimeAmPm}`, "h:mm a", new Date());
+
+    if (availabilityType === AvailabilityType.SPECIFIC_DATES) {
+      setSpecificDatesEvent(
+        eventName,
+        format(startTime, "HH:mm:ss"),
+        format(endTime, "HH:mm:ss"),
+        Array.from(selectedDates)
+      );
+    } else {
+      setDaysOfTheWeekEvent(eventName, format(startTime, "HH:mm:ss"), format(endTime, "HH:mm:ss"));
+    }
+
+    router.push("/new123");
+  }
 
   return (
     <div className="card flex h-full flex-col">
@@ -190,6 +214,7 @@ export default function EventForm({
         <Button
           className="mt-3 h-auto w-full rounded-2xl border-[1px] border-primary py-4 align-bottom"
           disabled={!isFormValid}
+          onClick={createEventHandler}
           type="submit"
         >
           {CREATE_EVENT}

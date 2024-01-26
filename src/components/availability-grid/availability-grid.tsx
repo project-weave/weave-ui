@@ -45,10 +45,10 @@ const SUCCESSFULLY_SAVED = "Your availability has been successfully recorded.";
 
 export default function AvailabilityGrid({ gridContainerRef }: AvailbilityGridProps) {
   const user = useAvailabilityGridStore((state) => state.user);
-  const eventDates = useAvailabilityGridStore(useShallow((state) => state.eventData.eventDates));
-  const eventTimeEnd = useAvailabilityGridStore((state) => state.eventData.endTimeUTC);
-  const eventTimeStart = useAvailabilityGridStore((state) => state.eventData.startTimeUTC);
-  const participantsToTimeSlots = useAvailabilityGridStore(useShallow((state) => state.eventData.userAvailability));
+  const eventDates = useAvailabilityGridStore(useShallow((state) => state.eventDates));
+  const eventTimeEnd = useAvailabilityGridStore((state) => state.eventEndTimeUTC);
+  const eventTimeStart = useAvailabilityGridStore((state) => state.eventStartTimeUTC);
+  const participantsToTimeSlots = useAvailabilityGridStore(useShallow((state) => state.eventUserAvailability));
   const saveUserAvailability = useAvailabilityGridStore(useShallow((state) => state.saveUserAvailability));
   const [userFilter, setUserFilter] = useAvailabilityGridStore(
     useShallow((state) => [state.userFilter, state.setUserFilter])
@@ -268,7 +268,7 @@ export default function AvailabilityGrid({ gridContainerRef }: AvailbilityGridPr
 
               return (
                 <VariableSizeList
-                  className="overflow-y-auto overflow-x-scroll scroll-smooth scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full"
+                  className="overflow-x-scroll scroll-smooth scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full"
                   height={tableHeight}
                   itemCount={sortedEventDates.length + 2}
                   itemSize={(index) => {
@@ -285,7 +285,7 @@ export default function AvailabilityGrid({ gridContainerRef }: AvailbilityGridPr
                   onItemsRendered={debounce(
                     ({ visibleStartIndex, visibleStopIndex }) =>
                       setVisibleColumnRange(visibleStartIndex, visibleStopIndex),
-                    60
+                    100
                   )}
                   overscanCount={8}
                   ref={gridContainerRef}

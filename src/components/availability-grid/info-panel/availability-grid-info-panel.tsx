@@ -21,9 +21,9 @@ type AvailabilityGridInfoPanelProps = {
 };
 
 export default function AvailbilityGridInfoPanel({ gridContainerRef }: AvailabilityGridInfoPanelProps) {
-  const eventName = useAvailabilityGridStore((state) => state.eventData.eventName);
-  const eventDates = useAvailabilityGridStore(useShallow((state) => state.eventData.eventDates));
-  const participantsToTimeSlots = useAvailabilityGridStore(useShallow((state) => state.eventData.userAvailability));
+  const eventName = useAvailabilityGridStore((state) => state.eventName);
+  const eventDates = useAvailabilityGridStore(useShallow((state) => state.eventDates));
+  const participantsToTimeSlots = useAvailabilityGridStore(useShallow((state) => state.eventUserAvailability));
   const userFilter = useAvailabilityGridStore(useShallow((state) => state.userFilter));
   const setUserFilter = useAvailabilityGridStore((state) => state.setUserFilter);
   const mode = useAvailabilityGridStore((state) => state.mode);

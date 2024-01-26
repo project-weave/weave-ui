@@ -8,11 +8,11 @@ export default function EventPage() {
   const gridContainerRef = useRef<VariableSizeList>(null);
 
   return (
-    <div className="grid h-full grid-flow-col justify-center gap-3 pb-4">
+    <div className="grid h-fit grid-flow-col justify-center gap-3 pb-4">
       <div className="w-[20rem]">
         <AvailabilityGridInfoPanel gridContainerRef={gridContainerRef} />
       </div>
-      <div className="min-h-[50rem]">
+      <div className="min-h-[55rem]">
         <AvailabilityGrid gridContainerRef={gridContainerRef} />
       </div>
     </div>
