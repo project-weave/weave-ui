@@ -12,7 +12,7 @@ export default function EventPage() {
       <div className="w-[20rem]">
         <AvailabilityGridInfoPanel gridContainerRef={gridContainerRef} />
       </div>
-      <div className="min-h-[55rem]">
+      <div className="min-h-[50rem]">
         <AvailabilityGrid gridContainerRef={gridContainerRef} />
       </div>
     </div>
