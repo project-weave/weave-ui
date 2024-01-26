@@ -63,55 +63,24 @@ export function isViewMode(mode: AvailabilityGridMode): boolean {
 }
 
 // TODO: only take event dates that fall within the event date/time range
-const testEventData: EventData = {
-  endTimeUTC: "22:00:00",
-  eventDates: [
-    "2023-10-01",
-    "2023-10-02",
-    "2023-10-03",
-    "2023-10-04",
-    "2023-10-18",
-    "2023-10-20",
-    "2023-10-21",
-    "2023-10-22",
-    "2023-10-23",
-    "2023-10-24",
-    "2023-10-26",
-    "2023-11-01",
-    "2023-11-15",
-    "2023-11-17",
-    "2023-11-18",
-    "2023-11-20",
-    "2023-12-21",
-    "2023-12-22",
-    "2023-12-23",
-    "2023-12-24",
-    "2023-12-26",
-    "2024-01-01",
-    "2024-01-12",
-    "2024-01-03"
-  ],
-  // eventDates: ["2023-01-01", "2023-01-02", "2023-01-03", "2023-01-04", "2023-01-05", "2023-01-06", "2023-01-07"],
-  eventName: "Weave Team Meeting",
-  eventTimeZone: "America/Vancouver",
-  startTimeUTC: "08:00:00",
-
-  // temporarily using, user names rather than ids
-  // assume time slots are parsed based on the correct timeslot length
-  userAvailability: {}
-};
 
 // Temporarily storing user data/event data here
 type AvailabilityGridState = {
   availabilityType: AvailabilityType;
-  eventData: EventData;
+  eventDates: EventDate[];
+  eventEndTimeUTC: EventTime;
+  eventName: string;
+  eventStartTimeUTC: EventTime;
+  eventUserAvailability: Record<string, string[]>;
   focusedDate: EventDate | null;
   hoveredTimeSlot: null | TimeSlot;
   mode: AvailabilityGridMode;
   saveUserAvailability: (timeSlots: TimeSlot[]) => void;
+  setDaysOfTheWeekEvent: (eventName: string, startTime: EventTime, endTime: EventTime) => void;
   setFocusedDate: (focusedDate: EventDate | null) => void;
   setHoveredTimeSlot: (hoveredTimeSlot: null | TimeSlot) => void;
   setMode: (mode: AvailabilityGridMode) => void;
+  setSpecificDatesEvent: (eventName: string, startTime: EventTime, endTime: EventTime, eventDates: EventDate[]) => void;
   setUser: (user: string) => void;
   setUserFilter: (filteredUsers: string[]) => void;
   setVisibleColumnRange: (start: number, end: number) => void;
@@ -122,27 +91,46 @@ type AvailabilityGridState = {
 
 const useAvailabilityGridStore = create<AvailabilityGridState>()((set) => ({
   availabilityType: AvailabilityType.SPECIFIC_DATES,
-  eventData: testEventData,
+  eventDates: ["2021-01-01", "2021-01-02", "2021-01-03", "2021-01-04", "2021-01-05", "2021-01-06", "2021-01-07"],
+  eventEndTimeUTC: "22:00:00",
+  eventName: "Weave Team Meeting",
+  eventStartTimeUTC: "08:00:00",
+  eventUserAvailability: {},
   focusedDate: null,
   hoveredTimeSlot: null,
   mode: AvailabilityGridMode.VIEW,
   saveUserAvailability: (timeSlots: TimeSlot[]) =>
     set((state) => ({
-      eventData: {
-        ...state.eventData,
-        userAvailability: {
-          ...state.eventData.userAvailability,
-          [state.user]: timeSlots
-        }
+      eventUserAvailability: {
+        ...state.eventUserAvailability,
+        [state.user]: timeSlots
       }
     })),
+  setDaysOfTheWeekEvent(eventName: string, startTime: EventTime, endTime: EventTime) {
+    set({
+      availabilityType: AvailabilityType.DAYS_OF_WEEK,
+      eventDates: DAYS_OF_WEEK_DATES,
+      eventEndTimeUTC: endTime,
+      eventName,
+      eventStartTimeUTC: startTime
+    });
+  },
   setFocusedDate: (focusedDate: EventDate | null) => set({ focusedDate }),
   setHoveredTimeSlot: (hoveredTimeSlot: null | TimeSlot) => set({ hoveredTimeSlot }),
   setMode: (mode: AvailabilityGridMode) => set({ mode }),
+  setSpecificDatesEvent(eventName: string, startTime: EventTime, endTime: EventTime, eventDates: EventDate[]) {
+    set({
+      availabilityType: AvailabilityType.SPECIFIC_DATES,
+      eventDates,
+      eventEndTimeUTC: endTime,
+      eventName,
+      eventStartTimeUTC: startTime
+    });
+  },
   setUser: (user: string) => set({ user }),
   setUserFilter: (userFilter: string[]) => set({ userFilter }),
   setVisibleColumnRange: (start: number, end: number) => set({ visibleColumnRange: { end, start } }),
-  user: "Alex Ma",
+  user: "",
   userFilter: [],
   visibleColumnRange: {
     end: -1,
