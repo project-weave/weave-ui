@@ -21,7 +21,7 @@ import { CheckCircle2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { isFirefox } from "react-device-detect";
 import AutoSizer from "react-virtualized-auto-sizer";
-import { VariableSizeList } from "react-window";
+import { ListChildComponentProps, VariableSizeList } from "react-window";
 import { useShallow } from "zustand/react/shallow";
 
 import { Skeleton } from "../ui/skeleton";
@@ -197,6 +197,113 @@ export default function AvailabilityGrid({ gridContainerRef }: AvailbilityGridPr
     }
   }
 
+  const gridColumn = ({ index, style }: ListChildComponentProps) => {
+    // rendering two extra empty columns for scroll logic
+    if (index === 0 || index === sortedEventDates.length + 1) {
+      return <div className="grid w-full" />;
+    }
+
+    const gridCellCol = index - 1;
+    const eventDate = sortedEventDates[gridCellCol];
+
+    const lastCellCol = sortedEventDates.length - 1;
+
+    const prevEventDate = sortedEventDates[gridCellCol - 1];
+    const nextEventDate = sortedEventDates[gridCellCol + 1];
+
+    const isDateGapLeft = gridCellCol !== 0 && !isConsecutiveDay(parseISO(prevEventDate), parseISO(eventDate));
+    const isDateGapRight =
+      gridCellCol !== lastCellCol && !isConsecutiveDay(parseISO(eventDate), parseISO(nextEventDate));
+
+    return (
+      <div
+        className="grid w-full"
+        key={`availability-column-${gridCellCol}`}
+        style={{
+          gridTemplateRows: `${columnHeaderHeight} 0.7rem repeat(${sortedEventTimes.length}, minmax(0.8rem, 1fr)) 0.7rem`,
+          ...style
+        }}
+      >
+        <AvailabilityGridColumnHeader
+          eventDate={eventDate}
+          hasUserAddedAvailability={allParticipants.includes(user)}
+          isDateGapRight={isDateGapRight}
+          key={`availability-grid-column-header-${gridCellCol}`}
+          mode={mode}
+          selectedTimeSlots={selectedTimeSlots}
+          setSelectedTimeSlots={setSelectedTimeSlots}
+          sortedEventTimes={sortedEventTimes}
+        />
+        {/* top row cell for styling */}
+        <div
+          className={cn("border-b-0 border-l-2 border-t-0 border-primary-light", {
+            "border-l-0": gridCellCol === 0,
+            "border-l-2 border-l-primary": isDateGapLeft,
+            "mr-2 border-r-2 border-r-primary": isDateGapRight
+          })}
+          style={{
+            borderStyle: borderStyle(isDateGapLeft, isDateGapRight)
+          }}
+        />
+        {sortedEventTimes.map((eventTime, gridRow) => {
+          const timeSlot = getTimeSlot(eventTime, eventDate);
+          const participantsSelectedTimeSlot = timeSlotsToParticipants[timeSlot] ?? [];
+          const filteredParticipants = userFilter.length === 0 ? allParticipants : userFilter;
+
+          const filteredParticipantCountForTimeSlot = filteredParticipants.filter((participant) =>
+            participantsSelectedTimeSlot.includes(participant)
+          ).length;
+
+          const filteredMaxParticipantsForAllTimeSlots = Object.values(timeSlotsToParticipants).reduce(
+            (maxCount, paricipants) => {
+              const filteredCount = filteredParticipants.filter((participant) =>
+                paricipants.includes(participant)
+              ).length;
+              return Math.max(maxCount, filteredCount);
+            },
+            0
+          );
+
+          return (
+            <AvailabilityGridCell
+              borderStyle={borderStyle}
+              eventDate={eventDate}
+              eventTime={eventTime}
+              gridCol={gridCellCol}
+              gridRow={gridRow}
+              handleCellMouseDown={handleCellMouseDown}
+              handleCellMouseEnter={handleCellMouseEnter}
+              handleCellMouseLeave={handleCellMouseLeave}
+              isBestTimesEnabled={isBestTimesEnabled}
+              isCellBorderOfDragSelectionArea={isCellBorderOfSelectionArea}
+              isCellInDragSelectionArea={isCellInDragSelectionArea}
+              isDateGapLeft={isDateGapLeft}
+              isDateGapRight={isDateGapRight}
+              isDragAdding={isDragAdding}
+              isSelected={selectedTimeSlots.has(timeSlot)}
+              key={`availability-grid-cell-${gridCellCol}-${gridRow}`}
+              maxParticipantsCountForAllTimeSlots={filteredMaxParticipantsForAllTimeSlots}
+              mode={mode}
+              participantsSelectedCount={filteredParticipantCountForTimeSlot}
+              totalParticipants={filteredParticipants.length}
+            />
+          );
+        })}
+        {/* bottom row cell for styling */}
+        <div
+          className={cn("border-b-0 border-l-2 border-t-2 border-primary-light", {
+            "border-l-0": gridCellCol === 0,
+            "border-l-2 border-l-primary": isDateGapLeft,
+            "mr-2 border-r-2 border-r-primary": isDateGapRight
+          })}
+          style={{
+            borderStyle: borderStyle(isDateGapLeft, isDateGapRight)
+          }}
+        />
+      </div>
+    );
+  };
+
   return (
     <div
       className="card grid select-none border-2 pl-2 pr-10"
@@ -287,117 +394,11 @@ export default function AvailabilityGrid({ gridContainerRef }: AvailbilityGridPr
                       setVisibleColumnRange(visibleStartIndex, visibleStopIndex),
                     100
                   )}
-                  overscanCount={8}
+                  overscanCount={7}
                   ref={gridContainerRef}
                   width={width}
                 >
-                  {({ index, style }) => {
-                    // rendering two extra empty columns for scroll logic
-                    if (index === 0 || index === sortedEventDates.length + 1) {
-                      return <div className="grid w-full" />;
-                    }
-
-                    const gridCellCol = index - 1;
-                    const eventDate = sortedEventDates[gridCellCol];
-
-                    const lastCellCol = sortedEventDates.length - 1;
-
-                    const prevEventDate = sortedEventDates[gridCellCol - 1];
-                    const nextEventDate = sortedEventDates[gridCellCol + 1];
-
-                    const isDateGapLeft =
-                      gridCellCol !== 0 && !isConsecutiveDay(parseISO(prevEventDate), parseISO(eventDate));
-                    const isDateGapRight =
-                      gridCellCol !== lastCellCol && !isConsecutiveDay(parseISO(eventDate), parseISO(nextEventDate));
-
-                    return (
-                      <div
-                        className="grid w-full"
-                        key={`availability-column-${gridCellCol}`}
-                        style={{
-                          gridTemplateRows: `${columnHeaderHeight} 0.7rem repeat(${sortedEventTimes.length}, minmax(0.8rem, 1fr)) 0.7rem`,
-                          ...style
-                        }}
-                      >
-                        <AvailabilityGridColumnHeader
-                          eventDate={eventDate}
-                          hasUserAddedAvailability={allParticipants.includes(user)}
-                          isDateGapRight={isDateGapRight}
-                          key={`availability-grid-column-header-${gridCellCol}`}
-                          mode={mode}
-                          selectedTimeSlots={selectedTimeSlots}
-                          setSelectedTimeSlots={setSelectedTimeSlots}
-                          sortedEventTimes={sortedEventTimes}
-                        />
-                        {/* top row cell for styling */}
-                        <div
-                          className={cn("border-b-0 border-l-2 border-t-0 border-primary-light", {
-                            "border-l-0": gridCellCol === 0,
-                            "border-l-2 border-l-primary": isDateGapLeft,
-                            "mr-2 border-r-2 border-r-primary": isDateGapRight
-                          })}
-                          style={{
-                            borderStyle: borderStyle(isDateGapLeft, isDateGapRight)
-                          }}
-                        />
-                        {sortedEventTimes.map((eventTime, gridRow) => {
-                          const timeSlot = getTimeSlot(eventTime, eventDate);
-                          const participantsSelectedTimeSlot = timeSlotsToParticipants[timeSlot] ?? [];
-                          const filteredParticipants = userFilter.length === 0 ? allParticipants : userFilter;
-
-                          const filteredParticipantCountForTimeSlot = filteredParticipants.filter((participant) =>
-                            participantsSelectedTimeSlot.includes(participant)
-                          ).length;
-
-                          const filteredMaxParticipantsForAllTimeSlots = Object.values(timeSlotsToParticipants).reduce(
-                            (maxCount, paricipants) => {
-                              const filteredCount = filteredParticipants.filter((participant) =>
-                                paricipants.includes(participant)
-                              ).length;
-                              return Math.max(maxCount, filteredCount);
-                            },
-                            0
-                          );
-
-                          return (
-                            <AvailabilityGridCell
-                              borderStyle={borderStyle}
-                              eventDate={eventDate}
-                              eventTime={eventTime}
-                              gridCol={gridCellCol}
-                              gridRow={gridRow}
-                              handleCellMouseDown={handleCellMouseDown}
-                              handleCellMouseEnter={handleCellMouseEnter}
-                              handleCellMouseLeave={handleCellMouseLeave}
-                              isBestTimesEnabled={isBestTimesEnabled}
-                              isCellBorderOfDragSelectionArea={isCellBorderOfSelectionArea}
-                              isCellInDragSelectionArea={isCellInDragSelectionArea}
-                              isDateGapLeft={isDateGapLeft}
-                              isDateGapRight={isDateGapRight}
-                              isDragAdding={isDragAdding}
-                              isSelected={selectedTimeSlots.has(timeSlot)}
-                              key={`availability-grid-cell-${gridCellCol}-${gridRow}`}
-                              maxParticipantsCountForAllTimeSlots={filteredMaxParticipantsForAllTimeSlots}
-                              mode={mode}
-                              participantsSelectedCount={filteredParticipantCountForTimeSlot}
-                              totalParticipants={filteredParticipants.length}
-                            />
-                          );
-                        })}
-                        {/* bottom row cell for styling */}
-                        <div
-                          className={cn("border-b-0 border-l-2 border-t-2 border-primary-light", {
-                            "border-l-0": gridCellCol === 0,
-                            "border-l-2 border-l-primary": isDateGapLeft,
-                            "mr-2 border-r-2 border-r-primary": isDateGapRight
-                          })}
-                          style={{
-                            borderStyle: borderStyle(isDateGapLeft, isDateGapRight)
-                          }}
-                        />
-                      </div>
-                    );
-                  }}
+                  {gridColumn}
                 </VariableSizeList>
               );
             }}
