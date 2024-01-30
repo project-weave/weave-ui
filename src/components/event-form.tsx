@@ -104,7 +104,7 @@ export default function EventForm({
       setDaysOfTheWeekEvent(eventName, format(startTime, "HH:mm:ss"), format(endTime, "HH:mm:ss"));
     }
 
-    router.push("/new123");
+    router.push("/123");
   }
 
   return (

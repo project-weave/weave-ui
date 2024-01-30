@@ -1,5 +1,6 @@
 import EventDateCalendar from "@/components/event-date-calendar";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 import useAvailabilityGridStore, {
   AvailabilityType,
   EventDate,
@@ -7,7 +8,7 @@ import useAvailabilityGridStore, {
   TimeSlot
 } from "@/store/availabilityGridStore";
 import { parseISO } from "date-fns";
-import { Copy } from "lucide-react";
+import { CheckCircle2, Copy } from "lucide-react";
 import { useCallback, useMemo, useRef } from "react";
 import { VariableSizeList } from "react-window";
 import { useShallow } from "zustand/react/shallow";
@@ -31,6 +32,10 @@ export default function AvailbilityGridInfoPanel({ gridContainerRef }: Availabil
   const user = useAvailabilityGridStore((state) => state.user);
   const visibleColumnRange = useAvailabilityGridStore((state) => state.visibleColumnRange);
   const setFocusedDate = useAvailabilityGridStore((state) => state.setFocusedDate);
+
+  const { toast } = useToast();
+
+  const SUCCESSFULLY_COPIED = "Copied link to clipboard.";
 
   const allParticipants = useMemo(() => {
     let users = Object.keys(participantsToTimeSlots);
@@ -136,6 +141,19 @@ export default function AvailbilityGridInfoPanel({ gridContainerRef }: Availabil
         {eventName}
         <Button
           className="absolute -end-1 -top-[1.5px] h-11 rounded-2xl hover:bg-primary-dark-hover hover:opacity-100"
+          onClick={() => {
+            navigator.clipboard.writeText(window.location.href);
+            toast({
+              action: (
+                <div className="-ml-4 flex w-full items-center">
+                  <CheckCircle2 className="mr-2 h-6 w-6 text-green-800" />
+                  <div className="text-sm">{SUCCESSFULLY_COPIED}</div>
+                </div>
+              ),
+              //description: "Successfully saved availability.",
+              variant: "success"
+            });
+          }}
           variant="dark"
         >
           <Copy className="h-4 w-4" />
