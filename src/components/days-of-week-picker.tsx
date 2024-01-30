@@ -29,7 +29,10 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
       onMouseUp={onDragSelectMouseUp}
     >
       {size === "large" && (
-        <h1 className="text-sec mb-12 mt-8 text-center text-xl font-medium tracking-wide">{DAYS_OF_WEEK_TITLE}</h1>
+        <div className="mx-4 mb-6 mt-4 ">
+          <h1 className="text-left text-2xl font-semibold tracking-wide text-secondary">{DAYS_OF_WEEK_TITLE}</h1>
+          <hr className="mt-4 h-[0.1rem] bg-primary-dark" />
+        </div>
       )}
 
       <div className="flex flex-grow justify-between">

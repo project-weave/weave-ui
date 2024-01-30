@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import useAvailabilityGridStore, { AvailabilityType } from "@/store/availabilityGridStore";
 import { EventDate } from "@/store/availabilityGridStore";
 import { format, isBefore, isEqual, parse } from "date-fns";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
@@ -65,6 +66,8 @@ export default function EventForm({
   const setSpecificDatesEvent = useAvailabilityGridStore((state) => state.setSpecificDatesEvent);
   const setDaysOfTheWeekEvent = useAvailabilityGridStore((state) => state.setDaysOfTheWeekEvent);
 
+  const [submitClicked, setSubmitClicked] = useState(false);
+
   useEffect(() => {
     const startTime = parse(`${startTimeHour}:${startTimeMinute} ${startTimeAmPm}`, "h:mm a", new Date());
     const endTime = parse(`${endTimeHour}:${endTimeMinute} ${endTimeAmPm}`, "h:mm a", new Date());
@@ -103,8 +106,8 @@ export default function EventForm({
     } else {
       setDaysOfTheWeekEvent(eventName, format(startTime, "HH:mm:ss"), format(endTime, "HH:mm:ss"));
     }
-
     router.push("/123");
+    setSubmitClicked(true);
   }
 
   return (
@@ -131,7 +134,6 @@ export default function EventForm({
             value={eventName}
           />
         </div>
-
         <div className="mb-4 flex flex-col text-sm">
           <p className="mb-4 text-xs font-medium text-secondary"> {WHAT_TIMES} </p>
           <div className="flex w-full items-center">
@@ -160,7 +162,6 @@ export default function EventForm({
             />
           </div>
         </div>
-
         <div className="mb-6 flex flex-col text-sm">
           <p className="mb-4 text-xs font-medium text-secondary"> {WHAT_AVAILABILITY} </p>
           <div className="flex w-full items-center">
@@ -187,7 +188,6 @@ export default function EventForm({
             </Button>
           </div>
         </div>
-
         <div className="mb-4 flex-grow">
           {availabilityType === AvailabilityType.SPECIFIC_DATES ? (
             <Calendar
@@ -203,7 +203,6 @@ export default function EventForm({
             <DaysOfWeekPicker selectedDaysOfWeek={selectedDaysOfWeek} setSelectedDaysOfWeek={setSelectedDaysOfWeek} />
           )}
         </div>
-
         {/* <div className="mb-2 ml-1 flex items-center text-sm">
               <Checkbox className="h-4 w-4" id="avail-notif" />
               <label className="ml-2 pt-0 text-xs text-secondary" htmlFor="avail-notif">
@@ -211,14 +210,20 @@ export default function EventForm({
               </label>
             </div> */}
 
-        <Button
-          className="mt-3 h-auto w-full rounded-2xl border-[1px] border-primary py-4 align-bottom"
-          disabled={!isFormValid}
-          onClick={createEventHandler}
-          type="submit"
-        >
-          {CREATE_EVENT}
-        </Button>
+        {submitClicked ? (
+          <div className="flex justify-center">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          </div>
+        ) : (
+          <Button
+            className="mt-3 h-auto w-full rounded-2xl border-[1px] border-primary py-4 align-bottom"
+            disabled={!isFormValid}
+            onClick={createEventHandler}
+            type="submit"
+          >
+            {CREATE_EVENT}
+          </Button>
+        )}
       </form>
     </div>
   );
