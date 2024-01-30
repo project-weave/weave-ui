@@ -76,7 +76,12 @@ type AvailabilityGridState = {
   hoveredTimeSlot: null | TimeSlot;
   mode: AvailabilityGridMode;
   saveUserAvailability: (timeSlots: TimeSlot[]) => void;
-  setDaysOfTheWeekEvent: (eventName: string, startTime: EventTime, endTime: EventTime) => void;
+  setDaysOfTheWeekEvent: (
+    eventName: string,
+    startTime: EventTime,
+    endTime: EventTime,
+    daysOfTheWeek: EventDate[]
+  ) => void;
   setFocusedDate: (focusedDate: EventDate | null) => void;
   setHoveredTimeSlot: (hoveredTimeSlot: null | TimeSlot) => void;
   setMode: (mode: AvailabilityGridMode) => void;
@@ -106,10 +111,10 @@ const useAvailabilityGridStore = create<AvailabilityGridState>()((set) => ({
         [state.user]: timeSlots
       }
     })),
-  setDaysOfTheWeekEvent(eventName: string, startTime: EventTime, endTime: EventTime) {
+  setDaysOfTheWeekEvent(eventName: string, startTime: EventTime, endTime: EventTime, daysOfTheWeek: EventDate[]) {
     set({
       availabilityType: AvailabilityType.DAYS_OF_WEEK,
-      eventDates: DAYS_OF_WEEK_DATES,
+      eventDates: daysOfTheWeek,
       eventEndTimeUTC: endTime,
       eventName,
       eventStartTimeUTC: startTime

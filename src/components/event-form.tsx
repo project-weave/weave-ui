@@ -1,4 +1,3 @@
-"use client";
 import DaysOfWeekPicker from "@/components/days-of-week-picker";
 import Calendar from "@/components/event-date-calendar";
 import { Button } from "@/components/ui/button";
@@ -104,7 +103,12 @@ export default function EventForm({
         Array.from(selectedDates)
       );
     } else {
-      setDaysOfTheWeekEvent(eventName, format(startTime, "HH:mm:ss"), format(endTime, "HH:mm:ss"));
+      setDaysOfTheWeekEvent(
+        eventName,
+        format(startTime, "HH:mm:ss"),
+        format(endTime, "HH:mm:ss"),
+        Array.from(selectedDaysOfWeek)
+      );
     }
     router.push("/123");
     setSubmitClicked(true);
