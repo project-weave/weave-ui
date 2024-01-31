@@ -2,12 +2,12 @@ import DaysOfWeekPicker from "@/components/days-of-week-picker";
 import Calendar from "@/components/event-date-calendar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import DropdownWithLabel from "@/components/ui/dropdown-with-label";
 import InputWithLabel from "@/components/ui/input-with-label";
-import TimeInputWithLabel from "@/components/ui/time-input-with-label";
 import { cn } from "@/lib/utils";
-import useAvailabilityGridStore, { AvailabilityType } from "@/store/availabilityGridStore";
+import useAvailabilityGridStore, { AvailabilityType, EventTime } from "@/store/availabilityGridStore";
 import { EventDate } from "@/store/availabilityGridStore";
-import { format, isBefore, isEqual, parse } from "date-fns";
+import { addMinutes, format, isBefore, isEqual, parse } from "date-fns";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
@@ -25,6 +25,8 @@ const I_WANT_TO_BE_NOTIFIED = "I want to be notified when there is a new availbi
 const CREATE_EVENT = "Create Event";
 const TO = "to";
 const OR = "or";
+
+const TIME_FORMAT = "h:mm a";
 
 type EventFormProps = {
   availabilityType: AvailabilityType;
@@ -51,13 +53,8 @@ export default function EventForm({
 
   const [eventName, setEventName] = useState("");
 
-  const [startTimeHour, setStartTimeHour] = useState("9");
-  const [startTimeMinute, setStartTimeMinute] = useState("00");
-  const [startTimeAmPm, setStartTimeAmPm] = useState("am");
-
-  const [endTimeHour, setEndTimeHour] = useState("9");
-  const [endTimeMinute, setEndTimeMinute] = useState("00");
-  const [endTimeAmPm, setEndTimeAmPm] = useState("pm");
+  const [startTime, setStartTime] = useState<EventTime>("9:00 am");
+  const [endTime, setEndTime] = useState<EventTime>("9:00 pm");
 
   const [isFormValid, setIsFormValid] = useState(false);
   const [isTimeRangeValid, setIsTimeRangeValid] = useState(true);
@@ -68,15 +65,15 @@ export default function EventForm({
   const [submitClicked, setSubmitClicked] = useState(false);
 
   useEffect(() => {
-    const startTime = parse(`${startTimeHour}:${startTimeMinute} ${startTimeAmPm}`, "h:mm a", new Date());
-    const endTime = parse(`${endTimeHour}:${endTimeMinute} ${endTimeAmPm}`, "h:mm a", new Date());
+    const parsedStartTime = parse(startTime, TIME_FORMAT, new Date());
+    const parsedEndTime = parse(endTime, TIME_FORMAT, new Date());
 
-    if (isBefore(endTime, startTime) || isEqual(endTime, startTime)) {
+    if (isBefore(parsedEndTime, parsedStartTime) || isEqual(parsedEndTime, parsedStartTime)) {
       setIsTimeRangeValid(false);
     } else {
       setIsTimeRangeValid(true);
     }
-  }, [startTimeAmPm, startTimeHour, startTimeMinute, endTimeAmPm, endTimeHour, endTimeMinute]);
+  }, [startTime, endTime]);
 
   useEffect(() => {
     if (
@@ -92,26 +89,43 @@ export default function EventForm({
   }, [eventName, selectedDates, isTimeRangeValid, availabilityType, selectedDaysOfWeek]);
 
   function createEventHandler() {
-    const startTime = parse(`${startTimeHour}:${startTimeMinute} ${startTimeAmPm}`, "h:mm a", new Date());
-    const endTime = parse(`${endTimeHour}:${endTimeMinute} ${endTimeAmPm}`, "h:mm a", new Date());
+    const parsedStartTime = parse(startTime, TIME_FORMAT, new Date());
+    const parsedEndTime = parse(endTime, TIME_FORMAT, new Date());
 
     if (availabilityType === AvailabilityType.SPECIFIC_DATES) {
       setSpecificDatesEvent(
         eventName,
-        format(startTime, "HH:mm:ss"),
-        format(endTime, "HH:mm:ss"),
+        format(parsedStartTime, "HH:mm:ss"),
+        format(parsedEndTime, "HH:mm:ss"),
         Array.from(selectedDates)
       );
     } else {
       setDaysOfTheWeekEvent(
         eventName,
-        format(startTime, "HH:mm:ss"),
-        format(endTime, "HH:mm:ss"),
+        format(parsedStartTime, "HH:mm:ss"),
+        format(parsedEndTime, "HH:mm:ss"),
         Array.from(selectedDaysOfWeek)
       );
     }
     router.push("/123");
     setSubmitClicked(true);
+  }
+
+  function possibleTimes() {
+    const startTime = new Date(0, 0, 0, 0, 0);
+    const endTime = new Date(0, 0, 0, 23, 30);
+
+    const times = [];
+    let currentTime = startTime;
+    const interval = 30;
+
+    while (currentTime <= endTime) {
+      const formattedTime = format(currentTime, TIME_FORMAT).toLowerCase();
+      times.push(formattedTime);
+      currentTime = addMinutes(currentTime, interval);
+    }
+
+    return times;
   }
 
   return (
@@ -141,28 +155,22 @@ export default function EventForm({
         <div className="mb-4 flex flex-col text-sm">
           <p className="mb-4 text-xs font-medium text-secondary"> {WHAT_TIMES} </p>
           <div className="flex w-full items-center">
-            <TimeInputWithLabel
-              ampm={startTimeAmPm}
-              hour={startTimeHour}
-              id="start-time"
+            <DropdownWithLabel
+              emptyOptionText={"Invalid time"}
+              error={!isTimeRangeValid}
               label={START_TIME_LABEL}
-              minute={startTimeMinute}
-              setAmPm={setStartTimeAmPm}
-              setHour={setStartTimeHour}
-              setMinute={setStartTimeMinute}
-              variant={isTimeRangeValid ? "default" : "error"}
+              options={possibleTimes()}
+              selected={startTime}
+              setSelected={setStartTime}
             />
             <p className="mx-6 text-xs text-secondary"> {TO} </p>
-            <TimeInputWithLabel
-              ampm={endTimeAmPm}
-              hour={endTimeHour}
-              id="end-time"
+            <DropdownWithLabel
+              emptyOptionText={"Invalid time"}
+              error={!isTimeRangeValid}
               label={END_TIME_LABEL}
-              minute={endTimeMinute}
-              setAmPm={setEndTimeAmPm}
-              setHour={setEndTimeHour}
-              setMinute={setEndTimeMinute}
-              variant={isTimeRangeValid ? "default" : "error"}
+              options={possibleTimes()}
+              selected={endTime}
+              setSelected={setEndTime}
             />
           </div>
         </div>
