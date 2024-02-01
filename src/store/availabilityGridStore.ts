@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { subscribeWithSelector } from "zustand/middleware";
 
 // EventDate is the date portion of a TimeSlot, ie. 2000-11-29
 export type EventDate = string;
@@ -33,15 +34,6 @@ export enum AvailabilityType {
 type VisibleColumnRange = {
   end: number;
   start: number;
-};
-
-type EventData = {
-  endTimeUTC: EventTime;
-  eventDates: EventDate[];
-  eventName: string;
-  eventTimeZone: string;
-  startTimeUTC: EventTime;
-  userAvailability: Record<string, TimeSlot[]>;
 };
 
 // assume that when only time is passed in as a parameter, we're only interested in time so we we can use an aribtrary date to parse
@@ -94,53 +86,55 @@ type AvailabilityGridState = {
   visibleColumnRange: VisibleColumnRange;
 };
 
-const useAvailabilityGridStore = create<AvailabilityGridState>()((set) => ({
-  availabilityType: AvailabilityType.SPECIFIC_DATES,
-  eventDates: ["2021-01-01", "2021-01-02", "2021-01-03", "2021-01-04", "2021-01-05", "2021-01-06", "2021-01-07"],
-  eventEndTimeUTC: "22:00:00",
-  eventName: "Weave Team Meeting",
-  eventStartTimeUTC: "08:00:00",
-  eventUserAvailability: {},
-  focusedDate: null,
-  hoveredTimeSlot: null,
-  mode: AvailabilityGridMode.VIEW,
-  saveUserAvailability: (timeSlots: TimeSlot[]) =>
-    set((state) => ({
-      eventUserAvailability: {
-        ...state.eventUserAvailability,
-        [state.user]: timeSlots
-      }
-    })),
-  setDaysOfTheWeekEvent(eventName: string, startTime: EventTime, endTime: EventTime, daysOfTheWeek: EventDate[]) {
-    set({
-      availabilityType: AvailabilityType.DAYS_OF_WEEK,
-      eventDates: daysOfTheWeek,
-      eventEndTimeUTC: endTime,
-      eventName,
-      eventStartTimeUTC: startTime
-    });
-  },
-  setFocusedDate: (focusedDate: EventDate | null) => set({ focusedDate }),
-  setHoveredTimeSlot: (hoveredTimeSlot: null | TimeSlot) => set({ hoveredTimeSlot }),
-  setMode: (mode: AvailabilityGridMode) => set({ mode }),
-  setSpecificDatesEvent(eventName: string, startTime: EventTime, endTime: EventTime, eventDates: EventDate[]) {
-    set({
-      availabilityType: AvailabilityType.SPECIFIC_DATES,
-      eventDates,
-      eventEndTimeUTC: endTime,
-      eventName,
-      eventStartTimeUTC: startTime
-    });
-  },
-  setUser: (user: string) => set({ user }),
-  setUserFilter: (userFilter: string[]) => set({ userFilter }),
-  setVisibleColumnRange: (start: number, end: number) => set({ visibleColumnRange: { end, start } }),
-  user: "",
-  userFilter: [],
-  visibleColumnRange: {
-    end: -1,
-    start: -1
-  }
-}));
+const useAvailabilityGridStore = create<AvailabilityGridState>()(
+  subscribeWithSelector((set) => ({
+    availabilityType: AvailabilityType.SPECIFIC_DATES,
+    eventDates: ["2021-01-01", "2021-01-02", "2021-01-03", "2021-01-04", "2021-01-05", "2021-01-06", "2021-01-07"],
+    eventEndTimeUTC: "22:00:00",
+    eventName: "Weave Team Meeting",
+    eventStartTimeUTC: "08:00:00",
+    eventUserAvailability: {},
+    focusedDate: null,
+    hoveredTimeSlot: null,
+    mode: AvailabilityGridMode.VIEW,
+    saveUserAvailability: (timeSlots: TimeSlot[]) =>
+      set((state) => ({
+        eventUserAvailability: {
+          ...state.eventUserAvailability,
+          [state.user]: timeSlots
+        }
+      })),
+    setDaysOfTheWeekEvent(eventName: string, startTime: EventTime, endTime: EventTime, daysOfTheWeek: EventDate[]) {
+      set({
+        availabilityType: AvailabilityType.DAYS_OF_WEEK,
+        eventDates: daysOfTheWeek,
+        eventEndTimeUTC: endTime,
+        eventName,
+        eventStartTimeUTC: startTime
+      });
+    },
+    setFocusedDate: (focusedDate: EventDate | null) => set({ focusedDate }),
+    setHoveredTimeSlot: (hoveredTimeSlot: null | TimeSlot) => set({ hoveredTimeSlot }),
+    setMode: (mode: AvailabilityGridMode) => set({ mode }),
+    setSpecificDatesEvent(eventName: string, startTime: EventTime, endTime: EventTime, eventDates: EventDate[]) {
+      set({
+        availabilityType: AvailabilityType.SPECIFIC_DATES,
+        eventDates,
+        eventEndTimeUTC: endTime,
+        eventName,
+        eventStartTimeUTC: startTime
+      });
+    },
+    setUser: (user: string) => set({ user }),
+    setUserFilter: (userFilter: string[]) => set({ userFilter }),
+    setVisibleColumnRange: (start: number, end: number) => set({ visibleColumnRange: { end, start } }),
+    user: "",
+    userFilter: [],
+    visibleColumnRange: {
+      end: -1,
+      start: -1
+    }
+  }))
+);
 
 export default useAvailabilityGridStore;

@@ -24,6 +24,7 @@ type useGridDragSelectReturn = {
   isAdding: boolean;
   isCellBorderOfSelectionArea: GridDragSelectionCellBorderCheck;
   isCellInSelectionArea: GridDragSelectionCellCheck;
+  isSelecting: boolean;
   onMouseDown: GridDragMouseDownHandler;
   onMouseEnter: GridDragMouseEnterHandler;
   saveSelection: GridDragSaveHandler;
@@ -153,6 +154,7 @@ export default function useGridDragSelect<T, U, V>(
     isAdding,
     isCellBorderOfSelectionArea,
     isCellInSelectionArea,
+    isSelecting,
     onMouseDown,
     onMouseEnter,
     saveSelection
