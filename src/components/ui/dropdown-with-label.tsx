@@ -68,7 +68,7 @@ export default function DropdownWithLabel({
         <Command className="bg-background">
           <CommandInput className="h-8 border-primary text-2xs 2xl:h-9 2xl:text-sm" />
           {emptyOptionText !== undefined && emptyOptionText !== "" && (
-            <CommandEmpty className="m-1 rounded-sm bg-red-100 py-1.5 text-center text-sm">
+            <CommandEmpty className="m-1 rounded-sm bg-red-100 py-1.5 text-center text-2xs 2xl:text-sm">
               {emptyOptionText}
             </CommandEmpty>
           )}
@@ -78,8 +78,8 @@ export default function DropdownWithLabel({
           >
             {options.map((option) => (
               <CommandItem
-                className={cn("text-2xs 2xl:text-sm", {
-                  "mb-1 border-[1px] border-primary": selected === option
+                className={cn("mr-2 text-2xs 2xl:text-sm", {
+                  "mb-1 border-[1px] border-primary 2xl:border-2": selected === option
                 })}
                 data-value={option}
                 key={option}
@@ -91,7 +91,7 @@ export default function DropdownWithLabel({
               >
                 {option}
                 <Check
-                  className={cn("ml-3 h-3 w-3 2xl:h-4 2xl:w-4", selected === option ? "opacity-100" : "opacity-0")}
+                  className={cn("ml-4 h-3 w-3 2xl:h-4 2xl:w-4", selected === option ? "opacity-100" : "opacity-0")}
                 />
               </CommandItem>
             ))}
