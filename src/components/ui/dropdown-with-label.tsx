@@ -78,7 +78,7 @@ export default function DropdownWithLabel({
           >
             {options.map((option) => (
               <CommandItem
-                className={cn("text-2xs 2xl:text-sm", {
+                className={cn("mr-2 text-2xs 2xl:text-sm", {
                   "mb-1 border-[1px] border-primary": selected === option
                 })}
                 data-value={option}
@@ -91,7 +91,7 @@ export default function DropdownWithLabel({
               >
                 {option}
                 <Check
-                  className={cn("ml-3 h-3 w-3 2xl:h-4 2xl:w-4", selected === option ? "opacity-100" : "opacity-0")}
+                  className={cn("ml-4 h-3 w-3 2xl:h-4 2xl:w-4", selected === option ? "opacity-100" : "opacity-0")}
                 />
               </CommandItem>
             ))}
