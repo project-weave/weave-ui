@@ -9,6 +9,7 @@ import { Label } from "./label";
 export interface DropdownWithLabelProps {
   emptyOptionText?: string;
   error: boolean;
+  filterFunc: (value: string, search: string) => 0 | 1;
   label: string;
   options: string[];
   selected: string;
@@ -17,6 +18,7 @@ export interface DropdownWithLabelProps {
 export default function DropdownWithLabel({
   emptyOptionText,
   error,
+  filterFunc,
   label,
   options,
   selected,
@@ -64,8 +66,8 @@ export default function DropdownWithLabel({
           </Label>
         </div>
       </PopoverTrigger>
-      <PopoverContent className="w-[114px] border-2 border-primary p-0 2xl:w-[134px]">
-        <Command className="bg-background">
+      <PopoverContent className="w-[116px] border-2 border-primary p-0 2xl:w-[134px]">
+        <Command className="bg-background" filter={(value, search) => filterFunc(value, search)}>
           <CommandInput className="h-8 border-primary text-2xs 2xl:h-9 2xl:text-sm" />
           {emptyOptionText !== undefined && emptyOptionText !== "" && (
             <CommandEmpty className="m-1 rounded-sm bg-red-100 py-1.5 text-center text-2xs 2xl:text-sm">
@@ -78,7 +80,7 @@ export default function DropdownWithLabel({
           >
             {options.map((option) => (
               <CommandItem
-                className={cn("mr-2 text-2xs 2xl:text-sm", {
+                className={cn("text-2xs 2xl:text-sm", {
                   "mb-1 border-[1px] border-primary 2xl:border-2": selected === option
                 })}
                 data-value={option}
@@ -91,7 +93,10 @@ export default function DropdownWithLabel({
               >
                 {option}
                 <Check
-                  className={cn("ml-4 h-3 w-3 2xl:h-4 2xl:w-4", selected === option ? "opacity-100" : "opacity-0")}
+                  className={cn(
+                    "ml-4 h-3 w-3 2xl:ml-3 2xl:h-4 2xl:w-4",
+                    selected === option ? "opacity-100" : "opacity-0"
+                  )}
                 />
               </CommandItem>
             ))}

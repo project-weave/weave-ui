@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import DropdownWithLabel from "@/components/ui/dropdown-with-label";
 import InputWithLabel from "@/components/ui/input-with-label";
+import { timeFilter } from "@/lib/date-utils";
 import { cn } from "@/lib/utils";
 import useAvailabilityGridStore, { AvailabilityType, EventTime } from "@/store/availabilityGridStore";
 import { EventDate } from "@/store/availabilityGridStore";
@@ -158,6 +159,7 @@ export default function EventForm({
             <DropdownWithLabel
               emptyOptionText={"Invalid time"}
               error={!isTimeRangeValid}
+              filterFunc={timeFilter}
               label={START_TIME_LABEL}
               options={possibleTimes()}
               selected={startTime}
@@ -167,6 +169,7 @@ export default function EventForm({
             <DropdownWithLabel
               emptyOptionText={"Invalid time"}
               error={!isTimeRangeValid}
+              filterFunc={timeFilter}
               label={END_TIME_LABEL}
               options={possibleTimes()}
               selected={endTime}
