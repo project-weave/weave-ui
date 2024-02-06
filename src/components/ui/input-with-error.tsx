@@ -10,7 +10,7 @@ export default function InputWithLabel({ className, errorText, type, ...props }:
     <div className="relative">
       <input
         className={cn(
-          "placeholder:text-muted-foreground peer flex w-full rounded-2xl border border-primary bg-background px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+          "placeholder:text-muted-foreground peer flex w-full rounded-xl border border-primary bg-background px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
           className,
           {
             "border-red-500": !!errorText
