@@ -69,6 +69,7 @@ const EventDateCalendar = ({
   visibleEventDates
 }: EventDateCalendarProps) => {
   const today = startOfToday();
+  console.log(today);
 
   let defaultMonth = isViewMode ? format(parseISO(earliestSelectedDate), MONTH_FORMAT) : format(today, MONTH_FORMAT);
   if (currentMonthOverride !== undefined) {
