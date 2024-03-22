@@ -3,7 +3,7 @@ import { useRef } from "react";
 
 import NewEventPage from "./(event)/new/page";
 
-const TITLE = "find time for \n what's important";
+const TITLE = "find time for what's important";
 const SUBTITLE =
   "The hardest part about getting together is finding time for it. With Weave, you'll be able to schedule group events with ease, and enjoy doing so.";
 
@@ -18,7 +18,13 @@ export default function LandingPage() {
           gridTemplateRows: "40% 20% 40%"
         }}
       >
-        <h1 className="mt-5 whitespace-pre-line text-center text-[5rem] font-semibold tracking-wide">{TITLE} </h1>
+        <h1 className="mt-5 flex flex-col whitespace-pre-line text-center text-[5rem] font-semibold tracking-wide">
+          <div>find time for</div>{" "}
+          <div className="flex flex-row self-center">
+            <div>what&apos;s&nbsp;</div>
+            <div className="rounded-2xl border-[2px] border-solid border-primary px-1">important</div>
+          </div>
+        </h1>
       </div>
 
       <h1 className="tracing-wider w-4/5 content-center pt-10 text-center text-2xl font-medium">{SUBTITLE}</h1>
