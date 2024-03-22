@@ -2,8 +2,8 @@ import Image from "next/image";
 
 import { Button } from "./ui/button";
 
-const LOGIN = "Log in";
-const SIGN_UP = "Sign up";
+const LOGIN = "Log In";
+const SIGN_UP = "Sign Up";
 
 export default function NavBar() {
   return (
