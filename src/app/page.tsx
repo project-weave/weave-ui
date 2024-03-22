@@ -22,12 +22,12 @@ export default function LandingPage() {
           <div>find time for</div>{" "}
           <div className="flex flex-row self-center">
             <div>what&apos;s&nbsp;</div>
-            <div className="rounded-2xl border-[2px] border-solid border-primary px-1">important</div>
+            <div className="text-primary">important</div>
           </div>
         </h1>
       </div>
 
-      <h1 className="tracing-wider w-4/5 content-center pt-10 text-center text-2xl font-medium">{SUBTITLE}</h1>
+      <h1 className="tracing-wider w-3/4 content-center pt-10 text-center text-2xl font-medium">{SUBTITLE}</h1>
 
       <button
         className="text-m mt-16 h-auto rounded-2xl bg-primary px-12 py-2 align-bottom font-bold text-primary-foreground outline-none transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50"
