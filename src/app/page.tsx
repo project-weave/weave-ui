@@ -18,11 +18,11 @@ export default function LandingPage() {
           gridTemplateRows: "40% 20% 40%"
         }}
       >
-        <h1 className="mt-5 flex flex-col whitespace-pre-line text-center text-[5rem] font-semibold tracking-wide">
-          <div>find time for</div>{" "}
+        <h1 className="mt-5 flex flex-col whitespace-pre-line text-center text-[5rem] font-semibold ">
+          <div className="-mb-5">find time for</div>{" "}
           <div className="flex flex-row self-center">
             <div>what&apos;s&nbsp;</div>
-            <div className="text-primary">important</div>
+            <div className="text-primary">important.</div>
           </div>
         </h1>
       </div>
@@ -30,7 +30,7 @@ export default function LandingPage() {
       <h1 className="tracing-wider w-3/4 content-center pt-10 text-center text-2xl font-medium">{SUBTITLE}</h1>
 
       <button
-        className="text-m mt-16 h-auto rounded-2xl bg-primary px-12 py-2 align-bottom font-bold text-primary-foreground outline-none transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50"
+        className="text-m mt-16 h-auto rounded-xl bg-primary px-12 py-4 align-bottom font-medium text-primary-foreground outline-none transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50"
         onClick={() => {
           titleRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
         }}
