@@ -69,11 +69,15 @@ const AvailabilityGridColumnHeader = ({
             })}
           >
             <MotionButton
-              className={cn("h-8 w-10 rounded-sm border-none text-lg font-semibold tracking-wide transition-all", {
-                "cursor-default bg-background text-xl text-secondary hover:bg-background": isViewMode(mode)
-              })}
+              className={cn(
+                "h-8 w-10 rounded-sm border-none bg-accent-light pb-2.5 text-lg font-semibold tracking-wide transition-all",
+                {
+                  "bg-primary": isAllTimeSlotForDateSelected,
+                  "cursor-default bg-background text-xl text-secondary hover:bg-background": isViewMode(mode)
+                }
+              )}
               onClick={dateClickedHandler}
-              variant={isAllTimeSlotForDateSelected ? "dark" : "outline"}
+              variant={isAllTimeSlotForDateSelected ? "default" : "outline"}
               whileTap={isEditMode(mode) ? { scale: 0.9 } : {}}
             >
               <time dateTime={eventDate}>{format(parsedDate, "d")}</time>
@@ -82,7 +86,23 @@ const AvailabilityGridColumnHeader = ({
         </>
       )}
       {availabilityType === AvailabilityType.DAYS_OF_WEEK && (
-        <h3 className="py-3 text-xl font-semibold text-secondary">{format(parsedDate, "EEE")}</h3>
+        <div>
+          {/* <h3 className="py-3 text-xl font-semibold text-secondary">{format(parsedDate, "EEE")}</h3> */}
+          <MotionButton
+            className={cn(
+              "mt-2 h-8 w-10 rounded-xl border-none bg-accent-light px-12 py-5 text-xl font-semibold tracking-wide transition-all",
+              {
+                "bg-primary": isAllTimeSlotForDateSelected,
+                "cursor-default bg-background text-xl text-secondary hover:bg-background": isViewMode(mode)
+              }
+            )}
+            onClick={dateClickedHandler}
+            variant={isAllTimeSlotForDateSelected ? "default" : "outline"}
+            whileTap={isEditMode(mode) ? { scale: 0.9 } : {}}
+          >
+            <time dateTime={eventDate}>{format(parsedDate, "EEE")}</time>
+          </MotionButton>
+        </div>
       )}
     </div>
   );

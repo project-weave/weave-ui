@@ -154,7 +154,7 @@ export default function AvailbilityGridInfoPanel({ gridContainerRef }: Availabil
               variant: "success"
             });
           }}
-          variant="dark"
+          variant="default"
         >
           <Copy className="h-4 w-4" />
         </Button>
