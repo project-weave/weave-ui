@@ -13,10 +13,8 @@
     --popover: 255, 255, 255;
     --popover-foreground: 13, 14, 15;
 
-    --primary-dark: 151, 71, 255;
-    --primary-dark-hover: 172, 108, 255;
-    --primary: 159, 110, 249;
-    --primary-hover: 178, 139, 250;
+    --primary: 151, 71, 255;
+    --primary-hover: 172, 108, 255;
     --primary-foreground: 255, 255, 255;
     --primary-light: 219, 183, 244;
 

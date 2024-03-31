@@ -84,7 +84,7 @@ export default function AvailabilityGridHeader({
     <MotionButton
       className="h-8 whitespace-nowrap rounded-[.4rem]"
       onClick={handleSaveUserAvailability}
-      variant="dark"
+      variant="default"
       whileTap={{ scale: 0.94 }}
     >
       {SAVE_AVAILABILITY_BUTTON_TEXT}
@@ -97,7 +97,7 @@ export default function AvailabilityGridHeader({
         <MotionButton
           animate={editButtonAnimationControls}
           className="h-8 whitespace-nowrap rounded-[.4rem]"
-          variant="dark"
+          variant="default"
         >
           {EDIT_AVAILABILITY_BUTTON_TEXT}
         </MotionButton>
@@ -130,7 +130,7 @@ export default function AvailabilityGridHeader({
             </Label>
             <Switch
               checked={isBestTimesEnabled}
-              className="data-[state=checked]:bg-primary-dark data-[state=unchecked]:bg-accent"
+              className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-accent"
               id="best-times"
               onClick={() => setIsBestTimesEnabled((isEnabled) => !isEnabled)}
             />
@@ -143,7 +143,7 @@ export default function AvailabilityGridHeader({
               <MotionButton
                 className="h-7 w-7 rounded-sm px-[2px] py-0"
                 onClick={scrollPrev}
-                variant={firstColInView ? "dark-disabled" : "dark"}
+                variant={firstColInView ? "default-disabled" : "default"}
                 whileTap={!firstColInView ? { scale: 0.88 } : {}}
               >
                 <span className="sr-only">Previous Columns</span>
@@ -152,7 +152,7 @@ export default function AvailabilityGridHeader({
               <MotionButton
                 className="ml-[5px] h-7 w-7 rounded-sm px-[2px] py-0"
                 onClick={scrollNext}
-                variant={lastColInView ? "dark-disabled" : "dark"}
+                variant={lastColInView ? "default-disabled" : "default"}
                 whileTap={!lastColInView ? { scale: 0.88 } : {}}
               >
                 <span className="sr-only">Next Columns</span>

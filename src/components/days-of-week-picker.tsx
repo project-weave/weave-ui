@@ -21,7 +21,7 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
 
   return (
     <div
-      className={cn("card flex h-[14rem] flex-col border-2 px-5 pt-4", {
+      className={cn("card border-1 flex h-[14rem] flex-col px-5 pt-4", {
         "h-full w-full px-8 pb-8": size === "large"
       })}
       onContextMenu={onDragSelectMouseUp}
@@ -31,7 +31,7 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
       {size === "large" && (
         <div className="mx-4 mb-6 mt-4 ">
           <h1 className="text-left text-2xl font-semibold tracking-wide text-secondary">{DAYS_OF_WEEK_TITLE}</h1>
-          <hr className="mt-4 h-[0.1rem] bg-primary-dark" />
+          <hr className="mt-4 h-[0.1rem] bg-primary" />
         </div>
       )}
 

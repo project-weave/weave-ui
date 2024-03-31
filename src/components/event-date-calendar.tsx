@@ -170,7 +170,7 @@ const EventDateCalendar = ({
 
   return (
     <div
-      className={cn("card select-none border-2 px-5 py-3", {
+      className={cn("card border-1 select-none px-5 py-3", {
         "h-full w-full px-12 pb-5 pt-8": size === "large"
       })}
       onContextMenu={handleMouseUp}
@@ -216,7 +216,7 @@ const EventDateCalendar = ({
             />
           </MotionButton>
         </div>
-        <hr className="mt-[2px] h-[0.1rem] bg-primary-dark" />
+        <hr className="mt-[2px] h-[0.1rem] bg-primary" />
         <div
           className={cn("mt-3 grid grid-cols-7 text-center text-sm font-semibold leading-4 text-secondary-light", {
             "mb-4 mt-6 text-xl": size === "large"
@@ -262,7 +262,7 @@ const EventDateCalendar = ({
                     },
                     !isDaySelected && {
                       "border-transparent bg-background": true,
-                      "font-bold text-primary-dark": isToday(day),
+                      "font-bold text-primary": isToday(day),
                       "text-secondary": !isToday(day) && isSameMonth(day, firstDayCurrentMonth),
                       "text-secondary-light hover:text-secondary":
                         !isToday(day) && !isSameMonth(day, firstDayCurrentMonth)

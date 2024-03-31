@@ -140,7 +140,7 @@ export default function AvailbilityGridInfoPanel({ gridContainerRef }: Availabil
       <div className="text-md relative flex justify-between text-ellipsis rounded-2xl border-2 border-primary px-3 py-2 font-medium text-secondary">
         {eventName}
         <Button
-          className="absolute -end-1 -top-[1.5px] h-11 rounded-2xl hover:bg-primary-dark-hover hover:opacity-100"
+          className="absolute -end-1 -top-[1.5px] h-11 rounded-2xl hover:bg-primary-hover hover:opacity-100"
           onClick={() => {
             navigator.clipboard.writeText(window.location.href);
             toast({

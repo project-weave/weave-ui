@@ -303,7 +303,7 @@ export default function AvailabilityGrid({ gridContainerRef }: AvailbilityGridPr
 
   return (
     <div
-      className="card grid select-none border-2 pl-2 pr-10"
+      className="card border-1 grid select-none pl-2 pr-10"
       // mouseUp is cancelled when onContextMenu is triggered so we need to save the selection here as well
       onContextMenu={saveDragSelection}
       onMouseLeave={clearDragSelection}
