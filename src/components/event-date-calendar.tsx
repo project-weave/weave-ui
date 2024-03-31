@@ -1,5 +1,6 @@
 "use client";
 import useDragSelect from "@/hooks/useDragSelect";
+import useToday from "@/hooks/useToday";
 import { cn } from "@/lib/utils";
 import { EventDate } from "@/store/availabilityGridStore";
 import { EVENT_DATE_FORMAT } from "@/store/availabilityGridStore";
@@ -19,7 +20,7 @@ import {
 } from "date-fns";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
 import { Button } from "./ui/button";
 
@@ -68,7 +69,7 @@ const EventDateCalendar = ({
   size,
   visibleEventDates
 }: EventDateCalendarProps) => {
-  const [today] = useState(new Date());
+  const today = useToday();
 
   let defaultMonth = isViewMode ? format(parseISO(earliestSelectedDate), MONTH_FORMAT) : format(today, MONTH_FORMAT);
   if (currentMonthOverride !== undefined) {
@@ -284,7 +285,7 @@ const EventDateCalendar = ({
                     isViewMode &&
                       !isDayVisible &&
                       isDaySelected && {
-                        "bg-primary/40 hover:bg-primary/60": isToday(day),
+                        "bg-primary/40 hover:bg-primary/60": isToday(new Date()),
                         "border-l-0": !isPrevDayVisible && isPrevDaySelected && day.getDay() !== 0,
                         "border-primary-light bg-accent-light text-secondary hover:bg-accent": true,
                         "border-r-0": !isNextDayVisible && isNextDaySelected && day.getDay() !== 6

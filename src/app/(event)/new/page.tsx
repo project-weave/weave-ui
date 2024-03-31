@@ -6,9 +6,10 @@ import EventForm from "@/components/event-form";
 import { AvailabilityType, EventDate } from "@/store/availabilityGridStore";
 import { format, startOfToday } from "date-fns";
 import { useState } from "react";
+import useToday from "@/hooks/useToday";
 
 export default function NewEvent() {
-  const today = startOfToday();
+  const today = useToday();
 
   const [currentCalendarMonth, setCurrentCalendarMonth] = useState(format(today, MONTH_FORMAT));
   const [selectedDates, setSelectedDates] = useState(new Set<EventDate>());
