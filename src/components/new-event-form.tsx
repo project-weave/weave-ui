@@ -4,7 +4,13 @@ import { Button } from "@/components/ui/button";
 import DropdownWithLabel from "@/components/ui/dropdown-with-label";
 import InputWithLabel from "@/components/ui/input-with-label";
 import useCreateEvent, { CreateEventRequest } from "@/hooks/requests/useCreateEvent";
-import { AvailabilityType, DAYS_OF_WEEK_DATES, EventDate, EventTime } from "@/store/availabilityGridStore";
+import {
+  AvailabilityType,
+  DAYS_OF_WEEK_DATES,
+  EVENT_TIME_FORMAT,
+  EventDate,
+  EventTime
+} from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
 import { timeFilter } from "@/utils/date";
 import { addMinutes, format, isBefore, isEqual, parse } from "date-fns";
@@ -97,10 +103,10 @@ export default function NewEventForm({
     }
     const req: CreateEventRequest = {
       dates,
-      endTime: format(parsedEndTime, "HH:mm:ss"),
+      endTime: format(parsedEndTime, EVENT_TIME_FORMAT),
       isSpecificDates: availabilityType === AvailabilityType.SPECIFIC_DATES ? true : false,
       name: eventName.trim(),
-      startTime: format(parsedStartTime, "HH:mm:ss")
+      startTime: format(parsedStartTime, EVENT_TIME_FORMAT)
     };
 
     mutate(req, {

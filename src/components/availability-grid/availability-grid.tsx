@@ -42,23 +42,27 @@ export default function AvailabilityGrid({
   sortedEventDates,
   sortedEventTimes
 }: AvailbilityGridProps) {
-  const [user, setUser] = useAvailabilityGridStore(useShallow((state) => [state.user, state.setUser]));
+  const setUser = useAvailabilityGridStore(useShallow((state) => state.setUser));
   const setUserFilter = useAvailabilityGridStore(useShallow((state) => state.setUserFilter));
   const setIsBestTimesEnabled = useAvailabilityGridStore(useShallow((state) => state.setIsBestTimesEnabled));
   const setMode = useAvailabilityGridStore(useShallow((state) => state.setMode));
   const [selectedtimeSlots, setSelectedTimeSlots] = useAvailabilityGridStore(
     useShallow((state) => [state.selectedTimeSlots, state.setSelectedTimeSlots])
   );
+  const setFocusedDate = useAvailabilityGridStore(useShallow((state) => state.setFocusedDate));
+  const setHoveredTimeSlot = useAvailabilityGridStore(useShallow((state) => state.setHoveredTimeSlot));
 
   const { mutate } = useUpdateAvailability();
   const { toast } = useToast();
 
   // TODO: add timezone logic
 
-  function setGridStateForUser(user: string) {
+  function resetGridStateForUser(user: string) {
     setUser(user);
     setIsBestTimesEnabled(false);
     setUserFilter([]);
+    setHoveredTimeSlot(null);
+    setFocusedDate(null);
 
     const userResponse = eventResponses.find(({ alias }) => {
       // TODO: use user_id as well when logged in users functionality is implemented
@@ -73,7 +77,7 @@ export default function AvailabilityGrid({
   }
 
   useEffect(() => {
-    return setGridStateForUser("");
+    return resetGridStateForUser("");
   }, []);
 
   useEffect(() => {
@@ -81,10 +85,7 @@ export default function AvailabilityGrid({
     gridContainerRef.current?.resetAfterIndex(0);
   }, [eventDates, eventStartTime, eventEndTime, gridContainerRef]);
 
-  function handleSaveUserAvailability() {
-    setUser("");
-    setMode(AvailabilityGridMode.VIEW);
-
+  function handleSaveUserAvailability(user: string) {
     const req: UpdateAvailabilityRequest = {
       alias: user,
       availabilities: Array.from(selectedtimeSlots),
@@ -107,6 +108,9 @@ export default function AvailabilityGrid({
         });
       }
     });
+
+    setMode(AvailabilityGridMode.VIEW);
+    resetGridStateForUser("");
   }
 
   return (
@@ -116,7 +120,7 @@ export default function AvailabilityGrid({
       eventEndTime={eventEndTime}
       gridContainerRef={gridContainerRef}
       handleSaveUserAvailability={handleSaveUserAvailability}
-      handleUserChange={setGridStateForUser}
+      handleUserChange={resetGridStateForUser}
       sortedEventDates={sortedEventDates}
       sortedEventTimes={sortedEventTimes}
       timeSlotsToParticipants={timeSlotsToParticipants}

@@ -27,7 +27,7 @@ type AvailabilityGridHeaderProps = {
   earliestEventDate: EventDate;
   editButtonAnimationControls: AnimationControls;
   gridContainerRef: React.MutableRefObject<null | VariableSizeList>;
-  handleSaveUserAvailability: () => void;
+  handleSaveUserAvailability: (user: string) => void;
   handleUserChange: (user: string) => void;
   hasUserAddedAvailability: boolean;
   lastColumn: number;
@@ -46,6 +46,7 @@ export default function AvailabilityGridHeader({
   latestEventDate
 }: AvailabilityGridHeaderProps) {
   const mode = useAvailabilityGridStore((state) => state.mode);
+  const user = useAvailabilityGridStore((state) => state.user);
 
   const [isBestTimesEnabled, toggleIsBestTimesEnabled] = useAvailabilityGridStore(
     useShallow((state) => [state.isBestTimesEnabled, state.toggleIsBestTimesEnabled])
@@ -84,7 +85,7 @@ export default function AvailabilityGridHeader({
   const saveUserAvailabilityButton = (
     <MotionButton
       className="h-8 whitespace-nowrap rounded-[.4rem]"
-      onClick={handleSaveUserAvailability}
+      onClick={() => handleSaveUserAvailability(user)}
       variant="default"
       whileTap={{ scale: 0.94 }}
     >

@@ -59,9 +59,10 @@ export default function Event() {
   const sortedEventTimes = [];
   const timeSlotMinutes = 30;
   let currentTime = parseISO(getTimeSlot(event.startTime));
+
   const endTime = parseISO(getTimeSlot(event.endTime));
 
-  while (currentTime < endTime) {
+  while (currentTime <= endTime) {
     sortedEventTimes.push(format(currentTime, "HH:mm:ss"));
     currentTime = addMinutes(currentTime, timeSlotMinutes);
   }

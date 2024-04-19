@@ -17,6 +17,7 @@ export const DAYS_OF_WEEK_DATES: EventDate[] = [
 
 // EventTime is the time portion of a TimeSlot in 24 hour format, ie. 12:00:00
 export type EventTime = string;
+export const EVENT_TIME_FORMAT = "HH:mm:ss";
 
 // TimeSlot is an ISO formatted date string that represents a time slot for an event, ie. 2000-11-29T12:00:00
 export type TimeSlot = string;

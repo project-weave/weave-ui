@@ -2,6 +2,7 @@
 import useGridDragSelect from "@/hooks/useGridDragSelect";
 import useAvailabilityGridStore, {
   AvailabilityType,
+  EVENT_TIME_FORMAT,
   EventDate,
   EventTime,
   getTimeSlot,
@@ -11,7 +12,7 @@ import useAvailabilityGridStore, {
 } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
 import { isConsecutiveDay } from "@/utils/date";
-import { parseISO } from "date-fns";
+import { addMinutes, format, parseISO } from "date-fns";
 import { useAnimationControls } from "framer-motion";
 import debounce from "lodash.debounce";
 import { useCallback } from "react";
@@ -36,7 +37,7 @@ type AvailbilityGridCellsProps = {
   availabilityType: AvailabilityType;
   eventEndTime: EventTime;
   gridContainerRef: React.RefObject<VariableSizeList>;
-  handleSaveUserAvailability: () => void;
+  handleSaveUserAvailability: (user: string) => void;
   handleUserChange: (user: string) => void;
   sortedEventDates: EventDate[];
   sortedEventTimes: EventTime[];
@@ -276,7 +277,7 @@ export default function AvailabilityGridCells({
           />
         ))}
         <AvailabilityGridRowHeader
-          eventTime={eventEndTime}
+          eventTime={format(addMinutes(parseISO(getTimeSlot(eventEndTime)), 30), EVENT_TIME_FORMAT)}
           key={`availability-grid-row-header-${sortedEventDates.length}`}
           mode={mode}
         />
