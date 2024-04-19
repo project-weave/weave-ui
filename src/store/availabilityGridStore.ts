@@ -38,12 +38,12 @@ type VisibleColumnRange = {
 
 // assume that when only time is passed in as a parameter, we're only interested in time so we we can use an aribtrary date to parse
 export function getTimeSlot(time: EventTime, date: EventDate = "2000-11-29"): TimeSlot {
-  return date + "T" + time;
+  return date + " " + time;
 }
 
 export function getTimeFromTimeSlot(timeSlot: null | TimeSlot): EventTime {
-  if (timeSlot === null || !timeSlot.includes("T")) return "";
-  return timeSlot.split("T")[1];
+  if (timeSlot === null || !timeSlot.includes(" ")) return "";
+  return timeSlot.split(" ")[1];
 }
 
 export function isEditMode(mode: AvailabilityGridMode): boolean {
@@ -58,29 +58,22 @@ export function isViewMode(mode: AvailabilityGridMode): boolean {
 
 // Temporarily storing user data/event data here
 type AvailabilityGridState = {
-  availabilityType: AvailabilityType;
-  eventDates: EventDate[];
-  eventEndTimeUTC: EventTime;
-  eventName: string;
-  eventStartTimeUTC: EventTime;
-  eventUserAvailability: Record<string, string[]>;
+  addSelectedTimeSlots: (timeSlot: TimeSlot[]) => void;
   focusedDate: EventDate | null;
   hoveredTimeSlot: null | TimeSlot;
+  isBestTimesEnabled: boolean;
   mode: AvailabilityGridMode;
-  saveUserAvailability: (timeSlots: TimeSlot[]) => void;
-  setDaysOfTheWeekEvent: (
-    eventName: string,
-    startTime: EventTime,
-    endTime: EventTime,
-    daysOfTheWeek: EventDate[]
-  ) => void;
+  removeSelectedTimeSlots: (timeSlot: TimeSlot[]) => void;
+  selectedTimeSlots: TimeSlot[];
   setFocusedDate: (focusedDate: EventDate | null) => void;
   setHoveredTimeSlot: (hoveredTimeSlot: null | TimeSlot) => void;
+  setIsBestTimesEnabled: (isBestTimesEnabled: boolean) => void;
   setMode: (mode: AvailabilityGridMode) => void;
-  setSpecificDatesEvent: (eventName: string, startTime: EventTime, endTime: EventTime, eventDates: EventDate[]) => void;
+  setSelectedTimeSlots: (timeSlot: TimeSlot[]) => void;
   setUser: (user: string) => void;
   setUserFilter: (filteredUsers: string[]) => void;
   setVisibleColumnRange: (start: number, end: number) => void;
+  toggleIsBestTimesEnabled: () => void;
   user: string;
   userFilter: string[];
   visibleColumnRange: VisibleColumnRange;
@@ -88,46 +81,50 @@ type AvailabilityGridState = {
 
 const useAvailabilityGridStore = create<AvailabilityGridState>()(
   subscribeWithSelector((set) => ({
-    availabilityType: AvailabilityType.SPECIFIC_DATES,
-    eventDates: ["2021-01-01", "2021-01-02", "2021-01-03", "2021-01-04", "2021-01-05", "2021-01-06", "2021-01-07"],
-    eventEndTimeUTC: "22:00:00",
-    eventName: "Weave Team Meeting",
-    eventStartTimeUTC: "08:00:00",
+    addSelectedTimeSlots: (toAdd: TimeSlot[]) => {
+      set((state) => {
+        const newSelectedTimeSlots = [...state.selectedTimeSlots];
+        toAdd.forEach((timeSlot) => {
+          if (!newSelectedTimeSlots.includes(timeSlot)) {
+            newSelectedTimeSlots.push(timeSlot);
+          }
+        });
+        return { ...state, selectedTimeSlots: newSelectedTimeSlots };
+      });
+    },
+    eventDates: [],
+    eventEndTimeUTC: "24:00:00",
+    eventName: "",
+    eventStartTimeUTC: "00:00:00",
     eventUserAvailability: {},
     focusedDate: null,
     hoveredTimeSlot: null,
+    isBestTimesEnabled: false,
     mode: AvailabilityGridMode.VIEW,
-    saveUserAvailability: (timeSlots: TimeSlot[]) =>
-      set((state) => ({
-        eventUserAvailability: {
-          ...state.eventUserAvailability,
-          [state.user]: timeSlots
-        }
-      })),
-    setDaysOfTheWeekEvent(eventName: string, startTime: EventTime, endTime: EventTime, daysOfTheWeek: EventDate[]) {
-      set({
-        availabilityType: AvailabilityType.DAYS_OF_WEEK,
-        eventDates: daysOfTheWeek,
-        eventEndTimeUTC: endTime,
-        eventName,
-        eventStartTimeUTC: startTime
+    removeSelectedTimeSlots: (toRemove: TimeSlot[]) => {
+      set((state) => {
+        const newSelectedTimeSlots: TimeSlot[] = [];
+        state.selectedTimeSlots.forEach((timeSlot) => {
+          if (!toRemove.includes(timeSlot)) {
+            newSelectedTimeSlots.push(timeSlot);
+          }
+        });
+        return { ...state, selectedTimeSlots: newSelectedTimeSlots };
       });
     },
+    selectedTimeSlots: [],
     setFocusedDate: (focusedDate: EventDate | null) => set({ focusedDate }),
     setHoveredTimeSlot: (hoveredTimeSlot: null | TimeSlot) => set({ hoveredTimeSlot }),
+    setIsBestTimesEnabled: (isBestTimesEnabled: boolean) => set({ isBestTimesEnabled }),
     setMode: (mode: AvailabilityGridMode) => set({ mode }),
-    setSpecificDatesEvent(eventName: string, startTime: EventTime, endTime: EventTime, eventDates: EventDate[]) {
-      set({
-        availabilityType: AvailabilityType.SPECIFIC_DATES,
-        eventDates,
-        eventEndTimeUTC: endTime,
-        eventName,
-        eventStartTimeUTC: startTime
-      });
-    },
+    setSelectedTimeSlots: (selectedTimeSlots: TimeSlot[]) => set({ selectedTimeSlots }),
     setUser: (user: string) => set({ user }),
     setUserFilter: (userFilter: string[]) => set({ userFilter }),
     setVisibleColumnRange: (start: number, end: number) => set({ visibleColumnRange: { end, start } }),
+    toggleIsBestTimesEnabled: () =>
+      set((prev) => {
+        return { ...prev, isBestTimesEnabled: !prev.isBestTimesEnabled };
+      }),
     user: "",
     userFilter: [],
     visibleColumnRange: {

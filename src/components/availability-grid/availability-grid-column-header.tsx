@@ -1,58 +1,52 @@
 import useAvailabilityGridStore, {
-  AvailabilityGridMode,
   AvailabilityType,
   EventDate,
   EventTime,
   getTimeSlot,
   isEditMode,
-  isViewMode,
-  TimeSlot
+  isViewMode
 } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
 import { format, parseISO } from "date-fns";
 import { motion } from "framer-motion";
-import { Dispatch, SetStateAction } from "react";
 import React from "react";
+import { useShallow } from "zustand/react/shallow";
 
 import { Button } from "../ui/button";
 
 type AvailabilityGridColumnHeaderProps = {
+  availabilityType: AvailabilityType;
   eventDate: EventDate;
   hasUserAddedAvailability: boolean;
   isDateGapRight: boolean;
-  mode: AvailabilityGridMode;
-  selectedTimeSlots: Set<TimeSlot>;
-  setSelectedTimeSlots: Dispatch<SetStateAction<Set<TimeSlot>>>;
   sortedEventTimes: EventTime[];
 };
 
 const AvailabilityGridColumnHeader = ({
+  availabilityType,
   eventDate,
   isDateGapRight,
-  mode,
-  selectedTimeSlots,
-  setSelectedTimeSlots,
   sortedEventTimes
 }: AvailabilityGridColumnHeaderProps) => {
   const parsedDate = parseISO(eventDate);
 
-  const availabilityType = useAvailabilityGridStore((state) => state.availabilityType);
+  const mode = useAvailabilityGridStore((state) => state.mode);
+  const [selectedTimeSlots, addSelectedTimeSlot, removeSelectedTimeSlot] = useAvailabilityGridStore(
+    useShallow((state) => [state.selectedTimeSlots, state.addSelectedTimeSlots, state.removeSelectedTimeSlots])
+  );
   const focusedDate = useAvailabilityGridStore((state) => state.focusedDate);
   const isDateFocused = focusedDate === eventDate;
 
   const allTimeSlotsForDate = sortedEventTimes.map((eventTime) => getTimeSlot(eventTime, eventDate));
-  const isAllTimeSlotForDateSelected = allTimeSlotsForDate.every((timeSlot) => selectedTimeSlots.has(timeSlot));
+  const isAllTimeSlotForDateSelected = allTimeSlotsForDate.every((timeSlot) => selectedTimeSlots.includes(timeSlot));
 
   function dateClickedHandler() {
     if (isViewMode(mode)) return;
-
-    setSelectedTimeSlots((prevSelected) => {
-      if (isAllTimeSlotForDateSelected) {
-        return new Set([...prevSelected].filter((timeSlot) => !allTimeSlotsForDate.includes(timeSlot)));
-      } else {
-        return new Set([...prevSelected, ...allTimeSlotsForDate]);
-      }
-    });
+    if (isAllTimeSlotForDateSelected) {
+      removeSelectedTimeSlot(selectedTimeSlots);
+    } else {
+      addSelectedTimeSlot(allTimeSlotsForDate);
+    }
   }
 
   const MotionButton = motion(Button);
@@ -70,7 +64,7 @@ const AvailabilityGridColumnHeader = ({
           >
             <MotionButton
               className={cn(
-                "h-8 w-10 rounded-sm border-none bg-accent-light pb-2.5 text-lg font-semibold tracking-wide transition-all",
+                "h-8 w-10 rounded-sm border-none bg-accent-light  text-lg font-semibold tracking-wide transition-all",
                 {
                   "bg-primary": isAllTimeSlotForDateSelected,
                   "cursor-default bg-background text-xl text-secondary hover:bg-background": isViewMode(mode)

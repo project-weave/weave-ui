@@ -8,7 +8,7 @@ import { Label } from "@radix-ui/react-label";
 import { motion } from "framer-motion";
 import { User } from "lucide-react";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const LOGIN_WITH_GOOGLE = "Login with Google";
 const CONTINUE_WITHOUT_LOGIN = "or continue without login";
@@ -18,15 +18,18 @@ const WHAT_IS_YOUR_NAME = "What is your name?";
 const SELECT_EXISTING_USER = "Select An Existing User";
 const CONTINUE = "Continue";
 
-export default function EditAvailabilityDialog() {
+type EditAvailabilityDialogProps = {
+  allParticipants: string[];
+  handleUserChange: (user: string) => void;
+};
+
+export default function EditAvailabilityDialog({ allParticipants, handleUserChange }: EditAvailabilityDialogProps) {
   const [isEnterNewAvailability, setIsEnterNewAvailability] = useState(true);
   const [enteredUserName, setEnteredUserName] = useState<null | string>(null);
   const [selectedUserName, setSelectedUserName] = useState<null | string>(null);
   const [validUserName, setValidUserName] = useState(false);
   const [nameAlreadyTaken, setNameAlreadyTaken] = useState(false);
 
-  const users = useAvailabilityGridStore((state) => Object.keys(state.eventUserAvailability));
-  const setUser = useAvailabilityGridStore((state) => state.setUser);
   const setMode = useAvailabilityGridStore((state) => state.setMode);
 
   useEffect(() => {
@@ -35,7 +38,7 @@ export default function EditAvailabilityDialog() {
         setValidUserName(false);
         return;
       }
-      if (users.map((u) => u.toLowerCase()).includes(enteredUserName.trim().toLowerCase())) {
+      if (allParticipants.map((p) => p.toLowerCase()).includes(enteredUserName.trim().toLowerCase())) {
         setValidUserName(false);
         setNameAlreadyTaken(true);
         return;
@@ -53,7 +56,7 @@ export default function EditAvailabilityDialog() {
 
   function onSubmit() {
     if (validUserName) {
-      setUser(isEnterNewAvailability ? enteredUserName! : selectedUserName!);
+      handleUserChange(isEnterNewAvailability ? enteredUserName! : selectedUserName!);
       setMode(AvailabilityGridMode.EDIT);
     }
   }
@@ -73,7 +76,7 @@ export default function EditAvailabilityDialog() {
         <span className="mx-4 whitespace-nowrap text-xs text-secondary">{CONTINUE_WITHOUT_LOGIN}</span>
         <hr className="h-[2px] w-full bg-secondary" />
       </div>
-      {users.length > 0 && (
+      {allParticipants.length > 0 && (
         <div className="mx-auto my-1">
           <RadioGroup className="flex w-full space-x-6" defaultValue="new">
             <div className="flex items-center space-x-2">
@@ -123,25 +126,26 @@ export default function EditAvailabilityDialog() {
           />
         </div>
       ) : (
-        <div className="mb-6">
-          <Label className="text-top mb-2 ml-4 text-xs font-medium text-secondary">{SELECT_EXISTING_USER}</Label>
+        <div className="mb-6 mt-4">
+          <Label className="mb-2 ml-4 text-xs font-semibold text-secondary">{SELECT_EXISTING_USER}</Label>
           <hr className="mx-auto mt-1 h-[1px] w-[95%] bg-secondary" />
           <div className="mx-3 mt-3 max-h-64 overflow-y-scroll scroll-smooth px-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full">
-            {users.map((user) => (
+            {allParticipants.map((paricipant) => (
               <motion.button
                 className={cn(
                   "mx-[5px] my-[2px] inline-flex w-[8rem] flex-row items-center rounded-xl border-2 border-primary-light bg-background px-2 py-[5px] outline-none duration-100 hover:bg-accent-light",
                   {
-                    "border-2 border-primary bg-accent font-semibold hover:bg-purple-200": user === selectedUserName
+                    "border-2 border-primary bg-accent font-semibold hover:bg-purple-200":
+                      paricipant === selectedUserName
                   }
                 )}
-                key={`edit-availability-button-${user}`}
-                onClick={() => setSelectedUserName(user)}
+                key={`edit-availability-button-${paricipant}`}
+                onClick={() => setSelectedUserName(paricipant)}
                 whileTap={{ scale: 0.92 }}
               >
                 <User className="h-4 w-4" />
                 <span className="mx-1 max-w-[6rem] overflow-hidden text-ellipsis whitespace-nowrap text-2xs">
-                  {user}
+                  {paricipant}
                 </span>
               </motion.button>
             ))}

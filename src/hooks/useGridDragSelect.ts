@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 export type CellPosition = {
   col: number;
@@ -34,8 +34,9 @@ export default function useGridDragSelect<T, U, V>(
   sortedRows: T[],
   sortedCols: U[],
   mappingFunction: (arg1: T, arg2: U) => V,
-  selected: Set<V>,
-  setSelected: Dispatch<SetStateAction<Set<V>>>
+  selected: V[],
+  addSelected: (toAdd: V[]) => void,
+  removeSelected: (toRemove: V[]) => void
 ): useGridDragSelectReturn {
   const startCellPositionRef = useRef<CellPosition | null>(null);
   const endCellPositionRef = useRef<CellPosition | null>(null);
@@ -59,7 +60,7 @@ export default function useGridDragSelect<T, U, V>(
       endCellPositionRef.current = { col, row };
 
       const element = mappingFunction(sortedRows[row], sortedCols[col]);
-      if (selected.has(element)) {
+      if (selected.includes(element)) {
         setIsAdding(false);
       } else {
         setIsAdding(true);
@@ -72,14 +73,11 @@ export default function useGridDragSelect<T, U, V>(
     if (!isSelecting) return;
     const selection = generateAllElementsWithinSelectionArea();
 
-    setSelected((prevSelected) => {
-      if (!isAdding) {
-        return new Set([...prevSelected].filter((el) => !selection.includes(el)));
-      } else {
-        return new Set([...prevSelected, ...selection]);
-      }
-    });
-
+    if (!isAdding) {
+      removeSelected(selection);
+    } else {
+      addSelected(selection);
+    }
     clearSelection();
   }, [isAdding, isSelecting]);
 

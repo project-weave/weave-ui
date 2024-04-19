@@ -3,7 +3,6 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import useAvailabilityGridStore, {
-  AvailabilityGridMode,
   AvailabilityType,
   EventDate,
   isEditMode,
@@ -13,7 +12,6 @@ import { cn } from "@/utils/cn";
 import { format, isEqual, parseISO } from "date-fns";
 import { AnimationControls, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Dispatch, SetStateAction } from "react";
 import { VariableSizeList } from "react-window";
 import { useShallow } from "zustand/react/shallow";
 
@@ -24,32 +22,35 @@ const SAVE_AVAILABILITY_BUTTON_TEXT = "Save Availability";
 const BEST_TIMES_BUTTON_TEXT = "Best Times";
 
 type AvailabilityGridHeaderProps = {
+  allParticipants: string[];
+  availabilityType: AvailabilityType;
   earliestEventDate: EventDate;
   editButtonAnimationControls: AnimationControls;
   gridContainerRef: React.MutableRefObject<null | VariableSizeList>;
   handleSaveUserAvailability: () => void;
+  handleUserChange: (user: string) => void;
   hasUserAddedAvailability: boolean;
-  isBestTimesEnabled: boolean;
-  isPageLoading: boolean;
   lastColumn: number;
   latestEventDate: EventDate;
-  mode: AvailabilityGridMode;
-  setIsBestTimesEnabled: Dispatch<SetStateAction<boolean>>;
 };
 
 export default function AvailabilityGridHeader({
+  allParticipants,
+  availabilityType,
   earliestEventDate,
   editButtonAnimationControls,
   gridContainerRef,
   handleSaveUserAvailability,
-  isBestTimesEnabled,
-  isPageLoading,
+  handleUserChange,
   lastColumn,
-  latestEventDate,
-  mode,
-  setIsBestTimesEnabled
+  latestEventDate
 }: AvailabilityGridHeaderProps) {
-  const availabilityType = useAvailabilityGridStore((state) => state.availabilityType);
+  const mode = useAvailabilityGridStore((state) => state.mode);
+
+  const [isBestTimesEnabled, toggleIsBestTimesEnabled] = useAvailabilityGridStore(
+    useShallow((state) => [state.isBestTimesEnabled, state.toggleIsBestTimesEnabled])
+  );
+
   const visibleColumnRange = useAvailabilityGridStore(useShallow((state) => state.visibleColumnRange));
   const earliestDate = parseISO(earliestEventDate);
   const latestDate = parseISO(latestEventDate);
@@ -66,7 +67,7 @@ export default function AvailabilityGridHeader({
 
   const lastColInView = visibleColumnRange.end === lastColumn;
   const firstColInView = visibleColumnRange.start === 0;
-  const visibleColumnRangeNotLoaded = visibleColumnRange.start === -1 || visibleColumnRange.end === -1;
+  const visibleColumnRangeLoaded = visibleColumnRange.start !== -1 && visibleColumnRange.end !== -1;
 
   function scrollNext() {
     if (lastColInView || gridContainerRef.current === null) return;
@@ -102,7 +103,7 @@ export default function AvailabilityGridHeader({
           {EDIT_AVAILABILITY_BUTTON_TEXT}
         </MotionButton>
       </DialogTrigger>
-      <EditAvailabilityDialog />
+      <EditAvailabilityDialog allParticipants={allParticipants} handleUserChange={handleUserChange} />
     </Dialog>
   );
 
@@ -132,13 +133,13 @@ export default function AvailabilityGridHeader({
               checked={isBestTimesEnabled}
               className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-accent"
               id="best-times"
-              onClick={() => setIsBestTimesEnabled((isEnabled) => !isEnabled)}
+              onClick={toggleIsBestTimesEnabled}
             />
           </div>
 
           {isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}
 
-          {(!firstColInView || !lastColInView || visibleColumnRangeNotLoaded) && !isPageLoading && (
+          {(!firstColInView || !lastColInView) && visibleColumnRangeLoaded && (
             <div className="ml-8 flex h-7 whitespace-nowrap">
               <MotionButton
                 className="h-7 w-7 rounded-sm px-[2px] py-0"

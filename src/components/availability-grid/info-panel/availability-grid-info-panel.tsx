@@ -7,8 +7,7 @@ import useAvailabilityGridStore, {
   isEditMode,
   TimeSlot
 } from "@/store/availabilityGridStore";
-import { parseISO } from "date-fns";
-import { CheckCircle2, Copy } from "lucide-react";
+import { Copy } from "lucide-react";
 import { useCallback, useMemo, useRef } from "react";
 import { VariableSizeList } from "react-window";
 import { useShallow } from "zustand/react/shallow";
@@ -18,52 +17,42 @@ import AvailabilityGridResponseFilterButton from "./availability-grid-response-f
 const RESPONSES_TITLE = "Responses";
 
 type AvailabilityGridInfoPanelProps = {
+  availabilityType: AvailabilityType;
+  eventDates: EventDate[];
+  eventName: string;
   gridContainerRef: React.MutableRefObject<null | VariableSizeList>;
+  timeSlotsToParticipants: Readonly<Record<TimeSlot, string[]>>;
+  allParticipants: string[];
+  sortedEventDates: EventDate[];
 };
 
-export default function AvailbilityGridInfoPanel({ gridContainerRef }: AvailabilityGridInfoPanelProps) {
-  const eventName = useAvailabilityGridStore((state) => state.eventName);
-  const eventDates = useAvailabilityGridStore(useShallow((state) => state.eventDates));
-  const participantsToTimeSlots = useAvailabilityGridStore(useShallow((state) => state.eventUserAvailability));
+export default function AvailbilityGridInfoPanel({
+  availabilityType,
+  eventDates,
+  eventName,
+  gridContainerRef,
+  timeSlotsToParticipants,
+  allParticipants,
+  sortedEventDates
+}: AvailabilityGridInfoPanelProps) {
   const userFilter = useAvailabilityGridStore(useShallow((state) => state.userFilter));
   const setUserFilter = useAvailabilityGridStore((state) => state.setUserFilter);
   const mode = useAvailabilityGridStore((state) => state.mode);
-  const availabilityType = useAvailabilityGridStore((state) => state.availabilityType);
   const user = useAvailabilityGridStore((state) => state.user);
   const visibleColumnRange = useAvailabilityGridStore((state) => state.visibleColumnRange);
   const setFocusedDate = useAvailabilityGridStore((state) => state.setFocusedDate);
+  const hoveredTimeSlot = useAvailabilityGridStore((state) => state.hoveredTimeSlot);
 
   const { toast } = useToast();
 
-  const SUCCESSFULLY_COPIED = "Copied link to clipboard.";
-
-  const allParticipants = useMemo(() => {
-    let users = Object.keys(participantsToTimeSlots);
-    if (!users.includes(user) && isEditMode(mode)) {
-      users = [...users, user];
-    }
-    users.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
-    return users;
-  }, [participantsToTimeSlots, user]);
-
-  const timeSlotsToParticipants = useMemo<Readonly<Record<TimeSlot, string[]>>>(() => {
-    const record: Record<TimeSlot, string[]> = {};
-    Object.entries(participantsToTimeSlots).forEach(([participant, timeSlots]) => {
-      timeSlots.forEach((timeSlot) => {
-        if (record[timeSlot] === undefined) {
-          record[timeSlot] = [];
-        }
-        record[timeSlot].push(participant);
-      });
-    });
-    return record;
-  }, [participantsToTimeSlots]);
-
-  const hoveredTimeSlot = useAvailabilityGridStore((state) => state.hoveredTimeSlot);
+  const allParticipantsWithCurrentUser = useMemo(() => {
+    if (allParticipants.includes(user) || user === "") return allParticipants;
+    return [user, ...allParticipants];
+  }, [allParticipants, user]);
 
   let filteredUsersSelectedHoveredTimeSlot = [] as string[];
   if (hoveredTimeSlot === null) {
-    filteredUsersSelectedHoveredTimeSlot = allParticipants;
+    filteredUsersSelectedHoveredTimeSlot = allParticipantsWithCurrentUser;
   } else if (userFilter.length === 0) {
     filteredUsersSelectedHoveredTimeSlot = timeSlotsToParticipants[hoveredTimeSlot] ?? [];
   } else {
@@ -72,13 +61,6 @@ export default function AvailbilityGridInfoPanel({ gridContainerRef }: Availabil
     );
   }
 
-  const sortedEventDates = useMemo(
-    () =>
-      eventDates.sort((date1, date2) => {
-        return parseISO(date1).getTime() - parseISO(date2).getTime();
-      }),
-    [eventDates]
-  );
   const sortedCalendarVisibleEventDates = useMemo(() => {
     const startIndex = visibleColumnRange.start === 0 ? 0 : visibleColumnRange.start - 1;
     return sortedEventDates.slice(startIndex, visibleColumnRange.end);
@@ -130,7 +112,7 @@ export default function AvailbilityGridInfoPanel({ gridContainerRef }: Availabil
     setUserFilter(newUserFilter);
   }
 
-  const totalResponseCount = userFilter.length === 0 ? allParticipants.length : userFilter.length;
+  const totalResponseCount = userFilter.length === 0 ? allParticipantsWithCurrentUser.length : userFilter.length;
   const currentRepsonseCount = isEditMode(mode)
     ? 1
     : Math.min(totalResponseCount, filteredUsersSelectedHoveredTimeSlot.length);
@@ -144,13 +126,7 @@ export default function AvailbilityGridInfoPanel({ gridContainerRef }: Availabil
           onClick={() => {
             navigator.clipboard.writeText(window.location.href);
             toast({
-              action: (
-                <div className="-ml-4 flex w-full items-center">
-                  <CheckCircle2 className="mr-2 h-6 w-6 text-green-800" />
-                  <div className="text-sm">{SUCCESSFULLY_COPIED}</div>
-                </div>
-              ),
-              //description: "Successfully saved availability.",
+              description: "Copied link to clipboard.",
               variant: "success"
             });
           }}
@@ -173,7 +149,7 @@ export default function AvailbilityGridInfoPanel({ gridContainerRef }: Availabil
           className="mt-2 grid gap-x-4 gap-y-1 text-secondary"
           style={{ gridAutoRows: "min-content", gridTemplateColumns: `repeat(auto-fill, minmax(5rem, 1fr))` }}
         >
-          {allParticipants.map((name) => (
+          {allParticipantsWithCurrentUser.map((name) => (
             <AvailabilityGridResponseFilterButton
               filteredUsersSelectedHoveredTimeSlot={filteredUsersSelectedHoveredTimeSlot}
               filterUserHandler={filterUserHandler}
