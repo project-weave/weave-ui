@@ -4,7 +4,7 @@ import AvailabilityGridInfoPanel from "@/components/availability-grid/info-panel
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import useGetEvent, { GetEventResponse } from "@/hooks/requests/useGetEvent";
-import { AvailabilityType, getTimeSlot, TimeSlot } from "@/store/availabilityGridStore";
+import { AvailabilityType, EVENT_TIME_FORMAT, getTimeSlot, TimeSlot } from "@/store/availabilityGridStore";
 import { isAxiosError } from "axios";
 import { addMinutes, format, parseISO } from "date-fns";
 import { redirect, useParams } from "next/navigation";
@@ -63,7 +63,7 @@ export default function Event() {
   const endTime = parseISO(getTimeSlot(event.endTime));
 
   while (currentTime <= endTime) {
-    sortedEventTimes.push(format(currentTime, "HH:mm:ss"));
+    sortedEventTimes.push(format(currentTime, EVENT_TIME_FORMAT));
     currentTime = addMinutes(currentTime, timeSlotMinutes);
   }
 

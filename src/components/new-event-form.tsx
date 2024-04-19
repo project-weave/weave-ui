@@ -129,8 +129,8 @@ export default function NewEventForm({
   }
 
   function possibleTimes() {
-    let startTime = new Date(0, 0, 0, 0, 0);
-    let endTime = new Date(0, 0, 0, 23, 30);
+    const startTime = new Date(0, 0, 0, 0, 0);
+    const endTime = new Date(0, 0, 0, 23, 30);
 
     const times = [];
     let currentTime = startTime;
