@@ -1,8 +1,7 @@
-import { cn } from "@/lib/utils";
 import { AvailabilityGridMode, isEditMode, isViewMode } from "@/store/availabilityGridStore";
+import { cn } from "@/utils/cn";
 import { motion } from "framer-motion";
 import { User } from "lucide-react";
-import React from "react";
 
 type AvailbilityGridBResponseFilterButtonProps = {
   filteredUsersSelectedHoveredTimeSlot: string[];

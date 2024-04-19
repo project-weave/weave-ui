@@ -26,6 +26,10 @@ module.exports = {
         },
         background: "rgb(var(--background), <alpha-value>)",
         border: "rgb(var(--border), <alpha-value>)",
+        failure: {
+          DEFAULT: "rgb(var(--failure), <alpha-value>)",
+          foreground: "rgb(var(--failure-foreground), <alpha-value>)"
+        },
         foreground: "rgb(var(--foreground), <alpha-value>)",
         input: "rgb(var(--input), <alpha-value>)",
         primary: {
@@ -41,6 +45,10 @@ module.exports = {
           DEFAULT: "rgb(var(--secondary), <alpha-value>)",
           foreground: "rgb(var(--secondary-foreground), <alpha-value>)",
           light: "rgb(var(--secondary-light), <alpha-value>)"
+        },
+        success: {
+          DEFAULT: "rgb(var(--success), <alpha-value>)",
+          foreground: "rgb(var(--success-foreground), <alpha-value>)"
         },
         text: {
           DEFAULT: "rgb(var(--text), <alpha-value>)",

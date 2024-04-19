@@ -1,5 +1,4 @@
 import { CellBorderCheck } from "@/hooks/useGridDragSelect";
-import { cn } from "@/lib/utils";
 import useAvailabilityGridStore, {
   AvailabilityGridMode,
   EventDate,
@@ -8,6 +7,7 @@ import useAvailabilityGridStore, {
   getTimeSlot,
   isViewMode
 } from "@/store/availabilityGridStore";
+import { cn } from "@/utils/cn";
 import { parseISO } from "date-fns";
 import { useEffect, useState } from "react";
 

@@ -29,8 +29,11 @@
     --accent-light: 243, 232, 255;
     --accent-foreground: 255, 255, 255;
 
-    --destructive: 153, 25, 25;
-    --destructive-foreground: 252, 252, 254;
+    --failure: 178,34,34;
+    --failure-foreground: 13, 14, 15;
+
+    --success: 92, 184, 92;
+    --success-foreground: 13, 14, 15;;
 
     --border: 234, 236, 238;
     --input: 234, 236, 238;

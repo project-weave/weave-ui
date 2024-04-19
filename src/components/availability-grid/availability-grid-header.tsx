@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { cn } from "@/lib/utils";
 import useAvailabilityGridStore, {
   AvailabilityGridMode,
   AvailabilityType,
@@ -10,6 +9,7 @@ import useAvailabilityGridStore, {
   isEditMode,
   isViewMode
 } from "@/store/availabilityGridStore";
+import { cn } from "@/utils/cn";
 import { format, isEqual, parseISO } from "date-fns";
 import { AnimationControls, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";

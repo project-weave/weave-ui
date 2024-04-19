@@ -1,4 +1,3 @@
-import { cn } from "@/lib/utils";
 import useAvailabilityGridStore, {
   AvailabilityGridMode,
   AvailabilityType,
@@ -9,6 +8,7 @@ import useAvailabilityGridStore, {
   isViewMode,
   TimeSlot
 } from "@/store/availabilityGridStore";
+import { cn } from "@/utils/cn";
 import { format, parseISO } from "date-fns";
 import { motion } from "framer-motion";
 import { Dispatch, SetStateAction } from "react";

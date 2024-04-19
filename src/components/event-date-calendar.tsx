@@ -1,9 +1,8 @@
 "use client";
 import useDragSelect from "@/hooks/useDragSelect";
 import useToday from "@/hooks/useToday";
-import { cn } from "@/lib/utils";
-import { EventDate } from "@/store/availabilityGridStore";
-import { EVENT_DATE_FORMAT } from "@/store/availabilityGridStore";
+import { EVENT_DATE_FORMAT, EventDate } from "@/store/availabilityGridStore";
+import { cn } from "@/utils/cn";
 import {
   add,
   eachDayOfInterval,
@@ -15,12 +14,11 @@ import {
   isToday,
   parse,
   parseISO,
-  startOfToday,
   sub
 } from "date-fns";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 import { Button } from "./ui/button";
 
@@ -139,6 +137,8 @@ const EventDateCalendar = ({
   const latestdMonth = latestSelectedDate ? format(parseISO(latestSelectedDate), MONTH_FORMAT) : "";
   const isCurrentMonthLatest = latestdMonth === currentMonth;
 
+  const isNextAndPrevButtonsVisible = !isCurrentMonthEarliest || !isCurrentMonthLatest;
+
   function setPrevMonth() {
     if (isCurrentMonthEarliest) return;
 
@@ -185,37 +185,42 @@ const EventDateCalendar = ({
           })}
         >
           <h1 className="flex-auto font-semibold text-secondary">{format(firstDayCurrentMonth, "MMMM yyyy")}</h1>
-          <MotionButton
-            className={cn("ml-1 h-4 rounded-[.3rem] border-none px-[1px]", {
-              "mr-1 h-7 w-7 rounded-[.4rem]": size === "large"
-            })}
-            onClick={setPrevMonth}
-            variant={isCurrentMonthEarliest ? "default-disabled" : "default"}
-            whileTap={!isCurrentMonthEarliest ? { scale: 0.88 } : {}}
-          >
-            <span className="sr-only">Previous Columns</span>
-            <ChevronLeft
-              className={cn("h-4 w-4 stroke-[3px]", {
-                "h-7 w-7": size === "large"
-              })}
-            />
-          </MotionButton>
 
-          <MotionButton
-            className={cn("ml-1 h-4 rounded-[.3rem] border-none px-[1px]", {
-              "h-7 w-7 rounded-[.4rem]": size === "large"
-            })}
-            onClick={setNextMonth}
-            variant={isCurrentMonthLatest ? "default-disabled" : "default"}
-            whileTap={!isCurrentMonthLatest ? { scale: 0.88 } : {}}
-          >
-            <span className="sr-only">Next Columns</span>
-            <ChevronRight
-              className={cn("h-4 w-4 stroke-[3px]", {
-                "h-7 w-7": size === "large"
-              })}
-            />
-          </MotionButton>
+          {isNextAndPrevButtonsVisible && (
+            <>
+              <MotionButton
+                className={cn("ml-1 h-4 rounded-[.3rem] border-none px-[1px]", {
+                  "mr-1 h-7 w-7 rounded-[.4rem]": size === "large"
+                })}
+                onClick={setPrevMonth}
+                variant={isCurrentMonthEarliest ? "default-disabled" : "default"}
+                whileTap={!isCurrentMonthEarliest ? { scale: 0.88 } : {}}
+              >
+                <span className="sr-only">Previous Columns</span>
+                <ChevronLeft
+                  className={cn("h-4 w-4 stroke-[3px]", {
+                    "h-7 w-7": size === "large"
+                  })}
+                />
+              </MotionButton>
+
+              <MotionButton
+                className={cn("ml-1 h-4 rounded-[.3rem] border-none px-[1px]", {
+                  "h-7 w-7 rounded-[.4rem]": size === "large"
+                })}
+                onClick={setNextMonth}
+                variant={isCurrentMonthLatest ? "default-disabled" : "default"}
+                whileTap={!isCurrentMonthLatest ? { scale: 0.88 } : {}}
+              >
+                <span className="sr-only">Next Columns</span>
+                <ChevronRight
+                  className={cn("h-4 w-4 stroke-[3px]", {
+                    "h-7 w-7": size === "large"
+                  })}
+                />
+              </MotionButton>
+            </>
+          )}
         </div>
         <hr className="mt-[2px] h-[0.1rem] bg-primary" />
         <div

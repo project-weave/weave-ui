@@ -1,7 +1,6 @@
 "use client";
 import useGridDragSelect from "@/hooks/useGridDragSelect";
 import { isConsecutiveDay } from "@/lib/date-utils";
-import { cn } from "@/lib/utils";
 import {
   AvailabilityGridMode,
   AvailabilityType,

@@ -1,17 +1,18 @@
 import DaysOfWeekPicker from "@/components/days-of-week-picker";
 import Calendar from "@/components/event-date-calendar";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import DropdownWithLabel from "@/components/ui/dropdown-with-label";
 import InputWithLabel from "@/components/ui/input-with-label";
-import { timeFilter } from "@/lib/date-utils";
-import { cn } from "@/lib/utils";
-import useAvailabilityGridStore, { AvailabilityType, EventTime } from "@/store/availabilityGridStore";
-import { EventDate } from "@/store/availabilityGridStore";
+import useCreateEvent, { CreateEventRequest } from "@/hooks/requests/useCreateEvent";
+import { AvailabilityType, DAYS_OF_WEEK_DATES, EventDate, EventTime } from "@/store/availabilityGridStore";
+import { cn } from "@/utils/cn";
+import { timeFilter } from "@/utils/date";
 import { addMinutes, format, isBefore, isEqual, parse } from "date-fns";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
+
+import { useToast } from "./ui/use-toast";
 
 const EVENT_NAME_LABEL = "Event Name";
 const START_TIME_LABEL = "Start Time";
@@ -22,14 +23,14 @@ const SPECIFIC_DATES = "Specific Dates";
 const WHAT_EVENT_NAME = "What is the name of your event?";
 const WHAT_TIMES = "What times work for you?";
 const WHAT_AVAILABILITY = "What availability do you want to know?";
-const I_WANT_TO_BE_NOTIFIED = "I want to be notified when there is a new availbility inputted.";
+const I_WANT_TO_BE_NOTIFIED = "I want to be notified when there is a new availability inputted.";
 const CREATE_EVENT = "Create Event";
 const TO = "to";
 const OR = "or";
 
 const TIME_FORMAT = "h:mm a";
 
-type EventFormProps = {
+type NewEventFormProps = {
   availabilityType: AvailabilityType;
   currentCalendarMonth: string;
   selectedDates: Set<EventDate>;
@@ -40,7 +41,7 @@ type EventFormProps = {
   setSelectedDaysOfWeek: Dispatch<SetStateAction<Set<EventDate>>>;
 };
 
-export default function EventForm({
+export default function NewEventForm({
   availabilityType,
   currentCalendarMonth,
   selectedDates,
@@ -49,9 +50,7 @@ export default function EventForm({
   setCurrentCalendarMonth,
   setSelectedDates,
   setSelectedDaysOfWeek
-}: EventFormProps) {
-  const router = useRouter();
-
+}: NewEventFormProps) {
   const [eventName, setEventName] = useState("");
 
   const [startTime, setStartTime] = useState<EventTime>("9:00 am");
@@ -60,10 +59,9 @@ export default function EventForm({
   const [isFormValid, setIsFormValid] = useState(false);
   const [isTimeRangeValid, setIsTimeRangeValid] = useState(true);
 
-  const setSpecificDatesEvent = useAvailabilityGridStore((state) => state.setSpecificDatesEvent);
-  const setDaysOfTheWeekEvent = useAvailabilityGridStore((state) => state.setDaysOfTheWeekEvent);
-
-  const [submitClicked, setSubmitClicked] = useState(false);
+  const router = useRouter();
+  const { toast } = useToast();
+  const { isPending, mutate } = useCreateEvent();
 
   useEffect(() => {
     const parsedStartTime = parse(startTime, TIME_FORMAT, new Date());
@@ -93,28 +91,40 @@ export default function EventForm({
     const parsedStartTime = parse(startTime, TIME_FORMAT, new Date());
     const parsedEndTime = parse(endTime, TIME_FORMAT, new Date());
 
-    if (availabilityType === AvailabilityType.SPECIFIC_DATES) {
-      setSpecificDatesEvent(
-        eventName,
-        format(parsedStartTime, "HH:mm:ss"),
-        format(parsedEndTime, "HH:mm:ss"),
-        Array.from(selectedDates)
-      );
-    } else {
-      setDaysOfTheWeekEvent(
-        eventName,
-        format(parsedStartTime, "HH:mm:ss"),
-        format(parsedEndTime, "HH:mm:ss"),
-        Array.from(selectedDaysOfWeek)
-      );
+    let dates = [...selectedDates];
+    if (availabilityType === AvailabilityType.DAYS_OF_WEEK) {
+      dates = DAYS_OF_WEEK_DATES;
     }
-    router.push("/123");
-    setSubmitClicked(true);
+    const req: CreateEventRequest = {
+      dates,
+      endTime: format(parsedEndTime, "HH:mm:ss"),
+      isSpecificDates: availabilityType === AvailabilityType.SPECIFIC_DATES ? true : false,
+      name: eventName.trim(),
+      startTime: format(parsedStartTime, "HH:mm:ss")
+    };
+
+    mutate(req, {
+      onError: () => {
+        toast({
+          description: "An error occurred while creating your event. Please try again later.",
+          title: "Oh no! Something went wrong.",
+          variant: "failure"
+        });
+      },
+      onSuccess: (data) => {
+        toast({
+          description: "Your event has been successfully created.",
+          title: "Congrats!",
+          variant: "success"
+        });
+        router.push(`/${data.eventId}`);
+      }
+    });
   }
 
   function possibleTimes() {
-    const startTime = new Date(0, 0, 0, 0, 0);
-    const endTime = new Date(0, 0, 0, 23, 30);
+    let startTime = new Date(0, 0, 0, 0, 0);
+    let endTime = new Date(0, 0, 0, 23, 30);
 
     const times = [];
     let currentTime = startTime;
@@ -225,7 +235,7 @@ export default function EventForm({
               </label>
             </div> */}
 
-        {submitClicked ? (
+        {isPending ? (
           <div className="flex justify-center">
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
           </div>

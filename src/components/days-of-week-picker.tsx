@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import useDragSelect from "@/hooks/useDragSelect";
-import { cn } from "@/lib/utils";
 import { DAYS_OF_WEEK_DATES, EventDate } from "@/store/availabilityGridStore";
+import { cn } from "@/utils/cn";
 import { format, parseISO } from "date-fns";
 import { Dispatch, SetStateAction } from "react";
 type DaysOfWeekPickerProps = {

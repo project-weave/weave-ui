@@ -1,10 +1,10 @@
-import { cn } from "@/lib/utils";
 import useAvailabilityGridStore, {
   AvailabilityGridMode,
   getTimeFromTimeSlot,
   getTimeSlot,
   isViewMode
 } from "@/store/availabilityGridStore";
+import { cn } from "@/utils/cn";
 import { format, parseISO } from "date-fns";
 
 type AvailabilityGridRowHeaderProps = {

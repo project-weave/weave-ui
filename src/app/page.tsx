@@ -3,9 +3,9 @@ import { useRef } from "react";
 
 import NewEventPage from "./(event)/new/page";
 
-const TITLE = "find time for what's important";
 const SUBTITLE =
   "The hardest part about getting together is finding time for it. With Weave, you'll be able to schedule group events with ease, and enjoy doing so.";
+const CREATE_A_WEAVE = "Create a Weave";
 
 export default function LandingPage() {
   const titleRef = useRef<HTMLDivElement | null>(null);
@@ -30,12 +30,12 @@ export default function LandingPage() {
       <h1 className="tracing-wider w-3/4 content-center pt-10 text-center text-2xl font-medium">{SUBTITLE}</h1>
 
       <button
-        className="mt-16 h-auto rounded-xl bg-primary px-12 py-4 align-bottom text-lg font-semibold text-primary-foreground outline-none transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50"
+        className="text-md mt-16 h-auto rounded-xl bg-primary px-12 py-4 align-bottom font-medium text-primary-foreground outline-none transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50"
         onClick={() => {
           titleRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
         }}
       >
-        Create a Weave
+        {CREATE_A_WEAVE}
       </button>
 
       <div className="pb-24 pt-24" ref={titleRef}>

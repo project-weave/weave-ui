@@ -1,12 +1,11 @@
 "use client";
 import DaysOfWeekPicker from "@/components/days-of-week-picker";
-import Calendar from "@/components/event-date-calendar";
-import { MONTH_FORMAT } from "@/components/event-date-calendar";
-import EventForm from "@/components/event-form";
-import { AvailabilityType, EventDate } from "@/store/availabilityGridStore";
-import { format, startOfToday } from "date-fns";
-import { useState } from "react";
+import Calendar, { MONTH_FORMAT } from "@/components/event-date-calendar";
+import NewEventForm from "@/components/new-event-form";
 import useToday from "@/hooks/useToday";
+import { AvailabilityType, EventDate } from "@/store/availabilityGridStore";
+import { format } from "date-fns";
+import { useState } from "react";
 
 export default function NewEvent() {
   const today = useToday();
@@ -19,7 +18,7 @@ export default function NewEvent() {
   return (
     <div className="mt-3 flex select-none flex-row justify-start gap-4">
       <div className="min-h-[42rem] w-[24rem]">
-        <EventForm
+        <NewEventForm
           availabilityType={availabilityType}
           currentCalendarMonth={currentCalendarMonth}
           selectedDates={selectedDates}
