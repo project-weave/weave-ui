@@ -29,10 +29,12 @@
     --accent-light: 243, 232, 255;
     --accent-foreground: 255, 255, 255;
 
-    --failure: 178,34,34;
+    --failure: 178, 34, 34;
+    --failure-light: 241, 212, 210;
     --failure-foreground: 13, 14, 15;
 
     --success: 92, 184, 92;
+    --success-light: 224, 241, 223;
     --success-foreground: 13, 14, 15;;
 
     --border: 234, 236, 238;

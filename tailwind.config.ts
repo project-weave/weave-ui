@@ -28,7 +28,8 @@ module.exports = {
         border: "rgb(var(--border), <alpha-value>)",
         failure: {
           DEFAULT: "rgb(var(--failure), <alpha-value>)",
-          foreground: "rgb(var(--failure-foreground), <alpha-value>)"
+          foreground: "rgb(var(--failure-foreground), <alpha-value>)",
+          light: "rgb(var(--failure-light), <alpha-value>)"
         },
         foreground: "rgb(var(--foreground), <alpha-value>)",
         input: "rgb(var(--input), <alpha-value>)",
@@ -48,7 +49,8 @@ module.exports = {
         },
         success: {
           DEFAULT: "rgb(var(--success), <alpha-value>)",
-          foreground: "rgb(var(--success-foreground), <alpha-value>)"
+          foreground: "rgb(var(--success-foreground), <alpha-value>)",
+          light: "rgb(var(--success-light), <alpha-value>)"
         },
         text: {
           DEFAULT: "rgb(var(--text), <alpha-value>)",
