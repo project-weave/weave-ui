@@ -241,7 +241,7 @@ export default function AvailabilityGridCells({
       // putting saveDragSelection here to handle the case where the user lets go of the mouse outside of the grid cells
       onMouseUp={saveDragSelection}
       style={{
-        gridTemplateColumns: "3.5rem 1fr",
+        gridTemplateColumns: "4.8rem 1fr",
         gridTemplateRows: "auto 1fr"
       }}
     >

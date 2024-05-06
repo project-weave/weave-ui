@@ -4,7 +4,13 @@ import AvailabilityGridInfoPanel from "@/components/availability-grid/info-panel
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import useGetEvent, { GetEventResponse } from "@/hooks/requests/useGetEvent";
-import { AvailabilityType, EVENT_TIME_FORMAT, getTimeSlot, TimeSlot } from "@/store/availabilityGridStore";
+import {
+  AvailabilityType,
+  EVENT_TIME_FORMAT,
+  getTimeSlot,
+  TIME_SLOT_INTERVAL_MINUTES,
+  TimeSlot
+} from "@/store/availabilityGridStore";
 import { isAxiosError } from "axios";
 import { addMinutes, format, parseISO } from "date-fns";
 import { redirect, useParams } from "next/navigation";
@@ -57,14 +63,14 @@ export default function Event() {
   const availabilityType = event.isSpecificDates ? AvailabilityType.SPECIFIC_DATES : AvailabilityType.DAYS_OF_WEEK;
 
   const sortedEventTimes = [];
-  const timeSlotMinutes = 30;
+
   let currentTime = parseISO(getTimeSlot(event.startTime));
 
   const endTime = parseISO(getTimeSlot(event.endTime));
 
   while (currentTime <= endTime) {
     sortedEventTimes.push(format(currentTime, EVENT_TIME_FORMAT));
-    currentTime = addMinutes(currentTime, timeSlotMinutes);
+    currentTime = addMinutes(currentTime, TIME_SLOT_INTERVAL_MINUTES);
   }
 
   // TODO: handle case when there are no event dates, waiting to fetch
@@ -93,17 +99,18 @@ export default function Event() {
     <div className="grid h-fit grid-flow-col justify-center gap-3 pb-4">
       <div className="w-[20rem]">
         <AvailabilityGridInfoPanel
+          allParticipants={allParticipants}
           availabilityType={availabilityType}
           eventDates={event.dates}
           eventName={event.name}
           gridContainerRef={gridContainerRef}
-          timeSlotsToParticipants={timeSlotsToParticipants}
-          allParticipants={allParticipants}
           sortedEventDates={sortedEventDates}
+          timeSlotsToParticipants={timeSlotsToParticipants}
         />
       </div>
       <div className="min-h-[50rem]">
         <AvailabilityGrid
+          allParticipants={allParticipants}
           availabilityType={availabilityType}
           eventDates={event.dates}
           eventEndTime={event.endTime}
@@ -111,10 +118,9 @@ export default function Event() {
           eventResponses={responses}
           eventStartTime={event.startTime}
           gridContainerRef={gridContainerRef}
-          allParticipants={allParticipants}
-          timeSlotsToParticipants={timeSlotsToParticipants}
           sortedEventDates={sortedEventDates}
           sortedEventTimes={sortedEventTimes}
+          timeSlotsToParticipants={timeSlotsToParticipants}
         />
       </div>
     </div>

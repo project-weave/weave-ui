@@ -87,6 +87,10 @@ const EventDateCalendar = ({
     }
   }, [currentMonthOverride]);
 
+  function isBeforeToday(date: Date) {
+    return isBefore(date, today);
+  }
+
   const days = eachDayOfInterval({
     end: getLastDayOfCalendar(currentMonth),
     start: getFirstDayOfCalendar(currentMonth)
@@ -252,7 +256,6 @@ const EventDateCalendar = ({
             const isNextDayVisible = visibleEventDates?.includes(formattedNextDay);
 
             const isFirstVisibleDay = visibleEventDates?.[0] === formattedDay;
-            const isBeforeToday = isBefore(day, today);
 
             return (
               <div
@@ -281,7 +284,7 @@ const EventDateCalendar = ({
                       "rounded-r-full": isPrevDaySelected && !isNextDaySelected
                     },
                     !isViewMode && {
-                      "text-gray-200 hover:bg-background hover:text-gray-200": isBeforeToday
+                      "text-gray-200 hover:bg-background hover:text-gray-200": isBeforeToday(day)
                     },
                     isViewMode && {
                       "border-2 border-secondary/80": isFirstVisibleDay,
@@ -290,7 +293,7 @@ const EventDateCalendar = ({
                     isViewMode &&
                       !isDayVisible &&
                       isDaySelected && {
-                        "bg-primary/40 hover:bg-primary/60": isToday(new Date()),
+                        "bg-primary/40 hover:bg-primary/60": isToday(day),
                         "border-l-0": !isPrevDayVisible && isPrevDaySelected && day.getDay() !== 0,
                         "border-primary-light bg-accent-light text-secondary hover:bg-accent": true,
                         "border-r-0": !isNextDayVisible && isNextDaySelected && day.getDay() !== 6
