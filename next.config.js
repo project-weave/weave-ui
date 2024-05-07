@@ -3,7 +3,7 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        destination: "http://localhost:8080/:path*",
+        destination: "https://weave-api.fly.dev/:path*",
         source: "/api/:path*"
       }
     ];
