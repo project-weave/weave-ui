@@ -18,9 +18,10 @@ export const metadata: Metadata = {
     }
   ],
   creator: "",
-  description: "",
+  description: "find time for what's important.",
   icons: {
-    icon: "/favicon.ico"
+    apple: "/apple-touch-icon.png",
+    icon: ["android-chrome-512x512.png", "/android-chrome-192x192.png"]
   },
   keywords: [],
   title: "Weave"

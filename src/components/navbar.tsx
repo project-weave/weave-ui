@@ -1,7 +1,5 @@
 import Image from "next/image";
 
-import { Button } from "./ui/button";
-
 const LOGIN = "Log In";
 const SIGN_UP = "Sign Up";
 
@@ -15,7 +13,7 @@ export default function NavBar() {
         src="/favicon.ico"
         width={40}
       />
-      <ul className="items-enter flex">
+      {/* <ul className="items-enter flex">
         <li>
           <Button className="h-8 rounded-2xl border-none bg-transparent text-sm text-black hover:bg-accent-light">
             {SIGN_UP}
@@ -26,7 +24,7 @@ export default function NavBar() {
             {LOGIN}
           </Button>
         </li>
-      </ul>
+      </ul> */}
     </nav>
   );
 }

@@ -66,7 +66,7 @@ export default function EditAvailabilityDialog({ allParticipants, handleUserChan
       <DialogHeader>
         <DialogTitle>Edit Availability</DialogTitle>
       </DialogHeader>
-      <Button className="mx-8 mt-2" variant="outline">
+      <Button className="mx-8 mt-2" disabled variant="outline">
         <p className="mr-2 text-xs">{LOGIN_WITH_GOOGLE}</p>
         <Image alt="google-logo" className="h-4 w-4" height={40} src="/google.png" width={40} />
       </Button>
@@ -76,6 +76,7 @@ export default function EditAvailabilityDialog({ allParticipants, handleUserChan
         <span className="mx-4 whitespace-nowrap text-xs text-secondary">{CONTINUE_WITHOUT_LOGIN}</span>
         <hr className="h-[2px] w-full bg-secondary" />
       </div>
+
       {allParticipants.length > 0 && (
         <div className="mx-auto my-1">
           <RadioGroup className="flex w-full space-x-6" defaultValue="new">
