@@ -11,21 +11,28 @@ import Providers from "./providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  authors: [
-    {
-      name: "",
-      url: ""
-    }
-  ],
-  creator: "",
-  description: "find time for what's important.",
-  icons: {
-    apple: "/apple-touch-icon.png",
-    icon: ["android-chrome-512x512.png", "/android-chrome-192x192.png"]
-  },
-  keywords: [],
-  title: "Weave"
-  // manifest: `${siteConfig.url}/site.webmanifest`
+  openGraph: {
+    description: "find time for what's important.",
+    images: [
+      {
+        height: 512,
+        url: "android-chrome-512x512.png",
+        width: 512
+      },
+      {
+        height: 192,
+        url: "android-chrome-192x192.png",
+        width: 192
+      },
+      {
+        height: 180,
+        url: "apple-touch-icon.png",
+        width: 180
+      }
+    ],
+    locale: "en-US",
+    title: "Weave"
+  }
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
