@@ -15,15 +15,16 @@ export const metadata: Metadata = {
     description: "find time for what's important.",
     images: [
       {
-        alt: "Weave",
-        height: 630,
+        alt: "Weave Logo",
+        height: 192,
         type: "image/png",
-        url: "https://weave-chi.vercel.app/android-chrome-512x512.png",
-        width: 1200
+        url: "https://weave-chi.vercel.app/android-chrome-192x192.png",
+        width: 192
       }
     ],
     locale: "en-US",
     title: "Weave",
+    type: "website",
     url: "https://weave-chi.vercel.app"
   }
 };
