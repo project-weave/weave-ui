@@ -16,22 +16,24 @@ export const metadata: Metadata = {
     images: [
       {
         height: 512,
-        url: "android-chrome-512x512.png",
+        url: "https://weave-chi.vercel.app/android-chrome-512x512.png",
         width: 512
       },
       {
         height: 192,
-        url: "android-chrome-192x192.png",
+        url: "https://weave-chi.vercel.app/android-chrome-192x192.png",
         width: 192
       },
       {
         height: 180,
-        url: "apple-touch-icon.png",
+        url: "https://weave-chi.vercel.app/apple-touch-icon.png",
         width: 180
       }
     ],
     locale: "en-US",
-    title: "Weave"
+    //manifest: `${siteConfig.url}/site.webmanifest`,
+    title: "Weave",
+    url: "https://weave-chi.vercel.app"
   }
 };
 
