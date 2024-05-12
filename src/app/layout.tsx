@@ -13,6 +13,15 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   openGraph: {
     description: "find time for what's important.",
+    images: [
+      {
+        alt: "Weave",
+        height: 630,
+        type: "image/png",
+        url: "https://weave-chi.vercel.app/android-chrome-512x512.png",
+        width: 1200
+      }
+    ],
     locale: "en-US",
     title: "Weave",
     url: "https://weave-chi.vercel.app"
