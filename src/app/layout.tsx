@@ -22,7 +22,7 @@ export const metadata: Metadata = {
       }
     ],
     locale: "en-US",
-    title: "Weave | Find time for what's important",
+    title: "Weave | find time for what's important",
     type: "website",
     url: "https://weave-chi.vercel.app"
   }
