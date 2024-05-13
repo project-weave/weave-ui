@@ -12,18 +12,17 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   openGraph: {
-    description: "find time for what's important.",
     images: [
       {
         alt: "Weave Logo",
-        height: 192,
+        height: 630,
         type: "image/png",
-        url: "https://weave-chi.vercel.app/android-chrome-192x192.png",
-        width: 192
+        url: "https://weave-chi.vercel.app/link-preview.png",
+        width: 1200
       }
     ],
     locale: "en-US",
-    title: "Weave",
+    title: "Weave | Find time for what's important.",
     type: "website",
     url: "https://weave-chi.vercel.app"
   }
