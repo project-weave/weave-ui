@@ -43,7 +43,7 @@ const AvailabilityGridColumnHeader = ({
   function dateClickedHandler() {
     if (isViewMode(mode)) return;
     if (isAllTimeSlotForDateSelected) {
-      removeSelectedTimeSlot(selectedTimeSlots);
+      removeSelectedTimeSlot(allTimeSlotsForDate);
     } else {
       addSelectedTimeSlot(allTimeSlotsForDate);
     }
