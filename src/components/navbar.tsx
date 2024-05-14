@@ -5,10 +5,10 @@ const SIGN_UP = "Sign Up";
 
 export default function NavBar() {
   return (
-    <nav className="relative z-50 m-auto flex justify-between bg-white pb-4 pt-8">
+    <nav className="fixed z-50 flex w-full max-w-screen-2xl bg-white pb-4 pt-7">
       <Image
         alt="weave-logo"
-        className="h-8 w-8 opacity-70 2xl:h-9 2xl:w-9"
+        className="ml-4 h-8 w-8 sm:ml-9 md:h-9 md:w-9 lg:h-10 lg:w-10"
         height={40}
         src="/favicon.ico"
         width={40}

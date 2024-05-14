@@ -45,7 +45,7 @@ export default function DropdownWithLabel({
         <div className="relative w-full">
           <div
             className={cn(
-              "peer box-border flex h-10 w-32 items-center rounded-2xl bg-background px-4 pb-2.5 pt-3 text-sm outline outline-2 outline-primary/40 focus-within:outline-primary hover:outline-primary",
+              "peer box-border flex h-10 items-center rounded-2xl bg-background px-4 pb-2.5 pt-3 text-xs outline outline-2 outline-primary/40 focus-within:outline-primary hover:outline-primary sm:text-sm",
               {
                 "outline-primary": open,
                 "outline-red-600/40 focus-within:outline-red-600 hover:outline-red-600": error
@@ -56,7 +56,7 @@ export default function DropdownWithLabel({
           </div>
           <Label
             className={cn(
-              "absolute left-1 top-1.5 z-10 origin-[0] -translate-y-4 scale-75 transform rounded-sm bg-background px-3 text-sm text-black duration-300 peer-focus-within:px-2 ",
+              "absolute left-1 top-1.5 z-10 origin-[0] -translate-y-3 scale-75 transform rounded-sm bg-background px-3 text-xs text-black duration-300 peer-focus-within:px-2 sm:-translate-y-4 sm:text-sm ",
               {
                 "border-primary px-2": open
               }
@@ -66,7 +66,7 @@ export default function DropdownWithLabel({
           </Label>
         </div>
       </PopoverTrigger>
-      <PopoverContent className="w-[116px] border-2 border-primary p-0 2xl:w-[134px]">
+      <PopoverContent className="xs:w-[130px] w-[112px] border-2 border-primary p-0 2xl:w-[134px]">
         <Command className="bg-background" filter={(value, search) => filterFunc(value, search)}>
           <CommandInput className="h-8 border-primary text-2xs 2xl:h-9 2xl:text-sm" />
           {emptyOptionText !== undefined && emptyOptionText !== "" && (

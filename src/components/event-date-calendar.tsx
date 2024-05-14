@@ -175,7 +175,7 @@ const EventDateCalendar = ({
 
   return (
     <div
-      className={cn("card border-1 select-none px-5 py-3", {
+      className={cn("card border-1 h-fit select-none px-5 pb-5 pt-3", {
         "h-full w-full px-12 pb-5 pt-8": size === "large"
       })}
       onContextMenu={handleMouseUp}
@@ -188,7 +188,9 @@ const EventDateCalendar = ({
             "mb-4 text-2xl": size === "large"
           })}
         >
-          <h1 className="flex-auto font-semibold text-secondary">{format(firstDayCurrentMonth, "MMMM yyyy")}</h1>
+          <h1 className="flex-auto text-sm font-semibold text-secondary sm:text-base">
+            {format(firstDayCurrentMonth, "MMMM yyyy")}
+          </h1>
 
           {isNextAndPrevButtonsVisible && (
             <>
@@ -226,7 +228,7 @@ const EventDateCalendar = ({
             </>
           )}
         </div>
-        <hr className="mt-[2px] h-[0.1rem] bg-primary" />
+        <hr className="mt-1 h-[0.1rem] bg-primary" />
         <div
           className={cn("mt-3 grid grid-cols-7 text-center text-sm font-semibold leading-4 text-secondary-light", {
             "mb-4 mt-6 text-xl": size === "large"
@@ -234,14 +236,14 @@ const EventDateCalendar = ({
         >
           {weekDays.map((weekDay) => {
             return (
-              <p className={cn("mx-[1.5px]")} key={`calendar-weekday-${weekDay}`}>
+              <p className={cn("mx-[1.5px] text-xs sm:text-xs md:text-base")} key={`calendar-weekday-${weekDay}`}>
                 {weekDay}
               </p>
             );
           })}
         </div>
 
-        <div className="mt-2 grid grid-cols-7 text-sm">
+        <div className="mt-2 grid grid-cols-7">
           {days.map((day, dayIndex) => {
             const formattedDay = format(day, EVENT_DATE_FORMAT);
             const formattedPrevDay = format(sub(day, { days: 1 }), EVENT_DATE_FORMAT);
@@ -265,7 +267,7 @@ const EventDateCalendar = ({
               >
                 <Button
                   className={cn(
-                    "flex h-full w-full cursor-pointer items-center justify-center rounded-full border-2 border-primary-light/30 p-0 text-sm font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
+                    "flex h-full w-full cursor-pointer items-center justify-center rounded-full border-2 border-primary-light/30 p-0 text-2xs font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0 sm:text-xs",
                     {
                       "border-[1px] px-8 py-2 text-lg": size === "large"
                     },

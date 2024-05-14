@@ -1,5 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 
+import defaultTheme from "tailwindcss/defaultTheme";
+
 module.exports = {
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -7,10 +9,7 @@ module.exports = {
   theme: {
     container: {
       center: true,
-      padding: "2rem",
-      screens: {
-        "2xl": "1400px"
-      }
+      padding: "2rem"
     },
     extend: {
       borderRadius: {
@@ -76,6 +75,10 @@ module.exports = {
       //   "accordion-down": "accordion-down 0.2s ease-out",
       //   "accordion-up": "accordion-up 0.2s ease-out"
       // }
+    },
+    screens: {
+      xs: "430px",
+      ...defaultTheme.screens
     }
   }
 };

@@ -29,7 +29,7 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
       onMouseUp={onDragSelectMouseUp}
     >
       {size === "large" && (
-        <div className="mx-4 mb-6 mt-4 ">
+        <div className="mx-4 mb-6 mt-4">
           <h1 className="text-left text-2xl font-semibold tracking-wide text-secondary">{DAYS_OF_WEEK_TITLE}</h1>
           <hr className="mt-4 h-[0.1rem] bg-primary" />
         </div>
@@ -42,14 +42,14 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
           return (
             <div className="flex flex-col items-center text-secondary" key={`days-of-weeks-picker-${date}`}>
               <label
-                className={cn("mb-2 text-sm font-medium", { "mb-4 text-xl": size === "large" })}
+                className={cn("mb-2 text-xs font-medium md:text-sm", { "mb-4 text-xl": size === "large" })}
                 htmlFor={`days-of-weeks-picker-${date}`}
               >
                 {size === "large" ? formattedDateOfWeek : formattedDateOfWeek[0]}
               </label>
               <div className="flex h-full flex-grow">
                 <Button
-                  className={cn("h-full w-full rounded-sm bg-primary", {
+                  className={cn("xs:px-4 h-full w-full rounded-sm bg-primary px-[.8rem]", {
                     "bg-primary/30 hover:scale-[1.02]": !selectedDaysOfWeek.has(date),
                     "mx-3 w-[4.5rem] rounded-xl": size === "large"
                     // "bg-primary/30 hover:scale-[1.02]": !selectedDaysOfWeek.has(da

@@ -16,6 +16,7 @@ import { useToast } from "../ui/use-toast";
 import AvailabilityGridCells from "./availability-grid-cells";
 
 type AvailbilityGridProps = {
+  allParticipants: string[];
   availabilityType: AvailabilityType;
   eventDates: EventDate[];
   eventEndTime: EventTime;
@@ -23,13 +24,13 @@ type AvailbilityGridProps = {
   eventResponses: EventResponse[];
   eventStartTime: EventTime;
   gridContainerRef: React.RefObject<VariableSizeList>;
-  allParticipants: string[];
-  timeSlotsToParticipants: Record<TimeSlot, string[]>;
   sortedEventDates: EventDate[];
   sortedEventTimes: EventTime[];
+  timeSlotsToParticipants: Record<TimeSlot, string[]>;
 };
 
 export default function AvailabilityGrid({
+  allParticipants,
   availabilityType,
   eventDates,
   eventEndTime,
@@ -37,10 +38,9 @@ export default function AvailabilityGrid({
   eventResponses,
   eventStartTime,
   gridContainerRef,
-  allParticipants,
-  timeSlotsToParticipants,
   sortedEventDates,
-  sortedEventTimes
+  sortedEventTimes,
+  timeSlotsToParticipants
 }: AvailbilityGridProps) {
   const setUser = useAvailabilityGridStore(useShallow((state) => state.setUser));
   const setUserFilter = useAvailabilityGridStore(useShallow((state) => state.setUserFilter));

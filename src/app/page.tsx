@@ -1,7 +1,7 @@
 "use client";
+import NewEventForm from "@/components/new-event-form";
+import { Button } from "@/components/ui/button";
 import { useRef } from "react";
-
-import NewEventPage from "./(event)/new/page";
 
 const SUBTITLE =
   "The hardest part about getting together is finding time for it. With Weave, you'll be able to schedule group events with ease, and enjoy doing so.";
@@ -11,35 +11,37 @@ export default function LandingPage() {
   const titleRef = useRef<HTMLDivElement | null>(null);
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex w-full flex-col items-center">
       <div
-        className="mt-8 grid max-h-[70rem] w-full"
+        className="grid w-full"
         style={{
           gridTemplateRows: "40% 20% 40%"
         }}
       >
-        <h1 className="mt-5 flex flex-col whitespace-pre-line text-center text-[5rem] font-semibold ">
-          <div className="-mb-8">find time for</div>{" "}
-          <div className="flex flex-row self-center">
-            <div>what&apos;s&nbsp;</div>
-            <div className="text-primary">important.</div>
+        <h1 className="flex flex-col text-center text-[2.3rem] font-semibold leading-[2.7rem] sm:mt-8 sm:text-[2.7rem] sm:leading-[3rem] md:text-[3.7rem] md:leading-[4rem] lg:text-[4.3rem] lg:leading-[4.3rem] ">
+          <div>find time for</div>
+          <div>
+            <span>what&apos;s&nbsp;</span>
+            <span className="text-primary">important.</span>
           </div>
         </h1>
       </div>
 
-      <h1 className="tracing-wider w-3/4 content-center pt-10 text-center text-2xl font-medium">{SUBTITLE}</h1>
+      <p className="mt-4 w-10/12 pt-7 text-center text-xs font-medium sm:px-2  sm:text-sm md:mt-6 md:w-10/12 md:px-0 md:text-xl lg:mt-8 lg:w-9/12 lg:px-10 lg:text-2xl xl:w-3/4">
+        {SUBTITLE}
+      </p>
 
-      <button
-        className="text-md mt-16 h-auto rounded-xl bg-primary px-12 py-4 align-bottom font-medium text-primary-foreground outline-none transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50"
+      <Button
+        className="mt-14 h-auto px-8 py-3 text-xs md:mt-20 md:px-12 md:py-4 lg:text-lg"
         onClick={() => {
           titleRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
         }}
       >
         {CREATE_A_WEAVE}
-      </button>
+      </Button>
 
-      <div className="pb-24 pt-24" ref={titleRef}>
-        <NewEventPage />
+      <div className="w-full pt-24 lg:pb-24" ref={titleRef}>
+        <NewEventForm />
       </div>
     </div>
   );
