@@ -135,7 +135,7 @@ export default function NewEventForm() {
     <div className="mb-10 flex select-none flex-row justify-center">
       <form
         autoComplete="off"
-        className="card mx-auto flex h-full w-full min-w-[22rem] max-w-[24rem] flex-col sm:min-h-[36rem] sm:max-w-[30rem] md:mx-[1rem] xl:max-w-[26rem]"
+        className="card mx-auto flex h-full w-full min-w-[22rem] max-w-[26rem] flex-col sm:min-h-[36rem] sm:max-w-[30rem] md:mx-[1rem] xl:max-w-[26rem]"
         onSubmit={(e) => {
           e.preventDefault();
         }}
@@ -159,8 +159,7 @@ export default function NewEventForm() {
         </div>
         <div className="mb-4 flex w-full flex-col md:mb-5">
           <p className="mb-2 text-2xs font-medium text-secondary sm:mb-3 sm:text-xs md:mb-4 md:text-[.8rem]">
-            {" "}
-            {WHAT_TIMES}{" "}
+            {WHAT_TIMES}
           </p>
           <div className="flex w-full items-center justify-between">
             <DropdownWithLabel
@@ -191,7 +190,7 @@ export default function NewEventForm() {
           <div className="flex w-full items-center justify-between">
             <Button
               className={cn(
-                "xs:text-xs h-auto w-full border-[1px] border-primary text-2xs sm:text-xs md:text-[.8rem]",
+                "h-auto w-full border-[1px] border-primary text-2xs xs:text-xs sm:text-xs md:text-[.8rem]",
                 {
                   "hover:bg-primary": availabilityType === AvailabilityType.SPECIFIC_DATES
                 }
@@ -208,7 +207,7 @@ export default function NewEventForm() {
             <p className="mx-6 text-xs text-secondary"> {OR} </p>
             <Button
               className={cn(
-                "xs:text-xs h-auto w-full border-[1px] border-primary text-2xs sm:text-xs md:text-[.8rem]",
+                "h-auto w-full border-[1px] border-primary text-2xs xs:text-xs sm:text-xs md:text-[.8rem]",
                 {
                   "hover:bg-primary": availabilityType === AvailabilityType.DAYS_OF_WEEK
                 }

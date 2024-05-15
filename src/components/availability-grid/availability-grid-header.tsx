@@ -10,7 +10,7 @@ import useAvailabilityGridStore, {
 } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
 import { format, isEqual, parseISO } from "date-fns";
-import { AnimationControls, motion } from "framer-motion";
+import { AnimationScope, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { VariableSizeList } from "react-window";
 import { useShallow } from "zustand/react/shallow";
@@ -25,7 +25,7 @@ type AvailabilityGridHeaderProps = {
   allParticipants: string[];
   availabilityType: AvailabilityType;
   earliestEventDate: EventDate;
-  editButtonAnimationControls: AnimationControls;
+  editButtonAnimationScope: AnimationScope;
   gridContainerRef: React.MutableRefObject<null | VariableSizeList>;
   handleSaveUserAvailability: (user: string) => void;
   handleUserChange: (user: string) => void;
@@ -38,7 +38,7 @@ export default function AvailabilityGridHeader({
   allParticipants,
   availabilityType,
   earliestEventDate,
-  editButtonAnimationControls,
+  editButtonAnimationScope,
   gridContainerRef,
   handleSaveUserAvailability,
   handleUserChange,
@@ -97,8 +97,8 @@ export default function AvailabilityGridHeader({
     <Dialog>
       <DialogTrigger asChild>
         <MotionButton
-          animate={editButtonAnimationControls}
           className="h-8 whitespace-nowrap rounded-[.4rem]"
+          ref={editButtonAnimationScope}
           variant="default"
         >
           {EDIT_AVAILABILITY_BUTTON_TEXT}

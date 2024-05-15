@@ -13,7 +13,7 @@ import useAvailabilityGridStore, {
 import { cn } from "@/utils/cn";
 import { isConsecutiveDay } from "@/utils/date";
 import { addMinutes, format, parseISO } from "date-fns";
-import { useAnimationControls } from "framer-motion";
+import { useAnimate } from "framer-motion";
 import debounce from "lodash.debounce";
 import { useCallback } from "react";
 import { isFirefox } from "react-device-detect";
@@ -96,12 +96,12 @@ export default function AvailabilityGridCells({
     [mode, sortedEventTimes, sortedEventDates, onDragSelectMouseEnter]
   );
 
-  const editButtonAnimationControls = useAnimationControls();
+  const [scope, animate] = useAnimate();
 
   const handleCellMouseDown = useCallback(
     (row: number, col: number) => {
       if (isViewMode(mode)) {
-        editButtonAnimationControls.start({
+        animate(scope.current, {
           transition: { duration: 0.5, ease: "easeInOut" },
           x: [0, -5, 5, -5, 5, 0]
         });
@@ -250,7 +250,7 @@ export default function AvailabilityGridCells({
           allParticipants={allParticipants}
           availabilityType={availabilityType}
           earliestEventDate={sortedEventDates[0]}
-          editButtonAnimationControls={editButtonAnimationControls}
+          editButtonAnimationScope={scope}
           gridContainerRef={gridContainerRef}
           handleSaveUserAvailability={handleSaveUserAvailability}
           handleUserChange={handleUserChange}

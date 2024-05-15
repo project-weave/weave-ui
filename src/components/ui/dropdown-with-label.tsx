@@ -70,7 +70,7 @@ export default function DropdownWithLabel({
         <Command className="bg-background" filter={(value, search) => filterFunc(value, search)}>
           <CommandInput className="h-8 border-primary text-2xs md:text-xs 2xl:h-9" />
           {emptyOptionText !== undefined && emptyOptionText !== "" && (
-            <CommandEmpty className="m-1 rounded-sm bg-red-100 py-1.5 text-center text-2xs 2xl:text-sm">
+            <CommandEmpty className="m-1 rounded-sm bg-gray-200 py-1.5 text-center text-2xs 2xl:text-sm">
               {emptyOptionText}
             </CommandEmpty>
           )}
@@ -80,7 +80,7 @@ export default function DropdownWithLabel({
           >
             {options.map((option) => (
               <CommandItem
-                className={cn("flex justify-between text-2xs sm:mr-3 sm:text-xs md:text-[.8rem] ", {
+                className={cn("my-[1px] flex justify-between text-2xs sm:mr-3 sm:text-xs md:text-[.8rem] ", {
                   "mb-1 border-[1px] border-primary md:border-[1.5px]": selected === option
                 })}
                 data-value={option}
