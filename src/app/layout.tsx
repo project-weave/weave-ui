@@ -33,9 +33,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={cn("flex items-center justify-center", inter.className)}>
         <Providers>
-          <div className="flex h-screen w-screen max-w-screen-2xl ">
+          <div className="flex h-screen w-screen max-w-[85rem]">
             <MainNav />
-            <div className="z-0 flex w-full pt-32">{children}</div>
+            <div className="z-0 flex w-full justify-center pt-32">{children}</div>
           </div>
           <Toaster />
         </Providers>

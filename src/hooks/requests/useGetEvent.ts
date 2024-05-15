@@ -1,4 +1,4 @@
-import { type Event, type EventResponse } from "@/types/Event";
+import { type Event, type EventResponse } from "@/types/event";
 import axios from "@/utils/axios";
 import { useQuery } from "@tanstack/react-query";
 

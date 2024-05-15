@@ -21,8 +21,8 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
 
   return (
     <div
-      className={cn("card border-1 flex h-[14rem] flex-col px-5 pt-4", {
-        "h-full w-full px-8 pb-8": size === "large"
+      className={cn("card border-1 flex h-[15rem] flex-col px-5 pt-4 sm:h-[16.5rem]", {
+        "w-full px-8 pb-8 sm:h-full": size === "large"
       })}
       onContextMenu={onDragSelectMouseUp}
       onMouseLeave={onDragSelectMouseUp}
@@ -30,7 +30,7 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
     >
       {size === "large" && (
         <div className="mx-4 mb-6 mt-4">
-          <h1 className="text-left text-2xl font-semibold tracking-wide text-secondary">{DAYS_OF_WEEK_TITLE}</h1>
+          <h1 className="text-left text-xl font-semibold tracking-wide text-secondary">{DAYS_OF_WEEK_TITLE}</h1>
           <hr className="mt-4 h-[0.1rem] bg-primary" />
         </div>
       )}
@@ -42,7 +42,7 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
           return (
             <div className="flex flex-col items-center text-secondary" key={`days-of-weeks-picker-${date}`}>
               <label
-                className={cn("mb-2 text-xs font-medium md:text-sm", { "mb-4 text-xl": size === "large" })}
+                className={cn("mb-2 text-xs font-medium md:text-sm", { "mb-4 md:text-lg": size === "large" })}
                 htmlFor={`days-of-weeks-picker-${date}`}
               >
                 {size === "large" ? formattedDateOfWeek : formattedDateOfWeek[0]}
@@ -51,7 +51,7 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
                 <Button
                   className={cn("xs:px-4 h-full w-full rounded-sm bg-primary px-[.8rem]", {
                     "bg-primary/30 hover:scale-[1.02]": !selectedDaysOfWeek.has(date),
-                    "mx-3 w-[4.5rem] rounded-xl": size === "large"
+                    "text-md mx-3 w-[4.5rem] rounded-xl": size === "large"
                     // "bg-primary/30 hover:scale-[1.02]": !selectedDaysOfWeek.has(da
                   })}
                   onMouseDown={() => {

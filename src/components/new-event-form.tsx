@@ -132,125 +132,137 @@ export default function NewEventForm() {
   }
 
   return (
-    <div className="flex select-none flex-row justify-center gap-4">
-      <div className="xs:max-w-[28rem] mb-6  w-full min-w-[21rem] md:min-h-[42rem] md:max-w-[24rem] lg:w-[24rem]">
-        <form
-          autoComplete="off"
-          className="card mx-auto flex h-full max-w-[25rem] flex-col"
-          onSubmit={(e) => {
-            e.preventDefault();
-          }}
-        >
-          <div className="mb-4 flex flex-col text-xs">
-            <p className="mb-2 text-2xs font-medium text-secondary sm:mb-4 md:mb-4 md:text-sm"> {WHAT_EVENT_NAME} </p>
-            <InputWithLabel
-              id="event-name"
-              label={EVENT_NAME_LABEL}
-              onBlur={(e) => {
-                setEventName(e.target.value.trim());
-              }}
-              onChange={(e) => {
-                setEventName(e.target.value);
-              }}
-              type="text"
-              value={eventName}
+    <div className="mb-10 flex select-none flex-row justify-center">
+      <form
+        autoComplete="off"
+        className="card mx-auto flex h-full w-full min-w-[22rem] max-w-[24rem] flex-col sm:min-h-[36rem] sm:max-w-[30rem] md:mx-[1rem] xl:max-w-[26rem]"
+        onSubmit={(e) => {
+          e.preventDefault();
+        }}
+      >
+        <div className="mb-4 flex flex-col md:mb-5">
+          <p className="mb-2 text-2xs font-medium text-secondary sm:mb-3 sm:text-xs md:mb-4 md:text-[.8rem]">
+            {WHAT_EVENT_NAME}
+          </p>
+          <InputWithLabel
+            id="event-name"
+            label={EVENT_NAME_LABEL}
+            onBlur={(e) => {
+              setEventName(e.target.value.trim());
+            }}
+            onChange={(e) => {
+              setEventName(e.target.value);
+            }}
+            type="text"
+            value={eventName}
+          />
+        </div>
+        <div className="mb-4 flex w-full flex-col md:mb-5">
+          <p className="mb-2 text-2xs font-medium text-secondary sm:mb-3 sm:text-xs md:mb-4 md:text-[.8rem]">
+            {" "}
+            {WHAT_TIMES}{" "}
+          </p>
+          <div className="flex w-full items-center justify-between">
+            <DropdownWithLabel
+              emptyOptionText={"Invalid time"}
+              error={!isTimeRangeValid}
+              filterFunc={timeFilter}
+              label={START_TIME_LABEL}
+              options={possibleTimes()}
+              selected={startTime}
+              setSelected={setStartTime}
+            />
+            <p className="mx-6 text-xs text-secondary"> {TO} </p>
+            <DropdownWithLabel
+              emptyOptionText={"Invalid time"}
+              error={!isTimeRangeValid}
+              filterFunc={timeFilter}
+              label={END_TIME_LABEL}
+              options={possibleTimes()}
+              selected={endTime}
+              setSelected={setEndTime}
             />
           </div>
-          <div className="mb-4 flex w-full flex-col text-sm">
-            <p className="mb-2 text-2xs font-medium text-secondary md:mb-4 md:text-sm"> {WHAT_TIMES} </p>
-            <div className="flex w-full items-center justify-between">
-              <DropdownWithLabel
-                emptyOptionText={"Invalid time"}
-                error={!isTimeRangeValid}
-                filterFunc={timeFilter}
-                label={START_TIME_LABEL}
-                options={possibleTimes()}
-                selected={startTime}
-                setSelected={setStartTime}
-              />
-              <p className="mx-6 text-xs text-secondary"> {TO} </p>
-              <DropdownWithLabel
-                emptyOptionText={"Invalid time"}
-                error={!isTimeRangeValid}
-                filterFunc={timeFilter}
-                label={END_TIME_LABEL}
-                options={possibleTimes()}
-                selected={endTime}
-                setSelected={setEndTime}
-              />
-            </div>
-          </div>
-          <div className="mb-5 flex flex-col text-sm md:mb-6">
-            <p className="mb-2 text-2xs font-medium  text-secondary md:mb-4 md:text-xs"> {WHAT_AVAILABILITY} </p>
-            <div className="flex w-full items-center justify-between">
-              <Button
-                className={cn("xs:text-xs h-auto w-full border-[1px] border-primary text-2xs sm:text-xs md:text-sm", {
+        </div>
+        <div className="mb-5 flex flex-col text-sm md:mb-6">
+          <p className="mb-2 text-2xs font-medium  text-secondary sm:text-xs md:mb-3 md:text-[.8rem]">
+            {WHAT_AVAILABILITY}
+          </p>
+          <div className="flex w-full items-center justify-between">
+            <Button
+              className={cn(
+                "xs:text-xs h-auto w-full border-[1px] border-primary text-2xs sm:text-xs md:text-[.8rem]",
+                {
                   "hover:bg-primary": availabilityType === AvailabilityType.SPECIFIC_DATES
-                })}
-                onClick={() => setAvailabilityType(AvailabilityType.SPECIFIC_DATES)}
-                type="button"
-                variant={availabilityType === AvailabilityType.SPECIFIC_DATES ? "default" : "outline"}
-              >
-                <span className="leading-4 sm:leading-5">
-                  <div>Specific</div>
-                  <div>Dates</div>
-                </span>
-              </Button>
-              <p className="mx-6 text-xs text-secondary"> {OR} </p>
-              <Button
-                className={cn("xs:text-xs h-auto w-full border-[1px] border-primary text-2xs sm:text-xs md:text-sm", {
+                }
+              )}
+              onClick={() => setAvailabilityType(AvailabilityType.SPECIFIC_DATES)}
+              type="button"
+              variant={availabilityType === AvailabilityType.SPECIFIC_DATES ? "default" : "outline"}
+            >
+              <span className="leading-4 sm:leading-5">
+                <div>Specific</div>
+                <div>Dates</div>
+              </span>
+            </Button>
+            <p className="mx-6 text-xs text-secondary"> {OR} </p>
+            <Button
+              className={cn(
+                "xs:text-xs h-auto w-full border-[1px] border-primary text-2xs sm:text-xs md:text-[.8rem]",
+                {
                   "hover:bg-primary": availabilityType === AvailabilityType.DAYS_OF_WEEK
-                })}
-                onClick={() => setAvailabilityType(AvailabilityType.DAYS_OF_WEEK)}
-                type="button"
-                variant={availabilityType === AvailabilityType.DAYS_OF_WEEK ? "default" : "outline"}
-              >
-                <span className="leading-4 sm:leading-5">
-                  <div>Days Of</div>
-                  <div>The Week</div>
-                </span>
-              </Button>
-            </div>
+                }
+              )}
+              onClick={() => setAvailabilityType(AvailabilityType.DAYS_OF_WEEK)}
+              type="button"
+              variant={availabilityType === AvailabilityType.DAYS_OF_WEEK ? "default" : "outline"}
+            >
+              <span className="leading-4 sm:leading-5">
+                <div>Days Of</div>
+                <div>The Week</div>
+              </span>
+            </Button>
           </div>
-          <div className="mb-4 flex-grow">
-            {availabilityType === AvailabilityType.SPECIFIC_DATES ? (
-              <Calendar
-                currentMonthOverride={currentCalendarMonth}
-                id="create-event-calendar-sm"
-                isViewMode={false}
-                selectedDates={selectedDates}
-                setCurrentMonthOverride={setCurrentCalendarMonth}
-                setSelectedDates={setSelectedDates}
-                size="small"
-              />
-            ) : (
-              <DaysOfWeekPicker selectedDaysOfWeek={selectedDaysOfWeek} setSelectedDaysOfWeek={setSelectedDaysOfWeek} />
-            )}
-          </div>
-          {/* <div className="mb-2 ml-1 flex items-center text-sm">
+        </div>
+        <div className="mb-4 flex-grow">
+          {availabilityType === AvailabilityType.SPECIFIC_DATES ? (
+            <Calendar
+              currentMonthOverride={currentCalendarMonth}
+              id="create-event-calendar-sm"
+              isViewMode={false}
+              selectedDates={selectedDates}
+              setCurrentMonthOverride={setCurrentCalendarMonth}
+              setSelectedDates={setSelectedDates}
+              size="small"
+            />
+          ) : (
+            <DaysOfWeekPicker selectedDaysOfWeek={selectedDaysOfWeek} setSelectedDaysOfWeek={setSelectedDaysOfWeek} />
+          )}
+        </div>
+        {/* <div className="mb-2 ml-1 flex items-center text-sm">
               <Checkbox className="h-4 w-4" id="avail-notif" />
               <label className="ml-2 pt-0 text-xs text-secondary" htmlFor="avail-notif">
                 {I_WANT_TO_BE_NOTIFIED}
               </label>
             </div> */}
 
-          {isPending ? (
-            <div className="flex justify-center">
-              <Loader2 className="h-12 w-12 animate-spin text-primary" />
-            </div>
-          ) : (
-            <Button
-              className="mt-3 h-auto w-full rounded-2xl border-[1px] border-primary py-4 align-bottom text-2xs sm:text-xs"
-              disabled={!isFormValid}
-              onClick={createEventHandler}
-              type="submit"
-            >
-              {CREATE_EVENT}
-            </Button>
-          )}
-        </form>
-      </div>
-      <div className="hidden w-[47rem] md:block">
+        {isPending ? (
+          <div className="flex justify-center">
+            <Loader2 className="mt-3 h-12 w-12 animate-spin text-primary" />
+          </div>
+        ) : (
+          <Button
+            className="mt-3 h-auto w-full rounded-2xl border-[1px] border-primary py-4 align-bottom text-2xs sm:text-xs md:text-sm"
+            disabled={!isFormValid}
+            onClick={createEventHandler}
+            type="submit"
+          >
+            {CREATE_EVENT}
+          </Button>
+        )}
+      </form>
+
+      <div className="hidden w-[47rem] xl:block">
         {availabilityType === AvailabilityType.SPECIFIC_DATES ? (
           <Calendar
             currentMonthOverride={currentCalendarMonth}

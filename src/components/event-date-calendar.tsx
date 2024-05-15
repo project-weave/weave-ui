@@ -188,7 +188,11 @@ const EventDateCalendar = ({
             "mb-4 text-2xl": size === "large"
           })}
         >
-          <h1 className="flex-auto text-sm font-semibold text-secondary sm:text-base">
+          <h1
+            className={cn("flex-auto text-sm font-semibold text-secondary sm:text-base", {
+              "sm:text-xl": size === "large"
+            })}
+          >
             {format(firstDayCurrentMonth, "MMMM yyyy")}
           </h1>
 
@@ -196,7 +200,7 @@ const EventDateCalendar = ({
             <>
               <MotionButton
                 className={cn("ml-1 h-4 rounded-[.3rem] border-none px-[1px]", {
-                  "mr-1 h-7 w-7 rounded-[.4rem]": size === "large"
+                  "mr-1 h-6 w-6 rounded-[.4rem]": size === "large"
                 })}
                 onClick={setPrevMonth}
                 variant={isCurrentMonthEarliest ? "default-disabled" : "default"}
@@ -212,7 +216,7 @@ const EventDateCalendar = ({
 
               <MotionButton
                 className={cn("ml-1 h-4 rounded-[.3rem] border-none px-[1px]", {
-                  "h-7 w-7 rounded-[.4rem]": size === "large"
+                  "h-6 w-6 rounded-[.4rem]": size === "large"
                 })}
                 onClick={setNextMonth}
                 variant={isCurrentMonthLatest ? "default-disabled" : "default"}
@@ -229,14 +233,15 @@ const EventDateCalendar = ({
           )}
         </div>
         <hr className="mt-1 h-[0.1rem] bg-primary" />
-        <div
-          className={cn("mt-3 grid grid-cols-7 text-center text-sm font-semibold leading-4 text-secondary-light", {
-            "mb-4 mt-6 text-xl": size === "large"
-          })}
-        >
+        <div className={cn("mt-3 grid grid-cols-7 text-center font-semibold leading-4 text-secondary-light")}>
           {weekDays.map((weekDay) => {
             return (
-              <p className={cn("mx-[1.5px] text-xs sm:text-xs md:text-base")} key={`calendar-weekday-${weekDay}`}>
+              <p
+                className={cn("mx-[1.5px] text-xs sm:text-sm", {
+                  "mb-4 mt-6 sm:text-lg": size === "large"
+                })}
+                key={`calendar-weekday-${weekDay}`}
+              >
                 {weekDay}
               </p>
             );
@@ -267,17 +272,21 @@ const EventDateCalendar = ({
               >
                 <Button
                   className={cn(
-                    "flex h-full w-full cursor-pointer items-center justify-center rounded-full border-2 border-primary-light/30 p-0 text-2xs font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0 sm:text-xs",
-                    {
-                      "border-[1px] px-8 py-2 text-lg": size === "large"
-                    },
-                    !isDaySelected && {
-                      "border-transparent bg-background": true,
-                      "font-bold text-primary": isToday(day),
-                      "text-secondary": !isToday(day) && isSameMonth(day, firstDayCurrentMonth),
-                      "text-secondary-light hover:text-secondary":
-                        !isToday(day) && !isSameMonth(day, firstDayCurrentMonth)
-                    },
+                    `flex h-full w-full cursor-pointer items-center justify-center rounded-full border-2 border-primary-light/30 p-0 text-2xs font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0 sm:text-sm`,
+                    !isDaySelected
+                      ? {
+                          "border-transparent bg-background": true,
+                          "text-secondary": isSameMonth(day, firstDayCurrentMonth),
+                          "text-secondary-light hover:text-secondary":
+                            !isToday(day) && !isSameMonth(day, firstDayCurrentMonth)
+                        }
+                      : {
+                          "bg-secondary hover:bg-secondary/80": isToday(day),
+                          "ml-auto w-full rounded-r-none border-r-0": isNextDaySelected && day.getDay() !== 6,
+                          "mr-auto w-full rounded-l-none": isPrevDaySelected && day.getDay() !== 0,
+                          "rounded-l-full": isNextDaySelected && !isPrevDaySelected,
+                          "rounded-r-full": isPrevDaySelected && !isNextDaySelected
+                        },
                     isDaySelected && {
                       "bg-secondary hover:bg-secondary/80": isToday(day),
                       "ml-auto w-full rounded-r-none border-r-0": isNextDaySelected && day.getDay() !== 6,
@@ -299,7 +308,12 @@ const EventDateCalendar = ({
                         "border-l-0": !isPrevDayVisible && isPrevDaySelected && day.getDay() !== 0,
                         "border-primary-light bg-accent-light text-secondary hover:bg-accent": true,
                         "border-r-0": !isNextDayVisible && isNextDaySelected && day.getDay() !== 6
-                      }
+                      },
+                    {
+                      "border-[1px] px-8 py-2 text-lg": size === "large",
+                      "font-bold text-primary": isToday(day) && !isDaySelected,
+                      "sm:text-lg": size === "large"
+                    }
                   )}
                   onMouseDown={() => handleMouseDown(formattedDay)}
                   onMouseEnter={() => handleMouseEnter(formattedDay)}

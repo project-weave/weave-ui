@@ -66,22 +66,22 @@ export default function DropdownWithLabel({
           </Label>
         </div>
       </PopoverTrigger>
-      <PopoverContent className="xs:w-[130px] w-[112px] border-2 border-primary p-0 2xl:w-[134px]">
+      <PopoverContent className="xs:w-[130px] w-[112px] border-2 border-primary p-0 sm:w-[150px]">
         <Command className="bg-background" filter={(value, search) => filterFunc(value, search)}>
-          <CommandInput className="h-8 border-primary text-2xs 2xl:h-9 2xl:text-sm" />
+          <CommandInput className="h-8 border-primary text-2xs md:text-xs 2xl:h-9" />
           {emptyOptionText !== undefined && emptyOptionText !== "" && (
             <CommandEmpty className="m-1 rounded-sm bg-red-100 py-1.5 text-center text-2xs 2xl:text-sm">
               {emptyOptionText}
             </CommandEmpty>
           )}
           <CommandGroup
-            className="my-1 max-h-[150px] overflow-y-scroll scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary 2xl:max-h-[240px]"
+            className="my-1 max-h-[150px] overflow-y-scroll scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary xl:max-h-[210px]"
             ref={commandGroupRef}
           >
             {options.map((option) => (
               <CommandItem
-                className={cn("text-2xs 2xl:text-sm", {
-                  "mb-1 border-[1px] border-primary 2xl:border-2": selected === option
+                className={cn("flex justify-between text-2xs sm:mr-3 sm:text-xs md:text-[.8rem] ", {
+                  "mb-1 border-[1px] border-primary md:border-[1.5px]": selected === option
                 })}
                 data-value={option}
                 key={option}
@@ -91,12 +91,9 @@ export default function DropdownWithLabel({
                 }}
                 value={option}
               >
-                {option}
+                <span>{option}</span>
                 <Check
-                  className={cn(
-                    "ml-4 h-3 w-3 2xl:ml-3 2xl:h-4 2xl:w-4",
-                    selected === option ? "opacity-100" : "opacity-0"
-                  )}
+                  className={cn("h-3 w-3 self-end md:h-4 md:w-4", selected === option ? "opacity-100" : "opacity-0")}
                 />
               </CommandItem>
             ))}
