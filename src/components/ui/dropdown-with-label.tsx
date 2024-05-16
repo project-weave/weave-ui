@@ -66,7 +66,7 @@ export default function DropdownWithLabel({
           </Label>
         </div>
       </PopoverTrigger>
-      <PopoverContent className="xs:w-[130px] w-[112px] border-2 border-primary p-0 sm:w-[150px]">
+      <PopoverContent className="w-[112px] border-2 border-primary p-0 xs:w-[130px] sm:w-[150px]">
         <Command className="bg-background" filter={(value, search) => filterFunc(value, search)}>
           <CommandInput className="h-8 border-primary text-2xs md:text-xs 2xl:h-9" />
           {emptyOptionText !== undefined && emptyOptionText !== "" && (
