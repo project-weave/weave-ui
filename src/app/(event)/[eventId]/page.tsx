@@ -7,6 +7,7 @@ import useGetEvent, { GetEventResponse } from "@/hooks/requests/useGetEvent";
 import {
   AvailabilityType,
   EVENT_TIME_FORMAT,
+  EventDate,
   getTimeSlot,
   TIME_SLOT_INTERVAL_MINUTES,
   TimeSlot
@@ -74,7 +75,7 @@ export default function Event() {
   }
 
   // TODO: handle case when there are no event dates, waiting to fetch
-  const sortedEventDates = event.dates.sort((date1, date2) => {
+  const sortedEventDates = event.dates.sort((date1: EventDate, date2: EventDate) => {
     return parseISO(date1).getTime() - parseISO(date2).getTime();
   });
 
