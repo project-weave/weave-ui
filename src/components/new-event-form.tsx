@@ -118,7 +118,7 @@ export default function NewEventForm() {
     const startTime = new Date(0, 0, 0, 0, 0);
     const endTime = new Date(0, 0, 0, 23, 30);
 
-    const times = [];
+    const times: EventTime[] = [];
     let currentTime = startTime;
     const interval = 30;
 

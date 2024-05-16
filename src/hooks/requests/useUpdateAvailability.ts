@@ -36,7 +36,7 @@ const useUpdateAvailability = () => {
       const prevEventData = queryClient.getQueryData(["event", `${data.eventId}`]);
 
       queryClient.setQueryData(["event", `${data.eventId}`], (prevEventData: GetEventResponse) => {
-        let updatedResponses = [];
+        let updatedResponses: EventResponse[] = [];
         const prevResonse = prevEventData.responses.find((response) => response.alias === data.alias);
 
         // TODO: fix userID

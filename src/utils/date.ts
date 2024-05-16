@@ -14,7 +14,7 @@ export function timeFilter(value: string, search: string) {
   const ampm = ampmMatch ? ` ${ampmMatch[0]}` : "";
   search = search.replace(/(a|p)m?$/, "").trim();
 
-  const patterns = [];
+  const patterns: string[] = [];
   if (search.includes(":")) {
     if (search.split(":").length > 2) return 0;
     const [hours, minutes] = search.split(":");

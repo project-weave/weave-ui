@@ -8,6 +8,7 @@ import {
   AvailabilityType,
   EVENT_TIME_FORMAT,
   EventDate,
+  EventTime,
   getTimeSlot,
   TIME_SLOT_INTERVAL_MINUTES,
   TimeSlot
@@ -63,14 +64,14 @@ export default function Event() {
 
   const availabilityType = event.isSpecificDates ? AvailabilityType.SPECIFIC_DATES : AvailabilityType.DAYS_OF_WEEK;
 
-  const sortedEventTimes = [];
+  const sortedEventTimes: EventTime[] = [];
 
   let currentTime = parseISO(getTimeSlot(event.startTime));
 
   const endTime = parseISO(getTimeSlot(event.endTime));
 
   while (currentTime <= endTime) {
-    const formattedTime = format(currentTime, EVENT_TIME_FORMAT);
+    let formattedTime = format(currentTime, EVENT_TIME_FORMAT);
     sortedEventTimes.push(formattedTime);
     currentTime = addMinutes(currentTime, TIME_SLOT_INTERVAL_MINUTES);
   }
