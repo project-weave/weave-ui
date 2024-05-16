@@ -62,7 +62,7 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
           return (
             <div className="flex flex-col items-center text-secondary" key={`days-of-weeks-picker-${date}`}>
               <label
-                className={cn("mb-4 text-xs font-medium md:mb-2 md:text-sm", {
+                className={cn("mb-4 text-sm font-medium md:mb-2 md:text-sm", {
                   "md:mb-5 md:text-lg": size === "large"
                 })}
                 htmlFor={`days-of-weeks-picker-${date}`}
@@ -71,7 +71,7 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
               </label>
               <div className="flex h-full flex-grow">
                 <Button
-                  className={cn("h-full w-full rounded-sm bg-primary px-[.8rem] xs:px-4", {
+                  className={cn("h-full w-full rounded-sm bg-primary px-[.9rem] xs:px-4", {
                     "bg-primary/30 hover:scale-[1.02]": !selectedDaysOfWeek.has(date),
                     "text-md mx-3 w-[4.5rem] rounded-xl": size === "large"
                     // "bg-primary/30 hover:scale-[1.02]": !selectedDaysOfWeek.has(da
@@ -79,7 +79,6 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
                   drag-select-attr={date}
                   onMouseDown={() => {
                     if (isTouch.current === true) return;
-                    console.log("first");
                     onDragStart(date);
                   }}
                   onMouseEnter={() => {

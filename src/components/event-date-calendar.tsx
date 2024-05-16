@@ -292,7 +292,7 @@ const EventDateCalendar = ({
               >
                 <Button
                   className={cn(
-                    `flex h-full w-full cursor-pointer items-center justify-center rounded-full border-2 border-primary-light/30 p-0 text-2xs font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0 sm:text-sm`,
+                    `flex h-full w-full cursor-pointer items-center justify-center rounded-full border-2 border-primary-light/30 p-1 text-sm font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0 sm:text-sm`,
                     !isDaySelected
                       ? {
                           "border-transparent bg-background": true,
@@ -344,7 +344,9 @@ const EventDateCalendar = ({
                   type="button"
                   variant={isDaySelected ? "default" : "outline"}
                 >
-                  <time dateTime={formattedDay}>{format(day, "d")}</time>
+                  <time dateTime={formattedDay} drag-select-attr={formattedDay}>
+                    {format(day, "d")}
+                  </time>
                 </Button>
               </div>
             );
