@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import MainNav from "@/components/navbar";
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from "@/utils/cn";
+import { Analytics } from "@vercel/analytics/react";
 import { Inter } from "next/font/google";
 
 import "./globals.css";
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={cn("flex items-center justify-center", inter.className)}>
+        <Analytics />
         <Providers>
           <div className="flex h-screen w-screen max-w-[85rem]">
             <MainNav />
