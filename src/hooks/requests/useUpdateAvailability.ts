@@ -1,6 +1,6 @@
 import { GetEventResponse } from "@/hooks/requests/useGetEvent";
 import { TimeSlot } from "@/store/availabilityGridStore";
-import { EventResponse } from "@/types/event";
+import { EventResponse } from "@/types/Event";
 import axios from "@/utils/axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
