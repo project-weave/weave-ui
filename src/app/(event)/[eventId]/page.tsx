@@ -71,7 +71,7 @@ export default function Event() {
   const endTime = parseISO(getTimeSlot(event.endTime));
 
   while (currentTime <= endTime) {
-    let formattedTime = format(currentTime, EVENT_TIME_FORMAT);
+    const formattedTime = format(currentTime, EVENT_TIME_FORMAT);
     sortedEventTimes.push(formattedTime);
     currentTime = addMinutes(currentTime, TIME_SLOT_INTERVAL_MINUTES);
   }
