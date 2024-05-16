@@ -68,6 +68,7 @@ const EventDateCalendar = ({
   visibleEventDates
 }: EventDateCalendarProps) => {
   const today = useToday();
+  const isTouch = React.useRef(false);
 
   let defaultMonth = isViewMode ? format(parseISO(earliestSelectedDate), MONTH_FORMAT) : format(today, MONTH_FORMAT);
   if (currentMonthOverride !== undefined) {
@@ -75,11 +76,7 @@ const EventDateCalendar = ({
   }
   const [currentMonth, setCurrentMonth] = useState(defaultMonth);
 
-  const {
-    onMouseDown: onDragSelectMouseDown,
-    onMouseEnter: onDragSelectMouseEnter,
-    onMouseUp: onDragSelectMouseUp
-  } = useDragSelect<EventDate>(selectedDates, setSelectedDates!);
+  const { onDragEnd, onDragMove, onDragStart } = useDragSelect<EventDate>(selectedDates, setSelectedDates!);
 
   useEffect(() => {
     if (currentMonthOverride !== undefined) {
@@ -116,18 +113,18 @@ const EventDateCalendar = ({
       }
     } else {
       if (!isBefore(parseISO(day), today)) {
-        onDragSelectMouseDown(day);
+        onDragStart(day);
       }
     }
   }
   function handleMouseEnter(day: EventDate) {
     if (!isViewMode && !isBefore(parseISO(day), today)) {
-      onDragSelectMouseEnter(day);
+      onDragMove(day);
     }
   }
   function handleMouseUp() {
     if (!isViewMode) {
-      onDragSelectMouseUp();
+      onDragEnd();
     }
   }
 
@@ -181,6 +178,28 @@ const EventDateCalendar = ({
       onContextMenu={handleMouseUp}
       onMouseLeave={handleMouseUp}
       onMouseUp={handleMouseUp}
+      onTouchCancel={handleMouseUp}
+      onTouchEnd={handleMouseUp}
+      onTouchMove={(e) => {
+        const touch = e.touches[0];
+        const touchX = touch.clientX;
+        const touchY = touch.clientY;
+        const touchedElement = document.elementFromPoint(touchX, touchY);
+        const el = touchedElement?.getAttribute("drag-select-attr") || "";
+        if (el === "") return;
+        handleMouseEnter(el);
+      }}
+      onTouchStart={(e) => {
+        isTouch.current = true;
+        const touch = e.touches[0];
+        const touchX = touch.clientX;
+        const touchY = touch.clientY;
+        const touchedElement = document.elementFromPoint(touchX, touchY);
+
+        const el = touchedElement?.getAttribute("drag-select-attr") || "";
+        if (el === "") return;
+        handleMouseDown(el);
+      }}
     >
       <div className="mx-auto w-full">
         <div
@@ -267,8 +286,9 @@ const EventDateCalendar = ({
             return (
               <div
                 className={cn(dayIndex === 0 ? colStartClasses[getDay(day)] : "", size === "large" ? "py-5" : "py-1")}
+                drag-select-attr={formattedDay}
                 id={id}
-                key={`calendar-day-${formattedDay}`}
+                key={`calendar-day-${day}`}
               >
                 <Button
                   className={cn(
@@ -315,7 +335,11 @@ const EventDateCalendar = ({
                       "sm:text-lg": size === "large"
                     }
                   )}
-                  onMouseDown={() => handleMouseDown(formattedDay)}
+                  drag-select-attr={formattedDay}
+                  onMouseDown={() => {
+                    if (isTouch.current) return;
+                    handleMouseDown(formattedDay);
+                  }}
                   onMouseEnter={() => handleMouseEnter(formattedDay)}
                   type="button"
                   variant={isDaySelected ? "default" : "outline"}

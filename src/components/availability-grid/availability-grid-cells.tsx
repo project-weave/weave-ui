@@ -74,8 +74,8 @@ export default function AvailabilityGridCells({
     isCellBorderOfSelectionArea: isCellBorderOfSelectionArea,
     isCellInSelectionArea: isCellInDragSelectionArea,
     isSelecting: isDragSelecting,
-    onMouseDown: onDragSelectMouseDown,
-    onMouseEnter: onDragSelectMouseEnter,
+    onDragMove,
+    onDragStart,
     saveSelection: saveDragSelection
   } = useGridDragSelect<EventTime, EventDate, TimeSlot>(
     sortedEventTimes,
@@ -89,11 +89,11 @@ export default function AvailabilityGridCells({
   const handleCellMouseEnter = useCallback(
     (row: number, col: number) => {
       if (isEditMode(mode)) {
-        onDragSelectMouseEnter(row, col);
+        onDragMove(row, col);
       }
       setHoveredTimeSlot(getTimeSlot(sortedEventTimes[row], sortedEventDates[col]));
     },
-    [mode, sortedEventTimes, sortedEventDates, onDragSelectMouseEnter]
+    [mode, sortedEventTimes, sortedEventDates, onDragMove]
   );
 
   const [scope, animate] = useAnimate();
@@ -106,10 +106,10 @@ export default function AvailabilityGridCells({
           x: [0, -5, 5, -5, 5, 0]
         });
       } else {
-        onDragSelectMouseDown(row, col);
+        onDragStart(row, col);
       }
     },
-    [mode, onDragSelectMouseDown]
+    [mode, onDragStart]
   );
 
   const handleCellMouseLeave = useCallback(() => {

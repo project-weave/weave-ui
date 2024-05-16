@@ -1,15 +1,15 @@
 import { Dispatch, SetStateAction, useState } from "react";
 
-export type DragMouseEnterHandler<T> = (item: T) => void;
-export type DragMouseUpHandler = () => void;
-export type DragMouseDownHandler<T> = (item: T) => void;
+export type DragStartHandler<T> = (item: T) => void;
+export type DragEndHandler = () => void;
+export type DragMoveHandler<T> = (item: T) => void;
 
 type useDragSelectReturn<T> = {
   isAdding: boolean;
   isDragging: boolean;
-  onMouseDown: DragMouseDownHandler<T>;
-  onMouseEnter: DragMouseEnterHandler<T>;
-  onMouseUp: DragMouseUpHandler;
+  onDragEnd: DragEndHandler;
+  onDragMove: DragMoveHandler<T>;
+  onDragStart: DragStartHandler<T>;
   setIsAdding: Dispatch<SetStateAction<boolean>>;
   setIsDragging: Dispatch<SetStateAction<boolean>>;
 };
@@ -21,9 +21,7 @@ export default function useDragSelect<T>(
   const [isDragging, setIsDragging] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
 
-  const onMouseDown: DragMouseDownHandler<T> = (item: T) => {
-    setIsDragging(true);
-
+  const onDragStart: DragMoveHandler<T> = (item: T) => {
     setIsDragging(true);
     setSelected((prev) => {
       const newSelected = new Set(prev);
@@ -38,7 +36,7 @@ export default function useDragSelect<T>(
     });
   };
 
-  const onMouseEnter: DragMouseEnterHandler<T> = (item: T) => {
+  const onDragMove: DragStartHandler<T> = (item: T) => {
     if (isDragging) {
       setSelected((prev) => {
         const newSelected = new Set(prev);
@@ -52,16 +50,16 @@ export default function useDragSelect<T>(
     }
   };
 
-  const onMouseUp: DragMouseUpHandler = () => {
+  const onDragEnd: DragEndHandler = () => {
     setIsDragging(false);
   };
 
   return {
     isAdding,
     isDragging,
-    onMouseDown,
-    onMouseEnter,
-    onMouseUp,
+    onDragEnd,
+    onDragMove,
+    onDragStart,
     setIsAdding,
     setIsDragging
   };

@@ -3,7 +3,7 @@ import useDragSelect from "@/hooks/useDragSelect";
 import { DAYS_OF_WEEK_DATES, EventDate } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
 import { format, parseISO } from "date-fns";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useRef } from "react";
 type DaysOfWeekPickerProps = {
   selectedDaysOfWeek: Set<EventDate>;
   setSelectedDaysOfWeek: Dispatch<SetStateAction<Set<EventDate>>>;
@@ -13,20 +13,40 @@ type DaysOfWeekPickerProps = {
 const DAYS_OF_WEEK_TITLE = "Days of the Week";
 
 export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOfWeek, size }: DaysOfWeekPickerProps) {
-  const {
-    onMouseDown: onDragSelectMouseDown,
-    onMouseEnter: onDragSelectMouseEnter,
-    onMouseUp: onDragSelectMouseUp
-  } = useDragSelect<EventDate>(selectedDaysOfWeek, setSelectedDaysOfWeek);
+  const isTouch = useRef(true);
+  const { onDragEnd, onDragMove, onDragStart } = useDragSelect<EventDate>(selectedDaysOfWeek, setSelectedDaysOfWeek);
 
   return (
     <div
       className={cn("card border-1 flex h-[15rem] flex-col px-5 pt-4 sm:h-[16.5rem]", {
         "w-full px-8 pb-8 sm:h-full": size === "large"
       })}
-      onContextMenu={onDragSelectMouseUp}
-      onMouseLeave={onDragSelectMouseUp}
-      onMouseUp={onDragSelectMouseUp}
+      onContextMenu={onDragEnd}
+      onMouseLeave={onDragEnd}
+      onMouseUp={onDragEnd}
+      onTouchCancel={onDragEnd}
+      onTouchEnd={onDragEnd}
+      onTouchMove={(e) => {
+        const touch = e.touches[0];
+        const touchX = touch.clientX;
+        const touchY = touch.clientY;
+        const touchedElement = document.elementFromPoint(touchX, touchY);
+        const el = touchedElement?.getAttribute("drag-select-attr") || "";
+        if (el === "") return;
+        onDragMove(el);
+      }}
+      onTouchStart={(e) => {
+        if (isTouch.current === false) {
+          isTouch.current = true;
+        }
+        const touch = e.touches[0];
+        const touchX = touch.clientX;
+        const touchY = touch.clientY;
+        const touchedElement = document.elementFromPoint(touchX, touchY);
+        const el = touchedElement?.getAttribute("drag-select-attr") || "";
+        if (el === "") return;
+        onDragStart(el);
+      }}
     >
       {size === "large" && (
         <div className="mx-4 mb-6 mt-4">
@@ -42,23 +62,29 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
           return (
             <div className="flex flex-col items-center text-secondary" key={`days-of-weeks-picker-${date}`}>
               <label
-                className={cn("mb-2 text-xs font-medium md:text-sm", { "mb-4 md:text-lg": size === "large" })}
+                className={cn("mb-4 text-xs font-medium md:mb-2 md:text-sm", {
+                  "md:mb-5 md:text-lg": size === "large"
+                })}
                 htmlFor={`days-of-weeks-picker-${date}`}
               >
                 {size === "large" ? formattedDateOfWeek : formattedDateOfWeek[0]}
               </label>
               <div className="flex h-full flex-grow">
                 <Button
-                  className={cn("xs:px-4 h-full w-full rounded-sm bg-primary px-[.8rem]", {
+                  className={cn("h-full w-full rounded-sm bg-primary px-[.8rem] xs:px-4", {
                     "bg-primary/30 hover:scale-[1.02]": !selectedDaysOfWeek.has(date),
                     "text-md mx-3 w-[4.5rem] rounded-xl": size === "large"
                     // "bg-primary/30 hover:scale-[1.02]": !selectedDaysOfWeek.has(da
                   })}
+                  drag-select-attr={date}
                   onMouseDown={() => {
-                    onDragSelectMouseDown(date);
+                    if (isTouch.current === true) return;
+                    console.log("first");
+                    onDragStart(date);
                   }}
                   onMouseEnter={() => {
-                    onDragSelectMouseEnter(date);
+                    if (isTouch.current === true) return;
+                    onDragMove(date);
                   }}
                 />
               </div>

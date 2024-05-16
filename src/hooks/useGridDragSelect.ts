@@ -13,8 +13,8 @@ export type CellBorderCheck = {
 };
 
 export type GridDragClearHandler = () => void;
-export type GridDragMouseDownHandler = (row: number, col: number) => void;
-export type GridDragMouseEnterHandler = (row: number, col: number) => void;
+export type GridDragStartHandler = (row: number, col: number) => void;
+export type GridDragMoveHandler = (row: number, col: number) => void;
 export type GridDragSaveHandler = () => void;
 export type GridDragSelectionCellCheck = (row: number, col: number) => boolean;
 export type GridDragSelectionCellBorderCheck = (row: number, col: number) => CellBorderCheck;
@@ -25,8 +25,8 @@ type useGridDragSelectReturn = {
   isCellBorderOfSelectionArea: GridDragSelectionCellBorderCheck;
   isCellInSelectionArea: GridDragSelectionCellCheck;
   isSelecting: boolean;
-  onMouseDown: GridDragMouseDownHandler;
-  onMouseEnter: GridDragMouseEnterHandler;
+  onDragMove: GridDragMoveHandler;
+  onDragStart: GridDragStartHandler;
   saveSelection: GridDragSaveHandler;
 };
 
@@ -44,7 +44,7 @@ export default function useGridDragSelect<T, U, V>(
   const [isSelecting, setIsSelecting] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
 
-  const onMouseEnter = useCallback(
+  const onDragMove = useCallback(
     (row: number, col: number) => {
       if (isSelecting && startCellPositionRef.current && endCellPositionRef.current) {
         endCellPositionRef.current = { col, row };
@@ -53,7 +53,7 @@ export default function useGridDragSelect<T, U, V>(
     [isSelecting]
   );
 
-  const onMouseDown = useCallback(
+  const onDragStart = useCallback(
     (row: number, col: number) => {
       setIsSelecting(true);
       startCellPositionRef.current = { col, row };
@@ -153,8 +153,8 @@ export default function useGridDragSelect<T, U, V>(
     isCellBorderOfSelectionArea,
     isCellInSelectionArea,
     isSelecting,
-    onMouseDown,
-    onMouseEnter,
+    onDragMove,
+    onDragStart,
     saveSelection
   };
 }
