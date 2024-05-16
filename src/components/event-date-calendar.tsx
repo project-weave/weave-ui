@@ -172,7 +172,7 @@ const EventDateCalendar = ({
 
   return (
     <div
-      className={cn("card border-1 h-fit select-none px-5 pb-5 pt-3", {
+      className={cn("card border-1 h-fit select-none p-5 pt-3", {
         "h-full w-full px-12 pb-5 pt-8": size === "large"
       })}
       onContextMenu={handleMouseUp}
@@ -208,7 +208,7 @@ const EventDateCalendar = ({
           })}
         >
           <h1
-            className={cn("flex-auto text-sm font-semibold text-secondary sm:text-base", {
+            className={cn("flex-auto font-semibold text-secondary", {
               "sm:text-xl": size === "large"
             })}
           >
@@ -256,7 +256,7 @@ const EventDateCalendar = ({
           {weekDays.map((weekDay) => {
             return (
               <p
-                className={cn("mx-[1.5px] text-xs sm:text-sm", {
+                className={cn("mx-[1.5px] text-sm sm:text-sm", {
                   "mb-4 mt-6 sm:text-lg": size === "large"
                 })}
                 key={`calendar-weekday-${weekDay}`}
@@ -292,7 +292,7 @@ const EventDateCalendar = ({
               >
                 <Button
                   className={cn(
-                    `flex h-full w-full cursor-pointer items-center justify-center rounded-full border-2 border-primary-light/30 p-1 text-sm font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0 sm:text-sm`,
+                    "flex h-full w-full cursor-pointer items-center justify-center rounded-full border-2 border-primary-light/30 p-[1px] text-sm font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
                     !isDaySelected
                       ? {
                           "border-transparent bg-background": true,

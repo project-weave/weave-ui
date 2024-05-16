@@ -45,7 +45,7 @@ export default function DropdownWithLabel({
         <div className="relative w-full">
           <div
             className={cn(
-              "peer box-border flex h-10 items-center rounded-2xl bg-background px-4 pb-2.5 pt-3 text-xs outline outline-2 outline-primary/40 focus-within:outline-primary hover:outline-primary sm:text-sm",
+              "peer box-border flex h-10 items-center rounded-2xl bg-background px-4 pb-2.5 pt-3 text-sm outline outline-2 outline-primary/40 focus-within:outline-primary hover:outline-primary sm:text-sm",
               {
                 "outline-primary": open,
                 "outline-red-600/40 focus-within:outline-red-600 hover:outline-red-600": error
@@ -66,11 +66,11 @@ export default function DropdownWithLabel({
           </Label>
         </div>
       </PopoverTrigger>
-      <PopoverContent className="w-[112px] border-2 border-primary p-0 xs:w-[130px] sm:w-[150px]">
+      <PopoverContent className="w-[130px] border-2 border-primary p-0 sm:w-[150px]">
         <Command className="bg-background" filter={(value, search) => filterFunc(value, search)}>
-          <CommandInput className="h-8 border-primary text-2xs md:text-xs 2xl:h-9" />
+          <CommandInput className="h-8 border-primary text-sm md:text-xs 2xl:h-9" />
           {emptyOptionText !== undefined && emptyOptionText !== "" && (
-            <CommandEmpty className="m-1 rounded-sm bg-gray-200 py-1.5 text-center text-2xs 2xl:text-sm">
+            <CommandEmpty className="m-2 rounded-sm bg-gray-200 py-1.5 text-center text-xs">
               {emptyOptionText}
             </CommandEmpty>
           )}
@@ -80,7 +80,7 @@ export default function DropdownWithLabel({
           >
             {options.map((option) => (
               <CommandItem
-                className={cn("my-[1px] flex justify-between text-2xs sm:mr-3 sm:text-xs md:text-[.8rem] ", {
+                className={cn("my-[1px] mr-2 flex items-center justify-between text-sm hover:bg-primary/20 ", {
                   "mb-1 border-[1px] border-primary md:border-[1.5px]": selected === option
                 })}
                 data-value={option}
@@ -92,9 +92,7 @@ export default function DropdownWithLabel({
                 value={option}
               >
                 <span>{option}</span>
-                <Check
-                  className={cn("h-3 w-3 self-end md:h-4 md:w-4", selected === option ? "opacity-100" : "opacity-0")}
-                />
+                <Check className={cn("h-5 w-5 ", selected === option ? "opacity-100" : "opacity-0")} />
               </CommandItem>
             ))}
           </CommandGroup>

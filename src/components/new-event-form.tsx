@@ -17,7 +17,7 @@ import { timeFilter } from "@/utils/date";
 import { addMinutes, format, isBefore, isEqual, parse } from "date-fns";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useToast } from "./ui/use-toast";
 
@@ -54,6 +54,31 @@ export default function NewEventForm() {
   const router = useRouter();
   const { toast } = useToast();
   const { isPending, mutate } = useCreateEvent();
+
+  const formRef = useRef<HTMLFormElement>(null);
+  const [isFormInView, setIsFormInView] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([form]) => {
+        setIsFormInView(form.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0.75
+      }
+    );
+
+    if (formRef.current) {
+      observer.observe(formRef.current);
+    }
+
+    return () => {
+      if (formRef.current) {
+        observer.unobserve(formRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const parsedStartTime = parse(startTime, TIME_FORMAT, new Date());
@@ -139,11 +164,10 @@ export default function NewEventForm() {
         onSubmit={(e) => {
           e.preventDefault();
         }}
+        ref={formRef}
       >
         <div className="mb-4 flex flex-col md:mb-5">
-          <p className="mb-2 text-2xs font-medium text-secondary sm:mb-3 sm:text-xs md:mb-4 md:text-[.8rem]">
-            {WHAT_EVENT_NAME}
-          </p>
+          <p className="mb-3 text-xs font-medium text-secondary md:mb-4 md:text-[.8rem]">{WHAT_EVENT_NAME}</p>
           <InputWithLabel
             id="event-name"
             label={EVENT_NAME_LABEL}
@@ -158,9 +182,7 @@ export default function NewEventForm() {
           />
         </div>
         <div className="mb-4 flex w-full flex-col md:mb-5">
-          <p className="mb-2 text-2xs font-medium text-secondary sm:mb-3 sm:text-xs md:mb-4 md:text-[.8rem]">
-            {WHAT_TIMES}
-          </p>
+          <p className="mb-3 text-xs font-medium text-secondary md:mb-4 md:text-[.8rem]">{WHAT_TIMES}</p>
           <div className="flex w-full items-center justify-between">
             <DropdownWithLabel
               emptyOptionText={"Invalid time"}
@@ -184,39 +206,31 @@ export default function NewEventForm() {
           </div>
         </div>
         <div className="mb-5 flex flex-col text-sm md:mb-6">
-          <p className="mb-2 text-2xs font-medium  text-secondary sm:text-xs md:mb-3 md:text-[.8rem]">
-            {WHAT_AVAILABILITY}
-          </p>
+          <p className="mb-3 text-xs font-medium  text-secondary md:text-[.8rem]">{WHAT_AVAILABILITY}</p>
           <div className="flex w-full items-center justify-between">
             <Button
-              className={cn(
-                "h-auto w-full border-[1px] border-primary text-2xs xs:text-xs sm:text-xs md:text-[.8rem]",
-                {
-                  "hover:bg-primary": availabilityType === AvailabilityType.SPECIFIC_DATES
-                }
-              )}
+              className={cn("h-auto w-full border-[1px] border-primary text-[.9rem]", {
+                "hover:bg-primary": availabilityType === AvailabilityType.SPECIFIC_DATES
+              })}
               onClick={() => setAvailabilityType(AvailabilityType.SPECIFIC_DATES)}
               type="button"
               variant={availabilityType === AvailabilityType.SPECIFIC_DATES ? "default" : "outline"}
             >
-              <span className="leading-4 sm:leading-5">
+              <span className="leading-5">
                 <div>Specific</div>
                 <div>Dates</div>
               </span>
             </Button>
             <p className="mx-6 text-xs text-secondary"> {OR} </p>
             <Button
-              className={cn(
-                "h-auto w-full border-[1px] border-primary text-2xs xs:text-xs sm:text-xs md:text-[.8rem]",
-                {
-                  "hover:bg-primary": availabilityType === AvailabilityType.DAYS_OF_WEEK
-                }
-              )}
+              className={cn("h-auto w-full border-[1px] border-primary text-[.9rem]", {
+                "hover:bg-primary": availabilityType === AvailabilityType.DAYS_OF_WEEK
+              })}
               onClick={() => setAvailabilityType(AvailabilityType.DAYS_OF_WEEK)}
               type="button"
               variant={availabilityType === AvailabilityType.DAYS_OF_WEEK ? "default" : "outline"}
             >
-              <span className="leading-4 sm:leading-5">
+              <span className="leading-5">
                 <div>Days Of</div>
                 <div>The Week</div>
               </span>
@@ -250,14 +264,24 @@ export default function NewEventForm() {
             <Loader2 className="mt-3 h-12 w-12 animate-spin text-primary" />
           </div>
         ) : (
-          <Button
-            className="mt-3 h-auto w-full rounded-2xl border-[1px] border-primary py-4 align-bottom text-2xs sm:text-xs md:text-sm"
-            disabled={!isFormValid}
-            onClick={createEventHandler}
-            type="submit"
+          <div
+            className={cn(
+              "bottom-0 left-0 flex justify-center sm:relative sm:bg-transparent sm:p-0 ",
+              isFormInView && "fixed w-full bg-white px-9 py-5"
+            )}
           >
-            {CREATE_EVENT}
-          </Button>
+            <Button
+              className={cn(
+                "hidden h-auto w-full rounded-xl border-[1px] border-primary py-2 align-bottom text-sm sm:relative sm:bottom-0 sm:mt-3 sm:block sm:w-full sm:py-3",
+                isFormInView && "bottom-3 left-0 block max-w-[26rem]"
+              )}
+              disabled={!isFormValid}
+              onClick={createEventHandler}
+              type="submit"
+            >
+              {CREATE_EVENT}
+            </Button>
+          </div>
         )}
       </form>
 
