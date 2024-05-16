@@ -7,11 +7,11 @@ import useAvailabilityGridStore, {
   EventTime,
   TimeSlot
 } from "@/store/availabilityGridStore";
-import { EventResponse } from "@/types/Event";
 import { useEffect } from "react";
 import { VariableSizeList } from "react-window";
 import { useShallow } from "zustand/react/shallow";
 
+import { EventResponse } from "../../types/event";
 import { useToast } from "../ui/use-toast";
 import AvailabilityGridCells from "./availability-grid-cells";
 
