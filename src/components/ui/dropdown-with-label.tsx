@@ -56,7 +56,7 @@ export default function DropdownWithLabel({
           </div>
           <Label
             className={cn(
-              "absolute left-1 top-1.5 z-10 origin-[0] -translate-y-3 scale-75 transform rounded-sm bg-background px-3 text-xs text-black duration-300 peer-focus-within:px-2 sm:-translate-y-4 sm:text-sm ",
+              "absolute left-1 top-1 z-10 origin-[0] -translate-y-4 scale-75 transform rounded-sm bg-background px-3 text-[.9rem] duration-300 sm:top-1 ",
               {
                 "border-primary px-2": open
               }
@@ -68,7 +68,7 @@ export default function DropdownWithLabel({
       </PopoverTrigger>
       <PopoverContent className="w-[130px] border-2 border-primary p-0 sm:w-[150px]">
         <Command className="bg-background" filter={(value, search) => filterFunc(value, search)}>
-          <CommandInput className="h-8 border-primary text-sm md:text-xs 2xl:h-9" />
+          <CommandInput className="border-primary py-5 text-sm" />
           {emptyOptionText !== undefined && emptyOptionText !== "" && (
             <CommandEmpty className="m-2 rounded-sm bg-gray-200 py-1.5 text-center text-xs">
               {emptyOptionText}

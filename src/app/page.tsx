@@ -17,9 +17,9 @@ export default function LandingPage() {
   return (
     <div className="flex h-fit w-full flex-col items-center">
       <div className="grid w-full">
-        <h1 className="flex flex-col text-center text-[2.3rem] font-semibold leading-[2.7rem] sm:mt-8 sm:text-[2.7rem] sm:leading-[3rem] md:text-[3.7rem] md:leading-[4rem] xl:text-[4.3rem] xl:leading-[4.3rem]">
+        <h1 className="flex flex-col text-center text-[2.6rem] font-semibold leading-[2.8rem] sm:mt-8 sm:leading-[3rem] md:text-[3.7rem] md:leading-[4rem] xl:text-[4.3rem] xl:leading-[4.3rem]">
           <div>find time for</div>
-          <div className="relative h-[44px] overflow-hidden sm:h-[50px] md:h-[68px] xl:h-[75px] ">
+          <div className="relative h-[44px] overflow-hidden sm:mt-0 sm:h-[50px] md:h-[68px] xl:h-[75px] ">
             <motion.div
               animate={{
                 y: [
@@ -60,8 +60,8 @@ export default function LandingPage() {
         {CREATE_A_WEAVE}
       </Button>
 
-      <div className="mb-24 mt-12 h-full w-full sm:mt-6 md:mt-8 xl:mb-48 xl:mt-12 2xl:mb-[30rem]">
-        <div className="pt-20 sm:pt-[7rem] md:pt-[7.5rem]" ref={eventFormRef}>
+      <div className="mb-24 mt-14 h-full w-full sm:mt-6 md:mt-8 xl:mb-48 xl:mt-12 2xl:mb-[30rem]">
+        <div className="pt-24 sm:pt-[7rem] md:pt-[7.5rem]" ref={eventFormRef}>
           <NewEventForm />
         </div>
       </div>

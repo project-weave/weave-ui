@@ -13,7 +13,7 @@ type DaysOfWeekPickerProps = {
 const DAYS_OF_WEEK_TITLE = "Days of the Week";
 
 export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOfWeek, size }: DaysOfWeekPickerProps) {
-  const isTouch = useRef(true);
+  const isTouch = useRef(false);
   const { onDragEnd, onDragMove, onDragStart } = useDragSelect<EventDate>(selectedDaysOfWeek, setSelectedDaysOfWeek);
 
   return (
@@ -77,6 +77,7 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
                   })}
                   drag-select-attr={date}
                   onMouseDown={() => {
+                    console.log("asdkasjhd", isTouch);
                     if (isTouch.current === true) return;
                     onDragStart(date);
                   }}
