@@ -121,7 +121,7 @@ const EventDateCalendar = ({
   }
 
   function handleTouchMove(day: EventDate) {
-    if (!isViewMode && (day !== null || !isBefore(parseISO(day), today))) {
+    if (!isViewMode && (day === null || !isBefore(parseISO(day), today))) {
       onTouchDragMove(day);
     }
   }
@@ -217,6 +217,7 @@ const EventDateCalendar = ({
         handleTouchMove(date as EventDate);
       }}
       onTouchStart={(e) => {
+        e.preventDefault();
         isTouch.current = true;
         const touch = e.touches[0];
         const touchX = touch.clientX;

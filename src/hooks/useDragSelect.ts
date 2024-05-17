@@ -52,7 +52,6 @@ export default function useDragSelect<T>(
   };
 
   const onTouchDragStart: DragStartHandler<T> = (item: T) => {
-    document.body.style.overflow = "hidden";
     setIsDragging(true);
     if (item === null) {
       setMode(DragMode.NONE);
@@ -73,7 +72,6 @@ export default function useDragSelect<T>(
   };
 
   const onTouchDragEnd: DragEndHandler = () => {
-    document.body.style.overflow = "scroll";
     setIsDragging(false);
   };
 
