@@ -77,7 +77,6 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
                   })}
                   drag-select-attr={date}
                   onMouseDown={() => {
-                    console.log("asdkasjhd", isTouch);
                     if (isTouch.current === true) return;
                     onDragStart(date);
                   }}

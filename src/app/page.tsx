@@ -17,9 +17,9 @@ export default function LandingPage() {
   return (
     <div className="flex h-fit w-full flex-col items-center">
       <div className="grid w-full">
-        <h1 className="flex flex-col text-center text-[2.6rem] font-semibold leading-[2.8rem] sm:mt-8 sm:leading-[3rem] md:text-[3.7rem] md:leading-[4rem] xl:text-[4.3rem] xl:leading-[4.3rem]">
+        <h1 className="flex flex-col text-center text-[2.6rem] font-semibold leading-[3.2rem] sm:mt-8 sm:leading-[3rem] md:text-[3.7rem] md:leading-[4rem] xl:text-[4.3rem] xl:leading-[4.3rem]">
           <div>find time for</div>
-          <div className="relative h-[44px] overflow-hidden sm:mt-0 sm:h-[50px] md:h-[68px] xl:h-[75px] ">
+          <div className="relative h-[50px] overflow-hidden sm:mt-0 sm:h-[50px] md:h-[68px] xl:h-[75px] ">
             <motion.div
               animate={{
                 y: [
@@ -52,7 +52,7 @@ export default function LandingPage() {
       </p>
 
       <Button
-        className="mt-20 h-auto px-10 py-3 text-sm sm:mt-16 md:mt-20 md:px-10 md:py-4 xl:px-12 xl:text-base"
+        className="mt-20 h-auto px-8 py-3 text-sm sm:mt-16 md:mt-20 md:px-10 md:py-4 xl:px-12 xl:text-base"
         onClick={() => {
           eventFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
         }}
@@ -60,8 +60,8 @@ export default function LandingPage() {
         {CREATE_A_WEAVE}
       </Button>
 
-      <div className="mb-24 mt-14 h-full w-full sm:mt-6 md:mt-8 xl:mb-48 xl:mt-12 2xl:mb-[30rem]">
-        <div className="pt-24 sm:pt-[7rem] md:pt-[7.5rem]" ref={eventFormRef}>
+      <div className="mb-24 mt-14 h-full w-full sm:mt-10 xl:mb-48 xl:mt-20 2xl:mb-[30rem]">
+        <div className="pt-24 sm:pt-[6rem]" ref={eventFormRef}>
           <NewEventForm />
         </div>
       </div>

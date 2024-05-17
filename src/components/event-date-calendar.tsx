@@ -285,7 +285,10 @@ const EventDateCalendar = ({
 
             return (
               <div
-                className={cn(dayIndex === 0 ? colStartClasses[getDay(day)] : "", size === "large" ? "py-5" : "py-1")}
+                className={cn(
+                  dayIndex === 0 ? colStartClasses[getDay(day)] : "",
+                  size === "large" ? "py-5" : "py-1 sm:py-[3px]"
+                )}
                 drag-select-attr={formattedDay}
                 id={id}
                 key={`calendar-day-${day}`}

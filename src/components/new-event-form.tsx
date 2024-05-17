@@ -167,7 +167,7 @@ export default function NewEventForm() {
         ref={formRef}
       >
         <div className="mb-4 flex flex-col md:mb-5">
-          <p className="mb-3 text-xs font-medium text-secondary md:mb-4 md:text-[.8rem]">{WHAT_EVENT_NAME}</p>
+          <p className="mb-3 text-xs font-medium text-secondary sm:mb-4 md:text-[.8rem]">{WHAT_EVENT_NAME}</p>
           <InputWithLabel
             id="event-name"
             label={EVENT_NAME_LABEL}
@@ -182,7 +182,7 @@ export default function NewEventForm() {
           />
         </div>
         <div className="mb-4 flex w-full flex-col md:mb-5">
-          <p className="mb-3 text-xs font-medium text-secondary md:mb-4 md:text-[.8rem]">{WHAT_TIMES}</p>
+          <p className="mb-3 text-xs font-medium text-secondary sm:mb-4 md:text-[.8rem]">{WHAT_TIMES}</p>
           <div className="flex w-full items-center justify-between">
             <DropdownWithLabel
               emptyOptionText={"Invalid time"}
@@ -206,7 +206,7 @@ export default function NewEventForm() {
           </div>
         </div>
         <div className="mb-5 flex flex-col text-sm md:mb-6">
-          <p className="mb-3 text-xs font-medium  text-secondary md:text-[.8rem]">{WHAT_AVAILABILITY}</p>
+          <p className="mb-3 text-xs font-medium text-secondary md:text-[.8rem]">{WHAT_AVAILABILITY}</p>
           <div className="flex w-full items-center justify-between">
             <Button
               className={cn("h-auto w-full border-[1px] border-primary text-[.9rem]", {

@@ -10,7 +10,7 @@ export default function InputWithLabel({ id, label, type, ...props }: InputWithL
   return (
     <div className="relative w-full">
       <Input
-        className="peer flex h-10 w-full appearance-none border-2 border-primary border-opacity-40 bg-background px-4 pb-2.5 pt-3 hover:border-opacity-100 focus:border-[3px] focus:border-opacity-100 focus:outline-none"
+        className="peer flex h-11 w-full appearance-none border-2 border-primary border-opacity-40 bg-background px-4 pb-2.5 pt-3 hover:border-opacity-100 focus:border-[3px] focus:border-opacity-100 focus:outline-none"
         id={id}
         type={type}
         {...props}
