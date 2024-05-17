@@ -76,7 +76,8 @@ const EventDateCalendar = ({
   }
   const [currentMonth, setCurrentMonth] = useState(defaultMonth);
 
-  const { onDragEnd, onDragMove, onDragStart } = useDragSelect<EventDate>(selectedDates, setSelectedDates!);
+  const { onDragEnd, onDragMove, onDragStart, onTouchDragEnd, onTouchDragMove, onTouchDragStart } =
+    useDragSelect<EventDate>(selectedDates, setSelectedDates!);
 
   useEffect(() => {
     if (currentMonthOverride !== undefined) {
@@ -106,6 +107,31 @@ const EventDateCalendar = ({
     return add(lastDayOfCurrentMonth, { days: 6 - lastDayOfCurrentMonthDayOfWeek });
   }
 
+  // Need to handle nulls for touch handlers
+  function handleTouchStart(day: EventDate) {
+    if (isViewMode) {
+      if (day !== null && selectedDates.has(day)) {
+        onViewModeDateClick(day);
+      }
+    } else {
+      if (day === null || !isBefore(parseISO(day), today)) {
+        onTouchDragStart(day);
+      }
+    }
+  }
+
+  function handleTouchMove(day: EventDate) {
+    if (!isViewMode && (day !== null || !isBefore(parseISO(day), today))) {
+      onTouchDragMove(day);
+    }
+  }
+
+  function handleMouseEnter(day: EventDate) {
+    if (!isViewMode && !isBefore(parseISO(day), today)) {
+      onDragMove(day);
+    }
+  }
+
   function handleMouseDown(day: EventDate) {
     if (isViewMode) {
       if (selectedDates.has(day)) {
@@ -117,11 +143,13 @@ const EventDateCalendar = ({
       }
     }
   }
-  function handleMouseEnter(day: EventDate) {
-    if (!isViewMode && !isBefore(parseISO(day), today)) {
-      onDragMove(day);
+
+  function handleTouchEnd() {
+    if (!isViewMode) {
+      onTouchDragEnd();
     }
   }
+
   function handleMouseUp() {
     if (!isViewMode) {
       onDragEnd();
@@ -178,16 +206,15 @@ const EventDateCalendar = ({
       onContextMenu={handleMouseUp}
       onMouseLeave={handleMouseUp}
       onMouseUp={handleMouseUp}
-      onTouchCancel={handleMouseUp}
-      onTouchEnd={handleMouseUp}
+      onTouchCancel={handleTouchEnd}
+      onTouchEnd={handleTouchEnd}
       onTouchMove={(e) => {
         const touch = e.touches[0];
         const touchX = touch.clientX;
         const touchY = touch.clientY;
         const touchedElement = document.elementFromPoint(touchX, touchY);
-        const el = touchedElement?.getAttribute("drag-select-attr") || "";
-        if (el === "") return;
-        handleMouseEnter(el);
+        const date = touchedElement?.getAttribute("drag-select-attr") || null;
+        handleTouchMove(date as EventDate);
       }}
       onTouchStart={(e) => {
         isTouch.current = true;
@@ -195,10 +222,8 @@ const EventDateCalendar = ({
         const touchX = touch.clientX;
         const touchY = touch.clientY;
         const touchedElement = document.elementFromPoint(touchX, touchY);
-
-        const el = touchedElement?.getAttribute("drag-select-attr") || "";
-        if (el === "") return;
-        handleMouseDown(el);
+        const date = touchedElement?.getAttribute("drag-select-attr") || null;
+        handleTouchStart(date as EventDate);
       }}
     >
       <div className="mx-auto w-full">
@@ -218,7 +243,7 @@ const EventDateCalendar = ({
           {isNextAndPrevButtonsVisible && (
             <>
               <MotionButton
-                className={cn("ml-1 h-4 rounded-[.3rem] border-none px-[1px]", {
+                className={cn("ml-1 h-5 w-5 rounded-[.3rem] border-none px-[1px]", {
                   "mr-1 h-6 w-6 rounded-[.4rem]": size === "large"
                 })}
                 onClick={setPrevMonth}
@@ -227,14 +252,14 @@ const EventDateCalendar = ({
               >
                 <span className="sr-only">Previous Columns</span>
                 <ChevronLeft
-                  className={cn("h-4 w-4 stroke-[3px]", {
+                  className={cn("h-5 w-5 stroke-[3px]", {
                     "h-7 w-7": size === "large"
                   })}
                 />
               </MotionButton>
 
               <MotionButton
-                className={cn("ml-1 h-4 rounded-[.3rem] border-none px-[1px]", {
+                className={cn("ml-1 h-5 w-5 rounded-[.3rem] border-none px-[1px]", {
                   "h-6 w-6 rounded-[.4rem]": size === "large"
                 })}
                 onClick={setNextMonth}
@@ -243,7 +268,7 @@ const EventDateCalendar = ({
               >
                 <span className="sr-only">Next Columns</span>
                 <ChevronRight
-                  className={cn("h-4 w-4 stroke-[3px]", {
+                  className={cn("h-5 w-5 stroke-[3px]", {
                     "h-7 w-7": size === "large"
                   })}
                 />

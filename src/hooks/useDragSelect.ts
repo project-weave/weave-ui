@@ -4,14 +4,19 @@ export type DragStartHandler<T> = (item: T) => void;
 export type DragEndHandler = () => void;
 export type DragMoveHandler<T> = (item: T) => void;
 
+export enum DragMode {
+  ADD,
+  REMOVE,
+  NONE
+}
+
 type useDragSelectReturn<T> = {
-  isAdding: boolean;
-  isDragging: boolean;
   onDragEnd: DragEndHandler;
   onDragMove: DragMoveHandler<T>;
   onDragStart: DragStartHandler<T>;
-  setIsAdding: Dispatch<SetStateAction<boolean>>;
-  setIsDragging: Dispatch<SetStateAction<boolean>>;
+  onTouchDragEnd: DragEndHandler;
+  onTouchDragMove: DragMoveHandler<T>;
+  onTouchDragStart: DragStartHandler<T>;
 };
 
 export default function useDragSelect<T>(
@@ -19,35 +24,90 @@ export default function useDragSelect<T>(
   setSelected: Dispatch<SetStateAction<Set<T>>>
 ): useDragSelectReturn<T> {
   const [isDragging, setIsDragging] = useState(false);
-  const [isAdding, setIsAdding] = useState(false);
+  const [mode, setMode] = useState<DragMode>(DragMode.NONE);
+
+  const onTouchDragMove: DragMoveHandler<T> = (item: T) => {
+    // TODO: make sure it screen doesnt
+    if (!isDragging) return;
+
+    switch (mode) {
+      case DragMode.NONE:
+        onTouchDragStart(item);
+        break;
+      case DragMode.ADD:
+        setSelected((prev) => {
+          const newSelected = new Set(prev);
+          newSelected.add(item);
+          return newSelected;
+        });
+        break;
+      case DragMode.REMOVE:
+        setSelected((prev) => {
+          const newSelected = new Set(prev);
+          newSelected.delete(item);
+          return newSelected;
+        });
+        break;
+    }
+  };
+
+  const onTouchDragStart: DragStartHandler<T> = (item: T) => {
+    document.body.classList.add("no-scroll");
+    setIsDragging(true);
+    if (item === null) {
+      setMode(DragMode.NONE);
+      return;
+    }
+
+    setSelected((prev) => {
+      const newSelected = new Set(prev);
+      if (!selected.has(item)) {
+        setMode(DragMode.ADD);
+        newSelected.add(item);
+      } else {
+        setMode(DragMode.REMOVE);
+        newSelected.delete(item);
+      }
+      return newSelected;
+    });
+  };
+
+  const onTouchDragEnd: DragEndHandler = () => {
+    document.body.classList.remove("no-scroll");
+    setIsDragging(false);
+  };
 
   const onDragStart: DragMoveHandler<T> = (item: T) => {
     setIsDragging(true);
     setSelected((prev) => {
       const newSelected = new Set(prev);
-      if (selected.has(item)) {
-        setIsAdding(false);
-        newSelected.delete(item);
-      } else {
-        setIsAdding(true);
+      if (!selected.has(item)) {
+        setMode(DragMode.ADD);
         newSelected.add(item);
+      } else {
+        setMode(DragMode.REMOVE);
+        newSelected.delete(item);
       }
       return newSelected;
     });
   };
 
   const onDragMove: DragStartHandler<T> = (item: T) => {
-    if (isDragging) {
-      setSelected((prev) => {
-        const newSelected = new Set(prev);
-        if (isAdding) {
+    if (!isDragging) return;
+    setSelected((prev) => {
+      const newSelected = new Set(prev);
+      switch (mode) {
+        case DragMode.ADD:
           newSelected.add(item);
-        } else {
+          break;
+        case DragMode.REMOVE:
           newSelected.delete(item);
-        }
-        return newSelected;
-      });
-    }
+          break;
+        default:
+          break;
+      }
+      return newSelected;
+    });
   };
 
   const onDragEnd: DragEndHandler = () => {
@@ -55,12 +115,11 @@ export default function useDragSelect<T>(
   };
 
   return {
-    isAdding,
-    isDragging,
     onDragEnd,
     onDragMove,
     onDragStart,
-    setIsAdding,
-    setIsDragging
+    onTouchDragEnd,
+    onTouchDragMove,
+    onTouchDragStart
   };
 }

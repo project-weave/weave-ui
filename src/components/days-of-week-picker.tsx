@@ -14,7 +14,8 @@ const DAYS_OF_WEEK_TITLE = "Days of the Week";
 
 export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOfWeek, size }: DaysOfWeekPickerProps) {
   const isTouch = useRef(false);
-  const { onDragEnd, onDragMove, onDragStart } = useDragSelect<EventDate>(selectedDaysOfWeek, setSelectedDaysOfWeek);
+  const { onDragEnd, onDragMove, onDragStart, onTouchDragEnd, onTouchDragMove, onTouchDragStart } =
+    useDragSelect<EventDate>(selectedDaysOfWeek, setSelectedDaysOfWeek);
 
   return (
     <div
@@ -24,28 +25,25 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
       onContextMenu={onDragEnd}
       onMouseLeave={onDragEnd}
       onMouseUp={onDragEnd}
-      onTouchCancel={onDragEnd}
-      onTouchEnd={onDragEnd}
+      onTouchCancel={onTouchDragEnd}
+      onTouchEnd={onTouchDragEnd}
       onTouchMove={(e) => {
+        isTouch.current = true;
         const touch = e.touches[0];
         const touchX = touch.clientX;
         const touchY = touch.clientY;
         const touchedElement = document.elementFromPoint(touchX, touchY);
-        const el = touchedElement?.getAttribute("drag-select-attr") || "";
-        if (el === "") return;
-        onDragMove(el);
+        const date = touchedElement?.getAttribute("drag-select-attr") || null;
+        onTouchDragMove(date as EventDate);
       }}
       onTouchStart={(e) => {
-        if (isTouch.current === false) {
-          isTouch.current = true;
-        }
+        isTouch.current = true;
         const touch = e.touches[0];
         const touchX = touch.clientX;
         const touchY = touch.clientY;
         const touchedElement = document.elementFromPoint(touchX, touchY);
-        const el = touchedElement?.getAttribute("drag-select-attr") || "";
-        if (el === "") return;
-        onDragStart(el);
+        const date = touchedElement?.getAttribute("drag-select-attr") || null;
+        onTouchDragStart(date as EventDate);
       }}
     >
       {size === "large" && (
