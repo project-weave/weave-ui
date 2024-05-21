@@ -27,9 +27,7 @@ export default function useDragSelect<T>(
   const [mode, setMode] = useState<DragMode>(DragMode.NONE);
 
   const onTouchDragMove: DragMoveHandler<T> = (item: T) => {
-    // TODO: make sure it screen doesnt
     if (!isDragging) return;
-
     switch (mode) {
       case DragMode.NONE:
         onTouchDragStart(item);

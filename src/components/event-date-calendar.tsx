@@ -3,6 +3,7 @@ import useDragSelect from "@/hooks/useDragSelect";
 import useToday from "@/hooks/useToday";
 import { EVENT_DATE_FORMAT, EventDate } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
+import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import {
   add,
   eachDayOfInterval,
@@ -69,6 +70,7 @@ const EventDateCalendar = ({
 }: EventDateCalendarProps) => {
   const today = useToday();
   const isTouch = React.useRef(false);
+  const ref = React.useRef<HTMLDivElement>(null);
 
   let defaultMonth = isViewMode ? format(parseISO(earliestSelectedDate), MONTH_FORMAT) : format(today, MONTH_FORMAT);
   if (currentMonthOverride !== undefined) {
@@ -207,7 +209,10 @@ const EventDateCalendar = ({
       onMouseLeave={handleMouseUp}
       onMouseUp={handleMouseUp}
       onTouchCancel={handleTouchEnd}
-      onTouchEnd={handleTouchEnd}
+      onTouchEnd={() => {
+        handleTouchEnd();
+        enableBodyScroll(ref.current);
+      }}
       onTouchMove={(e) => {
         const touch = e.touches[0];
         const touchX = touch.clientX;
@@ -217,8 +222,8 @@ const EventDateCalendar = ({
         handleTouchMove(date as EventDate);
       }}
       onTouchStart={(e) => {
-        e.preventDefault();
         isTouch.current = true;
+        disableBodyScroll(ref.current);
         const touch = e.touches[0];
         const touchX = touch.clientX;
         const touchY = touch.clientY;
@@ -226,6 +231,7 @@ const EventDateCalendar = ({
         const date = touchedElement?.getAttribute("drag-select-attr") || null;
         handleTouchStart(date as EventDate);
       }}
+      ref={ref}
     >
       <div className="mx-auto w-full">
         <div
@@ -282,7 +288,7 @@ const EventDateCalendar = ({
           {weekDays.map((weekDay) => {
             return (
               <p
-                className={cn("mx-[1.5px] text-sm sm:text-sm", {
+                className={cn("text-[0.9rem] sm:text-sm", {
                   "mb-4 mt-6 sm:text-lg": size === "large"
                 })}
                 key={`calendar-weekday-${weekDay}`}
@@ -321,7 +327,7 @@ const EventDateCalendar = ({
               >
                 <Button
                   className={cn(
-                    "flex h-full w-full cursor-pointer items-center justify-center rounded-full border-2 border-primary-light/30 p-[1px] text-sm font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
+                    "flex h-full w-full cursor-pointer items-center justify-center rounded-full border-2 border-primary-light/30 p-[1px] text-[0.9rem] font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0 sm:text-sm",
                     !isDaySelected
                       ? {
                           "border-transparent bg-background": true,

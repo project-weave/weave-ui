@@ -258,18 +258,17 @@ export default function NewEventForm() {
                 {I_WANT_TO_BE_NOTIFIED}
               </label>
             </div> */}
-
-        {isPending ? (
-          <div className="flex justify-center">
-            <Loader2 className="mt-3 h-12 w-12 animate-spin text-primary" />
-          </div>
-        ) : (
-          <div
-            className={cn(
-              "bottom-0 left-0 flex justify-center sm:relative sm:bg-transparent sm:p-0 ",
-              isFormInView && "fixed w-full bg-white px-9 py-5"
-            )}
-          >
+        <div
+          className={cn(
+            "bottom-0 left-0 flex justify-center shadow-[0px_2px_6px_6px] shadow-gray-100 sm:relative sm:bg-transparent sm:p-0 sm:shadow-none",
+            isFormInView && "fixed w-full bg-white px-9 py-5"
+          )}
+        >
+          {isPending ? (
+            <div className="flex justify-center">
+              <Loader2 className="mt-3 h-12 w-12 animate-spin text-primary" />
+            </div>
+          ) : (
             <Button
               className={cn(
                 "hidden h-auto w-full rounded-xl border-[1px] border-primary py-2 align-bottom text-sm sm:relative sm:bottom-0 sm:mt-3 sm:block sm:w-full sm:py-3",
@@ -281,10 +280,9 @@ export default function NewEventForm() {
             >
               {CREATE_EVENT}
             </Button>
-          </div>
-        )}
+          )}
+        </div>
       </form>
-
       <div className="hidden w-[47rem] xl:block">
         {availabilityType === AvailabilityType.SPECIFIC_DATES ? (
           <Calendar
