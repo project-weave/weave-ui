@@ -215,8 +215,8 @@ const EventDateCalendar = ({
           })}
         >
           <h1
-            className={cn("flex-auto font-semibold text-secondary", {
-              "sm:text-xl": size === "large"
+            className={cn("flex-auto text-lg font-semibold text-secondary ", {
+              "text-2xl": size === "large"
             })}
           >
             {format(firstDayCurrentMonth, "MMMM yyyy")}
@@ -225,8 +225,8 @@ const EventDateCalendar = ({
           {isNextAndPrevButtonsVisible && (
             <>
               <MotionButton
-                className={cn("h-5 w-5 rounded-[.3rem] border-none px-[1px]", {
-                  "h-7 w-7 rounded-[.4rem]": size === "large"
+                className={cn("h-6 w-6 rounded-[.4rem] border-none px-[1px]", {
+                  "h-7 w-7": size === "large"
                 })}
                 onClick={setPrevMonth}
                 variant={isCurrentMonthEarliest ? "default-disabled" : "default"}
@@ -235,14 +235,14 @@ const EventDateCalendar = ({
                 <span className="sr-only">Previous Columns</span>
                 <ChevronLeft
                   className={cn("h-5 w-5 stroke-[3px]", {
-                    "h-7 w-7": size === "large"
+                    "h-6 w-6": size === "large"
                   })}
                 />
               </MotionButton>
 
               <MotionButton
-                className={cn("ml-2 h-5 w-5 rounded-[.3rem] border-none px-[1px]", {
-                  "h-7 w-7 rounded-[.4rem]": size === "large"
+                className={cn("ml-[6px] h-6 w-6 rounded-[.4rem] border-none px-[1px]", {
+                  "h-7 w-7": size === "large"
                 })}
                 onClick={setNextMonth}
                 variant={isCurrentMonthLatest ? "default-disabled" : "default"}
@@ -251,7 +251,7 @@ const EventDateCalendar = ({
                 <span className="sr-only">Next Columns</span>
                 <ChevronRight
                   className={cn("h-5 w-5 stroke-[3px]", {
-                    "h-7 w-7": size === "large"
+                    "h-6 w-6": size === "large"
                   })}
                 />
               </MotionButton>
@@ -293,7 +293,7 @@ const EventDateCalendar = ({
             return (
               <Button
                 className={cn(
-                  size === "large" ? "my-5 h-12" : "my-1 h-7 sm:my-[3px] sm:h-[1.9rem]",
+                  size === "large" ? "my-5 h-12" : "my-[4px] h-8",
                   "flex cursor-pointer items-center justify-center rounded-full border-2 border-primary-light/30 p-[1px] text-[0.9rem] font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0 sm:text-sm",
                   !isDaySelected
                     ? {
