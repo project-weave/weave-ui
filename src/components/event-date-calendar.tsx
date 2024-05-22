@@ -3,7 +3,6 @@ import useDragSelect from "@/hooks/useDragSelect";
 import useToday from "@/hooks/useToday";
 import { EVENT_DATE_FORMAT, EventDate } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
-import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import {
   add,
   eachDayOfInterval,
@@ -19,7 +18,7 @@ import {
 } from "date-fns";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
 import { Button } from "./ui/button";
 
@@ -69,8 +68,7 @@ const EventDateCalendar = ({
   visibleEventDates
 }: EventDateCalendarProps) => {
   const today = useToday();
-  const isTouch = React.useRef(false);
-  const ref = React.useRef<HTMLDivElement>(null);
+  const dragSelectContainerRef = useRef<HTMLDivElement>(null);
 
   let defaultMonth = isViewMode ? format(parseISO(earliestSelectedDate), MONTH_FORMAT) : format(today, MONTH_FORMAT);
   if (currentMonthOverride !== undefined) {
@@ -79,7 +77,7 @@ const EventDateCalendar = ({
   const [currentMonth, setCurrentMonth] = useState(defaultMonth);
 
   const { onDragEnd, onDragMove, onDragStart, onTouchDragEnd, onTouchDragMove, onTouchDragStart } =
-    useDragSelect<EventDate>(selectedDates, setSelectedDates!);
+    useDragSelect<EventDate>(selectedDates, setSelectedDates!, dragSelectContainerRef);
 
   useEffect(() => {
     if (currentMonthOverride !== undefined) {
@@ -109,22 +107,33 @@ const EventDateCalendar = ({
     return add(lastDayOfCurrentMonth, { days: 6 - lastDayOfCurrentMonthDayOfWeek });
   }
 
-  // Need to handle nulls for touch handlers
-  function handleTouchStart(day: EventDate) {
+  function handleTouchStart(e: React.TouchEvent) {
+    const touch = e.touches[e.touches.length - 1];
+    const touchX = touch.clientX;
+    const touchY = touch.clientY;
+    const touchedElement = document.elementFromPoint(touchX, touchY);
+    const date: EventDate | null = touchedElement?.getAttribute("drag-select-attr") || null;
+
     if (isViewMode) {
-      if (day !== null && selectedDates.has(day)) {
-        onViewModeDateClick(day);
+      if (date !== null && selectedDates.has(date)) {
+        onViewModeDateClick(date);
       }
     } else {
-      if (day === null || !isBefore(parseISO(day), today)) {
-        onTouchDragStart(day);
+      if (date === null || !isBefore(parseISO(date), today)) {
+        onTouchDragStart(date);
       }
     }
   }
 
-  function handleTouchMove(day: EventDate) {
-    if (!isViewMode && (day === null || !isBefore(parseISO(day), today))) {
-      onTouchDragMove(day);
+  function handleTouchMove(e: React.TouchEvent) {
+    const touch = e.touches[e.touches.length - 1];
+    const touchX = touch.clientX;
+    const touchY = touch.clientY;
+    const touchedElement = document.elementFromPoint(touchX, touchY);
+    const date: EventDate | null = touchedElement?.getAttribute("drag-select-attr") || null;
+
+    if (!isViewMode && date !== null && !isBefore(parseISO(date), today)) {
+      onTouchDragMove(date);
     }
   }
 
@@ -188,16 +197,6 @@ const EventDateCalendar = ({
 
   const weekDays: string[] = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-  const colStartClasses: string[] = [
-    "col-start-1",
-    "col-start-2",
-    "col-start-3",
-    "col-start-4",
-    "col-start-5",
-    "col-start-6",
-    "col-start-7"
-  ];
-
   const MotionButton = motion(Button);
 
   return (
@@ -208,13 +207,11 @@ const EventDateCalendar = ({
       onContextMenu={handleMouseUp}
       onMouseLeave={handleMouseUp}
       onMouseUp={handleMouseUp}
-      onTouchCancel={handleTouchEnd}
-      ref={ref}
     >
       <div className="mx-auto w-full">
         <div
           className={cn("flex items-center px-[1px]", {
-            "mb-4 text-2xl": size === "large"
+            "mb-3 text-2xl": size === "large"
           })}
         >
           <h1
@@ -228,8 +225,8 @@ const EventDateCalendar = ({
           {isNextAndPrevButtonsVisible && (
             <>
               <MotionButton
-                className={cn("ml-1 h-5 w-5 rounded-[.3rem] border-none px-[1px]", {
-                  "mr-1 h-6 w-6 rounded-[.4rem]": size === "large"
+                className={cn("h-5 w-5 rounded-[.3rem] border-none px-[1px]", {
+                  "h-7 w-7 rounded-[.4rem]": size === "large"
                 })}
                 onClick={setPrevMonth}
                 variant={isCurrentMonthEarliest ? "default-disabled" : "default"}
@@ -244,8 +241,8 @@ const EventDateCalendar = ({
               </MotionButton>
 
               <MotionButton
-                className={cn("ml-1 h-5 w-5 rounded-[.3rem] border-none px-[1px]", {
-                  "h-6 w-6 rounded-[.4rem]": size === "large"
+                className={cn("ml-2 h-5 w-5 rounded-[.3rem] border-none px-[1px]", {
+                  "h-7 w-7 rounded-[.4rem]": size === "large"
                 })}
                 onClick={setNextMonth}
                 variant={isCurrentMonthLatest ? "default-disabled" : "default"}
@@ -277,8 +274,8 @@ const EventDateCalendar = ({
           })}
         </div>
 
-        <div className="mt-2 grid grid-cols-7">
-          {days.map((day, dayIndex) => {
+        <div className="mt-2 grid grid-cols-7" ref={dragSelectContainerRef}>
+          {days.map((day) => {
             const formattedDay = format(day, EVENT_DATE_FORMAT);
             const formattedPrevDay = format(sub(day, { days: 1 }), EVENT_DATE_FORMAT);
             const formattedNextDay = format(add(day, { days: 1 }), EVENT_DATE_FORMAT);
@@ -294,97 +291,68 @@ const EventDateCalendar = ({
             const isFirstVisibleDay = visibleEventDates?.[0] === formattedDay;
 
             return (
-              <div
+              <Button
                 className={cn(
-                  dayIndex === 0 ? colStartClasses[getDay(day)] : "",
-                  size === "large" ? "py-5" : "py-1 sm:py-[3px]"
+                  size === "large" ? "my-5 h-12" : "my-1 h-7 sm:my-[3px] sm:h-[1.9rem]",
+                  "flex cursor-pointer items-center justify-center rounded-full border-2 border-primary-light/30 p-[1px] text-[0.9rem] font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0 sm:text-sm",
+                  !isDaySelected
+                    ? {
+                        "border-transparent bg-background": true,
+                        "text-secondary": isSameMonth(day, firstDayCurrentMonth),
+                        "text-secondary-light hover:text-secondary":
+                          !isToday(day) && !isSameMonth(day, firstDayCurrentMonth)
+                      }
+                    : {
+                        "bg-secondary hover:bg-secondary/80": isToday(day),
+                        "ml-auto w-full rounded-r-none border-r-0": isNextDaySelected && day.getDay() !== 6,
+                        "mr-auto w-full rounded-l-none": isPrevDaySelected && day.getDay() !== 0,
+                        "rounded-l-full": isNextDaySelected && !isPrevDaySelected,
+                        "rounded-r-full": isPrevDaySelected && !isNextDaySelected
+                      },
+                  isDaySelected && {
+                    "bg-secondary hover:bg-secondary/80": isToday(day),
+                    "ml-auto w-full rounded-r-none border-r-0": isNextDaySelected && day.getDay() !== 6,
+                    "mr-auto w-full rounded-l-none": isPrevDaySelected && day.getDay() !== 0,
+                    "rounded-l-full": isNextDaySelected && !isPrevDaySelected,
+                    "rounded-r-full": isPrevDaySelected && !isNextDaySelected
+                  },
+                  !isViewMode && {
+                    "text-gray-200 hover:bg-background hover:text-gray-200": isBeforeToday(day)
+                  },
+                  isViewMode && {
+                    "border-2 border-secondary/80": isFirstVisibleDay,
+                    "hover:bg-background": !isDaySelected
+                  },
+                  isViewMode &&
+                    !isDayVisible &&
+                    isDaySelected && {
+                      "bg-primary/40 hover:bg-primary/60": isToday(day),
+                      "border-l-0": !isPrevDayVisible && isPrevDaySelected && day.getDay() !== 0,
+                      "border-primary-light bg-accent-light text-secondary hover:bg-accent": true,
+                      "border-r-0": !isNextDayVisible && isNextDaySelected && day.getDay() !== 6
+                    },
+                  {
+                    "border-[1px] px-8 py-2 text-lg": size === "large",
+                    "font-bold text-primary": isToday(day) && !isDaySelected,
+                    "sm:text-lg": size === "large"
+                  }
                 )}
                 drag-select-attr={formattedDay}
                 id={id}
                 key={`calendar-day-${day}`}
-                onTouchEnd={() => {
-                  enableBodyScroll(ref.current);
-                  handleTouchEnd();
+                onMouseDown={() => {
+                  handleMouseDown(formattedDay);
                 }}
-                onTouchMove={(e) => {
-                  const touch = e.touches[0];
-                  //console.log((touch.target as HTMLElement).getAttribute("drag-select-attr"));
-                  const touchX = touch.clientX;
-                  const touchY = touch.clientY;
-                  const touchedElement = document.elementFromPoint(touchX, touchY);
-                  const date = touchedElement?.getAttribute("drag-select-attr") || null;
-                  handleTouchMove(date as EventDate);
-                }}
-                onTouchStart={(e) => {
-                  isTouch.current = true;
-                  disableBodyScroll(ref.current);
-                  const touch = e.touches[0];
-                  const touchX = touch.clientX;
-                  const touchY = touch.clientY;
-                  const touchedElement = document.elementFromPoint(touchX, touchY);
-                  const date = touchedElement?.getAttribute("drag-select-attr") || null;
-                  handleTouchStart(date as EventDate);
-                }}
+                onMouseEnter={() => handleMouseEnter(formattedDay)}
+                onTouchCancel={handleTouchEnd}
+                onTouchEnd={handleTouchEnd}
+                onTouchMove={handleTouchMove}
+                onTouchStart={handleTouchStart}
+                type="button"
+                variant={isDaySelected ? "default" : "outline"}
               >
-                <Button
-                  className={cn(
-                    "flex h-full w-full cursor-pointer items-center justify-center rounded-full border-2 border-primary-light/30 p-[1px] text-[0.9rem] font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0 sm:text-sm",
-                    !isDaySelected
-                      ? {
-                          "border-transparent bg-background": true,
-                          "text-secondary": isSameMonth(day, firstDayCurrentMonth),
-                          "text-secondary-light hover:text-secondary":
-                            !isToday(day) && !isSameMonth(day, firstDayCurrentMonth)
-                        }
-                      : {
-                          "bg-secondary hover:bg-secondary/80": isToday(day),
-                          "ml-auto w-full rounded-r-none border-r-0": isNextDaySelected && day.getDay() !== 6,
-                          "mr-auto w-full rounded-l-none": isPrevDaySelected && day.getDay() !== 0,
-                          "rounded-l-full": isNextDaySelected && !isPrevDaySelected,
-                          "rounded-r-full": isPrevDaySelected && !isNextDaySelected
-                        },
-                    isDaySelected && {
-                      "bg-secondary hover:bg-secondary/80": isToday(day),
-                      "ml-auto w-full rounded-r-none border-r-0": isNextDaySelected && day.getDay() !== 6,
-                      "mr-auto w-full rounded-l-none": isPrevDaySelected && day.getDay() !== 0,
-                      "rounded-l-full": isNextDaySelected && !isPrevDaySelected,
-                      "rounded-r-full": isPrevDaySelected && !isNextDaySelected
-                    },
-                    !isViewMode && {
-                      "text-gray-200 hover:bg-background hover:text-gray-200": isBeforeToday(day)
-                    },
-                    isViewMode && {
-                      "border-2 border-secondary/80": isFirstVisibleDay,
-                      "hover:bg-background": !isDaySelected
-                    },
-                    isViewMode &&
-                      !isDayVisible &&
-                      isDaySelected && {
-                        "bg-primary/40 hover:bg-primary/60": isToday(day),
-                        "border-l-0": !isPrevDayVisible && isPrevDaySelected && day.getDay() !== 0,
-                        "border-primary-light bg-accent-light text-secondary hover:bg-accent": true,
-                        "border-r-0": !isNextDayVisible && isNextDaySelected && day.getDay() !== 6
-                      },
-                    {
-                      "border-[1px] px-8 py-2 text-lg": size === "large",
-                      "font-bold text-primary": isToday(day) && !isDaySelected,
-                      "sm:text-lg": size === "large"
-                    }
-                  )}
-                  drag-select-attr={formattedDay}
-                  onMouseDown={() => {
-                    if (isTouch.current) return;
-                    handleMouseDown(formattedDay);
-                  }}
-                  onMouseEnter={() => handleMouseEnter(formattedDay)}
-                  type="button"
-                  variant={isDaySelected ? "default" : "outline"}
-                >
-                  <time dateTime={formattedDay} drag-select-attr={formattedDay}>
-                    {format(day, "d")}
-                  </time>
-                </Button>
-              </div>
+                {format(day, "d")}
+              </Button>
             );
           })}
         </div>

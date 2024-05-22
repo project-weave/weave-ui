@@ -13,9 +13,28 @@ type DaysOfWeekPickerProps = {
 const DAYS_OF_WEEK_TITLE = "Days of the Week";
 
 export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOfWeek, size }: DaysOfWeekPickerProps) {
-  const isTouch = useRef(false);
+  const dragSelectContainerRef = useRef<HTMLDivElement>(null);
+
   const { onDragEnd, onDragMove, onDragStart, onTouchDragEnd, onTouchDragMove, onTouchDragStart } =
-    useDragSelect<EventDate>(selectedDaysOfWeek, setSelectedDaysOfWeek);
+    useDragSelect<EventDate>(selectedDaysOfWeek, setSelectedDaysOfWeek, dragSelectContainerRef);
+
+  function handleTouchMove(e: React.TouchEvent) {
+    const touch = e.touches[0];
+    const touchX = touch.clientX;
+    const touchY = touch.clientY;
+    const touchedElement = document.elementFromPoint(touchX, touchY);
+    const date = touchedElement?.getAttribute("drag-select-attr") || null;
+    onTouchDragMove(date as EventDate);
+  }
+
+  function handleTouchStart(e: React.TouchEvent) {
+    const touch = e.touches[0];
+    const touchX = touch.clientX;
+    const touchY = touch.clientY;
+    const touchedElement = document.elementFromPoint(touchX, touchY);
+    const date = touchedElement?.getAttribute("drag-select-attr") || null;
+    onTouchDragStart(date as EventDate);
+  }
 
   return (
     <div
@@ -25,26 +44,7 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
       onContextMenu={onDragEnd}
       onMouseLeave={onDragEnd}
       onMouseUp={onDragEnd}
-      onTouchCancel={onTouchDragEnd}
-      onTouchEnd={onTouchDragEnd}
-      onTouchMove={(e) => {
-        isTouch.current = true;
-        const touch = e.touches[0];
-        const touchX = touch.clientX;
-        const touchY = touch.clientY;
-        const touchedElement = document.elementFromPoint(touchX, touchY);
-        const date = touchedElement?.getAttribute("drag-select-attr") || null;
-        onTouchDragMove(date as EventDate);
-      }}
-      onTouchStart={(e) => {
-        isTouch.current = true;
-        const touch = e.touches[0];
-        const touchX = touch.clientX;
-        const touchY = touch.clientY;
-        const touchedElement = document.elementFromPoint(touchX, touchY);
-        const date = touchedElement?.getAttribute("drag-select-attr") || null;
-        onTouchDragStart(date as EventDate);
-      }}
+      ref={dragSelectContainerRef}
     >
       {size === "large" && (
         <div className="mx-4 mb-6 mt-4">
@@ -75,13 +75,15 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
                   })}
                   drag-select-attr={date}
                   onMouseDown={() => {
-                    if (isTouch.current === true) return;
                     onDragStart(date);
                   }}
                   onMouseEnter={() => {
-                    if (isTouch.current === true) return;
                     onDragMove(date);
                   }}
+                  onTouchCancel={onTouchDragEnd}
+                  onTouchEnd={onTouchDragEnd}
+                  onTouchMove={handleTouchMove}
+                  onTouchStart={handleTouchStart}
                 />
               </div>
             </div>

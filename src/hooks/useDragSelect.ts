@@ -1,4 +1,5 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { clearAllBodyScrollLocks, disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
+import { Dispatch, RefObject, SetStateAction, useEffect, useState } from "react";
 
 export type DragStartHandler<T> = (item: T) => void;
 export type DragEndHandler = () => void;
@@ -16,18 +17,26 @@ type useDragSelectReturn<T> = {
   onDragStart: DragStartHandler<T>;
   onTouchDragEnd: DragEndHandler;
   onTouchDragMove: DragMoveHandler<T>;
-  onTouchDragStart: DragStartHandler<T>;
+  onTouchDragStart: DragStartHandler<null | T>;
 };
 
 export default function useDragSelect<T>(
   selected: Set<T>,
-  setSelected: Dispatch<SetStateAction<Set<T>>>
+  setSelected: Dispatch<SetStateAction<Set<T>>>,
+  containerRef: RefObject<HTMLElement>
 ): useDragSelectReturn<T> {
+  useEffect(() => {
+    return clearAllBodyScrollLocks();
+  }, []);
+
   const [isDragging, setIsDragging] = useState(false);
   const [mode, setMode] = useState<DragMode>(DragMode.NONE);
 
   const onTouchDragMove: DragMoveHandler<T> = (item: T) => {
     if (!isDragging) return;
+    if (containerRef && containerRef.current !== null) {
+      disableBodyScroll(containerRef.current);
+    }
 
     switch (mode) {
       case DragMode.NONE:
@@ -52,7 +61,7 @@ export default function useDragSelect<T>(
     }
   };
 
-  const onTouchDragStart: DragStartHandler<T> = (item: T) => {
+  const onTouchDragStart: DragStartHandler<null | T> = (item: null | T) => {
     setIsDragging(true);
     // With Touch Drag, we need to put the onTouch handlers on the container element so we need to account for when drag start doesn't start on a target element
     if (item === null) {
@@ -74,10 +83,17 @@ export default function useDragSelect<T>(
   };
 
   const onTouchDragEnd: DragEndHandler = () => {
+    if (containerRef && containerRef.current !== null) {
+      enableBodyScroll(containerRef.current);
+    }
     setIsDragging(false);
   };
 
   const onDragStart: DragMoveHandler<T> = (item: T) => {
+    if (containerRef && containerRef.current !== null) {
+      disableBodyScroll(containerRef.current);
+    }
+
     setIsDragging(true);
     setSelected((prev) => {
       const newSelected = new Set(prev);
