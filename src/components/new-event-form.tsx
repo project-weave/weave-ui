@@ -167,7 +167,7 @@ export default function NewEventForm() {
           >
             {isPending ? (
               <div className="flex justify-center">
-                <Loader2 className="mt-3 h-12 w-12 animate-spin text-primary" />
+                <Loader2 className="h-11 w-11 animate-spin text-primary" />
               </div>
             ) : (
               <Button
