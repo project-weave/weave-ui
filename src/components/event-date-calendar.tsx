@@ -209,28 +209,6 @@ const EventDateCalendar = ({
       onMouseLeave={handleMouseUp}
       onMouseUp={handleMouseUp}
       onTouchCancel={handleTouchEnd}
-      onTouchEnd={() => {
-        handleTouchEnd();
-        enableBodyScroll(ref.current);
-      }}
-      onTouchMove={(e) => {
-        const touch = e.touches[0];
-        const touchX = touch.clientX;
-        const touchY = touch.clientY;
-        const touchedElement = document.elementFromPoint(touchX, touchY);
-        const date = touchedElement?.getAttribute("drag-select-attr") || null;
-        handleTouchMove(date as EventDate);
-      }}
-      onTouchStart={(e) => {
-        isTouch.current = true;
-        disableBodyScroll(ref.current);
-        const touch = e.touches[0];
-        const touchX = touch.clientX;
-        const touchY = touch.clientY;
-        const touchedElement = document.elementFromPoint(touchX, touchY);
-        const date = touchedElement?.getAttribute("drag-select-attr") || null;
-        handleTouchStart(date as EventDate);
-      }}
       ref={ref}
     >
       <div className="mx-auto w-full">
@@ -324,6 +302,29 @@ const EventDateCalendar = ({
                 drag-select-attr={formattedDay}
                 id={id}
                 key={`calendar-day-${day}`}
+                onTouchEnd={() => {
+                  enableBodyScroll(ref.current);
+                  handleTouchEnd();
+                }}
+                onTouchMove={(e) => {
+                  const touch = e.touches[0];
+                  //console.log((touch.target as HTMLElement).getAttribute("drag-select-attr"));
+                  const touchX = touch.clientX;
+                  const touchY = touch.clientY;
+                  const touchedElement = document.elementFromPoint(touchX, touchY);
+                  const date = touchedElement?.getAttribute("drag-select-attr") || null;
+                  handleTouchMove(date as EventDate);
+                }}
+                onTouchStart={(e) => {
+                  isTouch.current = true;
+                  disableBodyScroll(ref.current);
+                  const touch = e.touches[0];
+                  const touchX = touch.clientX;
+                  const touchY = touch.clientY;
+                  const touchedElement = document.elementFromPoint(touchX, touchY);
+                  const date = touchedElement?.getAttribute("drag-select-attr") || null;
+                  handleTouchStart(date as EventDate);
+                }}
               >
                 <Button
                   className={cn(

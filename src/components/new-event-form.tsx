@@ -17,7 +17,7 @@ import { timeFilter } from "@/utils/date";
 import { addMinutes, format, isBefore, isEqual, parse } from "date-fns";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useToast } from "./ui/use-toast";
 
@@ -48,9 +48,6 @@ export default function NewEventForm() {
   const [startTime, setStartTime] = useState<EventTime>("9:00 am");
   const [endTime, setEndTime] = useState<EventTime>("9:00 pm");
 
-  const [isFormValid, setIsFormValid] = useState(false);
-  const [isTimeRangeValid, setIsTimeRangeValid] = useState(true);
-
   const router = useRouter();
   const { toast } = useToast();
   const { isPending, mutate } = useCreateEvent();
@@ -80,28 +77,20 @@ export default function NewEventForm() {
     };
   }, []);
 
-  useEffect(() => {
+  const isTimeRangeValid = useMemo(() => {
     const parsedStartTime = parse(startTime, TIME_FORMAT, new Date());
     const parsedEndTime = parse(endTime, TIME_FORMAT, new Date());
 
-    if (isBefore(parsedEndTime, parsedStartTime) || isEqual(parsedEndTime, parsedStartTime)) {
-      setIsTimeRangeValid(false);
-    } else {
-      setIsTimeRangeValid(true);
-    }
+    return !isBefore(parsedEndTime, parsedStartTime) && !isEqual(parsedEndTime, parsedStartTime);
   }, [startTime, endTime]);
 
-  useEffect(() => {
-    if (
-      eventName.trim() === "" ||
-      (availabilityType === AvailabilityType.SPECIFIC_DATES && selectedDates.size === 0) ||
-      (availabilityType === AvailabilityType.DAYS_OF_WEEK && selectedDaysOfWeek.size === 0) ||
-      !isTimeRangeValid
-    ) {
-      setIsFormValid(false);
-    } else {
-      setIsFormValid(true);
-    }
+  const isFormValid = useMemo(() => {
+    return (
+      eventName.trim() !== "" &&
+      ((availabilityType === AvailabilityType.SPECIFIC_DATES && selectedDates.size > 0) ||
+        (availabilityType === AvailabilityType.DAYS_OF_WEEK && selectedDaysOfWeek.size > 0)) &&
+      isTimeRangeValid
+    );
   }, [eventName, selectedDates, isTimeRangeValid, availabilityType, selectedDaysOfWeek]);
 
   function createEventHandler() {

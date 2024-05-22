@@ -28,11 +28,13 @@ export default function useDragSelect<T>(
 
   const onTouchDragMove: DragMoveHandler<T> = (item: T) => {
     if (!isDragging) return;
+
     switch (mode) {
       case DragMode.NONE:
         onTouchDragStart(item);
         break;
       case DragMode.ADD:
+        if (selected.has(item)) return;
         setSelected((prev) => {
           const newSelected = new Set(prev);
           newSelected.add(item);
@@ -40,6 +42,7 @@ export default function useDragSelect<T>(
         });
         break;
       case DragMode.REMOVE:
+        if (!selected.has(item)) return;
         setSelected((prev) => {
           const newSelected = new Set(prev);
           newSelected.delete(item);
@@ -51,6 +54,7 @@ export default function useDragSelect<T>(
 
   const onTouchDragStart: DragStartHandler<T> = (item: T) => {
     setIsDragging(true);
+    // With Touch Drag, we need to put the onTouch handlers on the container element so we need to account for when drag start doesn't start on a target element
     if (item === null) {
       setMode(DragMode.NONE);
       return;
@@ -90,20 +94,25 @@ export default function useDragSelect<T>(
 
   const onDragMove: DragStartHandler<T> = (item: T) => {
     if (!isDragging) return;
-    setSelected((prev) => {
-      const newSelected = new Set(prev);
-      switch (mode) {
-        case DragMode.ADD:
+
+    switch (mode) {
+      case DragMode.ADD:
+        if (selected.has(item)) return;
+        setSelected((prev) => {
+          const newSelected = new Set(prev);
           newSelected.add(item);
-          break;
-        case DragMode.REMOVE:
+          return newSelected;
+        });
+        break;
+      case DragMode.REMOVE:
+        if (!selected.has(item)) return;
+        setSelected((prev) => {
+          const newSelected = new Set(prev);
           newSelected.delete(item);
-          break;
-        default:
-          break;
-      }
-      return newSelected;
-    });
+          return newSelected;
+        });
+        break;
+    }
   };
 
   const onDragEnd: DragEndHandler = () => {
