@@ -52,7 +52,7 @@ export default function LandingPage() {
       </p>
 
       <Button
-        className="mt-20 h-auto px-8 py-3 text-sm sm:mt-16 md:mt-20 md:px-10 md:py-4 xl:px-12 xl:text-base"
+        className="mt-16 h-auto px-8 py-3 text-sm md:mt-20 md:px-10 md:py-4 xl:px-12 xl:text-base"
         onClick={() => {
           eventFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
         }}
@@ -60,7 +60,7 @@ export default function LandingPage() {
         {CREATE_A_WEAVE}
       </Button>
 
-      <div className="mb-24 mt-14 h-full w-full sm:mt-10 xl:mb-48 xl:mt-20 2xl:mb-[30rem]">
+      <div className="mb-24 mt-8 h-full w-full sm:mt-10 xl:mb-48 xl:mt-20 2xl:mb-[30rem]">
         <div className="pt-24 sm:pt-[6rem]" ref={eventFormRef}>
           <NewEventForm />
         </div>

@@ -15,6 +15,7 @@ import {
 import { cn } from "@/utils/cn";
 import { timeFilter } from "@/utils/date";
 import { addMinutes, format, isBefore, isEqual, parse } from "date-fns";
+import { AnimatePresence, motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -42,6 +43,7 @@ export default function NewEventForm() {
   const [selectedDates, setSelectedDates] = useState(new Set<EventDate>());
   const [availabilityType, setAvailabilityType] = useState(AvailabilityType.SPECIFIC_DATES);
   const [selectedDaysOfWeek, setSelectedDaysOfWeek] = useState(new Set<EventDate>());
+  const [animationKey, setAnimationKey] = useState(0);
 
   const [eventName, setEventName] = useState("");
 
@@ -65,17 +67,22 @@ export default function NewEventForm() {
         threshold: 0.75
       }
     );
-
-    if (formRef.current) {
-      observer.observe(formRef.current);
+    const formElement = formRef.current;
+    if (formElement) {
+      observer.observe(formElement);
     }
-
     return () => {
-      if (formRef.current) {
-        observer.unobserve(formRef.current);
+      if (formElement) {
+        observer.unobserve(formElement);
       }
     };
   }, []);
+
+  // useEffect(() => {
+  //   if (isFormInView) {
+  //     setAnimationKey((prev) => prev + 1);
+  //   }
+  // }, [isFormInView]);
 
   const isTimeRangeValid = useMemo(() => {
     const parsedStartTime = parse(startTime, TIME_FORMAT, new Date());
@@ -144,6 +151,57 @@ export default function NewEventForm() {
 
     return times;
   }
+
+  const formSubmissionButton = (
+    <>
+      <AnimatePresence>
+        {isFormInView && (
+          <motion.div
+            animate={{ translateY: 0 }}
+            className={cn(
+              "fixed bottom-0 left-0 flex w-full justify-center bg-white px-9 py-5 shadow-[0px_2px_6px_6px] shadow-gray-100 sm:hidden"
+            )}
+            exit={{ translateY: 70 }}
+            initial={{ translateY: 50 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+          >
+            {isPending ? (
+              <div className="flex justify-center">
+                <Loader2 className="mt-3 h-12 w-12 animate-spin text-primary" />
+              </div>
+            ) : (
+              <Button
+                className={cn(
+                  "bottom-3 left-0 w-full max-w-[26rem] rounded-xl border-[1px] border-primary py-2 align-bottom text-sm"
+                )}
+                disabled={!isFormValid}
+                onClick={createEventHandler}
+                type="submit"
+              >
+                {CREATE_EVENT}
+              </Button>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <div className="hidden sm:block">
+        {isPending ? (
+          <div className="flex justify-center">
+            <Loader2 className="mt-3 h-12 w-12 animate-spin text-primary" />
+          </div>
+        ) : (
+          <Button
+            className="mt-3 h-auto w-full rounded-xl border-[1px] border-primary py-3 align-bottom text-sm"
+            disabled={!isFormValid}
+            onClick={createEventHandler}
+            type="submit"
+          >
+            {CREATE_EVENT}
+          </Button>
+        )}
+      </div>
+    </>
+  );
 
   return (
     <div className="mb-10 flex select-none flex-row justify-center">
@@ -241,36 +299,7 @@ export default function NewEventForm() {
             <DaysOfWeekPicker selectedDaysOfWeek={selectedDaysOfWeek} setSelectedDaysOfWeek={setSelectedDaysOfWeek} />
           )}
         </div>
-        {/* <div className="mb-2 ml-1 flex items-center text-sm">
-              <Checkbox className="h-4 w-4" id="avail-notif" />
-              <label className="ml-2 pt-0 text-xs text-secondary" htmlFor="avail-notif">
-                {I_WANT_TO_BE_NOTIFIED}
-              </label>
-            </div> */}
-        <div
-          className={cn(
-            "bottom-0 left-0 flex justify-center shadow-[0px_2px_6px_6px] shadow-gray-100 sm:relative sm:bg-transparent sm:p-0 sm:shadow-none",
-            isFormInView && "fixed w-full bg-white px-9 py-5"
-          )}
-        >
-          {isPending ? (
-            <div className="flex justify-center">
-              <Loader2 className="mt-3 h-12 w-12 animate-spin text-primary" />
-            </div>
-          ) : (
-            <Button
-              className={cn(
-                "hidden h-auto w-full rounded-xl border-[1px] border-primary py-2 align-bottom text-sm sm:relative sm:bottom-0 sm:mt-3 sm:block sm:w-full sm:py-3",
-                isFormInView && "bottom-3 left-0 block max-w-[26rem]"
-              )}
-              disabled={!isFormValid}
-              onClick={createEventHandler}
-              type="submit"
-            >
-              {CREATE_EVENT}
-            </Button>
-          )}
-        </div>
+        {formSubmissionButton}
       </form>
       <div className="hidden w-[47rem] xl:block">
         {availabilityType === AvailabilityType.SPECIFIC_DATES ? (
