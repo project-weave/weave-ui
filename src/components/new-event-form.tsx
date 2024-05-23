@@ -43,7 +43,6 @@ export default function NewEventForm() {
   const [selectedDates, setSelectedDates] = useState(new Set<EventDate>());
   const [availabilityType, setAvailabilityType] = useState(AvailabilityType.SPECIFIC_DATES);
   const [selectedDaysOfWeek, setSelectedDaysOfWeek] = useState(new Set<EventDate>());
-  const [animationKey, setAnimationKey] = useState(0);
 
   const [eventName, setEventName] = useState("");
 
@@ -172,7 +171,7 @@ export default function NewEventForm() {
             ) : (
               <Button
                 className={cn(
-                  "bottom-3 left-0 w-full max-w-[26rem] rounded-xl border-[1px] border-primary py-2 align-bottom text-sm"
+                  "bottom-3 left-0 w-full max-w-[26rem] rounded-xl border-[1px] border-primary py-2 align-bottom text-sm "
                 )}
                 disabled={!isFormValid}
                 onClick={createEventHandler}
@@ -191,7 +190,7 @@ export default function NewEventForm() {
           </div>
         ) : (
           <Button
-            className="mt-3 h-auto w-full rounded-xl border-[1px] border-primary py-3 align-bottom text-sm"
+            className="mt-3 h-auto w-full rounded-xl border-[1px] border-primary py-3 align-bottom text-sm "
             disabled={!isFormValid}
             onClick={createEventHandler}
             type="submit"
@@ -214,7 +213,7 @@ export default function NewEventForm() {
         ref={formRef}
       >
         <div className="mb-4 flex flex-col md:mb-5">
-          <p className="mb-3 text-2xs font-medium text-secondary sm:mb-4">{WHAT_EVENT_NAME}</p>
+          <p className="mb-3 text-xs font-medium text-secondary sm:mb-4">{WHAT_EVENT_NAME}</p>
           <InputWithLabel
             id="event-name"
             label={EVENT_NAME_LABEL}
@@ -229,7 +228,7 @@ export default function NewEventForm() {
           />
         </div>
         <div className="mb-4 flex w-full flex-col md:mb-5">
-          <p className="mb-3 text-2xs font-medium text-secondary sm:mb-4">{WHAT_TIMES}</p>
+          <p className="mb-3 text-xs font-medium text-secondary sm:mb-4">{WHAT_TIMES}</p>
           <div className="flex w-full items-center justify-between">
             <DropdownWithLabel
               emptyOptionText={"Invalid time"}
@@ -252,11 +251,11 @@ export default function NewEventForm() {
             />
           </div>
         </div>
-        <div className="mb-5 flex flex-col text-sm md:mb-6">
-          <p className="mb-3 text-2xs font-medium text-secondary md:text-[.8rem]">{WHAT_AVAILABILITY}</p>
+        <div className="mb-5 flex flex-col  md:mb-6">
+          <p className="mb-3 text-xs font-medium text-secondary">{WHAT_AVAILABILITY}</p>
           <div className="flex w-full items-center justify-between">
             <Button
-              className={cn("h-auto w-full border-[1px] border-primary text-[.9rem]", {
+              className={cn("h-auto w-full border-[1px] border-primary text-sm", {
                 "hover:bg-primary": availabilityType === AvailabilityType.SPECIFIC_DATES
               })}
               onClick={() => setAvailabilityType(AvailabilityType.SPECIFIC_DATES)}
@@ -268,9 +267,9 @@ export default function NewEventForm() {
                 <div>Dates</div>
               </span>
             </Button>
-            <p className="mx-6 text-2xs text-secondary"> {OR} </p>
+            <p className="mx-6 text-xs text-secondary"> {OR} </p>
             <Button
-              className={cn("h-auto w-full border-[1px] border-primary text-[.9rem]", {
+              className={cn("h-auto w-full border-[1px] border-primary text-sm", {
                 "hover:bg-primary": availabilityType === AvailabilityType.DAYS_OF_WEEK
               })}
               onClick={() => setAvailabilityType(AvailabilityType.DAYS_OF_WEEK)}

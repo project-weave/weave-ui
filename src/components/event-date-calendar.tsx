@@ -217,7 +217,7 @@ const EventDateCalendar = ({
           <h1
             className={cn("flex-auto text-lg font-semibold text-secondary ", {
               "text-2xl": size === "large",
-              "text-xs": isViewMode
+              "text-sm": isViewMode
             })}
           >
             {format(firstDayCurrentMonth, "MMMM yyyy")}
@@ -264,13 +264,13 @@ const EventDateCalendar = ({
           )}
         </div>
         <hr className="mt-1 h-[0.1rem] bg-primary" />
-        <div className={cn("mt-3 grid grid-cols-7 text-center font-semibold leading-4 text-secondary-light")}>
+        <div className="mt-3 grid grid-cols-7 text-center font-semibold leading-4 text-secondary-light">
           {weekDays.map((weekDay) => {
             return (
               <p
-                className={cn("text-[0.9rem] sm:text-sm", {
-                  "mb-4 mt-6 sm:text-lg": size === "large",
-                  "sm:text-2xs": isViewMode
+                className={cn("text-sm sm:text-base", {
+                  "mb-4 mt-6 text-lg sm:text-lg": size === "large",
+                  "text-xs sm:text-xs": isViewMode
                 })}
                 key={`calendar-weekday-${weekDay}`}
               >
@@ -299,7 +299,7 @@ const EventDateCalendar = ({
             return (
               <Button
                 className={cn(
-                  "my-[3px] flex h-[1.9rem] cursor-pointer items-center justify-center rounded-full border-2 border-primary-light/30 p-[1px] text-xs font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
+                  "my-[3px] flex h-[1.9rem] cursor-pointer items-center justify-center rounded-full border-2 border-primary-light/30 p-[1px] text-sm font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
                   !isDaySelected
                     ? {
                         "border-transparent bg-background": true,
@@ -308,6 +308,7 @@ const EventDateCalendar = ({
                           !isToday(day) && !isSameMonth(day, firstDayCurrentMonth)
                       }
                     : {
+                        "bg-primary/60": !isSameMonth(day, firstDayCurrentMonth),
                         "bg-secondary hover:bg-secondary/80": isToday(day),
                         "ml-auto w-full rounded-r-none border-r-0": isNextDaySelected && day.getDay() !== 6,
                         "mr-auto w-full rounded-l-none": isPrevDaySelected && day.getDay() !== 0,
@@ -324,7 +325,7 @@ const EventDateCalendar = ({
                   isViewMode && {
                     "border-2 border-secondary/80": isFirstVisibleDay,
                     "hover:bg-background": !isDaySelected,
-                    "text-2xs": true
+                    "text-xs": true
                   },
                   isViewMode &&
                     !isDayVisible &&
@@ -337,7 +338,7 @@ const EventDateCalendar = ({
                   {
                     "font-bold text-primary": isToday(day) && !isDaySelected,
                     "my-[3px] h-6 px-2": isViewMode,
-                    "my-5 h-14 border-[1px] px-8 py-2 text-lg sm:text-lg": size === "large",
+                    "my-4 h-14 border-[1px] px-8 py-2 text-lg sm:text-lg": size === "large",
                     "text-gray-200 hover:bg-background hover:text-gray-200": !isViewMode && isBeforeToday(day)
                   }
                 )}

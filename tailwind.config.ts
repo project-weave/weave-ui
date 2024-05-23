@@ -63,11 +63,12 @@ module.exports = {
         }
       },
       fontSize: {
-        "2xs": "0.8rem",
-        "3xs": "0.7rem",
-        "4xs": "0.6rem",
-        sm: "1rem",
-        xs: "0.9rem"
+        "2xs": "0.7rem",
+        "3xs": "0.6rem",
+        "4xs": "0.55rem",
+        base: "1rem",
+        sm: "0.9rem",
+        xs: "0.8rem"
       }
       // keyframes: {
       //   "accordion-down": {

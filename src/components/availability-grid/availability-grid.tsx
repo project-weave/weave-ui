@@ -12,6 +12,7 @@ import useAvailabilityGridStore, {
   isViewMode,
   TimeSlot
 } from "@/store/availabilityGridStore";
+import { cn } from "@/utils/cn";
 import { addMinutes, format, parseISO } from "date-fns";
 import { useAnimate } from "framer-motion";
 import debounce from "lodash.debounce";
@@ -185,7 +186,7 @@ export default function AvailabilityGrid({
     setHoveredTimeSlot(null);
   }, []);
 
-  const columnHeaderHeight = availabilityType === AvailabilityType.SPECIFIC_DATES ? "3.2rem" : "3rem";
+  const columnHeaderHeight = availabilityType === AvailabilityType.SPECIFIC_DATES ? "3.2rem" : "2.7rem";
 
   return (
     <div
@@ -196,7 +197,9 @@ export default function AvailabilityGrid({
       // putting saveDragSelection here to handle the case where the user lets go of the mouse outside of the grid cells
       onMouseUp={saveDragSelection}
     >
-      <div className="mb-2 ml-14 h-[3.8rem]">
+      <div
+        className={cn("mb-2 ml-14 h-[3.8rem]", { "h-[2.7rem]": availabilityType === AvailabilityType.DAYS_OF_WEEK })}
+      >
         <AvailabilityGridHeader
           allParticipants={allParticipants}
           availabilityType={availabilityType}

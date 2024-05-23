@@ -55,7 +55,7 @@ const AvailabilityGridColumnHeader = ({
     <div className={cn("text-center", { "mr-2": isDateGapRight })}>
       {availabilityType === AvailabilityType.SPECIFIC_DATES && (
         <>
-          <h3 className="text-sm font-semibold text-primary">{format(parsedDate, "EEE")}</h3>
+          <h3 className=" font-semibold text-primary">{format(parsedDate, "EEE")}</h3>
           <div
             className={cn("m-auto flex w-fit items-center justify-center rounded-md border-2 border-transparent", {
               "border-secondary": isDateFocused
@@ -63,10 +63,10 @@ const AvailabilityGridColumnHeader = ({
           >
             <MotionButton
               className={cn(
-                "h-6 rounded-sm border-none bg-accent-light px-2 text-2xs font-semibold tracking-wide transition-all",
+                "h-6 rounded-sm border-none bg-accent-light px-2 text-xs font-semibold tracking-wide transition-all",
                 {
                   "bg-primary": isAllTimeSlotForDateSelected,
-                  "cursor-default bg-background text-xs text-secondary hover:bg-background": isViewMode(mode)
+                  "cursor-default bg-background text-sm text-secondary hover:bg-background": isViewMode(mode)
                 }
               )}
               onClick={dateClickedHandler}
@@ -83,10 +83,10 @@ const AvailabilityGridColumnHeader = ({
           {/* <h3 className="py-3 text-xl font-semibold text-secondary">{format(parsedDate, "EEE")}</h3> */}
           <MotionButton
             className={cn(
-              "mt-2 h-8 w-10 rounded-xl border-none bg-accent-light px-12 py-5 text-xl font-semibold tracking-wide transition-all",
+              "mt-3 h-8 w-16 rounded-xl border-none bg-accent-light px-3 py-2 font-semibold tracking-wide transition-all",
               {
                 "bg-primary": isAllTimeSlotForDateSelected,
-                "cursor-default bg-background text-xl text-secondary hover:bg-background": isViewMode(mode)
+                "cursor-default bg-background text-lg text-secondary hover:bg-background": isViewMode(mode)
               }
             )}
             onClick={dateClickedHandler}

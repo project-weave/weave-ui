@@ -45,7 +45,7 @@ export default function DropdownWithLabel({
         <div className="relative w-full">
           <div
             className={cn(
-              "peer box-border flex h-10 items-center rounded-2xl bg-background px-4 pb-2.5 pt-3 text-sm outline outline-2 outline-primary/40 focus-within:outline-primary hover:outline-primary sm:text-sm",
+              "peer box-border flex h-10 items-center rounded-2xl bg-background px-4 pb-2.5 pt-3 outline outline-2 outline-primary/40 focus-within:outline-primary hover:outline-primary",
               {
                 "outline-primary": open,
                 "outline-red-600/40 focus-within:outline-red-600 hover:outline-red-600": error
@@ -68,9 +68,9 @@ export default function DropdownWithLabel({
       </PopoverTrigger>
       <PopoverContent className="w-[130px] border-2 border-primary p-0 sm:w-[150px]">
         <Command className="bg-background" filter={(value, search) => filterFunc(value, search)}>
-          <CommandInput className="border-primary py-5 text-xs" />
+          <CommandInput className="border-primary py-5 text-sm" />
           {emptyOptionText !== undefined && emptyOptionText !== "" && (
-            <CommandEmpty className="m-2 rounded-sm bg-gray-200 py-1.5 text-center text-2xs">
+            <CommandEmpty className="m-2 rounded-sm bg-gray-200 py-1.5 text-center text-xs">
               {emptyOptionText}
             </CommandEmpty>
           )}
@@ -80,7 +80,7 @@ export default function DropdownWithLabel({
           >
             {options.map((option) => (
               <CommandItem
-                className={cn("my-[1px] mr-2 flex items-center justify-between text-xs hover:bg-primary/20 ", {
+                className={cn("my-[1px] mr-2 flex items-center justify-between text-sm hover:bg-primary/20 ", {
                   "mb-1 border-[1px] border-primary md:border-[1.5px]": selected === option
                 })}
                 data-value={option}

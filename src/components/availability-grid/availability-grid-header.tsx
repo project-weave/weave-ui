@@ -113,7 +113,9 @@ export default function AvailabilityGridHeader({
   return (
     <>
       <div
-        className="grid grid-cols-2 items-center"
+        className={cn("grid grid-cols-2 items-center", {
+          "mb-2 mt-2": availabilityType === AvailabilityType.DAYS_OF_WEEK
+        })}
         style={{
           gridTemplateColumns: "40% 60%"
         }}
@@ -129,8 +131,6 @@ export default function AvailabilityGridHeader({
             </h1>
           )}
         </div>
-
-        {availabilityType === AvailabilityType.DAYS_OF_WEEK && <div className="h-12"></div>}
 
         <div className="mb-1 flex w-full items-center">
           <div
@@ -163,7 +163,7 @@ export default function AvailabilityGridHeader({
                 whileTap={!firstColInView ? { scale: 0.88 } : {}}
               >
                 <span className="sr-only">Previous Columns</span>
-                <ChevronLeft className="h-5 w-5 stroke-[3px]" />
+                <ChevronLeft className="h-5 w-6 stroke-[3px]" />
               </MotionButton>
               <MotionButton
                 className="ml-[5px] h-7 w-7 rounded-sm px-[2px] py-0"

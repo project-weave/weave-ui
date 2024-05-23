@@ -119,7 +119,7 @@ export default function AvailbilityGridInfoPanel({
 
   return (
     <div className="card flex h-full cursor-pointer flex-col px-4">
-      <div className="relative flex justify-between text-ellipsis rounded-2xl border-2 border-primary px-3 py-2 text-xs font-medium text-secondary">
+      <div className="relative flex justify-between text-ellipsis rounded-2xl border-2 border-primary px-3 py-2 text-sm font-medium text-secondary">
         {eventName}
         <Button
           className="absolute -end-1 -top-[1.5px] h-10 rounded-2xl hover:bg-primary-hover hover:opacity-100"
@@ -139,8 +139,8 @@ export default function AvailbilityGridInfoPanel({
       <div className="m-3 select-none">
         <div className="flex items-center justify-between">
           <div className="flex font-medium">
-            <p className="text-xs text-secondary">{RESPONSES_TITLE}</p>
-            <p className="ml-4 text-xs text-secondary">
+            <p className="text-sm text-secondary">{RESPONSES_TITLE}</p>
+            <p className="ml-4 text-sm text-secondary">
               {currentRepsonseCount}/{totalResponseCount}
             </p>
           </div>

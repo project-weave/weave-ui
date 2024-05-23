@@ -60,8 +60,8 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
           return (
             <div className="flex flex-col items-center text-secondary" key={`days-of-weeks-picker-${date}`}>
               <label
-                className={cn("mb-4 text-sm font-medium md:mb-2 md:text-sm", {
-                  "md:mb-5 md:text-lg": size === "large"
+                className={cn("mb-3 text-sm font-medium md:mb-2", {
+                  "font-semibold md:mb-5 md:text-lg": size === "large"
                 })}
                 htmlFor={`days-of-weeks-picker-${date}`}
               >
