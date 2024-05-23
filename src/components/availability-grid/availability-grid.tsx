@@ -15,7 +15,7 @@ import useAvailabilityGridStore, {
 import { addMinutes, format, parseISO } from "date-fns";
 import { useAnimate } from "framer-motion";
 import debounce from "lodash.debounce";
-import { RefObject, useCallback, useEffect, useRef, useState } from "react";
+import { RefObject, useCallback, useEffect } from "react";
 import { isFirefox } from "react-device-detect";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { ListChildComponentProps, VariableSizeList } from "react-window";
@@ -35,15 +35,11 @@ type AvailbilityGridProps = {
   eventId: string;
   eventResponses: EventResponse[];
   eventStartTime: EventTime;
-  gridContainerRef: RefObject<ExtendedVariableSizeList>;
+  gridContainerRef: RefObject<VariableSizeList>;
   sortedEventDates: EventDate[];
   sortedEventTimes: EventTime[];
   timeSlotsToParticipants: Record<TimeSlot, string[]>;
 };
-
-interface ExtendedVariableSizeList extends VariableSizeList {
-  _outerRef: HTMLDivElement;
-}
 
 export default function AvailabilityGrid({
   allParticipants,
@@ -158,26 +154,6 @@ export default function AvailabilityGrid({
     addSelectedTimeSlots,
     removeSelectedTimeSlots
   );
-
-  const containerRef = useRef<AutoSizer>(null);
-  const [hasScrollbar, setHasScrollbar] = useState(false);
-
-  // useEffect(() => {
-  //   const checkForScrollbar = () => {
-  //     if (current) {
-  //       const hasScrollbar = gridContainerRef.current?.context > current.clientHeight;
-  //       setHasScrollbar(hasScrollbar);
-  //     }
-  //   };
-
-  //   checkForScrollbar();
-
-  //   // Optionally, add a resize observer to handle dynamic content changes
-  //   const resizeObserver = new ResizeObserver(() => checkForScrollbar());
-  //   resizeObserver.observe(containerRef.current);
-
-  //   return () => resizeObserver.disconnect();
-  // }, []);
 
   const handleCellMouseEnter = useCallback(
     (row: number, col: number) => {

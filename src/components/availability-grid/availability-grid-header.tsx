@@ -163,7 +163,7 @@ export default function AvailabilityGridHeader({
                 whileTap={!firstColInView ? { scale: 0.88 } : {}}
               >
                 <span className="sr-only">Previous Columns</span>
-                <ChevronLeft className="h-7 w-7 stroke-[3px]" />
+                <ChevronLeft className="h-5 w-5 stroke-[3px]" />
               </MotionButton>
               <MotionButton
                 className="ml-[5px] h-7 w-7 rounded-sm px-[2px] py-0"
@@ -172,7 +172,7 @@ export default function AvailabilityGridHeader({
                 whileTap={!lastColInView ? { scale: 0.88 } : {}}
               >
                 <span className="sr-only">Next Columns</span>
-                <ChevronRight className="h-7 w-7 stroke-[3px]" />
+                <ChevronRight className="h-5 w-5 stroke-[3px]" />
               </MotionButton>
             </div>
           )}
