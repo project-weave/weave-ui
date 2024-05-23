@@ -70,7 +70,7 @@ export default function DropdownWithLabel({
         <Command className="bg-background" filter={(value, search) => filterFunc(value, search)}>
           <CommandInput className="border-primary py-5 text-sm" />
           {emptyOptionText !== undefined && emptyOptionText !== "" && (
-            <CommandEmpty className="m-2 rounded-sm bg-gray-200 py-1.5 text-center text-xs">
+            <CommandEmpty className="m-2 rounded-sm bg-gray-200 py-1.5 text-center text-2xs">
               {emptyOptionText}
             </CommandEmpty>
           )}

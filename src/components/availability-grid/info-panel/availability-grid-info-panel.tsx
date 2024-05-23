@@ -17,23 +17,23 @@ import AvailabilityGridResponseFilterButton from "./availability-grid-response-f
 const RESPONSES_TITLE = "Responses";
 
 type AvailabilityGridInfoPanelProps = {
+  allParticipants: string[];
   availabilityType: AvailabilityType;
   eventDates: EventDate[];
   eventName: string;
   gridContainerRef: React.MutableRefObject<null | VariableSizeList>;
-  timeSlotsToParticipants: Readonly<Record<TimeSlot, string[]>>;
-  allParticipants: string[];
   sortedEventDates: EventDate[];
+  timeSlotsToParticipants: Readonly<Record<TimeSlot, string[]>>;
 };
 
 export default function AvailbilityGridInfoPanel({
+  allParticipants,
   availabilityType,
   eventDates,
   eventName,
   gridContainerRef,
-  timeSlotsToParticipants,
-  allParticipants,
-  sortedEventDates
+  sortedEventDates,
+  timeSlotsToParticipants
 }: AvailabilityGridInfoPanelProps) {
   const userFilter = useAvailabilityGridStore(useShallow((state) => state.userFilter));
   const setUserFilter = useAvailabilityGridStore((state) => state.setUserFilter);
@@ -119,10 +119,10 @@ export default function AvailbilityGridInfoPanel({
 
   return (
     <div className="card flex h-full cursor-pointer flex-col px-4">
-      <div className="text-md relative flex justify-between text-ellipsis rounded-2xl border-2 border-primary px-3 py-2 font-medium text-secondary">
+      <div className="relative flex justify-between text-ellipsis rounded-2xl border-2 border-primary px-3 py-2 text-xs font-medium text-secondary">
         {eventName}
         <Button
-          className="absolute -end-1 -top-[1.5px] h-11 rounded-2xl hover:bg-primary-hover hover:opacity-100"
+          className="absolute -end-1 -top-[1.5px] h-10 rounded-2xl hover:bg-primary-hover hover:opacity-100"
           onClick={() => {
             navigator.clipboard.writeText(window.location.href);
             toast({
@@ -139,8 +139,8 @@ export default function AvailbilityGridInfoPanel({
       <div className="m-3 select-none">
         <div className="flex items-center justify-between">
           <div className="flex font-medium">
-            <p className="text-secondary">{RESPONSES_TITLE}</p>
-            <p className="ml-4 text-secondary">
+            <p className="text-xs text-secondary">{RESPONSES_TITLE}</p>
+            <p className="ml-4 text-xs text-secondary">
               {currentRepsonseCount}/{totalResponseCount}
             </p>
           </div>

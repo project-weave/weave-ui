@@ -67,13 +67,13 @@ export default function EditAvailabilityDialog({ allParticipants, handleUserChan
         <DialogTitle>Edit Availability</DialogTitle>
       </DialogHeader>
       <Button className="mx-8 mt-2" disabled variant="outline">
-        <p className="mr-2 text-xs">{LOGIN_WITH_GOOGLE}</p>
+        <p className="mr-2 text-2xs">{LOGIN_WITH_GOOGLE}</p>
         <Image alt="google-logo" className="h-4 w-4" height={40} src="/google.png" width={40} />
       </Button>
 
-      <div className="flex-column my-2 flex w-full items-center text-xs">
+      <div className="flex-column my-2 flex w-full items-center text-2xs">
         <hr className="h-[2px] w-full bg-secondary" />
-        <span className="mx-4 whitespace-nowrap text-xs text-secondary">{CONTINUE_WITHOUT_LOGIN}</span>
+        <span className="mx-4 whitespace-nowrap text-2xs text-secondary">{CONTINUE_WITHOUT_LOGIN}</span>
         <hr className="h-[2px] w-full bg-secondary" />
       </div>
 
@@ -88,7 +88,7 @@ export default function EditAvailabilityDialog({ allParticipants, handleUserChan
                 value="new"
               />
               <Label
-                className={cn("text-xs text-secondary", {
+                className={cn("text-2xs text-secondary", {
                   "font-medium": isEnterNewAvailability
                 })}
                 htmlFor="r1"
@@ -104,7 +104,7 @@ export default function EditAvailabilityDialog({ allParticipants, handleUserChan
                 value="existing"
               />
               <Label
-                className={cn("text-xs text-secondary", {
+                className={cn("text-2xs text-secondary", {
                   "font-medium": !isEnterNewAvailability
                 })}
                 htmlFor="r2"
@@ -118,7 +118,7 @@ export default function EditAvailabilityDialog({ allParticipants, handleUserChan
       {isEnterNewAvailability ? (
         <div className="mb-5 mt-4 flex flex-col">
           <InputWithError
-            className="mx-auto w-[86%] py-[11px] text-xs"
+            className="mx-auto w-[86%] py-[11px] text-2xs"
             errorText={nameAlreadyTaken ? "Name already taken" : undefined}
             id="name"
             onChange={(e) => setEnteredUserName(e.target.value)}
@@ -128,7 +128,7 @@ export default function EditAvailabilityDialog({ allParticipants, handleUserChan
         </div>
       ) : (
         <div className="mb-6 mt-4">
-          <Label className="mb-2 ml-4 text-xs font-semibold text-secondary">{SELECT_EXISTING_USER}</Label>
+          <Label className="mb-2 ml-4 text-2xs font-semibold text-secondary">{SELECT_EXISTING_USER}</Label>
           <hr className="mx-auto mt-1 h-[1px] w-[95%] bg-secondary" />
           <div className="mx-3 mt-3 max-h-64 overflow-y-scroll scroll-smooth px-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full">
             {allParticipants.map((paricipant) => (
@@ -145,7 +145,7 @@ export default function EditAvailabilityDialog({ allParticipants, handleUserChan
                 whileTap={{ scale: 0.92 }}
               >
                 <User className="h-4 w-4" />
-                <span className="mx-1 max-w-[6rem] overflow-hidden text-ellipsis whitespace-nowrap text-2xs">
+                <span className="mx-1 max-w-[6rem] overflow-hidden text-ellipsis whitespace-nowrap text-3xs">
                   {paricipant}
                 </span>
               </motion.button>
@@ -155,7 +155,7 @@ export default function EditAvailabilityDialog({ allParticipants, handleUserChan
       )}
       <DialogFooter>
         <DialogClose asChild>
-          <Button className="min-w-[6rem] text-xs" disabled={!validUserName} onClick={onSubmit} type="submit">
+          <Button className="min-w-[6rem] text-2xs" disabled={!validUserName} onClick={onSubmit} type="submit">
             {CONTINUE}
           </Button>
         </DialogClose>

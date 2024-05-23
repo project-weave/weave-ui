@@ -12,9 +12,9 @@ export enum DragMode {
 }
 
 type useDragSelectReturn<T> = {
-  onDragEnd: DragEndHandler;
-  onDragMove: DragMoveHandler<T>;
-  onDragStart: DragStartHandler<T>;
+  onMouseDragEnd: DragEndHandler;
+  onMouseDragMove: DragMoveHandler<T>;
+  onMouseDragStart: DragStartHandler<T>;
   onTouchDragEnd: DragEndHandler;
   onTouchDragMove: DragMoveHandler<T>;
   onTouchDragStart: DragStartHandler<null | T>;
@@ -31,6 +31,48 @@ export default function useDragSelect<T>(
 
   const [isDragging, setIsDragging] = useState(false);
   const [mode, setMode] = useState<DragMode>(DragMode.NONE);
+
+  const onMouseDragStart: DragMoveHandler<T> = (item: T) => {
+    setIsDragging(true);
+    setSelected((prev) => {
+      const newSelected = new Set(prev);
+      if (!selected.has(item)) {
+        setMode(DragMode.ADD);
+        newSelected.add(item);
+      } else {
+        setMode(DragMode.REMOVE);
+        newSelected.delete(item);
+      }
+      return newSelected;
+    });
+  };
+
+  const onMouseDragMove: DragStartHandler<T> = (item: T) => {
+    if (!isDragging) return;
+
+    switch (mode) {
+      case DragMode.ADD:
+        if (selected.has(item)) return;
+        setSelected((prev) => {
+          const newSelected = new Set(prev);
+          newSelected.add(item);
+          return newSelected;
+        });
+        break;
+      case DragMode.REMOVE:
+        if (!selected.has(item)) return;
+        setSelected((prev) => {
+          const newSelected = new Set(prev);
+          newSelected.delete(item);
+          return newSelected;
+        });
+        break;
+    }
+  };
+
+  const onMouseDragEnd: DragEndHandler = () => {
+    setIsDragging(false);
+  };
 
   const onTouchDragMove: DragMoveHandler<T> = (item: T) => {
     if (!isDragging) return;
@@ -62,6 +104,9 @@ export default function useDragSelect<T>(
   };
 
   const onTouchDragStart: DragStartHandler<null | T> = (item: null | T) => {
+    if (containerRef && containerRef.current !== null) {
+      disableBodyScroll(containerRef.current);
+    }
     setIsDragging(true);
     // With Touch Drag, we need to put the onTouch handlers on the container element so we need to account for when drag start doesn't start on a target element
     if (item === null) {
@@ -89,56 +134,10 @@ export default function useDragSelect<T>(
     setIsDragging(false);
   };
 
-  const onDragStart: DragMoveHandler<T> = (item: T) => {
-    if (containerRef && containerRef.current !== null) {
-      disableBodyScroll(containerRef.current);
-    }
-
-    setIsDragging(true);
-    setSelected((prev) => {
-      const newSelected = new Set(prev);
-      if (!selected.has(item)) {
-        setMode(DragMode.ADD);
-        newSelected.add(item);
-      } else {
-        setMode(DragMode.REMOVE);
-        newSelected.delete(item);
-      }
-      return newSelected;
-    });
-  };
-
-  const onDragMove: DragStartHandler<T> = (item: T) => {
-    if (!isDragging) return;
-
-    switch (mode) {
-      case DragMode.ADD:
-        if (selected.has(item)) return;
-        setSelected((prev) => {
-          const newSelected = new Set(prev);
-          newSelected.add(item);
-          return newSelected;
-        });
-        break;
-      case DragMode.REMOVE:
-        if (!selected.has(item)) return;
-        setSelected((prev) => {
-          const newSelected = new Set(prev);
-          newSelected.delete(item);
-          return newSelected;
-        });
-        break;
-    }
-  };
-
-  const onDragEnd: DragEndHandler = () => {
-    setIsDragging(false);
-  };
-
   return {
-    onDragEnd,
-    onDragMove,
-    onDragStart,
+    onMouseDragEnd,
+    onMouseDragMove,
+    onMouseDragStart,
     onTouchDragEnd,
     onTouchDragMove,
     onTouchDragStart

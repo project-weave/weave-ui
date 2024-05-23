@@ -55,26 +55,25 @@ const AvailabilityGridColumnHeader = ({
     <div className={cn("text-center", { "mr-2": isDateGapRight })}>
       {availabilityType === AvailabilityType.SPECIFIC_DATES && (
         <>
-          <h3 className="pb-0 text-lg font-bold text-primary">{format(parsedDate, "MMM")}</h3>
-          <h3 className="mb-[5px] text-sm font-medium leading-4 text-secondary-light">{format(parsedDate, "EEE")}</h3>
+          <h3 className="text-sm font-semibold text-primary">{format(parsedDate, "EEE")}</h3>
           <div
-            className={cn("m-auto flex h-9 w-11 items-center justify-center rounded-md border-2 border-transparent", {
+            className={cn("m-auto flex w-fit items-center justify-center rounded-md border-2 border-transparent", {
               "border-secondary": isDateFocused
             })}
           >
             <MotionButton
               className={cn(
-                "h-8 w-10 rounded-sm border-none bg-accent-light  text-lg font-semibold tracking-wide transition-all",
+                "h-6 rounded-sm border-none bg-accent-light px-2 text-2xs font-semibold tracking-wide transition-all",
                 {
                   "bg-primary": isAllTimeSlotForDateSelected,
-                  "cursor-default bg-background text-xl text-secondary hover:bg-background": isViewMode(mode)
+                  "cursor-default bg-background text-xs text-secondary hover:bg-background": isViewMode(mode)
                 }
               )}
               onClick={dateClickedHandler}
               variant={isAllTimeSlotForDateSelected ? "default" : "outline"}
               whileTap={isEditMode(mode) ? { scale: 0.9 } : {}}
             >
-              <time dateTime={eventDate}>{format(parsedDate, "d")}</time>
+              <time dateTime={eventDate}>{format(parsedDate, "MMM d")}</time>
             </MotionButton>
           </div>
         </>

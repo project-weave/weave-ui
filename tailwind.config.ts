@@ -7,8 +7,11 @@ module.exports = {
   future: {
     hoverOnlyWhenSupported: true
   },
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  plugins: [require("tailwindcss-animate"), require("tailwind-scrollbar")({ nocompatible: true })],
+  plugins: [
+    require("tailwindcss-animate"),
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    require("tailwind-scrollbar")({ nocompatible: true })
+  ],
   theme: {
     container: {
       center: true,
@@ -60,10 +63,11 @@ module.exports = {
         }
       },
       fontSize: {
-        "2xs": "0.7rem",
-        "3xs": "0.65rem",
+        "2xs": "0.8rem",
+        "3xs": "0.7rem",
         "4xs": "0.6rem",
-        sm: "1rem"
+        sm: "1rem",
+        xs: "0.9rem"
       }
       // keyframes: {
       //   "accordion-down": {

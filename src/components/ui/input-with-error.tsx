@@ -20,7 +20,7 @@ export default function InputWithLabel({ className, errorText, type, ...props }:
         {...props}
       />
       <Label
-        className={cn("absolute -bottom-5 left-4 text-xs text-red-600", {
+        className={cn("absolute -bottom-5 left-4 text-2xs text-red-600", {
           hidden: !errorText || errorText.length === 0
         })}
       >

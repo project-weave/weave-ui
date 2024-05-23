@@ -15,7 +15,7 @@ export default function LandingPage() {
   const wordHeight = 77;
 
   return (
-    <div className="flex h-fit w-full flex-col items-center">
+    <div className="mt-14 flex h-fit w-full flex-col items-center">
       <div className="grid w-full">
         <h1 className="flex flex-col text-center text-[2.6rem] font-semibold leading-[3.2rem] sm:mt-8 sm:leading-[3rem] md:text-[3.7rem] md:leading-[4rem] xl:text-[4.3rem] xl:leading-[4.3rem]">
           <div>find time for</div>
@@ -60,7 +60,7 @@ export default function LandingPage() {
         {CREATE_A_WEAVE}
       </Button>
 
-      <div className="mb-24 mt-8 h-full w-full sm:mt-10 xl:mb-48 xl:mt-20 2xl:mb-[30rem]">
+      <div className="mb-16 mt-8 h-full w-full sm:mb-24 sm:mt-10 xl:mb-48 xl:mt-20 2xl:mb-[30rem]">
         <div className="pt-24 sm:pt-[6rem]" ref={eventFormRef}>
           <NewEventForm />
         </div>

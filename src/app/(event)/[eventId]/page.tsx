@@ -1,7 +1,6 @@
 "use client";
 import AvailabilityGrid from "@/components/availability-grid/availability-grid";
 import AvailabilityGridInfoPanel from "@/components/availability-grid/info-panel/availability-grid-info-panel";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import useGetEvent, { GetEventResponse } from "@/hooks/requests/useGetEvent";
 import {
@@ -27,13 +26,13 @@ export default function Event() {
 
   if (isPending) {
     return (
-      <div className="grid h-fit min-h-[50rem] grid-flow-col justify-center gap-3 pb-4">
-        <div className="w-[20rem]">
+      <div className="grid h-fit min-h-[50rem] w-full grid-flow-col justify-center gap-3 pb-4">
+        {/* <div className="w-[20rem]">
           <Skeleton className="h-full w-full rounded-md bg-primary-light/30" />
         </div>
         <div className="w-[60rem]">
           <Skeleton className="h-full w-full rounded-md bg-primary-light/30" />
-        </div>
+        </div> */}
       </div>
     );
   }
@@ -65,11 +64,8 @@ export default function Event() {
   const availabilityType = event.isSpecificDates ? AvailabilityType.SPECIFIC_DATES : AvailabilityType.DAYS_OF_WEEK;
 
   const sortedEventTimes: EventTime[] = [];
-
   let currentTime = parseISO(getTimeSlot(event.startTime));
-
   const endTime = parseISO(getTimeSlot(event.endTime));
-
   while (currentTime <= endTime) {
     const formattedTime = format(currentTime, EVENT_TIME_FORMAT);
     sortedEventTimes.push(formattedTime);
@@ -99,8 +95,8 @@ export default function Event() {
   });
 
   return (
-    <div className="grid h-fit grid-flow-col justify-center gap-3 pb-4">
-      <div className="w-[20rem]">
+    <div className="mt-4 grid h-fit w-full grid-flow-col justify-center gap-3 pb-4">
+      <div className="hidden w-[20rem] lg:block">
         <AvailabilityGridInfoPanel
           allParticipants={allParticipants}
           availabilityType={availabilityType}
@@ -111,7 +107,7 @@ export default function Event() {
           timeSlotsToParticipants={timeSlotsToParticipants}
         />
       </div>
-      <div className="min-h-[50rem]">
+      <div className="min-h-[40rem] w-[56rem] sm:min-h-[44rem]">
         <AvailabilityGrid
           allParticipants={allParticipants}
           availabilityType={availabilityType}

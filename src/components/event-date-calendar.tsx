@@ -76,7 +76,7 @@ const EventDateCalendar = ({
   }
   const [currentMonth, setCurrentMonth] = useState(defaultMonth);
 
-  const { onDragEnd, onDragMove, onDragStart, onTouchDragEnd, onTouchDragMove, onTouchDragStart } =
+  const { onMouseDragEnd, onMouseDragMove, onMouseDragStart, onTouchDragEnd, onTouchDragMove, onTouchDragStart } =
     useDragSelect<EventDate>(selectedDates, setSelectedDates!, dragSelectContainerRef);
 
   useEffect(() => {
@@ -139,7 +139,7 @@ const EventDateCalendar = ({
 
   function handleMouseEnter(day: EventDate) {
     if (!isViewMode && !isBefore(parseISO(day), today)) {
-      onDragMove(day);
+      onMouseDragMove(day);
     }
   }
 
@@ -150,7 +150,7 @@ const EventDateCalendar = ({
       }
     } else {
       if (!isBefore(parseISO(day), today)) {
-        onDragStart(day);
+        onMouseDragStart(day);
       }
     }
   }
@@ -163,7 +163,7 @@ const EventDateCalendar = ({
 
   function handleMouseUp() {
     if (!isViewMode) {
-      onDragEnd();
+      onMouseDragEnd();
     }
   }
 
@@ -216,7 +216,8 @@ const EventDateCalendar = ({
         >
           <h1
             className={cn("flex-auto text-lg font-semibold text-secondary ", {
-              "text-2xl": size === "large"
+              "text-2xl": size === "large",
+              "text-xs": isViewMode
             })}
           >
             {format(firstDayCurrentMonth, "MMMM yyyy")}
@@ -226,6 +227,7 @@ const EventDateCalendar = ({
             <>
               <MotionButton
                 className={cn("h-6 w-6 rounded-[.4rem] border-none px-[1px]", {
+                  "h-5 w-5": isViewMode,
                   "h-7 w-7": size === "large"
                 })}
                 onClick={setPrevMonth}
@@ -235,6 +237,7 @@ const EventDateCalendar = ({
                 <span className="sr-only">Previous Columns</span>
                 <ChevronLeft
                   className={cn("h-5 w-5 stroke-[3px]", {
+                    "h-4 w-4": isViewMode,
                     "h-6 w-6": size === "large"
                   })}
                 />
@@ -242,6 +245,7 @@ const EventDateCalendar = ({
 
               <MotionButton
                 className={cn("ml-[6px] h-6 w-6 rounded-[.4rem] border-none px-[1px]", {
+                  "h-5 w-5": isViewMode,
                   "h-7 w-7": size === "large"
                 })}
                 onClick={setNextMonth}
@@ -250,7 +254,8 @@ const EventDateCalendar = ({
               >
                 <span className="sr-only">Next Columns</span>
                 <ChevronRight
-                  className={cn("h-5 w-5 stroke-[3px]", {
+                  className={cn("h-6 w-6 stroke-[3px]", {
+                    "h-4 w-4": isViewMode,
                     "h-6 w-6": size === "large"
                   })}
                 />
@@ -264,7 +269,8 @@ const EventDateCalendar = ({
             return (
               <p
                 className={cn("text-[0.9rem] sm:text-sm", {
-                  "mb-4 mt-6 sm:text-lg": size === "large"
+                  "mb-4 mt-6 sm:text-lg": size === "large",
+                  "sm:text-2xs": isViewMode
                 })}
                 key={`calendar-weekday-${weekDay}`}
               >
@@ -293,8 +299,7 @@ const EventDateCalendar = ({
             return (
               <Button
                 className={cn(
-                  size === "large" ? "my-5 h-12" : "my-[4px] h-8",
-                  "flex cursor-pointer items-center justify-center rounded-full border-2 border-primary-light/30 p-[1px] text-[0.9rem] font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0 sm:text-sm",
+                  "my-[3px] flex h-[1.9rem] cursor-pointer items-center justify-center rounded-full border-2 border-primary-light/30 p-[1px] text-xs font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
                   !isDaySelected
                     ? {
                         "border-transparent bg-background": true,
@@ -316,12 +321,10 @@ const EventDateCalendar = ({
                     "rounded-l-full": isNextDaySelected && !isPrevDaySelected,
                     "rounded-r-full": isPrevDaySelected && !isNextDaySelected
                   },
-                  !isViewMode && {
-                    "text-gray-200 hover:bg-background hover:text-gray-200": isBeforeToday(day)
-                  },
                   isViewMode && {
                     "border-2 border-secondary/80": isFirstVisibleDay,
-                    "hover:bg-background": !isDaySelected
+                    "hover:bg-background": !isDaySelected,
+                    "text-2xs": true
                   },
                   isViewMode &&
                     !isDayVisible &&
@@ -332,9 +335,14 @@ const EventDateCalendar = ({
                       "border-r-0": !isNextDayVisible && isNextDaySelected && day.getDay() !== 6
                     },
                   {
-                    "border-[1px] px-8 py-2 text-lg": size === "large",
                     "font-bold text-primary": isToday(day) && !isDaySelected,
-                    "sm:text-lg": size === "large"
+                    "text-gray-200 hover:bg-background hover:text-gray-200": !isViewMode && isBeforeToday(day),
+
+                    "text-lg, border-[1px] px-8 py-2 sm:text-lg": size === "large"
+                  },
+                  {
+                    "my-[3px] h-6 px-2": isViewMode,
+                    "my-5 h-14": size === "large"
                   }
                 )}
                 drag-select-attr={formattedDay}

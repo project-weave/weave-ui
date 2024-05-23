@@ -79,7 +79,7 @@ const CommandGroup = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive.Group
     className={cn(
-      "[&_[cmdk-group-heading]]:text-muted-foreground overflow-hidden p-1 text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium",
+      "[&_[cmdk-group-heading]]:text-muted-foreground overflow-hidden p-1 text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-2xs [&_[cmdk-group-heading]]:font-medium",
       className
     )}
     ref={ref}
@@ -114,7 +114,7 @@ const CommandItem = React.forwardRef<
 CommandItem.displayName = CommandPrimitive.Item.displayName;
 
 const CommandShortcut = ({ className, ...props }: React.HTMLAttributes<HTMLSpanElement>) => {
-  return <span className={cn("text-muted-foreground ml-auto text-xs tracking-widest", className)} {...props} />;
+  return <span className={cn("text-muted-foreground ml-auto text-2xs tracking-widest", className)} {...props} />;
 };
 CommandShortcut.displayName = "CommandShortcut";
 

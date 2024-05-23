@@ -84,7 +84,7 @@ export default function AvailabilityGridHeader({
 
   const saveUserAvailabilityButton = (
     <MotionButton
-      className="h-8 whitespace-nowrap rounded-[.4rem]"
+      className="h-[1.9rem] whitespace-nowrap rounded-[.4rem] text-[.85rem]"
       onClick={() => handleSaveUserAvailability(user)}
       variant="default"
       whileTap={{ scale: 0.94 }}
@@ -97,7 +97,7 @@ export default function AvailabilityGridHeader({
     <Dialog>
       <DialogTrigger asChild>
         <MotionButton
-          className="h-8 whitespace-nowrap rounded-[.4rem]"
+          className="h-[1.9rem] whitespace-nowrap rounded-[.4rem] text-[.85rem]"
           ref={editButtonAnimationScope}
           variant="default"
         >
@@ -108,16 +108,23 @@ export default function AvailabilityGridHeader({
     </Dialog>
   );
 
+  const showNavigationButtons = (!firstColInView || !lastColInView) && visibleColumnRangeLoaded;
+
   return (
     <>
-      <div className="flex w-[54rem] items-center justify-between">
-        <div>
-          <h4 className="mb-[2px] text-secondary">
-            {"You're now"} <span className="font-bold">{`${isEditMode(mode) ? "editing" : "viewing"}`} </span>
+      <div
+        className="grid grid-cols-2 items-center"
+        style={{
+          gridTemplateColumns: "40% 60%"
+        }}
+      >
+        <div className="ml-1">
+          <h4 className="text-[0.9rem] text-secondary">
+            {"You're now"} <span className="font-bold">{isEditMode(mode) ? "editing" : "viewing"} </span>
             {`${isEditMode(mode) ? "your availability" : "all availability"}`}
           </h4>
           {availabilityType === AvailabilityType.SPECIFIC_DATES && (
-            <h1 className="mb-[2px] mr-32 whitespace-nowrap text-2xl font-semibold tracking-wide text-secondary">
+            <h1 className="mb-[2px] mr-32 whitespace-nowrap text-xl font-semibold tracking-wide text-secondary">
               {heading}
             </h1>
           )}
@@ -125,23 +132,30 @@ export default function AvailabilityGridHeader({
 
         {availabilityType === AvailabilityType.DAYS_OF_WEEK && <div className="h-12"></div>}
 
-        <div className="mb-2 flex items-center">
-          <div className={cn("mr-14 flex items-center space-x-2", { hidden: isEditMode(mode) })}>
-            <Label className="cursor-pointer whitespace-nowrap font-semibold text-secondary" htmlFor="best-times">
-              {BEST_TIMES_BUTTON_TEXT}
-            </Label>
-            <Switch
-              checked={isBestTimesEnabled}
-              className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-accent"
-              id="best-times"
-              onClick={toggleIsBestTimesEnabled}
-            />
+        <div className="mb-1 flex w-full items-center">
+          <div
+            className={cn("flex w-full items-center justify-around", {
+              "ml-24 mr-1 justify-between": !showNavigationButtons
+            })}
+          >
+            <div className={cn("flex items-center space-x-2", { invisible: isEditMode(mode) })}>
+              <Label
+                className="cursor-pointer whitespace-nowrap text-[.85rem] font-semibold text-secondary"
+                htmlFor="best-times"
+              >
+                {BEST_TIMES_BUTTON_TEXT}
+              </Label>
+              <Switch
+                checked={isBestTimesEnabled}
+                className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-accent"
+                id="best-times"
+                onClick={toggleIsBestTimesEnabled}
+              />
+            </div>
+            <div>{isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}</div>
           </div>
-
-          {isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}
-
-          {(!firstColInView || !lastColInView) && visibleColumnRangeLoaded && (
-            <div className="ml-8 flex h-7 whitespace-nowrap">
+          {showNavigationButtons && (
+            <div className="ml-4 mr-1 flex h-7 whitespace-nowrap">
               <MotionButton
                 className="h-7 w-7 rounded-sm px-[2px] py-0"
                 onClick={scrollPrev}
