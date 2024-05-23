@@ -68,7 +68,7 @@ export default function DropdownWithLabel({
       </PopoverTrigger>
       <PopoverContent className="w-[130px] border-2 border-primary p-0 sm:w-[150px]">
         <Command className="bg-background" filter={(value, search) => filterFunc(value, search)}>
-          <CommandInput className="border-primary py-5 text-sm" />
+          <CommandInput className="border-primary py-5 text-xs" />
           {emptyOptionText !== undefined && emptyOptionText !== "" && (
             <CommandEmpty className="m-2 rounded-sm bg-gray-200 py-1.5 text-center text-2xs">
               {emptyOptionText}
@@ -80,7 +80,7 @@ export default function DropdownWithLabel({
           >
             {options.map((option) => (
               <CommandItem
-                className={cn("my-[1px] mr-2 flex items-center justify-between text-sm hover:bg-primary/20 ", {
+                className={cn("my-[1px] mr-2 flex items-center justify-between text-xs hover:bg-primary/20 ", {
                   "mb-1 border-[1px] border-primary md:border-[1.5px]": selected === option
                 })}
                 data-value={option}

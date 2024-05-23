@@ -336,13 +336,9 @@ const EventDateCalendar = ({
                     },
                   {
                     "font-bold text-primary": isToday(day) && !isDaySelected,
-                    "text-gray-200 hover:bg-background hover:text-gray-200": !isViewMode && isBeforeToday(day),
-
-                    "text-lg, border-[1px] px-8 py-2 sm:text-lg": size === "large"
-                  },
-                  {
                     "my-[3px] h-6 px-2": isViewMode,
-                    "my-5 h-14": size === "large"
+                    "my-5 h-14 border-[1px] px-8 py-2 text-lg sm:text-lg": size === "large",
+                    "text-gray-200 hover:bg-background hover:text-gray-200": !isViewMode && isBeforeToday(day)
                   }
                 )}
                 drag-select-attr={formattedDay}
