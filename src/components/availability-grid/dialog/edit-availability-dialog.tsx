@@ -80,7 +80,7 @@ export default function EditAvailabilityDialog({ allParticipants, handleUserChan
 
       {allParticipants.length > 0 && (
         <div className="mx-auto my-1">
-          <RadioGroup className="flex w-full space-x-6" defaultValue="new">
+          <RadioGroup className="flex w-full cursor-pointer space-x-6" defaultValue="new">
             <div className="flex items-center space-x-2">
               <RadioGroupItem
                 className="border-secondary"
@@ -89,7 +89,7 @@ export default function EditAvailabilityDialog({ allParticipants, handleUserChan
                 value="new"
               />
               <Label
-                className={cn("text-xs text-secondary", {
+                className={cn("cursor-pointer text-xs text-secondary", {
                   "font-medium": isEnterNewAvailability
                 })}
                 htmlFor="r1"
@@ -105,7 +105,7 @@ export default function EditAvailabilityDialog({ allParticipants, handleUserChan
                 value="existing"
               />
               <Label
-                className={cn("text-xs text-secondary", {
+                className={cn("cursor-pointer text-xs text-secondary", {
                   "font-medium": !isEnterNewAvailability
                 })}
                 htmlFor="r2"
@@ -130,7 +130,7 @@ export default function EditAvailabilityDialog({ allParticipants, handleUserChan
       ) : (
         <div className="mb-6 mt-4">
           <Label className="mb-2 ml-4 text-xs font-semibold text-secondary">{SELECT_EXISTING_USER}</Label>
-          <hr className="mx-auto mt-1 h-[1px] w-[95%] bg-secondary" />
+          <hr className="mx-auto mt-1 h-[2px] w-[95%] bg-secondary" />
           <div className="mx-2 mt-3 grid max-h-64 w-full grid-cols-3 gap-x-3 gap-y-1 overflow-y-scroll scroll-smooth px-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full">
             {allParticipants.map((paricipant) => (
               <motion.button
