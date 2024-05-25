@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import useAvailabilityGridStore, {
@@ -17,7 +16,6 @@ import { useShallow } from "zustand/react/shallow";
 
 import EditAvailabilityDialog from "./dialog/edit-availability-dialog";
 
-const EDIT_AVAILABILITY_BUTTON_TEXT = "Edit Availability";
 const SAVE_AVAILABILITY_BUTTON_TEXT = "Save Availability";
 const BEST_TIMES_BUTTON_TEXT = "Best Times";
 
@@ -94,18 +92,11 @@ export default function AvailabilityGridHeader({
   );
 
   const editUserAvailabilityButton = (
-    <Dialog>
-      <DialogTrigger asChild>
-        <MotionButton
-          className="h-[1.9rem] whitespace-nowrap rounded-[.4rem] text-[.85rem]"
-          ref={editButtonAnimationScope}
-          variant="default"
-        >
-          {EDIT_AVAILABILITY_BUTTON_TEXT}
-        </MotionButton>
-      </DialogTrigger>
-      <EditAvailabilityDialog allParticipants={allParticipants} handleUserChange={handleUserChange} />
-    </Dialog>
+    <EditAvailabilityDialog
+      allParticipants={allParticipants}
+      animationScope={editButtonAnimationScope}
+      handleUserChange={handleUserChange}
+    />
   );
 
   const showNavigationButtons = (!firstColInView || !lastColInView) && visibleColumnRangeLoaded;
