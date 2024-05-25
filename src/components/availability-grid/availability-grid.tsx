@@ -263,7 +263,7 @@ export default function AvailabilityGrid({
                   onItemsRendered={debounce(
                     ({ visibleStartIndex, visibleStopIndex }) =>
                       setVisibleColumnRange(visibleStartIndex, visibleStopIndex),
-                    100
+                    150
                   )}
                   overscanCount={7}
                   ref={gridContainerRef}

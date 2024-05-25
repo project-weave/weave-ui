@@ -130,11 +130,11 @@ export default function EditAvailabilityDialog({ allParticipants, handleUserChan
         <div className="mb-6 mt-4">
           <Label className="mb-2 ml-4 text-xs font-semibold text-secondary">{SELECT_EXISTING_USER}</Label>
           <hr className="mx-auto mt-1 h-[1px] w-[95%] bg-secondary" />
-          <div className="mx-3 mt-3 max-h-64 overflow-y-scroll scroll-smooth px-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full">
+          <div className="mx-2 mt-3 grid max-h-64 w-full grid-cols-3 gap-x-3 gap-y-1 overflow-y-scroll scroll-smooth px-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full">
             {allParticipants.map((paricipant) => (
               <motion.button
                 className={cn(
-                  "mx-[5px] my-[2px] inline-flex w-[8rem] flex-row items-center rounded-xl border-2 border-primary-light bg-background px-2 py-[5px] outline-none duration-100 hover:bg-accent-light",
+                  "my-[2px] inline-flex w-full flex-row items-center rounded-xl border-2 border-primary-light bg-background px-2 py-[5px] outline-none duration-100 hover:bg-accent-light",
                   {
                     "border-2 border-primary bg-accent font-semibold hover:bg-purple-200":
                       paricipant === selectedUserName
