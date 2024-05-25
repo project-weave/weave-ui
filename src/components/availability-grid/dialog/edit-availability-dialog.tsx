@@ -64,7 +64,8 @@ export default function EditAvailabilityDialog({ allParticipants, handleUserChan
   return (
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>Edit Availability</DialogTitle>
+        <DialogTitle className="mb-1 px-1 text-secondary">Edit Availability</DialogTitle>
+        <hr className="h-[2px] bg-secondary" />
       </DialogHeader>
       <Button className="mx-8 mt-2" disabled variant="outline">
         <p className="mr-2 text-xs">{LOGIN_WITH_GOOGLE}</p>
