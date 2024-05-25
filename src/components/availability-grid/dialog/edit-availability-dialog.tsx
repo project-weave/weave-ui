@@ -25,6 +25,8 @@ const EDIT_EXISTING_AVAILABILITY = "Edit Existing Availability";
 const WHAT_IS_YOUR_NAME = "What is your name?";
 const SELECT_EXISTING_USER = "Select An Existing User";
 const CONTINUE = "Continue";
+const EDIT_AVAILABILITY = "Edit Availability";
+const ENTER_YOUR_NAME = "Enter Your Name";
 
 type EditAvailabilityDialogProps = {
   allParticipants: string[];
@@ -44,7 +46,6 @@ export default function EditAvailabilityDialog({
   const [nameAlreadyTaken, setNameAlreadyTaken] = useState(false);
 
   const setMode = useAvailabilityGridStore((state) => state.setMode);
-  const EDIT_AVAILABILITY_BUTTON_TEXT = "Edit Availability";
 
   useEffect(() => {
     if (isEnterNewAvailability) {
@@ -96,13 +97,12 @@ export default function EditAvailabilityDialog({
           ref={animationScope}
           variant="default"
         >
-          {EDIT_AVAILABILITY_BUTTON_TEXT}
+          {EDIT_AVAILABILITY}
         </MotionButton>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="mb-1 px-1 text-secondary">Edit Availability</DialogTitle>
-          <hr className="h-[2px] bg-secondary" />
         </DialogHeader>
         <Button className="mx-8 mt-2" disabled variant="outline">
           <p className="mr-2 text-xs">{LOGIN_WITH_GOOGLE}</p>
@@ -153,21 +153,25 @@ export default function EditAvailabilityDialog({
             </RadioGroup>
           </div>
         )}
-        {isEnterNewAvailability ? (
-          <div className="mb-5 mt-4 flex flex-col">
-            <InputWithError
-              className="mx-auto w-[86%] py-[11px] text-xs"
-              errorText={nameAlreadyTaken ? "Name already taken" : undefined}
-              id="name"
-              onChange={(e) => setEnteredUserName(e.target.value)}
-              placeholder={WHAT_IS_YOUR_NAME}
-              value={enteredUserName ? enteredUserName : ""}
-            />
-          </div>
-        ) : (
-          <div className="mb-6 mt-4">
-            <Label className="mb-2 ml-4 text-xs font-semibold text-secondary">{SELECT_EXISTING_USER}</Label>
-            <hr className="mx-auto mt-1 h-[2px] w-[95%] bg-secondary" />
+        <div className="mt-4">
+          <Label className="mb-2 ml-4 text-xs font-semibold text-secondary">
+            {isEnterNewAvailability ? ENTER_YOUR_NAME : SELECT_EXISTING_USER}
+          </Label>
+          <hr className="mx-auto mt-1 h-[1.5px] w-[95%] bg-secondary" />
+
+          {isEnterNewAvailability ? (
+            <div className="mb-5 mt-4 flex flex-col">
+              <InputWithError
+                className="text-xs"
+                containerClassName="w-[86%] mx-auto"
+                errorText={nameAlreadyTaken ? "Name already taken" : undefined}
+                id="name"
+                onChange={(e) => setEnteredUserName(e.target.value)}
+                placeholder={WHAT_IS_YOUR_NAME}
+                value={enteredUserName ? enteredUserName : ""}
+              />
+            </div>
+          ) : (
             <div className="mx-2 mt-3 grid max-h-64 w-full grid-cols-3 gap-x-3 gap-y-1 overflow-y-scroll scroll-smooth px-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full">
               {allParticipants.map((paricipant) => (
                 <motion.button
@@ -189,8 +193,9 @@ export default function EditAvailabilityDialog({
                 </motion.button>
               ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
+
         <DialogFooter>
           <DialogClose asChild>
             <Button className="min-w-[6rem] text-xs" disabled={!validUserName} onClick={onSubmit} type="submit">
