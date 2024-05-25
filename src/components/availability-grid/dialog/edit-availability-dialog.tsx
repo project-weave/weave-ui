@@ -153,7 +153,7 @@ export default function EditAvailabilityDialog({
             </RadioGroup>
           </div>
         )}
-        <div className="mt-4">
+        <div className="mb-3 mt-4">
           <Label className="mb-2 ml-4 text-xs font-semibold text-secondary">
             {isEnterNewAvailability ? ENTER_YOUR_NAME : SELECT_EXISTING_USER}
           </Label>
