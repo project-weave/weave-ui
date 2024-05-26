@@ -8,13 +8,15 @@ import useAvailabilityGridStore, {
 } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
 import { addMinutes, format, parseISO } from "date-fns";
+import { CSSProperties } from "react";
 
 type AvailabilityGridRowHeaderProps = {
   eventTime: string;
   mode: AvailabilityGridMode;
+  style: CSSProperties;
 };
 
-export default function AvailabilityGridRowHeader({ eventTime, mode }: AvailabilityGridRowHeaderProps) {
+export default function AvailabilityGridRowHeader({ eventTime, mode, style }: AvailabilityGridRowHeaderProps) {
   const hoveredTimeSlot = useAvailabilityGridStore((state) => state.hoveredTimeSlot);
   const isHoveredTimeSlot = eventTime === getTimeFromTimeSlot(hoveredTimeSlot);
 
@@ -28,13 +30,14 @@ export default function AvailabilityGridRowHeader({ eventTime, mode }: Availabil
   return (
     <time
       className={cn(
-        "ml-2 mr-2 -translate-y-2 text-right text-2xs font-medium text-primary duration-300",
+        "-translate-y-1 pr-2 text-right text-2xs font-medium text-primary duration-300",
         { "opacity-0": parsedDateTime.getMinutes() !== 0 },
         {
           "font-bold opacity-100": isHoveredTimeSlot || isPrevTimeSlotHovered,
           "text-secondary": isViewMode(mode) && (isHoveredTimeSlot || isPrevTimeSlotHovered)
         }
       )}
+      style={style}
     >
       {format(parsedDateTime, parsedDateTime.getMinutes() === 0 ? "h:mm a" : "h:mm a")}
     </time>

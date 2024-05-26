@@ -1,4 +1,5 @@
 "use client";
+import { ScrollToState } from "@/app/(event)/[eventId]/page";
 import useUpdateAvailability, { UpdateAvailabilityRequest } from "@/hooks/requests/useUpdateAvailability";
 import useGridDragSelect from "@/hooks/useGridDragSelect";
 import useAvailabilityGridStore, {
@@ -15,18 +16,18 @@ import useAvailabilityGridStore, {
 import { cn } from "@/utils/cn";
 import { addMinutes, format, parseISO } from "date-fns";
 import { useAnimate } from "framer-motion";
-import debounce from "lodash.debounce";
-import { RefObject, useCallback, useEffect } from "react";
-import { isFirefox } from "react-device-detect";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Alignment, GridCellProps, Index, MultiGrid, SectionRenderedParams } from "react-virtualized";
 import AutoSizer from "react-virtualized-auto-sizer";
-import { ListChildComponentProps, VariableSizeList } from "react-window";
+import "react-virtualized/styles.css";
 import { useShallow } from "zustand/react/shallow";
 
 import { EventResponse } from "../../types/Event";
 import { useToast } from "../ui/use-toast";
-import AvailabilityGridColumn from "./availability-grid-column";
+import AvailabilityGridCell from "./availability-grid-cell";
+import AvailabilityGridColumnHeader from "./availability-grid-column-header";
 import AvailabilityGridHeader from "./availability-grid-header";
-import AvailabilityGridRowHeader from "./availability-grid-row-header";
+import AvailabilityGridRowHeader from "./availability-grid-row-header"; // only needs to be imported once
 
 type AvailbilityGridProps = {
   allParticipants: string[];
@@ -36,7 +37,8 @@ type AvailbilityGridProps = {
   eventId: string;
   eventResponses: EventResponse[];
   eventStartTime: EventTime;
-  gridContainerRef: RefObject<VariableSizeList>;
+  scrollToState: ScrollToState;
+  setScrollToState: (colIndex: number, align: Alignment) => void;
   sortedEventDates: EventDate[];
   sortedEventTimes: EventTime[];
   timeSlotsToParticipants: Record<TimeSlot, string[]>;
@@ -50,7 +52,8 @@ export default function AvailabilityGrid({
   eventId,
   eventResponses,
   eventStartTime,
-  gridContainerRef,
+  scrollToState,
+  setScrollToState,
   sortedEventDates,
   sortedEventTimes,
   timeSlotsToParticipants
@@ -60,6 +63,8 @@ export default function AvailabilityGrid({
   const [isBestTimesEnabled, setIsBestTimesEnabled] = useAvailabilityGridStore(
     useShallow((state) => [state.isBestTimesEnabled, state.setIsBestTimesEnabled])
   );
+
+  const [scrollToColumn, setScrollToColumn] = useState(-1);
   const setMode = useAvailabilityGridStore(useShallow((state) => state.setMode));
   const [selectedTimeSlots, setSelectedTimeSlots, addSelectedTimeSlots, removeSelectedTimeSlots] =
     useAvailabilityGridStore(
@@ -80,7 +85,10 @@ export default function AvailabilityGrid({
   const { mutate } = useUpdateAvailability();
   const { toast } = useToast();
 
+  const gridRef = useRef<MultiGrid>(null);
+
   // TODO: add timezone logic
+  console.log(gridRef);
 
   function resetGridStateForUser(user: string) {
     setUser(user);
@@ -105,10 +113,10 @@ export default function AvailabilityGrid({
     return resetGridStateForUser("");
   }, []);
 
-  useEffect(() => {
-    // adjust grid container dimensions when dates or times are changed s
-    gridContainerRef.current?.resetAfterIndex(0);
-  }, [eventDates, eventStartTime, eventEndTime, gridContainerRef]);
+  // useEffect(() => {
+  //   // adjust grid container dimensions when dates or times are changed s
+  //   gridContainerRef.current?.resetAfterIndex(0);
+  // }, [eventDates, eventStartTime, eventEndTime, gridContainerRef]);
 
   function handleSaveUserAvailability(user: string) {
     const req: UpdateAvailabilityRequest = {
@@ -185,15 +193,130 @@ export default function AvailabilityGrid({
   const handleCellMouseLeave = useCallback(() => {
     setHoveredTimeSlot(null);
   }, []);
-
   const columnHeaderHeight = availabilityType === AvailabilityType.SPECIFIC_DATES ? "3.2rem" : "2.7rem";
+
+  const lastRowIndex = sortedEventTimes.length + 2;
+  const lastColumnIndex = sortedEventDates.length + 2;
+  const cellRenderer = ({ columnIndex, isScrolling, isVisible, key, parent, rowIndex, style }: GridCellProps) => {
+    if (columnIndex === 0 && rowIndex === 0) return <div></div>;
+
+    // temp rows for scrolling logic
+    if (rowIndex === 1) return <div></div>;
+    if (rowIndex === lastRowIndex) return <div></div>;
+
+    if (rowIndex === 0 && columnIndex >= 2 && columnIndex <= lastColumnIndex - 1) {
+      const eventDate = sortedEventDates[columnIndex - 2];
+      return (
+        <AvailabilityGridColumnHeader
+          availabilityType={availabilityType}
+          eventDate={eventDate}
+          hasUserAddedAvailability={allParticipants.includes(user)}
+          isDateGapRight={false}
+          key={`availability-grid-column-header-${columnIndex - 2}`}
+          sortedEventTimes={sortedEventTimes}
+          style={style}
+        />
+      );
+    }
+    if (columnIndex === 0) {
+      if (rowIndex === lastRowIndex) {
+        return (
+          <AvailabilityGridRowHeader
+            eventTime={format(addMinutes(parseISO(getTimeSlot(eventEndTime)), 30), EVENT_TIME_FORMAT)}
+            key={`availability-grid-row-header-${sortedEventDates.length}`}
+            mode={mode}
+            style={style}
+          />
+        );
+      }
+      const eventTime = sortedEventTimes[rowIndex - 2];
+      return (
+        <AvailabilityGridRowHeader
+          eventTime={eventTime}
+          key={`availability-grid-row-header-${rowIndex}`}
+          mode={mode}
+          style={style}
+        />
+      );
+    }
+    if (columnIndex === 1) return <div></div>;
+    if (columnIndex === lastColumnIndex) return <div></div>;
+
+    const eventTime = sortedEventTimes[rowIndex - 2];
+    const eventDate = sortedEventDates[columnIndex - 2];
+    const timeSlot = getTimeSlot(eventTime, eventDate);
+    const participantsSelectedTimeSlot = timeSlotsToParticipants[timeSlot] ?? [];
+    const filteredParticipants = userFilter.length === 0 ? allParticipants : userFilter;
+
+    const filteredParticipantCountForTimeSlot = filteredParticipants.filter((participant) =>
+      participantsSelectedTimeSlot.includes(participant)
+    ).length;
+
+    const filteredMaxParticipantsForAllTimeSlots = Object.values(timeSlotsToParticipants).reduce(
+      (maxCount, paricipants) => {
+        const filteredCount = filteredParticipants.filter((participant) => paricipants.includes(participant)).length;
+        return Math.max(maxCount, filteredCount);
+      },
+      0
+    );
+
+    return (
+      <AvailabilityGridCell
+        eventDate={eventDate}
+        eventTime={eventTime}
+        gridCol={columnIndex - 2}
+        gridRow={rowIndex - 2}
+        handleCellMouseDown={handleCellMouseDown}
+        handleCellMouseEnter={handleCellMouseEnter}
+        handleCellMouseLeave={handleCellMouseLeave}
+        isBestTimesEnabled={isBestTimesEnabled}
+        isCellBorderOfDragSelectionArea={isCellBorderOfSelectionArea}
+        isCellInDragSelectionArea={isCellInDragSelectionArea}
+        isDateGapLeft={false}
+        isDateGapRight={false}
+        isDragAdding={isDragAdding}
+        isDragSelecting={isDragSelecting}
+        isSelected={selectedTimeSlots.includes(timeSlot)}
+        key={`availability-grid-cell-${columnIndex - 2}-${rowIndex - 2}`}
+        maxParticipantsCountForAllTimeSlots={filteredMaxParticipantsForAllTimeSlots}
+        mode={mode}
+        participantsSelectedCount={filteredParticipantCountForTimeSlot}
+        style={style}
+        totalParticipants={filteredParticipants.length}
+      />
+    );
+  };
+
+  function getWidth(index: number, itemWidth: number): number {
+    switch (index) {
+      case 0:
+        return 80;
+      case 1:
+      case lastColumnIndex:
+        return 1;
+      case 2:
+      case lastColumnIndex - 1:
+        if (sortedEventDates.length === 1) return itemWidth - 2;
+        return itemWidth - 1;
+      default:
+        return itemWidth;
+    }
+  }
+
+  function calculateOffset(columnIndex: number, itemWidth: number) {
+    let offset = 0;
+    for (let i = 1; i < columnIndex; i++) {
+      offset += getWidth(i, itemWidth);
+    }
+    return offset;
+  }
 
   return (
     <div
-      className="card border-1 flex max-w-[56rem] select-none flex-col pl-2 pr-10"
+      className="card border-1 flex h-[44rem] max-w-[56rem] select-none flex-col pl-2 pr-10"
       // mouseUp is cancelled when onContextMenu is triggered so we need to save the selection here as well
       onContextMenu={saveDragSelection}
-      onMouseLeave={clearDragSelection}
+      onMouseLeave={saveDragSelection}
       // putting saveDragSelection here to handle the case where the user lets go of the mouse outside of the grid cells
       onMouseUp={saveDragSelection}
     >
@@ -205,106 +328,58 @@ export default function AvailabilityGrid({
           availabilityType={availabilityType}
           earliestEventDate={sortedEventDates[0]}
           editButtonAnimationScope={scope}
-          gridContainerRef={gridContainerRef}
           handleSaveUserAvailability={handleSaveUserAvailability}
           handleUserChange={resetGridStateForUser}
           hasUserAddedAvailability={selectedTimeSlots.length > 0}
           // including placeholder columns
           lastColumn={sortedEventDates.length + 1}
           latestEventDate={sortedEventDates[sortedEventDates.length - 1]}
+          setScrollToState={setScrollToState}
         />
       </div>
-      <div className="flex h-full w-full">
-        <div
-          className="grid h-full w-20"
-          style={{
-            gridTemplateRows: `${columnHeaderHeight} 0.7rem repeat(${sortedEventTimes.length}, minmax(0.8rem, 1fr)) 0.7rem`
+
+      <div className="block h-full w-full">
+        <AutoSizer>
+          {({ height, width }) => {
+            const minItemWidth = 96;
+            const itemWidth = Math.max(minItemWidth, (width - 82) / sortedEventDates.length);
+
+            return (
+              <MultiGrid
+                cellRenderer={cellRenderer}
+                classNameBottomRightGrid="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full"
+                columnCount={sortedEventDates.length + 3}
+                columnWidth={({ index }: Index) => {
+                  return getWidth(index, itemWidth);
+                }}
+                fixedColumnCount={1}
+                fixedRowCount={1}
+                height={height}
+                onSectionRendered={({ columnStartIndex, columnStopIndex }: SectionRenderedParams) => {
+                  setVisibleColumnRange(columnStartIndex, columnStopIndex);
+                }}
+                overscanColumnCount={9}
+                rowCount={sortedEventTimes.length + 3}
+                rowHeight={({ index }: Index) => {
+                  switch (index) {
+                    case 0:
+                      return 60;
+                    case 1:
+                    case lastRowIndex:
+                      return 1;
+                    default:
+                      return 21;
+                  }
+                }}
+                scrollToAlignment={scrollToState.alignment}
+                // scrollLeft={calculateOffset(scrollToState.columnIndex, itemWidth)}
+                scrollToColumn={scrollToState.columnIndex}
+                width={width}
+                ref={gridRef}
+              />
+            );
           }}
-        >
-          <div className="h-full">&nbsp;</div>
-          <div className="h-full">&nbsp;</div>
-          {sortedEventTimes.map((eventTime, gridRow) => (
-            <AvailabilityGridRowHeader
-              eventTime={eventTime}
-              key={`availability-grid-row-header-${gridRow}`}
-              mode={mode}
-            />
-          ))}
-          <AvailabilityGridRowHeader
-            eventTime={format(addMinutes(parseISO(getTimeSlot(eventEndTime)), 30), EVENT_TIME_FORMAT)}
-            key={`availability-grid-row-header-${sortedEventDates.length}`}
-            mode={mode}
-          />
-        </div>
-        <div className="block w-full">
-          <AutoSizer>
-            {({ height, width }) => {
-              const minItemWidth = 96;
-              const itemWidth = Math.max(minItemWidth, width / sortedEventDates.length);
-              const scrollbarHeight = isFirefox ? 11 : 10;
-              const isScrollbarRequired = itemWidth === minItemWidth;
-              const containerHeight = isScrollbarRequired ? height + scrollbarHeight : height;
-              return (
-                <VariableSizeList
-                  className="overflow-x-scroll scroll-smooth scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full"
-                  height={containerHeight}
-                  itemCount={sortedEventDates.length + 2}
-                  itemSize={(index) => {
-                    if (index === 0 || index === sortedEventDates.length + 1) return 1;
-                    if (index === 1 || index === sortedEventDates.length) {
-                      if (sortedEventDates.length === 1) {
-                        return itemWidth - 2;
-                      }
-                      return itemWidth - 1;
-                    }
-                    return itemWidth;
-                  }}
-                  layout="horizontal"
-                  onItemsRendered={debounce(
-                    ({ visibleStartIndex, visibleStopIndex }) =>
-                      setVisibleColumnRange(visibleStartIndex, visibleStopIndex),
-                    150
-                  )}
-                  overscanCount={7}
-                  ref={gridContainerRef}
-                  style={{
-                    scrollbarGutter: "stable"
-                  }}
-                  width={width}
-                >
-                  {({ index, style }: ListChildComponentProps) => (
-                    <AvailabilityGridColumn
-                      allParticipants={allParticipants}
-                      autoSizerStyle={style}
-                      availabilityType={availabilityType}
-                      columnHeaderHeight={columnHeaderHeight}
-                      columnIndex={index}
-                      eventEndTime={eventEndTime}
-                      gridContainerRef={gridContainerRef}
-                      handleCellMouseDown={handleCellMouseDown}
-                      handleCellMouseEnter={handleCellMouseEnter}
-                      handleCellMouseLeave={handleCellMouseLeave}
-                      handleSaveUserAvailability={handleSaveUserAvailability}
-                      handleUserChange={resetGridStateForUser}
-                      isBestTimesEnabled={isBestTimesEnabled}
-                      isCellBorderOfSelectionArea={isCellBorderOfSelectionArea}
-                      isCellInDragSelectionArea={isCellInDragSelectionArea}
-                      isDragAdding={isDragAdding}
-                      isDragSelecting={isDragSelecting}
-                      mode={mode}
-                      selectedTimeSlots={selectedTimeSlots}
-                      sortedEventDates={sortedEventDates}
-                      sortedEventTimes={sortedEventTimes}
-                      timeSlotsToParticipants={timeSlotsToParticipants}
-                      user={user}
-                      userFilter={userFilter}
-                    />
-                  )}
-                </VariableSizeList>
-              );
-            }}
-          </AutoSizer>
-        </div>
+        </AutoSizer>
       </div>
     </div>
   );

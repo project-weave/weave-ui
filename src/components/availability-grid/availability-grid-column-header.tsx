@@ -9,7 +9,7 @@ import useAvailabilityGridStore, {
 import { cn } from "@/utils/cn";
 import { format, parseISO } from "date-fns";
 import { motion } from "framer-motion";
-import React from "react";
+import React, { CSSProperties } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import { Button } from "../ui/button";
@@ -20,13 +20,15 @@ type AvailabilityGridColumnHeaderProps = {
   hasUserAddedAvailability: boolean;
   isDateGapRight: boolean;
   sortedEventTimes: EventTime[];
+  style: CSSProperties;
 };
 
 const AvailabilityGridColumnHeader = ({
   availabilityType,
   eventDate,
   isDateGapRight,
-  sortedEventTimes
+  sortedEventTimes,
+  style
 }: AvailabilityGridColumnHeaderProps) => {
   const parsedDate = parseISO(eventDate);
 
@@ -52,7 +54,7 @@ const AvailabilityGridColumnHeader = ({
   const MotionButton = motion(Button);
 
   return (
-    <div className={cn("text-center", { "mr-2": isDateGapRight })}>
+    <div className={cn("text-center", { "mr-2": isDateGapRight })} style={style}>
       {availabilityType === AvailabilityType.SPECIFIC_DATES && (
         <>
           <h3 className=" font-semibold text-primary">{format(parsedDate, "EEE")}</h3>

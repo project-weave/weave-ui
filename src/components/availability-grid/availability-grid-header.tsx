@@ -11,7 +11,7 @@ import { cn } from "@/utils/cn";
 import { format, isEqual, parseISO } from "date-fns";
 import { AnimationScope, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { VariableSizeList } from "react-window";
+import { Alignment } from "react-virtualized";
 import { useShallow } from "zustand/react/shallow";
 
 import EditAvailabilityDialog from "./dialog/edit-availability-dialog";
@@ -24,12 +24,12 @@ type AvailabilityGridHeaderProps = {
   availabilityType: AvailabilityType;
   earliestEventDate: EventDate;
   editButtonAnimationScope: AnimationScope;
-  gridContainerRef: React.MutableRefObject<null | VariableSizeList>;
   handleSaveUserAvailability: (user: string) => void;
   handleUserChange: (user: string) => void;
   hasUserAddedAvailability: boolean;
   lastColumn: number;
   latestEventDate: EventDate;
+  setScrollToState: (colIndex: number, align: Alignment) => void;
 };
 
 export default function AvailabilityGridHeader({
@@ -37,11 +37,11 @@ export default function AvailabilityGridHeader({
   availabilityType,
   earliestEventDate,
   editButtonAnimationScope,
-  gridContainerRef,
   handleSaveUserAvailability,
   handleUserChange,
   lastColumn,
-  latestEventDate
+  latestEventDate,
+  setScrollToState
 }: AvailabilityGridHeaderProps) {
   const mode = useAvailabilityGridStore((state) => state.mode);
   const user = useAvailabilityGridStore((state) => state.user);
@@ -69,13 +69,16 @@ export default function AvailabilityGridHeader({
   const visibleColumnRangeLoaded = visibleColumnRange.start !== -1 && visibleColumnRange.end !== -1;
 
   function scrollNext() {
-    if (lastColInView || gridContainerRef.current === null) return;
-    gridContainerRef.current.scrollToItem(visibleColumnRange.end, "start");
+    if (lastColInView) return;
+    setScrollToState(visibleColumnRange.end, "start");
+    //  gridContainerRef.current.scrollToItem(visibleColumnRange.end, "start");
   }
 
   function scrollPrev() {
-    if (firstColInView || gridContainerRef.current === null) return;
-    gridContainerRef.current.scrollToItem(visibleColumnRange.start, "end");
+    if (firstColInView) return;
+    setScrollToState(visibleColumnRange.start, "end");
+    // if (firstColInView || gridContainerRef.current === null) return;
+    // gridContainerRef.current.scrollToItem(visibleColumnRange.start, "end");
   }
 
   const MotionButton = motion(Button);

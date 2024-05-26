@@ -9,7 +9,7 @@ import useAvailabilityGridStore, {
 } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
 import { parseISO } from "date-fns";
-import { useEffect, useState } from "react";
+import { CSSProperties, useEffect, useState } from "react";
 
 type AvailabilityGridCellProps = {
   eventDate: EventDate;
@@ -30,6 +30,7 @@ type AvailabilityGridCellProps = {
   maxParticipantsCountForAllTimeSlots: number;
   mode: AvailabilityGridMode;
   participantsSelectedCount: number;
+  style: CSSProperties;
   totalParticipants: number;
 };
 
@@ -51,6 +52,7 @@ export default function AvailabilityGridCell({
   maxParticipantsCountForAllTimeSlots,
   mode,
   participantsSelectedCount,
+  style,
   totalParticipants
 }: AvailabilityGridCellProps) {
   const [isBeingAdded, setIsBeingAdded] = useState(false);
@@ -61,7 +63,7 @@ export default function AvailabilityGridCell({
   const [isTopBorder, setIsTopBorder] = useState(false);
 
   const isTimeHovered = useAvailabilityGridStore((state) => eventTime === getTimeFromTimeSlot(state.hoveredTimeSlot));
-
+  console.log("Qweqw");
   useEffect(() => {
     /*    
       hacky/optimized way of rerendering cells within the drag selection area rather than rerendering all cells 
@@ -139,6 +141,7 @@ export default function AvailabilityGridCell({
       onMouseEnter={() => handleCellMouseEnter(gridRow, gridCol)}
       onMouseLeave={handleCellMouseLeave}
       style={{
+        ...style,
         borderStyle: getBorderStyle()
       }}
       type="button"

@@ -160,7 +160,7 @@ export default function EditAvailabilityDialog({
           <hr className="mx-auto mt-1 h-[1.5px] w-[95%] bg-secondary" />
 
           {isEnterNewAvailability ? (
-            <div className="mb-5 mt-4 flex flex-col">
+            <div className="mb-5 mt-3 flex flex-col">
               <InputWithError
                 className="text-xs"
                 containerClassName="w-[86%] mx-auto"
@@ -172,7 +172,7 @@ export default function EditAvailabilityDialog({
               />
             </div>
           ) : (
-            <div className="mx-2 mt-3 grid max-h-64 w-full grid-cols-3 gap-x-3 gap-y-1 overflow-y-scroll scroll-smooth px-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full">
+            <div className="mx-2 mb-5 mt-3 grid max-h-64 w-full grid-cols-3 gap-x-3 gap-y-1 overflow-y-scroll scroll-smooth px-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full">
               {allParticipants.map((paricipant) => (
                 <motion.button
                   className={cn(

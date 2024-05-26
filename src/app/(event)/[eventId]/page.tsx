@@ -15,14 +15,23 @@ import {
 import { isAxiosError } from "axios";
 import { addMinutes, format, parseISO } from "date-fns";
 import { redirect, useParams } from "next/navigation";
-import { useRef } from "react";
-import { VariableSizeList } from "react-window";
+import { useCallback, useState } from "react";
+import { Alignment } from "react-virtualized";
+
+export type ScrollToState = {
+  alignment: Alignment;
+  columnIndex: number;
+};
 
 export default function Event() {
   const params = useParams<{ eventId: string }>();
   const { data, error, isError, isPending } = useGetEvent(params.eventId);
   const { toast } = useToast();
-  const gridContainerRef = useRef<VariableSizeList>(null);
+  const [scrollToState, setScrollToState] = useState<ScrollToState>({ alignment: "start", columnIndex: -1 });
+
+  const setScrollToStateHandler = useCallback((colIndex: number, align: Alignment) => {
+    setScrollToState({ alignment: align, columnIndex: colIndex } as ScrollToState);
+  }, []);
 
   if (isPending) {
     return (
@@ -102,7 +111,7 @@ export default function Event() {
           availabilityType={availabilityType}
           eventDates={event.dates}
           eventName={event.name}
-          gridContainerRef={gridContainerRef}
+          setScrollToState={setScrollToStateHandler}
           sortedEventDates={sortedEventDates}
           timeSlotsToParticipants={timeSlotsToParticipants}
         />
@@ -116,7 +125,8 @@ export default function Event() {
           eventId={event.id}
           eventResponses={responses}
           eventStartTime={event.startTime}
-          gridContainerRef={gridContainerRef}
+          scrollToState={scrollToState}
+          setScrollToState={setScrollToStateHandler}
           sortedEventDates={sortedEventDates}
           sortedEventTimes={sortedEventTimes}
           timeSlotsToParticipants={timeSlotsToParticipants}

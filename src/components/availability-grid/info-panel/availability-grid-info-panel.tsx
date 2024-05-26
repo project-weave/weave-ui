@@ -9,7 +9,7 @@ import useAvailabilityGridStore, {
 } from "@/store/availabilityGridStore";
 import { Copy } from "lucide-react";
 import { useCallback, useMemo, useRef } from "react";
-import { VariableSizeList } from "react-window";
+import { Alignment } from "react-virtualized";
 import { useShallow } from "zustand/react/shallow";
 
 import AvailabilityGridResponseFilterButton from "./availability-grid-response-filter-button";
@@ -21,7 +21,7 @@ type AvailabilityGridInfoPanelProps = {
   availabilityType: AvailabilityType;
   eventDates: EventDate[];
   eventName: string;
-  gridContainerRef: React.MutableRefObject<null | VariableSizeList>;
+  setScrollToState: (colIndex: number, align: Alignment) => void;
   sortedEventDates: EventDate[];
   timeSlotsToParticipants: Readonly<Record<TimeSlot, string[]>>;
 };
@@ -31,7 +31,7 @@ export default function AvailbilityGridInfoPanel({
   availabilityType,
   eventDates,
   eventName,
-  gridContainerRef,
+  setScrollToState,
   sortedEventDates,
   timeSlotsToParticipants
 }: AvailabilityGridInfoPanelProps) {
@@ -67,33 +67,35 @@ export default function AvailbilityGridInfoPanel({
   }, [visibleColumnRange.start, visibleColumnRange.end, sortedEventDates]);
 
   const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
+
   const onViewModeDateClick = useCallback(
     (date: EventDate) => {
-      function scrollToDate() {
-        const indexOfDate = sortedEventDates.indexOf(date);
-        if (indexOfDate === -1 || gridContainerRef.current === null) return;
+      // scroll to date
+      const indexOfDate = sortedEventDates.indexOf(date);
+      if (indexOfDate === -1) return;
 
-        let columnNum = indexOfDate + 1;
-        if (indexOfDate === 0) {
-          columnNum = 0;
-        }
-        gridContainerRef.current.scrollToItem(columnNum, "start");
+      let columnNum = indexOfDate + 2;
+      if (indexOfDate === 0) {
+        columnNum--;
       }
+      if (indexOfDate === sortedEventDates.length) {
+        columnNum++;
+      }
+      console.log(columnNum);
+      setScrollToState(columnNum, "start");
 
-      function setFocusedDateTimeout() {
-        if (timeoutIdRef.current !== null) {
-          clearTimeout(timeoutIdRef.current);
-        }
-        timeoutIdRef.current = setTimeout(() => {
-          setFocusedDate(null);
-        }, 5000);
+      // set timeout for focused date
+      if (timeoutIdRef.current !== null) {
+        clearTimeout(timeoutIdRef.current);
+      }
+      timeoutIdRef.current = setTimeout(() => {
+        setFocusedDate(null);
+      }, 5000);
+      setTimeout(() => {
         setFocusedDate(date);
-      }
-
-      scrollToDate();
-      setFocusedDateTimeout();
+      }, 200);
     },
-    [gridContainerRef, setFocusedDate, sortedEventDates]
+    [setScrollToState, setFocusedDate, sortedEventDates]
   );
 
   const eventDatesSet = useMemo(() => {
