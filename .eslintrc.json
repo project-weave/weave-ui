@@ -36,6 +36,7 @@
     "perfectionist/sort-imports": "warn",
     "perfectionist/sort-interfaces": "warn",
     "perfectionist/sort-jsx-props": "warn",
+    "perfectionist/sort-intersection-types": "off",
     "perfectionist/sort-named-exports": "warn",
     "perfectionist/sort-named-imports": "warn",
     "perfectionist/sort-object-types": "warn"
