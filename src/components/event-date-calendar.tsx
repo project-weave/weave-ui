@@ -308,7 +308,7 @@ const EventDateCalendar = ({
                           !isToday(day) && !isSameMonth(day, firstDayCurrentMonth)
                       }
                     : {
-                        "bg-primary/80": !isSameMonth(day, firstDayCurrentMonth),
+                        "bg-primary/70": !isSameMonth(day, firstDayCurrentMonth),
                         "bg-secondary hover:bg-secondary/80": isToday(day),
                         "ml-auto w-full rounded-r-none border-r-0": isNextDaySelected && day.getDay() !== 6,
                         "mr-auto w-full rounded-l-none": isPrevDaySelected && day.getDay() !== 0,
@@ -324,7 +324,8 @@ const EventDateCalendar = ({
                   },
                   isViewMode && {
                     "border-2 border-secondary/80": isFirstVisibleDay,
-                    "hover:bg-background": !isDaySelected,
+                    "border-secondary": isToday(day),
+                    "text-secondary opacity-40 hover:bg-background": !isDaySelected,
                     "text-xs": true
                   },
                   isViewMode &&

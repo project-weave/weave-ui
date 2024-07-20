@@ -11,6 +11,12 @@ export enum DragMode {
   NONE
 }
 
+enum InputMethod {
+  MOUSE,
+  TOUCH,
+  NONE
+}
+
 type useDragSelectReturn<T> = {
   onMouseDragEnd: DragEndHandler;
   onMouseDragMove: DragMoveHandler<T>;
@@ -29,10 +35,15 @@ export default function useDragSelect<T>(
     return clearAllBodyScrollLocks();
   }, []);
 
+  // NOTE: This does not handle devices that use both mouse and touch
+  const [inputMethod, setInputMethod] = useState(InputMethod.NONE);
+
   const [isDragging, setIsDragging] = useState(false);
   const [mode, setMode] = useState<DragMode>(DragMode.NONE);
 
   const onMouseDragStart: DragMoveHandler<T> = (item: T) => {
+    if (inputMethod === InputMethod.TOUCH) return;
+    setInputMethod(InputMethod.MOUSE);
     setIsDragging(true);
     setSelected((prev) => {
       const newSelected = new Set(prev);
@@ -104,6 +115,9 @@ export default function useDragSelect<T>(
   };
 
   const onTouchDragStart: DragStartHandler<null | T> = (item: null | T) => {
+    if (inputMethod === InputMethod.MOUSE) return;
+    setInputMethod(InputMethod.TOUCH);
+
     if (containerRef && containerRef.current !== null) {
       disableBodyScroll(containerRef.current);
     }
