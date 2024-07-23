@@ -40,8 +40,18 @@ export default function AvailabilityGridColumnHeader({
 
   const MotionButton = motion(Button);
 
+  const topValue = availabilityType === AvailabilityType.SPECIFIC_DATES ? "10rem" : "9.2rem";
+
   return (
-    <div className={cn("text-center", { "mr-2": hasDateGapRight })}>
+    <div
+      className={cn("w-full bg-background text-center", {
+        "mr-2": hasDateGapRight
+      })}
+      style={{
+        position: "sticky",
+        top: `${topValue}`
+      }}
+    >
       {availabilityType === AvailabilityType.SPECIFIC_DATES && (
         <>
           <h3 className=" font-semibold text-primary">{format(parsedDate, "EEE")}</h3>
@@ -71,7 +81,7 @@ export default function AvailabilityGridColumnHeader({
           {/* <h3 className="py-3 text-xl font-semibold text-secondary">{format(parsedDate, "EEE")}</h3> */}
           <MotionButton
             className={cn(
-              "mt-3 h-8 w-16 rounded-xl border-none bg-accent-light px-3 py-2 font-semibold tracking-wide transition-all hover:bg-accent",
+              "h-8 w-16 rounded-xl border-none bg-accent-light px-3 py-2 pt-7 font-semibold tracking-wide transition-all hover:bg-accent",
               {
                 "bg-primary text-white hover:bg-primary-hover": isAllTimeSlotForDateSelected,
                 "cursor-default bg-background text-lg text-secondary hover:bg-background": isViewMode(mode)

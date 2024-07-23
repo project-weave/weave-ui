@@ -1,6 +1,5 @@
 "use client";
 import useDragSelect from "@/hooks/useDragSelect";
-import useToday from "@/hooks/useToday";
 import { EVENT_DATE_FORMAT, EventDate } from "@/types/Event";
 import { cn } from "@/utils/cn";
 import { isLeftClick } from "@/utils/mouseEvent";
@@ -15,6 +14,7 @@ import {
   isToday,
   parse,
   parseISO,
+  startOfToday,
   sub
 } from "date-fns";
 import { motion } from "framer-motion";
@@ -55,7 +55,7 @@ type EventDateCalendarProps = EventDateCalendarEditModeProps | EventDateCalendar
 
 export const MONTH_FORMAT = "yyyy-MM";
 
-const EventDateCalendar = ({
+export default function EventDateCalendar({
   currentMonthOverride,
   earliestSelectedDate,
   id,
@@ -67,11 +67,12 @@ const EventDateCalendar = ({
   setSelectedDates,
   size,
   visibleEventDates
-}: EventDateCalendarProps) => {
-  const today = useToday();
+}: EventDateCalendarProps) {
   const dragSelectContainerRef = useRef<HTMLDivElement>(null);
 
-  let defaultMonth = isViewMode ? format(parseISO(earliestSelectedDate), MONTH_FORMAT) : format(today, MONTH_FORMAT);
+  let defaultMonth = isViewMode
+    ? format(parseISO(earliestSelectedDate), MONTH_FORMAT)
+    : format(startOfToday(), MONTH_FORMAT);
   if (currentMonthOverride !== undefined) {
     defaultMonth = currentMonthOverride;
   }
@@ -86,9 +87,7 @@ const EventDateCalendar = ({
     }
   }, [currentMonthOverride]);
 
-  function isBeforeToday(date: Date) {
-    return isBefore(date, today);
-  }
+  const isBeforeToday = (date: Date) => isBefore(date, startOfToday());
 
   const days = eachDayOfInterval({
     end: getLastDayOfCalendar(currentMonth),
@@ -96,13 +95,13 @@ const EventDateCalendar = ({
   });
 
   function getFirstDayOfCalendar(currentMonth: string): Date {
-    const firstDayCurrentMonth = parse(currentMonth, MONTH_FORMAT, today);
+    const firstDayCurrentMonth = parse(currentMonth, MONTH_FORMAT, startOfToday());
     const firstDayCurrentMonthDayOfWeek = getDay(firstDayCurrentMonth);
     return sub(firstDayCurrentMonth, { days: firstDayCurrentMonthDayOfWeek });
   }
 
   function getLastDayOfCalendar(currentMonth: string): Date {
-    const firstDayCurrentMonth = parse(currentMonth, MONTH_FORMAT, today);
+    const firstDayCurrentMonth = parse(currentMonth, MONTH_FORMAT, startOfToday());
     const lastDayOfCurrentMonth = endOfMonth(firstDayCurrentMonth);
     const lastDayOfCurrentMonthDayOfWeek = getDay(lastDayOfCurrentMonth);
     return add(lastDayOfCurrentMonth, { days: 6 - lastDayOfCurrentMonthDayOfWeek });
@@ -120,7 +119,7 @@ const EventDateCalendar = ({
         onViewModeDateClick(date);
       }
     } else {
-      if (date === null || !isBefore(parseISO(date), today)) {
+      if (date === null || !isBefore(parseISO(date), startOfToday())) {
         onTouchDragStart(date);
       }
     }
@@ -133,13 +132,13 @@ const EventDateCalendar = ({
     const touchedElement = document.elementFromPoint(touchX, touchY);
     const date: EventDate | null = touchedElement?.getAttribute("drag-select-attr") || null;
 
-    if (!isViewMode && date !== null && !isBefore(parseISO(date), today)) {
+    if (!isViewMode && date !== null && !isBefore(parseISO(date), startOfToday())) {
       onTouchDragMove(date);
     }
   }
 
   function handleMouseEnter(day: EventDate) {
-    if (!isViewMode && !isBefore(parseISO(day), today)) {
+    if (!isViewMode && !isBefore(parseISO(day), startOfToday())) {
       onMouseDragMove(day);
     }
   }
@@ -150,7 +149,7 @@ const EventDateCalendar = ({
         onViewModeDateClick(day);
       }
     } else {
-      if (!isBefore(parseISO(day), today)) {
+      if (!isBefore(parseISO(day), startOfToday()) || selectedDates.has(day)) {
         onMouseDragStart(day);
       }
     }
@@ -168,12 +167,12 @@ const EventDateCalendar = ({
     }
   }
 
-  const firstDayCurrentMonth = parse(currentMonth, MONTH_FORMAT, today);
+  const firstDayCurrentMonth = parse(currentMonth, MONTH_FORMAT, startOfToday());
 
   const earliestMonth = earliestSelectedDate ? format(parseISO(earliestSelectedDate), MONTH_FORMAT) : "";
   const isCurrentMonthEarliest = isViewMode
     ? earliestMonth === currentMonth
-    : format(today, MONTH_FORMAT) === currentMonth;
+    : format(startOfToday(), MONTH_FORMAT) === currentMonth;
 
   const latestdMonth = latestSelectedDate ? format(parseISO(latestSelectedDate), MONTH_FORMAT) : "";
   const isCurrentMonthLatest = latestdMonth === currentMonth;
@@ -337,7 +336,8 @@ const EventDateCalendar = ({
                     "font-bold text-primary": isToday(day) && !isDaySelected,
                     "my-[3px] h-6 px-2": isViewMode,
                     "my-4 h-14 border-[1px] px-8 py-2 text-lg sm:text-lg": size === "large",
-                    "text-gray-200 hover:bg-background hover:text-gray-200": !isViewMode && isBeforeToday(day)
+                    "text-gray-200 hover:bg-background hover:text-gray-200":
+                      !isViewMode && isBeforeToday(day) && !selectedDates.has(formattedDay)
                   }
                 )}
                 drag-select-attr={formattedDay}
@@ -363,6 +363,4 @@ const EventDateCalendar = ({
       </div>
     </div>
   );
-};
-
-export default React.memo(EventDateCalendar);
+}

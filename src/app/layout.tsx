@@ -32,12 +32,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={cn("flex items-center justify-center overflow-y-scroll", inter.className)}>
+      <body className={cn("relative flex items-center justify-center overflow-y-scroll", inter.className)}>
         <Analytics />
         <Providers>
           <div className="flex h-screen w-full max-w-[85rem]">
             <MainNav />
-            <div className="z-0 flex w-full justify-center pt-24">{children}</div>
+            <div className="pt-18 z-0 flex w-full justify-center pt-20 2xl:pt-24 ">{children}</div>
           </div>
           <Toaster />
         </Providers>

@@ -1,4 +1,4 @@
-import useAvailabilityGridStore, { isViewMode } from "@/store/availabilityGridStore";
+import useAvailabilityGridStore, { AvailabilityType, isViewMode } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
 import { isConsecutiveDay } from "@/utils/date";
 import { parseISO } from "date-fns";
@@ -18,7 +18,7 @@ export default function AvailabilityGridCell({
   node,
   timeSlotDragSelectionState
 }: AvailabilityGridCellProps) {
-  const { sortedEventDates, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);
+  const { availabilityType, sortedEventDates, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);
   const mode = useAvailabilityGridStore((state) => state.mode);
 
   const timeSlotsCol = node.getTimeSlotsColumnIndex();
@@ -43,9 +43,23 @@ export default function AvailabilityGridCell({
     return `${topStyle} ${rightStyle} ${bottomStyle} ${leftStyle}`;
   }
 
+  const topValue = availabilityType === AvailabilityType.SPECIFIC_DATES ? "10rem" : "9.2rem";
+
   switch (node.getRenderType()) {
+    case NodeType.COLUMN_HEADER_PLACEHOLDER:
+      return (
+        <div
+          className="sticky z-[999] h-full bg-background"
+          style={{
+            position: "sticky",
+            top: `${topValue}`
+          }}
+        >
+          &nbsp;
+        </div>
+      );
     case NodeType.PLACEHOLDER:
-      return <div className="h-full">&nbsp;</div>;
+      return <div>&nbsp;</div>;
     case NodeType.ROW_HEADER:
       return <AvailabilityGridRowHeader eventTime={eventTime} />;
     case NodeType.COLUMN_HEADER:

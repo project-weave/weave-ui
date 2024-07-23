@@ -4,7 +4,8 @@ export enum NodeType {
   COLUMN_HEADER,
   TIME_SLOT,
   FIRST_CELL_IN_COLUMN,
-  LAST_CELL_IN_COLUMN
+  LAST_CELL_IN_COLUMN,
+  COLUMN_HEADER_PLACEHOLDER
 }
 
 export class AvailabilityGridNode {
@@ -19,6 +20,7 @@ export class AvailabilityGridNode {
   /*
   ********  Grid Configuration Example  ******** 
   
+    CP = Column Header Placeholder
     C = Column Header 
     R = Row Header
     P = Placeholder
@@ -26,18 +28,18 @@ export class AvailabilityGridNode {
     L = Last Cell in Column
     T = Time Slot
 
-    P C C C C C C C 
+    CP C C C C C C C 
     P F F F F F F F
     R T T T T T T T
     R T T T T T T T
     R T T T T T T T
     R L L L L L L L 
-
   */
 
   getRenderType() {
     if (this.displayedColIndex === 0) {
-      if (this.displayedRowIndex <= 1) return NodeType.PLACEHOLDER;
+      if (this.displayedRowIndex === 0) return NodeType.COLUMN_HEADER_PLACEHOLDER;
+      if (this.displayedRowIndex === 1) return NodeType.PLACEHOLDER;
       return NodeType.ROW_HEADER;
     }
     if (this.displayedRowIndex === 0) return NodeType.COLUMN_HEADER;

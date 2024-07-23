@@ -60,7 +60,7 @@ export default function LandingPage() {
         {CREATE_A_WEAVE}
       </Button>
 
-      <div className="mb-16 mt-8 h-full w-full sm:mb-24 sm:mt-10 xl:mb-48 xl:mt-20 2xl:mb-[30rem]">
+      <div className="h-full min-h-screen w-full pb-10 sm:mt-10 xl:mt-20">
         <div className="pt-24 sm:pt-[6rem]" ref={eventFormRef}>
           <NewEventForm />
         </div>

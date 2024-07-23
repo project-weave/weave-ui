@@ -4,12 +4,11 @@ import { Button } from "@/components/ui/button";
 import DropdownWithLabel from "@/components/ui/dropdown-with-label";
 import InputWithLabel from "@/components/ui/input-with-label";
 import useCreateEvent, { CreateEventRequest } from "@/hooks/requests/useCreateEvent";
-import useToday from "@/hooks/useToday";
 import { AvailabilityType } from "@/store/availabilityGridStore";
 import { DAYS_OF_WEEK_DATES, EVENT_TIME_FORMAT, EventDate, EventTime } from "@/types/Event";
 import { cn } from "@/utils/cn";
 import { timeFilter } from "@/utils/date";
-import { addMinutes, format, isBefore, isEqual, parse } from "date-fns";
+import { addMinutes, format, isBefore, isEqual, parse, startOfToday } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -32,9 +31,7 @@ const OR = "or";
 const TIME_FORMAT = "h:mm a";
 
 export default function NewEventForm() {
-  const today = useToday();
-
-  const [currentCalendarMonth, setCurrentCalendarMonth] = useState(format(today, MONTH_FORMAT));
+  const [currentCalendarMonth, setCurrentCalendarMonth] = useState(format(startOfToday(), MONTH_FORMAT));
   const [selectedDates, setSelectedDates] = useState(new Set<EventDate>());
   const [availabilityType, setAvailabilityType] = useState(AvailabilityType.SPECIFIC_DATES);
   const [selectedDaysOfWeek, setSelectedDaysOfWeek] = useState(new Set<EventDate>());

@@ -166,14 +166,11 @@ export default function AvailabilityGrid() {
     return gridNodeCols;
   }, [sortedEventTimes, sortedEventDates, availabilityGridViewWindowSize, leftMostColumnInView]);
 
-  const columnHeaderHeight = availabilityType === AvailabilityType.SPECIFIC_DATES ? "3.2rem" : "2.7rem";
-  // const maxColumnsPerPage = 7;
-
   return sortedEventDates.length === 0 || sortedEventTimes.length === 0 ? (
     <Skeleton className="h-full max-w-[56rem] " />
   ) : (
     <div
-      className="card border-1 flex max-w-[56rem] select-none flex-col pl-2 pr-10"
+      className="card border-1 flex max-w-[56rem] select-none flex-col pl-2 pr-10 pt-1"
       // mouseUp is cancelled when onContextMenu is triggered so we need to save the selection here as well
       onContextMenu={saveDragSelection}
       onMouseLeave={saveDragSelection}
@@ -181,7 +178,9 @@ export default function AvailabilityGrid() {
       onMouseUp={saveDragSelection}
     >
       <div
-        className={cn("mb-2 ml-14 h-[3.8rem] ", { "h-[2.7rem]": availabilityType === AvailabilityType.DAYS_OF_WEEK })}
+        className={cn("sticky top-[5rem] z-[999] h-[5.4rem] bg-background pl-14 pt-4", {
+          "h-[4,7rem]": availabilityType === AvailabilityType.DAYS_OF_WEEK
+        })}
       >
         <AvailabilityGridHeader
           editAvailabilityButtonAnimationScope={scope}
@@ -202,7 +201,7 @@ export default function AvailabilityGrid() {
                 className="grid w-full"
                 key={`availability-column-${displayColIndex}`}
                 style={{
-                  gridTemplateRows: `${columnHeaderHeight} 0.7rem repeat(${sortedEventTimes.length - 1}, minmax(0.8rem, 1fr)) 0.7rem`
+                  gridTemplateRows: `${availabilityType === AvailabilityType.SPECIFIC_DATES ? "3.2rem" : "2.7rem"} 0.7rem repeat(${sortedEventTimes.length - 1}, minmax(0.8rem, 1fr)) 0.7rem`
                 }}
               >
                 {columnNodes.map((node) => (
