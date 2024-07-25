@@ -18,8 +18,9 @@ import {
 } from "date-fns";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import React, { Dispatch, MouseEvent, SetStateAction, useEffect, useRef, useState } from "react";
 
+import { isLeftClick } from "@/utils/mouseEvent";
 import { Button } from "./ui/button";
 
 type EventDateCalendarViewModeProps = {
@@ -316,7 +317,7 @@ const EventDateCalendar = ({
                         "rounded-r-full": isPrevDaySelected && !isNextDaySelected
                       },
                   isDaySelected && {
-                    "bg-secondary hover:bg-secondary/80": isToday(day),
+                    "border-secondary bg-secondary hover:bg-secondary/80": isToday(day),
                     "ml-auto w-full rounded-r-none border-r-0": isNextDaySelected && day.getDay() !== 6,
                     "mr-auto w-full rounded-l-none": isPrevDaySelected && day.getDay() !== 0,
                     "rounded-l-full": isNextDaySelected && !isPrevDaySelected,
@@ -324,7 +325,6 @@ const EventDateCalendar = ({
                   },
                   isViewMode && {
                     "border-2 border-secondary/80": isFirstVisibleDay,
-                    "border-secondary": isToday(day),
                     "text-secondary opacity-40 hover:bg-background": !isDaySelected,
                     "text-xs": true
                   },
@@ -346,7 +346,8 @@ const EventDateCalendar = ({
                 drag-select-attr={formattedDay}
                 id={id}
                 key={`calendar-day-${day}`}
-                onMouseDown={() => {
+                onMouseDown={(e: MouseEvent<HTMLButtonElement>) => {
+                  if (!isLeftClick(e)) return;
                   handleMouseDown(formattedDay);
                 }}
                 onMouseEnter={() => handleMouseEnter(formattedDay)}

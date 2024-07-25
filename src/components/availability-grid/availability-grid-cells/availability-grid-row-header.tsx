@@ -1,5 +1,4 @@
 import useAvailabilityGridStore, {
-  AvailabilityGridMode,
   EVENT_TIME_FORMAT,
   getTimeFromTimeSlot,
   getTimeSlot,
@@ -11,11 +10,11 @@ import { addMinutes, format, parseISO } from "date-fns";
 
 type AvailabilityGridRowHeaderProps = {
   eventTime: string;
-  mode: AvailabilityGridMode;
 };
 
-export default function AvailabilityGridRowHeader({ eventTime, mode }: AvailabilityGridRowHeaderProps) {
+export default function AvailabilityGridRowHeader({ eventTime }: AvailabilityGridRowHeaderProps) {
   const hoveredTimeSlot = useAvailabilityGridStore((state) => state.hoveredTimeSlot);
+  const mode = useAvailabilityGridStore((state) => state.mode);
   const isHoveredTimeSlot = eventTime === getTimeFromTimeSlot(hoveredTimeSlot);
 
   // parsing time with arbitrary date as we're only interested in the time

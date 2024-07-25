@@ -1,48 +1,36 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import useAvailabilityGridStore, {
-  AvailabilityType,
-  EventDate,
-  isEditMode,
-  isViewMode
-} from "@/store/availabilityGridStore";
+import useAvailabilityGridStore, { AvailabilityType, isEditMode, isViewMode } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
 import { format, isEqual, parseISO } from "date-fns";
 import { AnimationScope, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { VariableSizeList } from "react-window";
 import { useShallow } from "zustand/react/shallow";
 
-import EditAvailabilityDialog from "./dialog/edit-availability-dialog";
+import EditAvailabilityDialog from "../dialog/edit-availability-dialog";
 
 const SAVE_AVAILABILITY_BUTTON_TEXT = "Save Availability";
 const BEST_TIMES_BUTTON_TEXT = "Best Times";
 
 type AvailabilityGridHeaderProps = {
-  allParticipants: string[];
-  availabilityType: AvailabilityType;
-  earliestEventDate: EventDate;
-  editButtonAnimationScope: AnimationScope;
-  gridContainerRef: React.MutableRefObject<null | VariableSizeList>;
+  editAvailabilityButtonAnimationScope: AnimationScope;
   handleSaveUserAvailability: (user: string) => void;
   handleUserChange: (user: string) => void;
-  hasUserAddedAvailability: boolean;
-  lastColumn: number;
-  latestEventDate: EventDate;
 };
 
 export default function AvailabilityGridHeader({
-  allParticipants,
-  availabilityType,
-  earliestEventDate,
-  editButtonAnimationScope,
-  gridContainerRef,
+  editAvailabilityButtonAnimationScope,
   handleSaveUserAvailability,
-  handleUserChange,
-  lastColumn,
-  latestEventDate
+  handleUserChange
 }: AvailabilityGridHeaderProps) {
+  const { allParticipants, availabilityType, sortedEventDates } = useAvailabilityGridStore((state) => state.eventData);
+  // TODO: pagination
+
+  const earliestDate = parseISO(sortedEventDates[0]);
+  const latestDate = parseISO(sortedEventDates[sortedEventDates.length - 1]);
+  const lastColumn = sortedEventDates.length - 1;
+
   const mode = useAvailabilityGridStore((state) => state.mode);
   const user = useAvailabilityGridStore((state) => state.user);
 
@@ -51,8 +39,6 @@ export default function AvailabilityGridHeader({
   );
 
   const visibleColumnRange = useAvailabilityGridStore(useShallow((state) => state.visibleColumnRange));
-  const earliestDate = parseISO(earliestEventDate);
-  const latestDate = parseISO(latestEventDate);
 
   let heading = "";
 
@@ -68,15 +54,15 @@ export default function AvailabilityGridHeader({
   const firstColInView = visibleColumnRange.start === 0;
   const visibleColumnRangeLoaded = visibleColumnRange.start !== -1 && visibleColumnRange.end !== -1;
 
-  function scrollNext() {
-    if (lastColInView || gridContainerRef.current === null) return;
-    gridContainerRef.current.scrollToItem(visibleColumnRange.end, "start");
-  }
+  // function scrollNext() {
+  //   if (lastColInView || gridContainerRef.current === null) return;
+  //   gridContainerRef.current.scrollToItem(visibleColumnRange.end, "start");
+  // }
 
-  function scrollPrev() {
-    if (firstColInView || gridContainerRef.current === null) return;
-    gridContainerRef.current.scrollToItem(visibleColumnRange.start, "end");
-  }
+  // function scrollPrev() {
+  //   if (firstColInView || gridContainerRef.current === null) return;
+  //   gridContainerRef.current.scrollToItem(visibleColumnRange.start, "end");
+  // }
 
   const MotionButton = motion(Button);
 
@@ -94,7 +80,7 @@ export default function AvailabilityGridHeader({
   const editUserAvailabilityButton = (
     <EditAvailabilityDialog
       allParticipants={allParticipants}
-      animationScope={editButtonAnimationScope}
+      editAvailabilityButtonAnimationScope={editAvailabilityButtonAnimationScope}
       handleUserChange={handleUserChange}
     />
   );
@@ -149,7 +135,8 @@ export default function AvailabilityGridHeader({
             <div className="ml-4 mr-1 flex h-7 whitespace-nowrap">
               <MotionButton
                 className="h-7 w-7 rounded-sm px-[2px] py-0"
-                onClick={scrollPrev}
+                // TODO
+                onClick={() => {}}
                 variant={firstColInView ? "default-disabled" : "default"}
                 whileTap={!firstColInView ? { scale: 0.88 } : {}}
               >
@@ -158,7 +145,8 @@ export default function AvailabilityGridHeader({
               </MotionButton>
               <MotionButton
                 className="ml-[5px] h-7 w-7 rounded-sm px-[2px] py-0"
-                onClick={scrollNext}
+                // TODO
+                onClick={() => {}}
                 variant={lastColInView ? "default-disabled" : "default"}
                 whileTap={!lastColInView ? { scale: 0.88 } : {}}
               >

@@ -2,8 +2,9 @@ import { Button } from "@/components/ui/button";
 import useDragSelect from "@/hooks/useDragSelect";
 import { DAYS_OF_WEEK_DATES, EventDate } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
+import { isLeftClick } from "@/utils/mouseEvent";
 import { format, parseISO } from "date-fns";
-import { Dispatch, SetStateAction, useRef } from "react";
+import { Dispatch, MouseEvent, SetStateAction, useRef } from "react";
 type DaysOfWeekPickerProps = {
   selectedDaysOfWeek: Set<EventDate>;
   setSelectedDaysOfWeek: Dispatch<SetStateAction<Set<EventDate>>>;
@@ -74,7 +75,8 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
                     "text-md mx-3 w-[4.5rem] rounded-xl": size === "large"
                   })}
                   drag-select-attr={date}
-                  onMouseDown={() => {
+                  onMouseDown={(e: MouseEvent<HTMLButtonElement>) => {
+                    if (!isLeftClick(e)) return;
                     onMouseDragStart(date);
                   }}
                   onMouseEnter={() => {

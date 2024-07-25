@@ -20,14 +20,13 @@ export type GridDragSelectionCellCheck = (row: number, col: number) => boolean;
 export type GridDragSelectionCellBorderCheck = (row: number, col: number) => CellBorderCheck;
 
 type useGridDragSelectReturn = {
-  clearSelection: GridDragClearHandler;
   isAdding: boolean;
   isCellBorderOfSelectionArea: GridDragSelectionCellBorderCheck;
   isCellInSelectionArea: GridDragSelectionCellCheck;
   isSelecting: boolean;
   onDragMove: GridDragMoveHandler;
   onDragStart: GridDragStartHandler;
-  saveSelection: GridDragSaveHandler;
+  saveCurrentSelection: GridDragSaveHandler;
 };
 
 export default function useGridDragSelect<T, U, V>(
@@ -69,19 +68,11 @@ export default function useGridDragSelect<T, U, V>(
     [selected, sortedCols, sortedRows]
   );
 
-  const saveSelection: GridDragSaveHandler = useCallback(() => {
+  const saveCurrentSelection: GridDragSaveHandler = useCallback(() => {
     if (!isSelecting) return;
-    const selection = generateAllElementsWithinSelectionArea();
 
-    if (!isAdding) {
-      removeSelected(selection);
-    } else {
-      addSelected(selection);
-    }
-    clearSelection();
-  }, [isAdding, isSelecting]);
+    const currentSelection = [] as V[];
 
-  function generateAllElementsWithinSelectionArea() {
     if (startCellPositionRef.current === null || endCellPositionRef.current === null) return [];
     const [minRow, maxRow] = [
       Math.min(startCellPositionRef.current.row, endCellPositionRef.current.row),
@@ -91,17 +82,23 @@ export default function useGridDragSelect<T, U, V>(
       Math.min(startCellPositionRef.current.col, endCellPositionRef.current.col),
       Math.max(startCellPositionRef.current.col, endCellPositionRef.current.col)
     ];
-    const elements = [] as V[];
     for (let row = minRow; row <= maxRow; row++) {
       for (let col = minCol; col <= maxCol; col++) {
-        const element = mappingFunction(sortedRows[row], sortedCols[col]);
-        elements.push(element);
+        const el = mappingFunction(sortedRows[row], sortedCols[col]);
+        currentSelection.push(el);
       }
     }
-    return elements;
-  }
 
-  const clearSelection: GridDragClearHandler = useCallback(() => {
+    clearCurrentSelection();
+
+    if (!isAdding) {
+      removeSelected(currentSelection);
+    } else {
+      addSelected(currentSelection);
+    }
+  }, [isAdding, isSelecting]);
+
+  const clearCurrentSelection: GridDragClearHandler = useCallback(() => {
     setIsSelecting(false);
     startCellPositionRef.current = null;
     endCellPositionRef.current = null;
@@ -148,13 +145,12 @@ export default function useGridDragSelect<T, U, V>(
   };
 
   return {
-    clearSelection,
     isAdding,
     isCellBorderOfSelectionArea,
     isCellInSelectionArea,
     isSelecting,
     onDragMove,
     onDragStart,
-    saveSelection
+    saveCurrentSelection
   };
 }

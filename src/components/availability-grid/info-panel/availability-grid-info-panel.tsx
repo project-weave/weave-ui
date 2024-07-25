@@ -1,40 +1,18 @@
 import EventDateCalendar from "@/components/event-date-calendar";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import useAvailabilityGridStore, {
-  AvailabilityType,
-  EventDate,
-  isEditMode,
-  TimeSlot
-} from "@/store/availabilityGridStore";
+import useAvailabilityGridStore, { AvailabilityType, EventDate, isEditMode } from "@/store/availabilityGridStore";
 import { Copy } from "lucide-react";
-import { useCallback, useMemo, useRef } from "react";
-import { VariableSizeList } from "react-window";
+import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import AvailabilityGridResponseFilterButton from "./availability-grid-response-filter-button";
 
 const RESPONSES_TITLE = "Responses";
 
-type AvailabilityGridInfoPanelProps = {
-  allParticipants: string[];
-  availabilityType: AvailabilityType;
-  eventDates: EventDate[];
-  eventName: string;
-  gridContainerRef: React.MutableRefObject<null | VariableSizeList>;
-  sortedEventDates: EventDate[];
-  timeSlotsToParticipants: Readonly<Record<TimeSlot, string[]>>;
-};
-
-export default function AvailbilityGridInfoPanel({
-  allParticipants,
-  availabilityType,
-  eventDates,
-  eventName,
-  gridContainerRef,
-  sortedEventDates,
-  timeSlotsToParticipants
-}: AvailabilityGridInfoPanelProps) {
+export default function AvailbilityGridInfoPanel() {
+  const { allParticipants, availabilityType, eventName, sortedEventDates, timeSlotsToParticipants } =
+    useAvailabilityGridStore((state) => state.eventData);
   const userFilter = useAvailabilityGridStore(useShallow((state) => state.userFilter));
   const setUserFilter = useAvailabilityGridStore((state) => state.setUserFilter);
   const mode = useAvailabilityGridStore((state) => state.mode);
@@ -66,39 +44,41 @@ export default function AvailbilityGridInfoPanel({
     return sortedEventDates.slice(startIndex, visibleColumnRange.end);
   }, [visibleColumnRange.start, visibleColumnRange.end, sortedEventDates]);
 
-  const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
-  const onViewModeDateClick = useCallback(
-    (date: EventDate) => {
-      function scrollToDate() {
-        const indexOfDate = sortedEventDates.indexOf(date);
-        if (indexOfDate === -1 || gridContainerRef.current === null) return;
+  // const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
+  // const onViewModeDateClick = useCallback(
+  //   (date: EventDate) => {
+  //     function scrollToDate() {
+  //       const indexOfDate = sortedEventDates.indexOf(date);
+  //       if (indexOfDate === -1 || gridContainerRef.current === null) return;
 
-        let columnNum = indexOfDate + 1;
-        if (indexOfDate === 0) {
-          columnNum = 0;
-        }
-        gridContainerRef.current.scrollToItem(columnNum, "start");
-      }
+  //       let columnNum = indexOfDate + 1;
+  //       if (indexOfDate === 0) {
+  //         columnNum = 0;
+  //       }
+  //       gridContainerRef.current.scrollToItem(columnNum, "start");
+  //     }
 
-      function setFocusedDateTimeout() {
-        if (timeoutIdRef.current !== null) {
-          clearTimeout(timeoutIdRef.current);
-        }
-        timeoutIdRef.current = setTimeout(() => {
-          setFocusedDate(null);
-        }, 5000);
-        setFocusedDate(date);
-      }
+  //     function setFocusedDateTimeout() {
+  //       if (timeoutIdRef.current !== null) {
+  //         clearTimeout(timeoutIdRef.current);
+  //       }
+  //       timeoutIdRef.current = setTimeout(() => {
+  //         setFocusedDate(null);
+  //       }, 5000);
+  //       setFocusedDate(date);
+  //     }
 
-      scrollToDate();
-      setFocusedDateTimeout();
-    },
-    [gridContainerRef, setFocusedDate, sortedEventDates]
-  );
+  //     scrollToDate();
+  //     setFocusedDateTimeout();
+  //   },
+  //   [gridContainerRef, setFocusedDate, sortedEventDates]
+  // );
+  // TODO
+  const onViewModeDateClick = () => {};
 
   const eventDatesSet = useMemo(() => {
-    return new Set<EventDate>(eventDates);
-  }, [eventDates]);
+    return new Set<EventDate>(sortedEventDates);
+  }, [sortedEventDates]);
 
   function filterUserHandler(user: string) {
     if (isEditMode(mode)) return;

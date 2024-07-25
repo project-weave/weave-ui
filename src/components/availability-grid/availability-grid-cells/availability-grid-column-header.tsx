@@ -1,7 +1,6 @@
 import useAvailabilityGridStore, {
   AvailabilityType,
   EventDate,
-  EventTime,
   getTimeSlot,
   isEditMode,
   isViewMode
@@ -9,33 +8,25 @@ import useAvailabilityGridStore, {
 import { cn } from "@/utils/cn";
 import { format, parseISO } from "date-fns";
 import { motion } from "framer-motion";
-import React from "react";
 import { useShallow } from "zustand/react/shallow";
 
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 
 type AvailabilityGridColumnHeaderProps = {
-  availabilityType: AvailabilityType;
   eventDate: EventDate;
-  hasUserAddedAvailability: boolean;
   isDateGapRight: boolean;
-  sortedEventTimes: EventTime[];
 };
 
-const AvailabilityGridColumnHeader = ({
-  availabilityType,
-  eventDate,
-  isDateGapRight,
-  sortedEventTimes
-}: AvailabilityGridColumnHeaderProps) => {
-  const parsedDate = parseISO(eventDate);
-
+export default function AvailabilityGridColumnHeader({ eventDate, isDateGapRight }: AvailabilityGridColumnHeaderProps) {
+  const { availabilityType, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);
   const mode = useAvailabilityGridStore((state) => state.mode);
   const [selectedTimeSlots, addSelectedTimeSlot, removeSelectedTimeSlot] = useAvailabilityGridStore(
     useShallow((state) => [state.selectedTimeSlots, state.addSelectedTimeSlots, state.removeSelectedTimeSlots])
   );
   const focusedDate = useAvailabilityGridStore((state) => state.focusedDate);
+
   const isDateFocused = focusedDate === eventDate;
+  const parsedDate = parseISO(eventDate);
 
   const allTimeSlotsForDate = sortedEventTimes.map((eventTime) => getTimeSlot(eventTime, eventDate));
   const isAllTimeSlotForDateSelected = allTimeSlotsForDate.every((timeSlot) => selectedTimeSlots.includes(timeSlot));
@@ -99,6 +90,4 @@ const AvailabilityGridColumnHeader = ({
       )}
     </div>
   );
-};
-
-export default React.memo(AvailabilityGridColumnHeader);
+}

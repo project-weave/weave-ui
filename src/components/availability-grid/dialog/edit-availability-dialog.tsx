@@ -30,13 +30,13 @@ const ENTER_YOUR_NAME = "Enter Your Name";
 
 type EditAvailabilityDialogProps = {
   allParticipants: string[];
-  animationScope: AnimationScope;
+  editAvailabilityButtonAnimationScope: AnimationScope;
   handleUserChange: (user: string) => void;
 };
 
 export default function EditAvailabilityDialog({
   allParticipants,
-  animationScope,
+  editAvailabilityButtonAnimationScope,
   handleUserChange
 }: EditAvailabilityDialogProps) {
   const [isEnterNewAvailability, setIsEnterNewAvailability] = useState(true);
@@ -94,7 +94,7 @@ export default function EditAvailabilityDialog({
       <DialogTrigger asChild>
         <MotionButton
           className="h-[1.9rem] whitespace-nowrap rounded-[.4rem] text-[.85rem]"
-          ref={animationScope}
+          ref={editAvailabilityButtonAnimationScope}
           variant="default"
         >
           {EDIT_AVAILABILITY}

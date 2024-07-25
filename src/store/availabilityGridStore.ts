@@ -1,3 +1,6 @@
+import { GetEventResponse } from "@/hooks/requests/useGetEvent";
+import { EventResponse } from "@/types/Event";
+import { addMinutes, format, parseISO } from "date-fns";
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 
@@ -57,17 +60,30 @@ export function isViewMode(mode: AvailabilityGridMode): boolean {
   return mode === AvailabilityGridMode.VIEW;
 }
 
+type EventData = {
+  allParticipants: string[];
+  availabilityType: AvailabilityType;
+  eventId: string;
+  eventName: string;
+  eventResponses: EventResponse[];
+  sortedEventDates: EventDate[];
+  sortedEventTimes: EventTime[];
+  timeSlotsToParticipants: Record<TimeSlot, string[]>;
+};
+
 // TODO: only take event dates that fall within the event date/time range
 
 // Temporarily storing user data/event data here
 type AvailabilityGridState = {
   addSelectedTimeSlots: (timeSlot: TimeSlot[]) => void;
+  eventData: EventData;
   focusedDate: EventDate | null;
   hoveredTimeSlot: null | TimeSlot;
   isBestTimesEnabled: boolean;
   mode: AvailabilityGridMode;
   removeSelectedTimeSlots: (timeSlot: TimeSlot[]) => void;
   selectedTimeSlots: TimeSlot[];
+  setEventData: (data: GetEventResponse) => void;
   setFocusedDate: (focusedDate: EventDate | null) => void;
   setHoveredTimeSlot: (hoveredTimeSlot: null | TimeSlot) => void;
   setIsBestTimesEnabled: (isBestTimesEnabled: boolean) => void;
@@ -95,14 +111,20 @@ const useAvailabilityGridStore = create<AvailabilityGridState>()(
         return { ...state, selectedTimeSlots: newSelectedTimeSlots };
       });
     },
-    eventDates: [],
-    eventEndTimeUTC: "24:00:00",
-    eventName: "",
-    eventStartTimeUTC: "00:00:00",
-    eventUserAvailability: {},
+    eventData: {
+      allParticipants: [],
+      availabilityType: AvailabilityType.DAYS_OF_WEEK,
+      eventId: "",
+      eventName: "",
+      eventResponses: [],
+      sortedEventDates: [],
+      sortedEventTimes: [],
+      timeSlotsToParticipants: {}
+    },
     focusedDate: null,
     hoveredTimeSlot: null,
     isBestTimesEnabled: false,
+
     mode: AvailabilityGridMode.VIEW,
     removeSelectedTimeSlots: (toRemove: TimeSlot[]) => {
       set((state) => {
@@ -116,6 +138,60 @@ const useAvailabilityGridStore = create<AvailabilityGridState>()(
       });
     },
     selectedTimeSlots: [],
+
+    setEventData: (data: GetEventResponse) => {
+      if (!data) return;
+      const { event, responses } = data;
+      const availabilityType = event.isSpecificDates ? AvailabilityType.SPECIFIC_DATES : AvailabilityType.DAYS_OF_WEEK;
+
+      const sortedEventTimes: EventTime[] = [];
+      let currentTime = parseISO(getTimeSlot(event.startTime));
+      const endTime = addMinutes(parseISO(getTimeSlot(event.endTime)), TIME_SLOT_INTERVAL_MINUTES);
+      while (currentTime <= endTime) {
+        const formattedTime = format(currentTime, EVENT_TIME_FORMAT);
+        sortedEventTimes.push(formattedTime);
+        currentTime = addMinutes(currentTime, TIME_SLOT_INTERVAL_MINUTES);
+      }
+
+      const sortedEventDates = event.dates.sort((date1: EventDate, date2: EventDate) => {
+        return parseISO(date1).getTime() - parseISO(date2).getTime();
+      });
+
+      // TODO: use user_id as well when logged in users functionality is implemented
+
+      const allParticipants = responses
+        .map((response) => response.alias)
+        .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+
+      const timeSlotsToParticipants: Record<TimeSlot, string[]> = {};
+      // TODO: use user_id as well when logged in users functionality is implemented
+      responses.forEach(({ alias, availabilities }) => {
+        (availabilities || []).forEach((timeSlot) => {
+          if (timeSlotsToParticipants[timeSlot] === undefined) {
+            timeSlotsToParticipants[timeSlot] = [];
+          }
+          timeSlotsToParticipants[timeSlot].push(alias);
+        });
+      });
+
+      const eventData = {
+        allParticipants,
+        availabilityType,
+        eventId: event.id,
+        eventName: event.name,
+        eventResponses: responses,
+        sortedEventDates,
+        sortedEventTimes,
+        timeSlotsToParticipants
+      } as EventData;
+
+      console.log(eventData);
+
+      return set({
+        eventData
+      });
+    },
+
     setFocusedDate: (focusedDate: EventDate | null) => set({ focusedDate }),
     setHoveredTimeSlot: (hoveredTimeSlot: null | TimeSlot) => set({ hoveredTimeSlot }),
     setIsBestTimesEnabled: (isBestTimesEnabled: boolean) => set({ isBestTimesEnabled }),
@@ -124,6 +200,9 @@ const useAvailabilityGridStore = create<AvailabilityGridState>()(
     setUser: (user: string) => set({ user }),
     setUserFilter: (userFilter: string[]) => set({ userFilter }),
     setVisibleColumnRange: (start: number, end: number) => set({ visibleColumnRange: { end, start } }),
+    sortedEventDates: [],
+    sortedEventTimes: [],
+    timeSlotsToParticipants: {},
     toggleIsBestTimesEnabled: () =>
       set((prev) => {
         return { ...prev, isBestTimesEnabled: !prev.isBestTimesEnabled };
