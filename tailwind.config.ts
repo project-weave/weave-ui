@@ -1,16 +1,21 @@
 /** @type {import('tailwindcss').Config} */
 
+import defaultTheme from "tailwindcss/defaultTheme";
+
 module.exports = {
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  plugins: [require("tailwindcss-animate"), require("tailwind-scrollbar")({ nocompatible: true })],
+  future: {
+    hoverOnlyWhenSupported: true
+  },
+  plugins: [
+    require("tailwindcss-animate"),
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    require("tailwind-scrollbar")({ nocompatible: true })
+  ],
   theme: {
     container: {
       center: true,
-      padding: "2rem",
-      screens: {
-        "2xl": "1400px"
-      }
+      padding: "2rem"
     },
     extend: {
       borderRadius: {
@@ -59,8 +64,11 @@ module.exports = {
       },
       fontSize: {
         "2xs": "0.7rem",
-        "3xs": "0.65rem",
-        "4xs": "0.6rem"
+        "3xs": "0.6rem",
+        "4xs": "0.55rem",
+        base: "1rem",
+        sm: "0.9rem",
+        xs: "0.8rem"
       }
       // keyframes: {
       //   "accordion-down": {
@@ -76,6 +84,10 @@ module.exports = {
       //   "accordion-down": "accordion-down 0.2s ease-out",
       //   "accordion-up": "accordion-up 0.2s ease-out"
       // }
+    },
+    screens: {
+      xs: "430px",
+      ...defaultTheme.screens
     }
   }
 };

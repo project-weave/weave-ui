@@ -1,45 +1,69 @@
 "use client";
+import NewEventForm from "@/components/new-event-form";
+import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 import { useRef } from "react";
-
-import NewEventPage from "./(event)/new/page";
 
 const SUBTITLE =
   "The hardest part about getting together is finding time for it. With Weave, you'll be able to schedule group events with ease, and enjoy doing so.";
 const CREATE_A_WEAVE = "Create a Weave";
 
 export default function LandingPage() {
-  const titleRef = useRef<HTMLDivElement | null>(null);
+  const eventFormRef = useRef<HTMLDivElement | null>(null);
+
+  const words = ["friends", "family", "colleagues", "you"];
+  const wordHeight = 77;
 
   return (
-    <div className="flex flex-col items-center">
-      <div
-        className="mt-8 grid max-h-[70rem] w-full"
-        style={{
-          gridTemplateRows: "40% 20% 40%"
-        }}
-      >
-        <h1 className="mt-5 flex flex-col whitespace-pre-line text-center text-[5rem] font-semibold ">
-          <div className="-mb-8">find time for</div>{" "}
-          <div className="flex flex-row self-center">
-            <div>what&apos;s&nbsp;</div>
-            <div className="text-primary">important.</div>
+    <div className="mt-14 flex h-fit w-full flex-col items-center">
+      <div className="grid w-full">
+        <h1 className="flex flex-col text-center text-[2.6rem] font-semibold leading-[3.2rem] sm:mt-8 sm:leading-[3rem] md:text-[3.7rem] md:leading-[4rem] xl:text-[4.3rem] xl:leading-[4.3rem]">
+          <div>find time for</div>
+          <div className="relative h-[50px] overflow-hidden sm:mt-0 sm:h-[50px] md:h-[68px] xl:h-[75px] ">
+            <motion.div
+              animate={{
+                y: [
+                  0,
+                  0,
+                  -wordHeight,
+                  -wordHeight,
+                  -2 * wordHeight,
+                  -2 * wordHeight,
+                  -3 * wordHeight,
+                  -3 * wordHeight,
+                  0
+                ]
+              }}
+              className="flex flex-col align-top"
+              transition={{ duration: 10, ease: "anticipate", repeat: Infinity }}
+            >
+              {words.map((word, index) => (
+                <div className="relative mb-[26px] flex h-[50px] justify-center text-start text-primary" key={index}>
+                  <p>{word}</p>
+                </div>
+              ))}
+            </motion.div>
           </div>
         </h1>
       </div>
 
-      <h1 className="tracing-wider w-3/4 content-center pt-10 text-center text-2xl font-medium">{SUBTITLE}</h1>
+      <p className="mt-10 hidden w-9/12 text-center font-medium sm:mt-8 sm:block sm:w-8/12 md:mt-10 md:text-lg xl:w-9/12 xl:px-10 xl:text-xl 2xl:w-3/4">
+        {SUBTITLE}
+      </p>
 
-      <button
-        className="text-md mt-16 h-auto rounded-xl bg-primary px-12 py-4 align-bottom font-medium text-primary-foreground outline-none transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:pointer-events-none disabled:opacity-50"
+      <Button
+        className="mt-16 h-auto px-8 py-3 text-sm md:mt-20 md:px-10 md:py-4 md:text-base xl:px-12 "
         onClick={() => {
-          titleRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+          eventFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
         }}
       >
         {CREATE_A_WEAVE}
-      </button>
+      </Button>
 
-      <div className="pb-24 pt-24" ref={titleRef}>
-        <NewEventPage />
+      <div className="h-full min-h-screen w-full pb-10 sm:mt-10 xl:mt-20">
+        <div className="pt-24 sm:pt-[6rem]" ref={eventFormRef}>
+          <NewEventForm />
+        </div>
       </div>
     </div>
   );

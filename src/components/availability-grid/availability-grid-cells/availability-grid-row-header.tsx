@@ -1,21 +1,15 @@
-import useAvailabilityGridStore, {
-  AvailabilityGridMode,
-  EVENT_TIME_FORMAT,
-  getTimeFromTimeSlot,
-  getTimeSlot,
-  isViewMode,
-  TIME_SLOT_INTERVAL_MINUTES
-} from "@/store/availabilityGridStore";
+import useAvailabilityGridStore, { isViewMode } from "@/store/availabilityGridStore";
+import { EVENT_TIME_FORMAT, getTimeFromTimeSlot, getTimeSlot, TIME_SLOT_INTERVAL_MINUTES } from "@/types/Event";
 import { cn } from "@/utils/cn";
 import { addMinutes, format, parseISO } from "date-fns";
 
 type AvailabilityGridRowHeaderProps = {
   eventTime: string;
-  mode: AvailabilityGridMode;
 };
 
-export default function AvailabilityGridRowHeader({ eventTime, mode }: AvailabilityGridRowHeaderProps) {
+export default function AvailabilityGridRowHeader({ eventTime }: AvailabilityGridRowHeaderProps) {
   const hoveredTimeSlot = useAvailabilityGridStore((state) => state.hoveredTimeSlot);
+  const mode = useAvailabilityGridStore((state) => state.mode);
   const isHoveredTimeSlot = eventTime === getTimeFromTimeSlot(hoveredTimeSlot);
 
   // parsing time with arbitrary date as we're only interested in the time
@@ -28,7 +22,7 @@ export default function AvailabilityGridRowHeader({ eventTime, mode }: Availabil
   return (
     <time
       className={cn(
-        "ml-2 mr-2 -translate-y-2 text-right text-2xs text-primary duration-300",
+        "ml-2 mr-2 -translate-y-2 text-right text-2xs font-medium text-primary duration-300",
         { "opacity-0": parsedDateTime.getMinutes() !== 0 },
         {
           "font-bold opacity-100": isHoveredTimeSlot || isPrevTimeSlotHovered,

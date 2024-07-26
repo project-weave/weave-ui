@@ -13,21 +13,20 @@ export type CellBorderCheck = {
 };
 
 export type GridDragClearHandler = () => void;
-export type GridDragMouseDownHandler = (row: number, col: number) => void;
-export type GridDragMouseEnterHandler = (row: number, col: number) => void;
+export type GridDragStartHandler = (row: number, col: number) => void;
+export type GridDragMoveHandler = (row: number, col: number) => void;
 export type GridDragSaveHandler = () => void;
 export type GridDragSelectionCellCheck = (row: number, col: number) => boolean;
 export type GridDragSelectionCellBorderCheck = (row: number, col: number) => CellBorderCheck;
 
 type useGridDragSelectReturn = {
-  clearSelection: GridDragClearHandler;
   isAdding: boolean;
   isCellBorderOfSelectionArea: GridDragSelectionCellBorderCheck;
   isCellInSelectionArea: GridDragSelectionCellCheck;
   isSelecting: boolean;
-  onMouseDown: GridDragMouseDownHandler;
-  onMouseEnter: GridDragMouseEnterHandler;
-  saveSelection: GridDragSaveHandler;
+  onDragMove: GridDragMoveHandler;
+  onDragStart: GridDragStartHandler;
+  saveCurrentSelection: GridDragSaveHandler;
 };
 
 export default function useGridDragSelect<T, U, V>(
@@ -44,7 +43,7 @@ export default function useGridDragSelect<T, U, V>(
   const [isSelecting, setIsSelecting] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
 
-  const onMouseEnter = useCallback(
+  const onDragMove = useCallback(
     (row: number, col: number) => {
       if (isSelecting && startCellPositionRef.current && endCellPositionRef.current) {
         endCellPositionRef.current = { col, row };
@@ -53,7 +52,7 @@ export default function useGridDragSelect<T, U, V>(
     [isSelecting]
   );
 
-  const onMouseDown = useCallback(
+  const onDragStart = useCallback(
     (row: number, col: number) => {
       setIsSelecting(true);
       startCellPositionRef.current = { col, row };
@@ -69,19 +68,11 @@ export default function useGridDragSelect<T, U, V>(
     [selected, sortedCols, sortedRows]
   );
 
-  const saveSelection: GridDragSaveHandler = useCallback(() => {
+  const saveCurrentSelection: GridDragSaveHandler = useCallback(() => {
     if (!isSelecting) return;
-    const selection = generateAllElementsWithinSelectionArea();
 
-    if (!isAdding) {
-      removeSelected(selection);
-    } else {
-      addSelected(selection);
-    }
-    clearSelection();
-  }, [isAdding, isSelecting]);
+    const currentSelection = [] as V[];
 
-  function generateAllElementsWithinSelectionArea() {
     if (startCellPositionRef.current === null || endCellPositionRef.current === null) return [];
     const [minRow, maxRow] = [
       Math.min(startCellPositionRef.current.row, endCellPositionRef.current.row),
@@ -91,17 +82,23 @@ export default function useGridDragSelect<T, U, V>(
       Math.min(startCellPositionRef.current.col, endCellPositionRef.current.col),
       Math.max(startCellPositionRef.current.col, endCellPositionRef.current.col)
     ];
-    const elements = [] as V[];
     for (let row = minRow; row <= maxRow; row++) {
       for (let col = minCol; col <= maxCol; col++) {
-        const element = mappingFunction(sortedRows[row], sortedCols[col]);
-        elements.push(element);
+        const el = mappingFunction(sortedRows[row], sortedCols[col]);
+        currentSelection.push(el);
       }
     }
-    return elements;
-  }
 
-  const clearSelection: GridDragClearHandler = useCallback(() => {
+    clearCurrentSelection();
+
+    if (!isAdding) {
+      removeSelected(currentSelection);
+    } else {
+      addSelected(currentSelection);
+    }
+  }, [isAdding, isSelecting]);
+
+  const clearCurrentSelection: GridDragClearHandler = useCallback(() => {
     setIsSelecting(false);
     startCellPositionRef.current = null;
     endCellPositionRef.current = null;
@@ -148,13 +145,12 @@ export default function useGridDragSelect<T, U, V>(
   };
 
   return {
-    clearSelection,
     isAdding,
     isCellBorderOfSelectionArea,
     isCellInSelectionArea,
     isSelecting,
-    onMouseDown,
-    onMouseEnter,
-    saveSelection
+    onDragMove,
+    onDragStart,
+    saveCurrentSelection
   };
 }

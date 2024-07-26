@@ -48,7 +48,7 @@ export default function AvailbilityGridBResponseFilterButton({
       whileTap={isViewMode(mode) ? { scale: 0.92 } : {}}
     >
       <User className="h-4 w-4" />
-      <span className="mx-1 max-w-[5.8rem] overflow-hidden text-ellipsis whitespace-nowrap text-[0.74rem]">{name}</span>
+      <span className="mx-1 max-w-[5.8rem] overflow-hidden text-ellipsis whitespace-nowrap text-2xs">{name}</span>
     </motion.button>
   );
 }

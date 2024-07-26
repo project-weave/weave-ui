@@ -1,45 +1,32 @@
-import EventDateCalendar from "@/components/event-date-calendar";
+import EventDateCalendar, { MONTH_FORMAT } from "@/components/event-date-calendar";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import useAvailabilityGridStore, {
-  AvailabilityType,
-  EventDate,
-  isEditMode,
-  TimeSlot
-} from "@/store/availabilityGridStore";
+import useAvailabilityGridStore, { AvailabilityType, isEditMode } from "@/store/availabilityGridStore";
+import { EventDate } from "@/types/Event";
+import { format, parseISO } from "date-fns";
+import { motion } from "framer-motion";
 import { Copy } from "lucide-react";
 import { useCallback, useMemo, useRef } from "react";
-import { VariableSizeList } from "react-window";
 import { useShallow } from "zustand/react/shallow";
 
 import AvailabilityGridResponseFilterButton from "./availability-grid-response-filter-button";
 
 const RESPONSES_TITLE = "Responses";
 
-type AvailabilityGridInfoPanelProps = {
-  availabilityType: AvailabilityType;
-  eventDates: EventDate[];
-  eventName: string;
-  gridContainerRef: React.MutableRefObject<null | VariableSizeList>;
-  timeSlotsToParticipants: Readonly<Record<TimeSlot, string[]>>;
-  allParticipants: string[];
-  sortedEventDates: EventDate[];
-};
-
-export default function AvailbilityGridInfoPanel({
-  availabilityType,
-  eventDates,
-  eventName,
-  gridContainerRef,
-  timeSlotsToParticipants,
-  allParticipants,
-  sortedEventDates
-}: AvailabilityGridInfoPanelProps) {
+export default function AvailbilityGridInfoPanel() {
+  const { allParticipants, availabilityType, eventName, sortedEventDates, timeSlotsToParticipants } =
+    useAvailabilityGridStore((state) => state.eventData);
   const userFilter = useAvailabilityGridStore(useShallow((state) => state.userFilter));
   const setUserFilter = useAvailabilityGridStore((state) => state.setUserFilter);
+
   const mode = useAvailabilityGridStore((state) => state.mode);
   const user = useAvailabilityGridStore((state) => state.user);
-  const visibleColumnRange = useAvailabilityGridStore((state) => state.visibleColumnRange);
+
+  const [leftMostColumnInView, setLeftMostColumnInView] = useAvailabilityGridStore(
+    useShallow((state) => [state.leftMostColumnInView, state.setLeftMostColumnInView])
+  );
+  const availabilityGridViewWindowSize = useAvailabilityGridStore((state) => state.availabilityGridViewWindowSize);
+
   const setFocusedDate = useAvailabilityGridStore((state) => state.setFocusedDate);
   const hoveredTimeSlot = useAvailabilityGridStore((state) => state.hoveredTimeSlot);
 
@@ -61,23 +48,19 @@ export default function AvailbilityGridInfoPanel({
     );
   }
 
-  const sortedCalendarVisibleEventDates = useMemo(() => {
-    const startIndex = visibleColumnRange.start === 0 ? 0 : visibleColumnRange.start - 1;
-    return sortedEventDates.slice(startIndex, visibleColumnRange.end);
-  }, [visibleColumnRange.start, visibleColumnRange.end, sortedEventDates]);
+  const visibleEventDates = sortedEventDates.slice(
+    leftMostColumnInView,
+    leftMostColumnInView + availabilityGridViewWindowSize
+  );
 
   const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
   const onViewModeDateClick = useCallback(
     (date: EventDate) => {
       function scrollToDate() {
         const indexOfDate = sortedEventDates.indexOf(date);
-        if (indexOfDate === -1 || gridContainerRef.current === null) return;
+        if (indexOfDate === -1) return;
 
-        let columnNum = indexOfDate + 1;
-        if (indexOfDate === 0) {
-          columnNum = 0;
-        }
-        gridContainerRef.current.scrollToItem(columnNum, "start");
+        setLeftMostColumnInView(indexOfDate);
       }
 
       function setFocusedDateTimeout() {
@@ -93,12 +76,8 @@ export default function AvailbilityGridInfoPanel({
       scrollToDate();
       setFocusedDateTimeout();
     },
-    [gridContainerRef, setFocusedDate, sortedEventDates]
+    [setFocusedDate, sortedEventDates]
   );
-
-  const eventDatesSet = useMemo(() => {
-    return new Set<EventDate>(eventDates);
-  }, [eventDates]);
 
   function filterUserHandler(user: string) {
     if (isEditMode(mode)) return;
@@ -117,12 +96,16 @@ export default function AvailbilityGridInfoPanel({
     ? 1
     : Math.min(totalResponseCount, filteredUsersSelectedHoveredTimeSlot.length);
 
+  const eventCalendarMonthOverride = format(parseISO(sortedEventDates[leftMostColumnInView]), MONTH_FORMAT);
+
+  const MotionButton = motion(Button);
+
   return (
-    <div className="card flex h-full cursor-pointer flex-col px-4">
-      <div className="text-md relative flex justify-between text-ellipsis rounded-2xl border-2 border-primary px-3 py-2 font-medium text-secondary">
+    <div className="card sticky top-[5.5rem] flex h-full max-h-[85vh] cursor-pointer flex-col px-4">
+      <div className="relative flex justify-between text-ellipsis rounded-2xl border-2 border-primary px-3 py-2 text-sm font-medium text-secondary">
         {eventName}
-        <Button
-          className="absolute -end-1 -top-[1.5px] h-11 rounded-2xl hover:bg-primary-hover hover:opacity-100"
+        <MotionButton
+          className="absolute -end-1 -top-[1.5px] h-10 rounded-2xl hover:bg-primary-hover"
           onClick={() => {
             navigator.clipboard.writeText(window.location.href);
             toast({
@@ -131,16 +114,17 @@ export default function AvailbilityGridInfoPanel({
             });
           }}
           variant="default"
+          whileTap={{ scaleX: 0.97 }}
         >
           <Copy className="h-4 w-4" />
-        </Button>
+        </MotionButton>
       </div>
 
       <div className="m-3 select-none">
         <div className="flex items-center justify-between">
           <div className="flex font-medium">
-            <p className="text-secondary">{RESPONSES_TITLE}</p>
-            <p className="ml-4 text-secondary">
+            <p className="text-sm text-secondary">{RESPONSES_TITLE}</p>
+            <p className="ml-4 text-sm text-secondary">
               {currentRepsonseCount}/{totalResponseCount}
             </p>
           </div>
@@ -162,16 +146,17 @@ export default function AvailbilityGridInfoPanel({
           ))}
         </div>
       </div>
-      {availabilityType === AvailabilityType.SPECIFIC_DATES && (
+      {availabilityType === AvailabilityType.SPECIFIC_DATES && sortedEventDates.length !== 0 && (
         <div className="mt-auto self-end">
           <EventDateCalendar
+            currentMonthOverride={eventCalendarMonthOverride}
             earliestSelectedDate={sortedEventDates[0]}
             id="availability-grid-event-calendar"
             isViewMode={true}
             latestSelectedDate={sortedEventDates[sortedEventDates.length - 1]}
             onViewModeDateClick={onViewModeDateClick}
-            selectedDates={eventDatesSet}
-            visibleEventDates={sortedCalendarVisibleEventDates}
+            selectedDates={new Set(sortedEventDates)}
+            visibleEventDates={visibleEventDates}
           />
         </div>
       )}

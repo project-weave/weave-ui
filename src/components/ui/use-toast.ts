@@ -8,12 +8,12 @@ import * as React from "react";
 const TOAST_LIMIT = 1;
 const TOAST_REMOVE_DELAY = 1500000;
 
-type ToasterToast = ToastProps & {
+type ToasterToast = {
   action?: ToastActionElement;
   description?: React.ReactNode;
   id: string;
   title?: React.ReactNode;
-};
+} & ToastProps;
 
 const actionTypes = {
   ADD_TOAST: "ADD_TOAST",

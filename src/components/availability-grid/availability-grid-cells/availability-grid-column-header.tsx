@@ -1,41 +1,30 @@
-import useAvailabilityGridStore, {
-  AvailabilityType,
-  EventDate,
-  EventTime,
-  getTimeSlot,
-  isEditMode,
-  isViewMode
-} from "@/store/availabilityGridStore";
+import useAvailabilityGridStore, { AvailabilityType, isEditMode, isViewMode } from "@/store/availabilityGridStore";
+import { EventDate, getTimeSlot } from "@/types/Event";
 import { cn } from "@/utils/cn";
 import { format, parseISO } from "date-fns";
 import { motion } from "framer-motion";
-import React from "react";
 import { useShallow } from "zustand/react/shallow";
 
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 
 type AvailabilityGridColumnHeaderProps = {
-  availabilityType: AvailabilityType;
   eventDate: EventDate;
-  hasUserAddedAvailability: boolean;
-  isDateGapRight: boolean;
-  sortedEventTimes: EventTime[];
+  hasDateGapRight: boolean;
 };
 
-const AvailabilityGridColumnHeader = ({
-  availabilityType,
+export default function AvailabilityGridColumnHeader({
   eventDate,
-  isDateGapRight,
-  sortedEventTimes
-}: AvailabilityGridColumnHeaderProps) => {
-  const parsedDate = parseISO(eventDate);
-
+  hasDateGapRight
+}: AvailabilityGridColumnHeaderProps) {
+  const { availabilityType, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);
   const mode = useAvailabilityGridStore((state) => state.mode);
   const [selectedTimeSlots, addSelectedTimeSlot, removeSelectedTimeSlot] = useAvailabilityGridStore(
     useShallow((state) => [state.selectedTimeSlots, state.addSelectedTimeSlots, state.removeSelectedTimeSlots])
   );
   const focusedDate = useAvailabilityGridStore((state) => state.focusedDate);
+
   const isDateFocused = focusedDate === eventDate;
+  const parsedDate = parseISO(eventDate);
 
   const allTimeSlotsForDate = sortedEventTimes.map((eventTime) => getTimeSlot(eventTime, eventDate));
   const isAllTimeSlotForDateSelected = allTimeSlotsForDate.every((timeSlot) => selectedTimeSlots.includes(timeSlot));
@@ -51,30 +40,38 @@ const AvailabilityGridColumnHeader = ({
 
   const MotionButton = motion(Button);
 
+  const topValue = availabilityType === AvailabilityType.SPECIFIC_DATES ? "10rem" : "9.2rem";
+
   return (
-    <div className={cn("text-center", { "mr-2": isDateGapRight })}>
+    <div
+      className={cn("w-full bg-background text-center", {
+        "mr-2": hasDateGapRight
+      })}
+      style={{
+        position: "sticky",
+        top: `${topValue}`
+      }}
+    >
       {availabilityType === AvailabilityType.SPECIFIC_DATES && (
         <>
-          <h3 className="pb-0 text-lg font-bold text-primary">{format(parsedDate, "MMM")}</h3>
-          <h3 className="mb-[5px] text-sm font-medium leading-4 text-secondary-light">{format(parsedDate, "EEE")}</h3>
+          <h3 className=" font-semibold text-primary">{format(parsedDate, "EEE")}</h3>
           <div
-            className={cn("m-auto flex h-9 w-11 items-center justify-center rounded-md border-2 border-transparent", {
+            className={cn("m-auto flex w-fit items-center justify-center rounded-md border-2 border-transparent", {
               "border-secondary": isDateFocused
             })}
           >
             <MotionButton
               className={cn(
-                "h-8 w-10 rounded-sm border-none bg-accent-light  text-lg font-semibold tracking-wide transition-all",
+                "h-6 rounded-sm border-none bg-accent-light px-2 text-xs font-semibold tracking-wide text-secondary transition-all hover:bg-accent",
                 {
-                  "bg-primary": isAllTimeSlotForDateSelected,
-                  "cursor-default bg-background text-xl text-secondary hover:bg-background": isViewMode(mode)
+                  "bg-primary text-white hover:bg-primary-hover": isAllTimeSlotForDateSelected,
+                  "cursor-default bg-background text-sm text-secondary hover:bg-background": isViewMode(mode)
                 }
               )}
               onClick={dateClickedHandler}
-              variant={isAllTimeSlotForDateSelected ? "default" : "outline"}
               whileTap={isEditMode(mode) ? { scale: 0.9 } : {}}
             >
-              <time dateTime={eventDate}>{format(parsedDate, "d")}</time>
+              <time dateTime={eventDate}>{format(parsedDate, "MMM d")}</time>
             </MotionButton>
           </div>
         </>
@@ -84,14 +81,13 @@ const AvailabilityGridColumnHeader = ({
           {/* <h3 className="py-3 text-xl font-semibold text-secondary">{format(parsedDate, "EEE")}</h3> */}
           <MotionButton
             className={cn(
-              "mt-2 h-8 w-10 rounded-xl border-none bg-accent-light px-12 py-5 text-xl font-semibold tracking-wide transition-all",
+              "h-8 w-16 rounded-xl border-none bg-accent-light px-3 py-2 pt-7 font-semibold tracking-wide transition-all hover:bg-accent",
               {
-                "bg-primary": isAllTimeSlotForDateSelected,
-                "cursor-default bg-background text-xl text-secondary hover:bg-background": isViewMode(mode)
+                "bg-primary text-white hover:bg-primary-hover": isAllTimeSlotForDateSelected,
+                "cursor-default bg-background text-lg text-secondary hover:bg-background": isViewMode(mode)
               }
             )}
             onClick={dateClickedHandler}
-            variant={isAllTimeSlotForDateSelected ? "default" : "outline"}
             whileTap={isEditMode(mode) ? { scale: 0.9 } : {}}
           >
             <time dateTime={eventDate}>{format(parsedDate, "EEE")}</time>
@@ -100,6 +96,4 @@ const AvailabilityGridColumnHeader = ({
       )}
     </div>
   );
-};
-
-export default React.memo(AvailabilityGridColumnHeader);
+}

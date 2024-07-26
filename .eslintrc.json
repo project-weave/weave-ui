@@ -21,7 +21,7 @@
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/no-unused-vars": "warn",
-    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-explicit-any": "warn",
     "react/display-name": "off",
     "react/no-children-prop": "off",
     "react/react-in-jsx-scope": "off",
@@ -36,12 +36,12 @@
     "perfectionist/sort-imports": "warn",
     "perfectionist/sort-interfaces": "warn",
     "perfectionist/sort-jsx-props": "warn",
+    "perfectionist/sort-intersection-types": "warn",
     "perfectionist/sort-named-exports": "warn",
     "perfectionist/sort-named-imports": "warn",
     "perfectionist/sort-object-types": "warn"
   },
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
+ "parserOptions": {
     "ecmaVersion": 6,
     "sourceType": "module"
   }

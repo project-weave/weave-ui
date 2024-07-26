@@ -1,8 +1,8 @@
 import { GetEventResponse } from "@/hooks/requests/useGetEvent";
-import { TimeSlot } from "@/store/availabilityGridStore";
-import { EventResponse } from "@/types/Event";
 import axios from "@/utils/axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+import { EventResponse, TimeSlot } from "../../types/Event";
 
 export interface UpdateAvailabilityRequest {
   alias: string;
@@ -36,7 +36,7 @@ const useUpdateAvailability = () => {
       const prevEventData = queryClient.getQueryData(["event", `${data.eventId}`]);
 
       queryClient.setQueryData(["event", `${data.eventId}`], (prevEventData: GetEventResponse) => {
-        let updatedResponses = [];
+        let updatedResponses: EventResponse[] = [];
         const prevResonse = prevEventData.responses.find((response) => response.alias === data.alias);
 
         // TODO: fix userID

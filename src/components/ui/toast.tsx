@@ -53,7 +53,7 @@ const ToastAction = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToastPrimitives.Action
     className={cn(
-      "inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-secondary group-[.failure]:hover:border-failure/30 group-[.success]:hover:border-success/30 group-[.failure]:hover:bg-failure group-[.success]:hover:bg-success group-[.failure]:hover:text-failure-foreground group-[.success]:hover:text-success-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 group-[.failure]:focus:ring-failure group-[.success]:focus:ring-success disabled:pointer-events-none disabled:opacity-50",
+      "inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3  font-medium ring-offset-background transition-colors hover:bg-secondary group-[.failure]:hover:border-failure/30 group-[.success]:hover:border-success/30 group-[.failure]:hover:bg-failure group-[.success]:hover:bg-success group-[.failure]:hover:text-failure-foreground group-[.success]:hover:text-success-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 group-[.failure]:focus:ring-failure group-[.success]:focus:ring-success disabled:pointer-events-none disabled:opacity-50",
       className
     )}
     ref={ref}
@@ -84,7 +84,7 @@ const ToastTitle = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Title>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Title>
 >(({ className, ...props }, ref) => (
-  <ToastPrimitives.Title className={cn("text-sm font-medium", className)} ref={ref} {...props} />
+  <ToastPrimitives.Title className={cn(" font-medium", className)} ref={ref} {...props} />
 ));
 ToastTitle.displayName = ToastPrimitives.Title.displayName;
 
@@ -92,7 +92,7 @@ const ToastDescription = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Description>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Description>
 >(({ className, ...props }, ref) => (
-  <ToastPrimitives.Description className={cn("text-sm opacity-90", className)} ref={ref} {...props} />
+  <ToastPrimitives.Description className={cn(" opacity-90", className)} ref={ref} {...props} />
 ));
 ToastDescription.displayName = ToastPrimitives.Description.displayName;
 

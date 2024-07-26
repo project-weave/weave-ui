@@ -1,4 +1,4 @@
-import axiosInstance, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import axiosInstance, { AxiosRequestHeaders, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 
 const axios = axiosInstance.create();
 
@@ -53,7 +53,7 @@ axios.interceptors.request.use(
     if (config.data) {
       config.data = camelToSnake(config.data);
     }
-    config.headers = config.headers || {}; // Add this line to ensure headers exist
+    config.headers = config.headers || ({} as AxiosRequestHeaders); // Add this line to ensure headers exist
     return config;
   },
   (error) => {
