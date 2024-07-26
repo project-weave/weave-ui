@@ -157,7 +157,7 @@ export default function AvailabilityGridTimeSlot({
     return `${topStyle} ${rightStyle} ${bottomStyle} ${leftStyle}`;
   }
 
-  const shouldDisplayBorder = eventTime && parseISO(getTimeSlot(eventTime)).getMinutes() === 0;
+  const shouldDisplayBorder = (eventTime && parseISO(getTimeSlot(eventTime)).getMinutes() === 0) || timeSlotsRow === 0;
 
   return (
     <button
