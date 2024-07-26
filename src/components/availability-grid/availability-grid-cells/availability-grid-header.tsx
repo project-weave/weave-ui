@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import useAvailabilityGridStore, { AvailabilityType, isEditMode, isViewMode } from "@/store/availabilityGridStore";
+import { getDateFromTimeSlot } from "@/types/Event";
 import { cn } from "@/utils/cn";
 import { format, isEqual, parseISO } from "date-fns";
 import { AnimationScope, motion } from "framer-motion";
@@ -24,10 +25,13 @@ export default function AvailabilityGridHeader({
   handleSaveUserAvailability,
   handleUserChange
 }: AvailabilityGridHeaderProps) {
-  const { allParticipants, availabilityType, sortedEventDates } = useAvailabilityGridStore((state) => state.eventData);
+  const { allParticipants, availabilityType, sortedEventDates, timeSlotsToParticipants } = useAvailabilityGridStore(
+    (state) => state.eventData
+  );
 
   const mode = useAvailabilityGridStore((state) => state.mode);
   const user = useAvailabilityGridStore((state) => state.user);
+  const userFilter = useAvailabilityGridStore((state) => state.userFilter);
 
   const [isBestTimesEnabled, toggleIsBestTimesEnabled] = useAvailabilityGridStore(
     useShallow((state) => [state.isBestTimesEnabled, state.toggleIsBestTimesEnabled])
@@ -36,8 +40,11 @@ export default function AvailabilityGridHeader({
     useShallow((state) => [state.nextPage, state.previousPage])
   );
   const isPaginationRequired = useAvailabilityGridStore((state) => state.isPaginationRequired);
-  const leftMostColumnInView = useAvailabilityGridStore((state) => state.leftMostColumnInView);
+  const [leftMostColumnInView, setLeftMostColumnInView] = useAvailabilityGridStore(
+    useShallow((state) => [state.leftMostColumnInView, state.setLeftMostColumnInView])
+  );
   const getMaxLeftMostColumnInView = useAvailabilityGridStore((state) => state.getMaxLeftMostColumnInView);
+  const availabilityGridViewWindowSize = useAvailabilityGridStore((state) => state.availabilityGridViewWindowSize);
 
   const earliestDate = parseISO(sortedEventDates[0]);
   const latestDate = parseISO(sortedEventDates[sortedEventDates.length - 1]);
@@ -52,6 +59,44 @@ export default function AvailabilityGridHeader({
     heading = `${format(earliestDate, "MMM d yyyy")} - ${format(latestDate, "MMM d yyyy")}`;
   } else {
     heading = `${format(earliestDate, "MMM d")} - ${format(latestDate, "MMM d yyyy")}`;
+  }
+
+  function getFirstColumnWithBestTimes(): number {
+    const filteredParticipants = userFilter.length === 0 ? allParticipants : userFilter;
+    function getFilteredSelectionCount(participants: string[]): number {
+      return filteredParticipants.filter((participant) => participants.includes(participant)).length;
+    }
+
+    const highestParticiantsSelectedCount = Object.values(timeSlotsToParticipants).reduce((maxCount, participants) => {
+      return Math.max(maxCount, getFilteredSelectionCount(participants));
+    }, 0);
+
+    const eventDatesWithBestTimes = new Set(
+      Object.entries(timeSlotsToParticipants)
+        .filter(([_, participants]) => getFilteredSelectionCount(participants) === highestParticiantsSelectedCount)
+        .map(([timeSlot]) => getDateFromTimeSlot(timeSlot))
+    );
+
+    for (let col = 0; col < sortedEventDates.length; col++) {
+      if (eventDatesWithBestTimes.has(sortedEventDates[col])) {
+        return col;
+      }
+    }
+    return 0;
+  }
+
+  function handleBestTimesToggle() {
+    // when best times is toggled on, set view window to include the first column with best times
+    if (!isBestTimesEnabled) {
+      const firstColumnWithBestTimes = getFirstColumnWithBestTimes();
+      if (
+        firstColumnWithBestTimes < leftMostColumnInView ||
+        firstColumnWithBestTimes >= leftMostColumnInView + availabilityGridViewWindowSize
+      ) {
+        setLeftMostColumnInView(firstColumnWithBestTimes);
+      }
+    }
+    toggleIsBestTimesEnabled();
   }
 
   const MotionButton = motion(Button);
@@ -114,7 +159,7 @@ export default function AvailabilityGridHeader({
                 checked={isBestTimesEnabled}
                 className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-accent"
                 id="best-times"
-                onClick={toggleIsBestTimesEnabled}
+                onClick={handleBestTimesToggle}
               />
             </div>
             <div>{isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}</div>

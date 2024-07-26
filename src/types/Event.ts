@@ -31,6 +31,10 @@ export function getTimeFromTimeSlot(timeSlot: null | TimeSlot): EventTime {
   return timeSlot.split(" ")[1];
 }
 
+export function getDateFromTimeSlot(timeSlot: TimeSlot): EventDate {
+  return timeSlot.split(" ")[0];
+}
+
 export interface Event {
   dates: EventDate[];
   endTime: EventTime;

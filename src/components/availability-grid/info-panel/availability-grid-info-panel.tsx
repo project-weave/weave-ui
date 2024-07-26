@@ -47,7 +47,7 @@ export default function AvailbilityGridInfoPanel() {
     );
   }
 
-  const visisbleEventDates = sortedEventDates.slice(
+  const visibleEventDates = sortedEventDates.slice(
     leftMostColumnInView,
     leftMostColumnInView + availabilityGridViewWindowSize
   );
@@ -77,10 +77,6 @@ export default function AvailbilityGridInfoPanel() {
     },
     [setFocusedDate, sortedEventDates]
   );
-
-  const eventDatesSet = useMemo(() => {
-    return new Set<EventDate>(sortedEventDates);
-  }, [sortedEventDates]);
 
   function filterUserHandler(user: string) {
     if (isEditMode(mode)) return;
@@ -155,8 +151,8 @@ export default function AvailbilityGridInfoPanel() {
             isViewMode={true}
             latestSelectedDate={sortedEventDates[sortedEventDates.length - 1]}
             onViewModeDateClick={onViewModeDateClick}
-            selectedDates={eventDatesSet}
-            visibleEventDates={visisbleEventDates}
+            selectedDates={new Set(sortedEventDates)}
+            visibleEventDates={visibleEventDates}
           />
         </div>
       )}
