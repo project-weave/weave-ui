@@ -1,10 +1,5 @@
-import useAvailabilityGridStore, {
-  EVENT_TIME_FORMAT,
-  getTimeFromTimeSlot,
-  getTimeSlot,
-  isViewMode,
-  TIME_SLOT_INTERVAL_MINUTES
-} from "@/store/availabilityGridStore";
+import useAvailabilityGridStore, { isViewMode } from "@/store/availabilityGridStore";
+import { EVENT_TIME_FORMAT, getTimeFromTimeSlot, getTimeSlot, TIME_SLOT_INTERVAL_MINUTES } from "@/types/Event";
 import { cn } from "@/utils/cn";
 import { addMinutes, format, parseISO } from "date-fns";
 

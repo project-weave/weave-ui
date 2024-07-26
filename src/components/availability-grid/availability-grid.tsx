@@ -1,14 +1,8 @@
 "use client";
 import useUpdateAvailability, { UpdateAvailabilityRequest } from "@/hooks/requests/useUpdateAvailability";
 import useGridDragSelect from "@/hooks/useGridDragSelect";
-import useAvailabilityGridStore, {
-  AvailabilityGridMode,
-  AvailabilityType,
-  EventDate,
-  EventTime,
-  getTimeSlot,
-  TimeSlot
-} from "@/store/availabilityGridStore";
+import useAvailabilityGridStore, { AvailabilityGridMode, AvailabilityType } from "@/store/availabilityGridStore";
+import { EventDate, EventTime, getTimeSlot, TimeSlot } from "@/types/Event";
 import { cn } from "@/utils/cn";
 import { useAnimate } from "framer-motion";
 import { useEffect, useMemo } from "react";
@@ -31,6 +25,11 @@ export default function AvailabilityGrid() {
   const setHoveredTimeSlot = useAvailabilityGridStore((state) => state.setHoveredTimeSlot);
   const setFocusedDate = useAvailabilityGridStore(useShallow((state) => state.setFocusedDate));
   const setMode = useAvailabilityGridStore(useShallow((state) => state.setMode));
+  const availabilityGridViewWindowSize = useAvailabilityGridStore(
+    useShallow((state) => state.availabilityGridViewWindowSize)
+  );
+  const leftMostColumnInView = useAvailabilityGridStore(useShallow((state) => state.leftMostColumnInView));
+
   const [selectedTimeSlots, setSelectedTimeSlots, addSelectedTimeSlots, removeSelectedTimeSlots] =
     useAvailabilityGridStore(
       useShallow((state) => [
@@ -133,38 +132,36 @@ export default function AvailabilityGrid() {
     });
   }
 
+  const timeSlotColumnsCount = Math.min(sortedEventDates.length, availabilityGridViewWindowSize);
+
   const gridNodes = useMemo(() => {
-    // TODO: pagination
     // col header + placeholder + event times + placeholder
+
+    const gridNodeCols: AvailabilityGridNode[][] = [];
     const gridRowNodeCount = sortedEventTimes.length + 2;
     // row header + event dates5
-    const gridColNodeCount = sortedEventDates.length + 1;
-    const gridNodeCols: AvailabilityGridNode[][] = [];
+    const gridColNodeCount = timeSlotColumnsCount + 1;
 
     for (let colIndex = 0; colIndex < gridColNodeCount; colIndex++) {
       const gridNodeCol: AvailabilityGridNode[] = [];
       for (let rowIndex = 0; rowIndex < gridRowNodeCount; rowIndex++) {
         const node = new AvailabilityGridNode();
 
-        // todo: add pagination offsets
-        node.offsettedColIndex = colIndex;
-        node.displayedColIndex = colIndex;
+        node.offsettedColIndex = leftMostColumnInView + colIndex;
+        node.isNodeInLastActualCol = leftMostColumnInView + colIndex === sortedEventDates.length;
 
-        node.offsettedRowIndex = rowIndex;
+        node.displayedColIndex = colIndex;
+        node.isNodeInLastDisplayedCol = colIndex === gridColNodeCount - 1;
+
         node.displayedRowIndex = rowIndex;
-        if (colIndex === gridColNodeCount - 1) {
-          node.isLastNodeInRow = true;
-        }
-        if (rowIndex === gridRowNodeCount - 1) {
-          node.isLastNodeInCol = true;
-        }
+        node.isNodeInLastDisplayedRow = rowIndex === gridRowNodeCount - 1;
+
         gridNodeCol.push(node);
       }
       gridNodeCols.push(gridNodeCol);
     }
-
     return gridNodeCols;
-  }, [sortedEventTimes, sortedEventDates]);
+  }, [sortedEventTimes, sortedEventDates, availabilityGridViewWindowSize, leftMostColumnInView]);
 
   const columnHeaderHeight = availabilityType === AvailabilityType.SPECIFIC_DATES ? "3.2rem" : "2.7rem";
   // const maxColumnsPerPage = 7;
@@ -193,7 +190,7 @@ export default function AvailabilityGrid() {
         <div
           className="grid h-full w-full"
           style={{
-            gridTemplateColumns: `4.5rem repeat(${sortedEventDates.length}, minmax(2rem, 1fr))`
+            gridTemplateColumns: `4.5rem repeat(${timeSlotColumnsCount}, minmax(2rem, 1fr))`
           }}
         >
           {gridNodes.map((columnNodes, displayColIndex) => {
@@ -208,7 +205,7 @@ export default function AvailabilityGrid() {
                 {columnNodes.map((node) => (
                   <AvailabilityGridCell
                     animateEditAvailabilityButton={animateEditAvailabilityButton}
-                    key={`availability-cell-${node.offsettedColIndex}-${node.offsettedRowIndex}`}
+                    key={`availability-cell-${node.offsettedColIndex}-${node.displayedRowIndex}`}
                     node={node}
                     timeSlotDragSelectionState={timeSlotDragSelectionState}
                   />

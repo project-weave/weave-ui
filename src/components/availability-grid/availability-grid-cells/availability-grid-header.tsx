@@ -25,11 +25,6 @@ export default function AvailabilityGridHeader({
   handleUserChange
 }: AvailabilityGridHeaderProps) {
   const { allParticipants, availabilityType, sortedEventDates } = useAvailabilityGridStore((state) => state.eventData);
-  // TODO: pagination
-
-  const earliestDate = parseISO(sortedEventDates[0]);
-  const latestDate = parseISO(sortedEventDates[sortedEventDates.length - 1]);
-  const lastColumn = sortedEventDates.length - 1;
 
   const mode = useAvailabilityGridStore((state) => state.mode);
   const user = useAvailabilityGridStore((state) => state.user);
@@ -37,11 +32,20 @@ export default function AvailabilityGridHeader({
   const [isBestTimesEnabled, toggleIsBestTimesEnabled] = useAvailabilityGridStore(
     useShallow((state) => [state.isBestTimesEnabled, state.toggleIsBestTimesEnabled])
   );
+  const [availabilityGridNextPage, availabilityGridPreviousPage] = useAvailabilityGridStore(
+    useShallow((state) => [state.nextPage, state.previousPage])
+  );
+  const isPaginationRequired = useAvailabilityGridStore((state) => state.isPaginationRequired);
+  const leftMostColumnInView = useAvailabilityGridStore((state) => state.leftMostColumnInView);
+  const getMaxLeftMostColumnInView = useAvailabilityGridStore((state) => state.getMaxLeftMostColumnInView);
 
-  const visibleColumnRange = useAvailabilityGridStore(useShallow((state) => state.visibleColumnRange));
+  const earliestDate = parseISO(sortedEventDates[0]);
+  const latestDate = parseISO(sortedEventDates[sortedEventDates.length - 1]);
+
+  const isFirstColInView = leftMostColumnInView === 0;
+  const isLastColInView = leftMostColumnInView === getMaxLeftMostColumnInView();
 
   let heading = "";
-
   if (isEqual(earliestDate, latestDate)) {
     heading = `${format(earliestDate, "MMM d yyyy")}`;
   } else if (earliestDate.getUTCFullYear() !== latestDate.getUTCFullYear()) {
@@ -49,20 +53,6 @@ export default function AvailabilityGridHeader({
   } else {
     heading = `${format(earliestDate, "MMM d")} - ${format(latestDate, "MMM d yyyy")}`;
   }
-
-  const lastColInView = visibleColumnRange.end === lastColumn;
-  const firstColInView = visibleColumnRange.start === 0;
-  const visibleColumnRangeLoaded = visibleColumnRange.start !== -1 && visibleColumnRange.end !== -1;
-
-  // function scrollNext() {
-  //   if (lastColInView || gridContainerRef.current === null) return;
-  //   gridContainerRef.current.scrollToItem(visibleColumnRange.end, "start");
-  // }
-
-  // function scrollPrev() {
-  //   if (firstColInView || gridContainerRef.current === null) return;
-  //   gridContainerRef.current.scrollToItem(visibleColumnRange.start, "end");
-  // }
 
   const MotionButton = motion(Button);
 
@@ -84,8 +74,6 @@ export default function AvailabilityGridHeader({
       handleUserChange={handleUserChange}
     />
   );
-
-  const showNavigationButtons = (!firstColInView || !lastColInView) && visibleColumnRangeLoaded;
 
   return (
     <>
@@ -112,7 +100,7 @@ export default function AvailabilityGridHeader({
         <div className="mb-1 flex w-full items-center">
           <div
             className={cn("flex w-full items-center justify-around", {
-              "ml-24 mr-1 justify-between": !showNavigationButtons
+              "ml-24 mr-1 justify-between": !isPaginationRequired()
             })}
           >
             <div className={cn("flex items-center space-x-2", { invisible: isEditMode(mode) })}>
@@ -131,14 +119,14 @@ export default function AvailabilityGridHeader({
             </div>
             <div>{isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}</div>
           </div>
-          {showNavigationButtons && (
+          {isPaginationRequired() && (
             <div className="ml-4 mr-1 flex h-7 whitespace-nowrap">
               <MotionButton
                 className="h-7 w-7 rounded-sm px-[2px] py-0"
                 // TODO
-                onClick={() => {}}
-                variant={firstColInView ? "default-disabled" : "default"}
-                whileTap={!firstColInView ? { scale: 0.88 } : {}}
+                onClick={availabilityGridPreviousPage}
+                variant={isFirstColInView ? "default-disabled" : "default"}
+                whileTap={!isFirstColInView ? { scale: 0.88 } : {}}
               >
                 <span className="sr-only">Previous Columns</span>
                 <ChevronLeft className="h-5 w-6 stroke-[3px]" />
@@ -146,9 +134,9 @@ export default function AvailabilityGridHeader({
               <MotionButton
                 className="ml-[5px] h-7 w-7 rounded-sm px-[2px] py-0"
                 // TODO
-                onClick={() => {}}
-                variant={lastColInView ? "default-disabled" : "default"}
-                whileTap={!lastColInView ? { scale: 0.88 } : {}}
+                onClick={availabilityGridNextPage}
+                variant={isLastColInView ? "default-disabled" : "default"}
+                whileTap={!isLastColInView ? { scale: 0.88 } : {}}
               >
                 <span className="sr-only">Next Columns</span>
                 <ChevronRight className="h-5 w-5 stroke-[3px]" />

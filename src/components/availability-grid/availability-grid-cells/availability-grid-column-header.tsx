@@ -1,10 +1,5 @@
-import useAvailabilityGridStore, {
-  AvailabilityType,
-  EventDate,
-  getTimeSlot,
-  isEditMode,
-  isViewMode
-} from "@/store/availabilityGridStore";
+import useAvailabilityGridStore, { AvailabilityType, isEditMode, isViewMode } from "@/store/availabilityGridStore";
+import { EventDate, getTimeSlot } from "@/types/Event";
 import { cn } from "@/utils/cn";
 import { format, parseISO } from "date-fns";
 import { motion } from "framer-motion";
@@ -14,10 +9,13 @@ import { Button } from "../../ui/button";
 
 type AvailabilityGridColumnHeaderProps = {
   eventDate: EventDate;
-  isDateGapRight: boolean;
+  hasDateGapRight: boolean;
 };
 
-export default function AvailabilityGridColumnHeader({ eventDate, isDateGapRight }: AvailabilityGridColumnHeaderProps) {
+export default function AvailabilityGridColumnHeader({
+  eventDate,
+  hasDateGapRight
+}: AvailabilityGridColumnHeaderProps) {
   const { availabilityType, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);
   const mode = useAvailabilityGridStore((state) => state.mode);
   const [selectedTimeSlots, addSelectedTimeSlot, removeSelectedTimeSlot] = useAvailabilityGridStore(
@@ -43,7 +41,7 @@ export default function AvailabilityGridColumnHeader({ eventDate, isDateGapRight
   const MotionButton = motion(Button);
 
   return (
-    <div className={cn("text-center", { "mr-2": isDateGapRight })}>
+    <div className={cn("text-center", { "mr-2": hasDateGapRight })}>
       {availabilityType === AvailabilityType.SPECIFIC_DATES && (
         <>
           <h3 className=" font-semibold text-primary">{format(parsedDate, "EEE")}</h3>
@@ -54,14 +52,13 @@ export default function AvailabilityGridColumnHeader({ eventDate, isDateGapRight
           >
             <MotionButton
               className={cn(
-                "h-6 rounded-sm border-none bg-accent-light px-2 text-xs font-semibold tracking-wide transition-all",
+                "h-6 rounded-sm border-none bg-accent-light px-2 text-xs font-semibold tracking-wide text-secondary transition-all hover:bg-accent",
                 {
-                  "bg-primary": isAllTimeSlotForDateSelected,
+                  "bg-primary text-white hover:bg-primary/80": isAllTimeSlotForDateSelected,
                   "cursor-default bg-background text-sm text-secondary hover:bg-background": isViewMode(mode)
                 }
               )}
               onClick={dateClickedHandler}
-              variant={isAllTimeSlotForDateSelected ? "default" : "outline"}
               whileTap={isEditMode(mode) ? { scale: 0.9 } : {}}
             >
               <time dateTime={eventDate}>{format(parsedDate, "MMM d")}</time>
@@ -74,14 +71,13 @@ export default function AvailabilityGridColumnHeader({ eventDate, isDateGapRight
           {/* <h3 className="py-3 text-xl font-semibold text-secondary">{format(parsedDate, "EEE")}</h3> */}
           <MotionButton
             className={cn(
-              "mt-3 h-8 w-16 rounded-xl border-none bg-accent-light px-3 py-2 font-semibold tracking-wide transition-all",
+              "mt-3 h-8 w-16 rounded-xl border-none bg-accent-light px-3 py-2 font-semibold tracking-wide transition-all hover:bg-accent",
               {
-                "bg-primary": isAllTimeSlotForDateSelected,
+                "bg-primary text-white hover:bg-primary/80": isAllTimeSlotForDateSelected,
                 "cursor-default bg-background text-lg text-secondary hover:bg-background": isViewMode(mode)
               }
             )}
             onClick={dateClickedHandler}
-            variant={isAllTimeSlotForDateSelected ? "default" : "outline"}
             whileTap={isEditMode(mode) ? { scale: 0.9 } : {}}
           >
             <time dateTime={eventDate}>{format(parsedDate, "EEE")}</time>

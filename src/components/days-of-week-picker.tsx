@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import useDragSelect from "@/hooks/useDragSelect";
-import { DAYS_OF_WEEK_DATES, EventDate } from "@/store/availabilityGridStore";
+import { DAYS_OF_WEEK_DATES, EventDate } from "@/types/Event";
 import { cn } from "@/utils/cn";
 import { isLeftClick } from "@/utils/mouseEvent";
 import { format, parseISO } from "date-fns";

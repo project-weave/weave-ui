@@ -1,4 +1,4 @@
-import { EventDate, EventTime } from "@/store/availabilityGridStore";
+import { EventDate, EventTime } from "@/types/Event";
 import axios from "@/utils/axios";
 import { useMutation } from "@tanstack/react-query";
 

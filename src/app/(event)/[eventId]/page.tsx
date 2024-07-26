@@ -17,7 +17,7 @@ export default function Event() {
 
   useEffect(() => {
     setEventData(data as GetEventResponse);
-  }, [data]);
+  }, [data, setEventData]);
 
   if (isPending) {
     return (

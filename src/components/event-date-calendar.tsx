@@ -1,8 +1,9 @@
 "use client";
 import useDragSelect from "@/hooks/useDragSelect";
 import useToday from "@/hooks/useToday";
-import { EVENT_DATE_FORMAT, EventDate } from "@/store/availabilityGridStore";
+import { EVENT_DATE_FORMAT, EventDate } from "@/types/Event";
 import { cn } from "@/utils/cn";
+import { isLeftClick } from "@/utils/mouseEvent";
 import {
   add,
   eachDayOfInterval,
@@ -20,7 +21,6 @@ import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React, { Dispatch, MouseEvent, SetStateAction, useEffect, useRef, useState } from "react";
 
-import { isLeftClick } from "@/utils/mouseEvent";
 import { Button } from "./ui/button";
 
 type EventDateCalendarViewModeProps = {
@@ -211,14 +211,14 @@ const EventDateCalendar = ({
     >
       <div className="mx-auto w-full">
         <div
-          className={cn("flex items-center px-[1px]", {
+          className={cn("flex items-center py-0.5 pl-[3px]", {
             "mb-3 text-2xl": size === "large"
           })}
         >
           <h1
             className={cn("flex-auto text-lg font-semibold text-secondary ", {
               "text-2xl": size === "large",
-              "text-sm": isViewMode
+              "text-md": isViewMode
             })}
           >
             {format(firstDayCurrentMonth, "MMMM yyyy")}
@@ -227,7 +227,7 @@ const EventDateCalendar = ({
           {isNextAndPrevButtonsVisible && (
             <>
               <MotionButton
-                className={cn("h-6 w-6 rounded-[.4rem] border-none px-[1px]", {
+                className={cn("mb-0.5 h-6 w-6 rounded-[.4rem] border-none px-[1px]", {
                   "h-5 w-5": isViewMode,
                   "h-7 w-7": size === "large"
                 })}
@@ -245,7 +245,7 @@ const EventDateCalendar = ({
               </MotionButton>
 
               <MotionButton
-                className={cn("ml-[6px] h-6 w-6 rounded-[.4rem] border-none px-[1px]", {
+                className={cn("mb-0.5 ml-[5px] mr-1 h-6 w-6 rounded-[.4rem] border-none px-[1px]", {
                   "h-5 w-5": isViewMode,
                   "h-7 w-7": size === "large"
                 })}
@@ -264,7 +264,7 @@ const EventDateCalendar = ({
             </>
           )}
         </div>
-        <hr className="mt-1 h-[0.1rem] bg-primary" />
+        <hr className="mt-[0.1rem] h-[0.1rem] bg-primary" />
         <div className="mt-3 grid grid-cols-7 text-center font-semibold leading-4 text-secondary-light">
           {weekDays.map((weekDay) => {
             return (
@@ -295,8 +295,6 @@ const EventDateCalendar = ({
             const isPrevDayVisible = visibleEventDates?.includes(formattedPrevDay);
             const isNextDayVisible = visibleEventDates?.includes(formattedNextDay);
 
-            const isFirstVisibleDay = visibleEventDates?.[0] === formattedDay;
-
             return (
               <Button
                 className={cn(
@@ -324,7 +322,6 @@ const EventDateCalendar = ({
                     "rounded-r-full": isPrevDaySelected && !isNextDaySelected
                   },
                   isViewMode && {
-                    "border-2 border-secondary/80": isFirstVisibleDay,
                     "text-secondary opacity-40 hover:bg-background": !isDaySelected,
                     "text-xs": true
                   },

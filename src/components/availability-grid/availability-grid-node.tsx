@@ -10,10 +10,10 @@ export enum NodeType {
 export class AvailabilityGridNode {
   displayedColIndex: number = 0;
   displayedRowIndex: number = 0;
-  isLastNodeInCol: boolean = false;
-  isLastNodeInRow: boolean = false;
+  isNodeInLastActualCol: boolean = false;
+  isNodeInLastDisplayedCol: boolean = false;
+  isNodeInLastDisplayedRow: boolean = false;
   offsettedColIndex: number = 0;
-  offsettedRowIndex: number = 0;
   remHeight: number = 0;
 
   /*
@@ -42,7 +42,7 @@ export class AvailabilityGridNode {
     }
     if (this.displayedRowIndex === 0) return NodeType.COLUMN_HEADER;
     if (this.displayedRowIndex === 1) return NodeType.FIRST_CELL_IN_COLUMN;
-    if (this.isLastNodeInCol) return NodeType.LAST_CELL_IN_COLUMN;
+    if (this.isNodeInLastDisplayedRow) return NodeType.LAST_CELL_IN_COLUMN;
     return NodeType.TIME_SLOT;
   }
 
@@ -63,6 +63,6 @@ export class AvailabilityGridNode {
     const renderType = this.getRenderType();
     if (renderType !== NodeType.ROW_HEADER && renderType !== NodeType.TIME_SLOT) return 0;
 
-    return this.offsettedRowIndex - 2;
+    return this.displayedRowIndex - 2;
   }
 }

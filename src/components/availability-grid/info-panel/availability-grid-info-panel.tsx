@@ -1,9 +1,10 @@
 import EventDateCalendar from "@/components/event-date-calendar";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import useAvailabilityGridStore, { AvailabilityType, EventDate, isEditMode } from "@/store/availabilityGridStore";
+import useAvailabilityGridStore, { AvailabilityType, isEditMode } from "@/store/availabilityGridStore";
+import { EventDate } from "@/types/Event";
 import { Copy } from "lucide-react";
-import { useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import AvailabilityGridResponseFilterButton from "./availability-grid-response-filter-button";
@@ -15,9 +16,15 @@ export default function AvailbilityGridInfoPanel() {
     useAvailabilityGridStore((state) => state.eventData);
   const userFilter = useAvailabilityGridStore(useShallow((state) => state.userFilter));
   const setUserFilter = useAvailabilityGridStore((state) => state.setUserFilter);
+
   const mode = useAvailabilityGridStore((state) => state.mode);
   const user = useAvailabilityGridStore((state) => state.user);
-  const visibleColumnRange = useAvailabilityGridStore((state) => state.visibleColumnRange);
+
+  const [leftMostColumnInView, setLeftMostColumnInView] = useAvailabilityGridStore(
+    useShallow((state) => [state.leftMostColumnInView, state.setLeftMostColumnInView])
+  );
+  const availabilityGridViewWindowSize = useAvailabilityGridStore((state) => state.availabilityGridViewWindowSize);
+
   const setFocusedDate = useAvailabilityGridStore((state) => state.setFocusedDate);
   const hoveredTimeSlot = useAvailabilityGridStore((state) => state.hoveredTimeSlot);
 
@@ -39,42 +46,36 @@ export default function AvailbilityGridInfoPanel() {
     );
   }
 
-  const sortedCalendarVisibleEventDates = useMemo(() => {
-    const startIndex = visibleColumnRange.start === 0 ? 0 : visibleColumnRange.start - 1;
-    return sortedEventDates.slice(startIndex, visibleColumnRange.end);
-  }, [visibleColumnRange.start, visibleColumnRange.end, sortedEventDates]);
+  const visisbleEventDates = sortedEventDates.slice(
+    leftMostColumnInView,
+    leftMostColumnInView + availabilityGridViewWindowSize
+  );
 
-  // const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
-  // const onViewModeDateClick = useCallback(
-  //   (date: EventDate) => {
-  //     function scrollToDate() {
-  //       const indexOfDate = sortedEventDates.indexOf(date);
-  //       if (indexOfDate === -1 || gridContainerRef.current === null) return;
+  const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
+  const onViewModeDateClick = useCallback(
+    (date: EventDate) => {
+      function scrollToDate() {
+        const indexOfDate = sortedEventDates.indexOf(date);
+        if (indexOfDate === -1) return;
 
-  //       let columnNum = indexOfDate + 1;
-  //       if (indexOfDate === 0) {
-  //         columnNum = 0;
-  //       }
-  //       gridContainerRef.current.scrollToItem(columnNum, "start");
-  //     }
+        setLeftMostColumnInView(indexOfDate);
+      }
 
-  //     function setFocusedDateTimeout() {
-  //       if (timeoutIdRef.current !== null) {
-  //         clearTimeout(timeoutIdRef.current);
-  //       }
-  //       timeoutIdRef.current = setTimeout(() => {
-  //         setFocusedDate(null);
-  //       }, 5000);
-  //       setFocusedDate(date);
-  //     }
+      function setFocusedDateTimeout() {
+        if (timeoutIdRef.current !== null) {
+          clearTimeout(timeoutIdRef.current);
+        }
+        timeoutIdRef.current = setTimeout(() => {
+          setFocusedDate(null);
+        }, 5000);
+        setFocusedDate(date);
+      }
 
-  //     scrollToDate();
-  //     setFocusedDateTimeout();
-  //   },
-  //   [gridContainerRef, setFocusedDate, sortedEventDates]
-  // );
-  // TODO
-  const onViewModeDateClick = () => {};
+      scrollToDate();
+      setFocusedDateTimeout();
+    },
+    [setFocusedDate, sortedEventDates]
+  );
 
   const eventDatesSet = useMemo(() => {
     return new Set<EventDate>(sortedEventDates);
@@ -151,7 +152,7 @@ export default function AvailbilityGridInfoPanel() {
             latestSelectedDate={sortedEventDates[sortedEventDates.length - 1]}
             onViewModeDateClick={onViewModeDateClick}
             selectedDates={eventDatesSet}
-            visibleEventDates={sortedCalendarVisibleEventDates}
+            visibleEventDates={visisbleEventDates}
           />
         </div>
       )}

@@ -14,12 +14,13 @@ type AvailabilityGridCellProps = {
   timeSlotDragSelectionState: TimeSlotDragSelectionState;
 };
 export default function AvailabilityGridCell({
+  animateEditAvailabilityButton,
   node,
-  timeSlotDragSelectionState,
-  animateEditAvailabilityButton
+  timeSlotDragSelectionState
 }: AvailabilityGridCellProps) {
   const { sortedEventDates, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);
   const mode = useAvailabilityGridStore((state) => state.mode);
+  const availabilityGridViewWindowSize = useAvailabilityGridStore((state) => state.availabilityGridViewWindowSize);
 
   const timeSlotsCol = node.getTimeSlotsColumnIndex();
   const timeSlotsRow = node.getTimeSlotsRowIndex();
@@ -29,13 +30,15 @@ export default function AvailabilityGridCell({
   const prevEventDate = sortedEventDates[timeSlotsCol - 1];
   const nextEventDate = sortedEventDates[timeSlotsCol + 1];
 
-  const isDateGapLeft = node.displayedColIndex !== 1 && !isConsecutiveDay(parseISO(prevEventDate), parseISO(eventDate));
-  const isDateGapRight = !node.isLastNodeInRow && !isConsecutiveDay(parseISO(eventDate), parseISO(nextEventDate));
+  const hasDateGapLeft =
+    node.displayedColIndex !== 1 && !isConsecutiveDay(parseISO(prevEventDate), parseISO(eventDate));
+  const hasDateGapRight =
+    !node.isNodeInLastActualCol && !isConsecutiveDay(parseISO(eventDate), parseISO(nextEventDate));
 
   function getBorderStyle() {
     if (isViewMode(mode)) return "solid";
-    const rightStyle = isDateGapRight ? "solid" : "dashed";
-    const leftStyle = isDateGapLeft ? "solid" : "dashed";
+    const rightStyle = hasDateGapRight ? "solid" : "dashed";
+    const leftStyle = hasDateGapLeft ? "solid" : "dashed";
     const bottomStyle = "dashed";
     const topStyle = "dashed";
     return `${topStyle} ${rightStyle} ${bottomStyle} ${leftStyle}`;
@@ -47,15 +50,16 @@ export default function AvailabilityGridCell({
     case NodeType.ROW_HEADER:
       return <AvailabilityGridRowHeader eventTime={eventTime} />;
     case NodeType.COLUMN_HEADER:
-      return <AvailabilityGridColumnHeader eventDate={eventDate} isDateGapRight={isDateGapRight} />;
+      return <AvailabilityGridColumnHeader eventDate={eventDate} hasDateGapRight={hasDateGapRight} />;
 
     case NodeType.FIRST_CELL_IN_COLUMN:
       return (
         <div
           className={cn("border-b-0 border-l-2 border-t-0 border-primary-light", {
-            "border-l-0": node.displayedColIndex === 1,
-            "border-l-2 border-l-primary": isDateGapLeft,
-            "mr-2 border-r-2 border-r-primary": isDateGapRight
+            "border-l-0": node.offsettedColIndex === 1,
+            "border-l-2 border-l-primary": hasDateGapLeft,
+            "border-r-2": node.isNodeInLastDisplayedCol && !node.isNodeInLastActualCol,
+            "mr-2 border-r-2 border-r-primary": hasDateGapRight
           })}
           style={{
             borderStyle: getBorderStyle()
@@ -66,9 +70,10 @@ export default function AvailabilityGridCell({
       return (
         <div
           className={cn("border-b-0 border-l-2 border-t-2 border-primary-light", {
-            "border-l-0": node.displayedColIndex === 1,
-            "border-l-2 border-l-primary": isDateGapLeft,
-            "mr-2 border-r-2 border-r-primary": isDateGapRight
+            "border-l-0": node.offsettedColIndex === 1,
+            "border-l-2 border-l-primary": hasDateGapLeft,
+            "border-r-2": node.isNodeInLastDisplayedCol && !node.isNodeInLastActualCol,
+            "mr-2 border-r-2 border-r-primary": hasDateGapRight
           })}
           style={{
             borderStyle: getBorderStyle()
@@ -79,10 +84,13 @@ export default function AvailabilityGridCell({
       return (
         <AvailabilityGridTimeSlot
           animateEditAvailabilityButton={animateEditAvailabilityButton}
+          displayedCol={node.displayedColIndex}
           eventDate={eventDate}
           eventTime={eventTime}
-          isDateGapLeft={isDateGapLeft}
-          isDateGapRight={isDateGapRight}
+          hasDateGapLeft={hasDateGapLeft}
+          hasDateGapRight={hasDateGapRight}
+          isInLastActualCol={node.isNodeInLastActualCol}
+          isInLastDisplayedCol={node.isNodeInLastDisplayedCol}
           timeSlotDragSelectionState={timeSlotDragSelectionState}
           timeSlotsCol={timeSlotsCol}
           timeSlotsRow={timeSlotsRow}

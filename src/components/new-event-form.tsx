@@ -5,13 +5,8 @@ import DropdownWithLabel from "@/components/ui/dropdown-with-label";
 import InputWithLabel from "@/components/ui/input-with-label";
 import useCreateEvent, { CreateEventRequest } from "@/hooks/requests/useCreateEvent";
 import useToday from "@/hooks/useToday";
-import {
-  AvailabilityType,
-  DAYS_OF_WEEK_DATES,
-  EVENT_TIME_FORMAT,
-  EventDate,
-  EventTime
-} from "@/store/availabilityGridStore";
+import { AvailabilityType } from "@/store/availabilityGridStore";
+import { DAYS_OF_WEEK_DATES, EVENT_TIME_FORMAT, EventDate, EventTime } from "@/types/Event";
 import { cn } from "@/utils/cn";
 import { timeFilter } from "@/utils/date";
 import { addMinutes, format, isBefore, isEqual, parse } from "date-fns";
