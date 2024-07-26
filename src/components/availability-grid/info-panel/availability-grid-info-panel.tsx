@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import useAvailabilityGridStore, { AvailabilityType, isEditMode } from "@/store/availabilityGridStore";
 import { EventDate } from "@/types/Event";
+import { motion } from "framer-motion";
 import { Copy } from "lucide-react";
 import { useCallback, useMemo, useRef } from "react";
 import { useShallow } from "zustand/react/shallow";
@@ -98,12 +99,14 @@ export default function AvailbilityGridInfoPanel() {
     ? 1
     : Math.min(totalResponseCount, filteredUsersSelectedHoveredTimeSlot.length);
 
+  const MotionButton = motion(Button);
+
   return (
     <div className="card flex h-full cursor-pointer flex-col px-4">
       <div className="relative flex justify-between text-ellipsis rounded-2xl border-2 border-primary px-3 py-2 text-sm font-medium text-secondary">
         {eventName}
-        <Button
-          className="absolute -end-1 -top-[1.5px] h-10 rounded-2xl hover:bg-primary-hover hover:opacity-100"
+        <MotionButton
+          className="absolute -end-1 -top-[1.5px] h-10 rounded-2xl hover:bg-primary-hover"
           onClick={() => {
             navigator.clipboard.writeText(window.location.href);
             toast({
@@ -112,9 +115,10 @@ export default function AvailbilityGridInfoPanel() {
             });
           }}
           variant="default"
+          whileTap={{ scaleX: 0.97 }}
         >
           <Copy className="h-4 w-4" />
-        </Button>
+        </MotionButton>
       </div>
 
       <div className="m-3 select-none">

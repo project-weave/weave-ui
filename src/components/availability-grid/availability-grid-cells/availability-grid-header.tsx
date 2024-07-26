@@ -126,7 +126,7 @@ export default function AvailabilityGridHeader({
                 // TODO
                 onClick={availabilityGridPreviousPage}
                 variant={isFirstColInView ? "default-disabled" : "default"}
-                whileTap={!isFirstColInView ? { scale: 0.88 } : {}}
+                whileTap={!isFirstColInView ? { scale: 0.95 } : {}}
               >
                 <span className="sr-only">Previous Columns</span>
                 <ChevronLeft className="h-5 w-6 stroke-[3px]" />
@@ -136,7 +136,7 @@ export default function AvailabilityGridHeader({
                 // TODO
                 onClick={availabilityGridNextPage}
                 variant={isLastColInView ? "default-disabled" : "default"}
-                whileTap={!isLastColInView ? { scale: 0.88 } : {}}
+                whileTap={!isLastColInView ? { scale: 0.95 } : {}}
               >
                 <span className="sr-only">Next Columns</span>
                 <ChevronRight className="h-5 w-5 stroke-[3px]" />

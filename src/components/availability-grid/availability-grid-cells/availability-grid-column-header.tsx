@@ -54,7 +54,7 @@ export default function AvailabilityGridColumnHeader({
               className={cn(
                 "h-6 rounded-sm border-none bg-accent-light px-2 text-xs font-semibold tracking-wide text-secondary transition-all hover:bg-accent",
                 {
-                  "bg-primary text-white hover:bg-primary/80": isAllTimeSlotForDateSelected,
+                  "bg-primary text-white hover:bg-primary-hover": isAllTimeSlotForDateSelected,
                   "cursor-default bg-background text-sm text-secondary hover:bg-background": isViewMode(mode)
                 }
               )}
@@ -73,7 +73,7 @@ export default function AvailabilityGridColumnHeader({
             className={cn(
               "mt-3 h-8 w-16 rounded-xl border-none bg-accent-light px-3 py-2 font-semibold tracking-wide transition-all hover:bg-accent",
               {
-                "bg-primary text-white hover:bg-primary/80": isAllTimeSlotForDateSelected,
+                "bg-primary text-white hover:bg-primary-hover": isAllTimeSlotForDateSelected,
                 "cursor-default bg-background text-lg text-secondary hover:bg-background": isViewMode(mode)
               }
             )}

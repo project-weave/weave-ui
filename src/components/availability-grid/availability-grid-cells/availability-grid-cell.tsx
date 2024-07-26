@@ -20,7 +20,6 @@ export default function AvailabilityGridCell({
 }: AvailabilityGridCellProps) {
   const { sortedEventDates, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);
   const mode = useAvailabilityGridStore((state) => state.mode);
-  const availabilityGridViewWindowSize = useAvailabilityGridStore((state) => state.availabilityGridViewWindowSize);
 
   const timeSlotsCol = node.getTimeSlotsColumnIndex();
   const timeSlotsRow = node.getTimeSlotsRowIndex();

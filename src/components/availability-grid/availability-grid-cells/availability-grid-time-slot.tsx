@@ -189,7 +189,7 @@ export default function AvailabilityGridTimeSlot({
       <div
         className={cn(
           "h-full w-full border-0 border-primary-light hover:bg-accent",
-          { "bg-primary hover:bg-primary/70": (isSelected || isBeingAdded) && !isBeingRemoved },
+          { "bg-primary hover:bg-primary/60": (isSelected || isBeingAdded) && !isBeingRemoved },
           isBeingRemoved && {
             "border-b-4": isBottomBorder,
             "border-l-4": isLeftBorder,

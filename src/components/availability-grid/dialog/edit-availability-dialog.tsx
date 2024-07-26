@@ -96,6 +96,7 @@ export default function EditAvailabilityDialog({
           className="h-[1.9rem] whitespace-nowrap rounded-[.4rem] text-[.85rem]"
           ref={editAvailabilityButtonAnimationScope}
           variant="default"
+          whileTap={{ scale: 0.95 }}
         >
           {EDIT_AVAILABILITY}
         </MotionButton>
@@ -104,10 +105,10 @@ export default function EditAvailabilityDialog({
         <DialogHeader>
           <DialogTitle className="mb-1 px-1 text-secondary">Edit Availability</DialogTitle>
         </DialogHeader>
-        <Button className="mx-8 mt-2" disabled variant="outline">
+        <MotionButton className="mx-8 mt-2" disabled variant="outline" whileTap={{ scale: 0.95 }}>
           <p className="mr-2 text-xs">{LOGIN_WITH_GOOGLE}</p>
           <Image alt="google-logo" className="h-4 w-4" height={40} src="/google.png" width={40} />
-        </Button>
+        </MotionButton>
 
         <div className="flex-column my-2 flex w-full items-center text-xs">
           <hr className="h-[2px] w-full bg-secondary" />
@@ -198,9 +199,15 @@ export default function EditAvailabilityDialog({
 
         <DialogFooter>
           <DialogClose asChild>
-            <Button className="min-w-[6rem] text-xs" disabled={!validUserName} onClick={onSubmit} type="submit">
+            <MotionButton
+              className="min-w-[6rem] text-xs"
+              disabled={!validUserName}
+              onClick={onSubmit}
+              type="submit"
+              whileTap={{ scale: 0.95 }}
+            >
               {CONTINUE}
-            </Button>
+            </MotionButton>
           </DialogClose>
         </DialogFooter>
       </DialogContent>
