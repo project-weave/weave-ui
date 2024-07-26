@@ -28,7 +28,9 @@ export default function AvailabilityGrid() {
   const availabilityGridViewWindowSize = useAvailabilityGridStore(
     useShallow((state) => state.availabilityGridViewWindowSize)
   );
-  const leftMostColumnInView = useAvailabilityGridStore(useShallow((state) => state.leftMostColumnInView));
+  const [leftMostColumnInView, setLeftMostColumnInView] = useAvailabilityGridStore(
+    useShallow((state) => [state.leftMostColumnInView, state.setLeftMostColumnInView])
+  );
 
   const [selectedTimeSlots, setSelectedTimeSlots, addSelectedTimeSlots, removeSelectedTimeSlots] =
     useAvailabilityGridStore(
@@ -55,6 +57,7 @@ export default function AvailabilityGrid() {
     setUserFilter([]);
     setHoveredTimeSlot(null);
     setFocusedDate(null);
+    setLeftMostColumnInView(0);
 
     const userResponse = eventResponses.find(({ alias }) => {
       // TODO: use user_id as well when logged in users functionality is implemented

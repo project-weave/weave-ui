@@ -11,7 +11,8 @@ export type ViewWindowSlice = {
 
 export const createViewWindowSlice = (set, get): ViewWindowSlice => ({
   availabilityGridViewWindowSize: 8,
-  getMaxLeftMostColumnInView: () => get().eventData.sortedEventDates.length - get().availabilityGridViewWindowSize,
+  getMaxLeftMostColumnInView: () =>
+    Math.max(0, get().eventData.sortedEventDates.length - get().availabilityGridViewWindowSize),
   isPaginationRequired: () => get().availabilityGridViewWindowSize < get().eventData.sortedEventDates.length,
   leftMostColumnInView: 0,
   nextPage: () =>

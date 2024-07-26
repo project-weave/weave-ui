@@ -82,16 +82,18 @@ export default function AvailabilityGridHeader({
         return col;
       }
     }
-    return 0;
+    return -1;
   }
 
   function handleBestTimesToggle() {
     // when best times is toggled on, set view window to include the first column with best times
     if (!isBestTimesEnabled) {
       const firstColumnWithBestTimes = getFirstColumnWithBestTimes();
+
       if (
-        firstColumnWithBestTimes < leftMostColumnInView ||
-        firstColumnWithBestTimes >= leftMostColumnInView + availabilityGridViewWindowSize
+        firstColumnWithBestTimes !== -1 &&
+        (firstColumnWithBestTimes < leftMostColumnInView ||
+          firstColumnWithBestTimes >= leftMostColumnInView + availabilityGridViewWindowSize)
       ) {
         setLeftMostColumnInView(firstColumnWithBestTimes);
       }
