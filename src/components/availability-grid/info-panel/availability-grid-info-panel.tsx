@@ -1,8 +1,9 @@
-import EventDateCalendar from "@/components/event-date-calendar";
+import EventDateCalendar, { MONTH_FORMAT } from "@/components/event-date-calendar";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import useAvailabilityGridStore, { AvailabilityType, isEditMode } from "@/store/availabilityGridStore";
 import { EventDate } from "@/types/Event";
+import { format, parseISO } from "date-fns";
 import { motion } from "framer-motion";
 import { Copy } from "lucide-react";
 import { useCallback, useMemo, useRef } from "react";
@@ -95,6 +96,8 @@ export default function AvailbilityGridInfoPanel() {
     ? 1
     : Math.min(totalResponseCount, filteredUsersSelectedHoveredTimeSlot.length);
 
+  const eventCalendarMonthOverride = format(parseISO(sortedEventDates[leftMostColumnInView]), MONTH_FORMAT);
+
   const MotionButton = motion(Button);
 
   return (
@@ -143,9 +146,10 @@ export default function AvailbilityGridInfoPanel() {
           ))}
         </div>
       </div>
-      {availabilityType === AvailabilityType.SPECIFIC_DATES && (
+      {availabilityType === AvailabilityType.SPECIFIC_DATES && sortedEventDates.length !== 0 && (
         <div className="mt-auto self-end">
           <EventDateCalendar
+            currentMonthOverride={eventCalendarMonthOverride}
             earliestSelectedDate={sortedEventDates[0]}
             id="availability-grid-event-calendar"
             isViewMode={true}

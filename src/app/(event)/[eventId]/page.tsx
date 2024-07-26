@@ -21,11 +21,11 @@ export default function Event() {
 
   if (isPending) {
     return (
-      <div className="grid h-fit min-h-[50rem] w-full grid-flow-col justify-center gap-3 pb-4">
+      <div className="grid h-[46rem] w-full grid-flow-col justify-center gap-3 pb-4">
         <div className="w-[20rem]">
           <Skeleton className="h-full w-full rounded-md bg-primary-light/30" />
         </div>
-        <div className="w-[60rem]">
+        <div className="w-[56rem]">
           <Skeleton className="h-full w-full rounded-md bg-primary-light/30" />
         </div>
       </div>

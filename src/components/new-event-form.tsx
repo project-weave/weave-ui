@@ -72,12 +72,6 @@ export default function NewEventForm() {
     };
   }, []);
 
-  // useEffect(() => {
-  //   if (isFormInView) {
-  //     setAnimationKey((prev) => prev + 1);
-  //   }
-  // }, [isFormInView]);
-
   const isTimeRangeValid = useMemo(() => {
     const parsedStartTime = parse(startTime, TIME_FORMAT, new Date());
     const parsedEndTime = parse(endTime, TIME_FORMAT, new Date());

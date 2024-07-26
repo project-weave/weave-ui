@@ -227,17 +227,17 @@ const EventDateCalendar = ({
           {isNextAndPrevButtonsVisible && (
             <>
               <MotionButton
-                className={cn("mb-0.5 h-6 w-6 rounded-[.4rem] border-none px-[1px]", {
+                className={cn("mb-0.5 h-[1.4rem] w-[1.4rem] rounded-[.4rem] border-none px-[1px]", {
                   "h-5 w-5": isViewMode,
                   "h-7 w-7": size === "large"
                 })}
                 onClick={setPrevMonth}
                 variant={isCurrentMonthEarliest ? "default-disabled" : "default"}
-                whileTap={!isCurrentMonthEarliest ? { scale: 0.88 } : {}}
+                whileTap={!isCurrentMonthEarliest ? { scale: 0.95 } : {}}
               >
                 <span className="sr-only">Previous Columns</span>
                 <ChevronLeft
-                  className={cn("h-5 w-5 stroke-[3px]", {
+                  className={cn("h-[1.1rem] w-[1.1rem] stroke-[3px]", {
                     "h-4 w-4": isViewMode,
                     "h-6 w-6": size === "large"
                   })}
@@ -245,17 +245,17 @@ const EventDateCalendar = ({
               </MotionButton>
 
               <MotionButton
-                className={cn("mb-0.5 ml-[5px] mr-1 h-6 w-6 rounded-[.4rem] border-none px-[1px]", {
+                className={cn("mb-0.5 ml-[5px] mr-1 h-[1.4rem] w-[1.4rem] rounded-[.4rem] border-none px-[1px]", {
                   "h-5 w-5": isViewMode,
                   "h-7 w-7": size === "large"
                 })}
                 onClick={setNextMonth}
                 variant={isCurrentMonthLatest ? "default-disabled" : "default"}
-                whileTap={!isCurrentMonthLatest ? { scale: 0.88 } : {}}
+                whileTap={!isCurrentMonthLatest ? { scale: 0.95 } : {}}
               >
                 <span className="sr-only">Next Columns</span>
                 <ChevronRight
-                  className={cn("h-6 w-6 stroke-[3px]", {
+                  className={cn("h-[1.1rem] w-[1.1rem] stroke-[3px]", {
                     "h-4 w-4": isViewMode,
                     "h-6 w-6": size === "large"
                   })}
@@ -269,7 +269,7 @@ const EventDateCalendar = ({
           {weekDays.map((weekDay) => {
             return (
               <p
-                className={cn("text-sm sm:text-base", {
+                className={cn("text-sm sm:text-[0.95rem]", {
                   "mb-4 mt-6 text-lg sm:text-lg": size === "large",
                   "text-xs sm:text-xs": isViewMode
                 })}

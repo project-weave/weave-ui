@@ -35,8 +35,8 @@ export const createEventDataSlice = (set, get): EventDataSlice => ({
     eventId: "",
     eventName: "",
     eventResponses: [],
-    sortedEventDates: [],
-    sortedEventTimes: [],
+    sortedEventDates: ["2023-01-01"],
+    sortedEventTimes: ["00:00:00"],
     timeSlotsToParticipants: {}
   },
   setEventData: (data: GetEventResponse) => {
