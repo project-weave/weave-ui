@@ -30,12 +30,14 @@ const ENTER_YOUR_NAME = "Enter Your Name";
 
 type EditAvailabilityDialogProps = {
   allParticipants: string[];
+  className?: string;
   editAvailabilityButtonAnimationScope: AnimationScope;
   handleUserChange: (user: string) => void;
 };
 
 export default function EditAvailabilityDialog({
   allParticipants,
+  className,
   editAvailabilityButtonAnimationScope,
   handleUserChange
 }: EditAvailabilityDialogProps) {
@@ -93,7 +95,7 @@ export default function EditAvailabilityDialog({
     <Dialog onOpenChange={resetState}>
       <DialogTrigger asChild>
         <MotionButton
-          className="h-[1.9rem] whitespace-nowrap rounded-[.4rem] text-[.85rem]"
+          className={className}
           ref={editAvailabilityButtonAnimationScope}
           variant="default"
           whileTap={{ scale: 0.95 }}

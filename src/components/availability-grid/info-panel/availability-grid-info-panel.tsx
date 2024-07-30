@@ -69,7 +69,7 @@ export default function AvailbilityGridInfoPanel() {
         }
         timeoutIdRef.current = setTimeout(() => {
           setFocusedDate(null);
-        }, 5000);
+        }, 1500);
         setFocusedDate(date);
       }
 
@@ -101,7 +101,7 @@ export default function AvailbilityGridInfoPanel() {
   const MotionButton = motion(Button);
 
   return (
-    <div className="card sticky top-[5.5rem] flex h-full max-h-[85vh] cursor-pointer flex-col px-4">
+    <div className="card sticky top-[5.5rem] flex h-full max-h-[85vh] cursor-pointer flex-col px-4 pb-4">
       <div className="relative flex justify-between text-ellipsis rounded-2xl border-2 border-primary px-3 py-2 text-sm font-medium text-secondary">
         {eventName}
         <MotionButton

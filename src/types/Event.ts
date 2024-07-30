@@ -31,7 +31,8 @@ export function getTimeFromTimeSlot(timeSlot: null | TimeSlot): EventTime {
   return timeSlot.split(" ")[1];
 }
 
-export function getDateFromTimeSlot(timeSlot: TimeSlot): EventDate {
+export function getDateFromTimeSlot(timeSlot: null | TimeSlot): EventDate {
+  if (timeSlot === null || !timeSlot.includes(" ")) return "";
   return timeSlot.split(" ")[0];
 }
 

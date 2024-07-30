@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { MediaQueryLG, MediaQuerySM, ScreenSize } from "@/hooks/useScreenSize";
 import useAvailabilityGridStore, { AvailabilityType, isEditMode, isViewMode } from "@/store/availabilityGridStore";
 import { getDateFromTimeSlot } from "@/types/Event";
 import { cn } from "@/utils/cn";
@@ -18,16 +19,17 @@ type AvailabilityGridHeaderProps = {
   editAvailabilityButtonAnimationScope: AnimationScope;
   handleSaveUserAvailability: (user: string) => void;
   handleUserChange: (user: string) => void;
+  screenSize: ScreenSize;
 };
 
 export default function AvailabilityGridHeader({
   editAvailabilityButtonAnimationScope,
   handleSaveUserAvailability,
-  handleUserChange
+  handleUserChange,
+  screenSize
 }: AvailabilityGridHeaderProps) {
-  const { allParticipants, availabilityType, sortedEventDates, timeSlotsToParticipants } = useAvailabilityGridStore(
-    (state) => state.eventData
-  );
+  const { allParticipants, availabilityType, eventName, sortedEventDates, timeSlotsToParticipants } =
+    useAvailabilityGridStore((state) => state.eventData);
 
   const mode = useAvailabilityGridStore((state) => state.mode);
   const user = useAvailabilityGridStore((state) => state.user);
@@ -105,7 +107,7 @@ export default function AvailabilityGridHeader({
 
   const saveUserAvailabilityButton = (
     <MotionButton
-      className="h-[1.9rem] whitespace-nowrap rounded-[.4rem] text-[.85rem]"
+      className="h-[1.7rem] whitespace-nowrap rounded-[.4rem] xl:h-[1.9rem]"
       onClick={() => handleSaveUserAvailability(user)}
       variant="default"
       whileTap={{ scale: 0.94 }}
@@ -117,6 +119,7 @@ export default function AvailabilityGridHeader({
   const editUserAvailabilityButton = (
     <EditAvailabilityDialog
       allParticipants={allParticipants}
+      className="h-[1.7rem] whitespace-nowrap rounded-[.4rem] xl:h-[1.9rem]"
       editAvailabilityButtonAnimationScope={editAvailabilityButtonAnimationScope}
       handleUserChange={handleUserChange}
     />
@@ -125,74 +128,81 @@ export default function AvailabilityGridHeader({
   return (
     <>
       <div
-        className={cn("grid grid-cols-2 items-center", {
+        className={cn("flex items-center", {
           "mb-2 mt-2": availabilityType === AvailabilityType.DAYS_OF_WEEK
         })}
-        style={{
-          gridTemplateColumns: "40% 60%"
-        }}
       >
-        <div className="ml-1">
-          <h4 className="text-[0.9rem] text-secondary">
-            {"You're now"} <span className="font-bold">{isEditMode(mode) ? "editing" : "viewing"} </span>
-            {`${isEditMode(mode) ? "your availability" : "all availability"}`}
-          </h4>
-          {availabilityType === AvailabilityType.SPECIFIC_DATES && (
-            <h1 className="mb-[2px] mr-32 whitespace-nowrap text-xl font-semibold tracking-wide text-secondary">
-              {heading}
-            </h1>
-          )}
-        </div>
-
-        <div className="mb-1 flex w-full items-center">
-          <div
-            className={cn("flex w-full items-center justify-around", {
-              "ml-24 mr-1 justify-between": !isPaginationRequired()
-            })}
-          >
-            <div className={cn("flex items-center space-x-2", { invisible: isEditMode(mode) })}>
-              <Label
-                className="cursor-pointer whitespace-nowrap text-[.85rem] font-semibold text-secondary"
-                htmlFor="best-times"
+        <div className="ml-1 flex w-full items-center justify-between">
+          <span>
+            <h4 className="whitespace-nowrap text-[0.75rem] text-secondary xl:text-sm">
+              {"You're now "}
+              <span className="font-bold">{isEditMode(mode) ? "editing" : "viewing"} </span>
+              {`${isEditMode(mode) ? "your availability" : "all availability"}`}
+              {screenSize <= ScreenSize.MD && " for..."}
+            </h4>
+            {screenSize <= ScreenSize.MD && (
+              <div className="text-ellipsis font-semibold text-primary"> {eventName} </div>
+            )}
+            {availabilityType === AvailabilityType.SPECIFIC_DATES && (
+              <h1 className="mb-[2px] whitespace-nowrap text-base font-semibold tracking-wide text-secondary xl:mr-32 xl:text-xl">
+                {heading}
+              </h1>
+            )}
+          </span>
+          <div className="flex w-fit items-center">
+            <MediaQueryLG>
+              <div className={cn("flex items-center space-x-2", { invisible: isEditMode(mode) })}>
+                <Label
+                  className="cursor-pointer whitespace-nowrap text-2xs font-semibold text-secondary xl:text-sm"
+                  htmlFor="best-times"
+                >
+                  {BEST_TIMES_BUTTON_TEXT}
+                </Label>
+                <Switch
+                  checked={isBestTimesEnabled}
+                  className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-accent"
+                  id="best-times"
+                  onClick={handleBestTimesToggle}
+                />
+              </div>
+            </MediaQueryLG>
+            <MediaQuerySM>
+              <div
+                className={cn(
+                  "ml-10 mr-3 text-2xs lg:ml-8 xl:ml-16 xl:text-xs",
+                  isPaginationRequired() && "sm:mr-6 md:mr-9 lg:mr-2 xl:mr-9"
+                )}
               >
-                {BEST_TIMES_BUTTON_TEXT}
-              </Label>
-              <Switch
-                checked={isBestTimesEnabled}
-                className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-accent"
-                id="best-times"
-                onClick={handleBestTimesToggle}
-              />
-            </div>
-            <div>{isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}</div>
+                {isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}
+              </div>
+            </MediaQuerySM>
           </div>
-          {isPaginationRequired() && (
-            <div className="ml-4 mr-1 flex h-7 whitespace-nowrap">
-              <MotionButton
-                className="h-7 w-7 rounded-sm px-[2px] py-0"
-                // TODO
-                onClick={availabilityGridPreviousPage}
-                variant={isFirstColInView ? "default-disabled" : "default"}
-                whileTap={!isFirstColInView ? { scale: 0.95 } : {}}
-              >
-                <span className="sr-only">Previous Columns</span>
-                <ChevronLeft className="h-5 w-6 stroke-[3px]" />
-              </MotionButton>
-              <MotionButton
-                className="ml-[5px] h-7 w-7 rounded-sm px-[2px] py-0"
-                // TODO
-                onClick={availabilityGridNextPage}
-                variant={isLastColInView ? "default-disabled" : "default"}
-                whileTap={!isLastColInView ? { scale: 0.95 } : {}}
-              >
-                <span className="sr-only">Next Columns</span>
-                <ChevronRight className="h-5 w-5 stroke-[3px]" />
-              </MotionButton>
-            </div>
-          )}
         </div>
+        {isPaginationRequired() && (
+          <div className="ml-4 mr-1 flex h-7 items-center whitespace-nowrap xs:pr-2 xl:pr-0">
+            <MotionButton
+              className="h-6 w-6 rounded-[0.45rem] px-[2px] py-0 xl:h-7 xl:w-7 xl:rounded-sm"
+              // TODO
+              onClick={availabilityGridPreviousPage}
+              variant={isFirstColInView ? "default-disabled" : "default"}
+              whileTap={!isFirstColInView ? { scale: 0.95 } : {}}
+            >
+              <span className="sr-only">Previous Columns</span>
+              <ChevronLeft className="h-[1.1rem] w-[1.1rem] stroke-[3px] xl:h-5 xl:w-5" />
+            </MotionButton>
+            <MotionButton
+              className="ml-[5px] h-6 w-6 rounded-[0.45rem] px-[2px] py-0 xl:h-7 xl:w-7 xl:rounded-sm"
+              // TODO
+              onClick={availabilityGridNextPage}
+              variant={isLastColInView ? "default-disabled" : "default"}
+              whileTap={!isLastColInView ? { scale: 0.95 } : {}}
+            >
+              <span className="sr-only">Next Columns</span>
+              <ChevronRight className="h-[1.1rem] w-[1.1rem] stroke-[3px] xl:h-5 xl:w-5" />
+            </MotionButton>
+          </div>
+        )}
       </div>
-
       <hr className="h-[2px] bg-secondary" />
     </>
   );

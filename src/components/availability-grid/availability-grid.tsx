@@ -1,6 +1,7 @@
 "use client";
 import useUpdateAvailability, { UpdateAvailabilityRequest } from "@/hooks/requests/useUpdateAvailability";
 import useGridDragSelect from "@/hooks/useGridDragSelect";
+import useScreenSize, { ScreenSize } from "@/hooks/useScreenSize";
 import useAvailabilityGridStore, { AvailabilityGridMode, AvailabilityType } from "@/store/availabilityGridStore";
 import { EventDate, EventTime, getTimeSlot, TimeSlot } from "@/types/Event";
 import { cn } from "@/utils/cn";
@@ -8,13 +9,11 @@ import { useAnimate } from "framer-motion";
 import { useEffect, useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
-import { Skeleton } from "../ui/skeleton";
 import { useToast } from "../ui/use-toast";
 import AvailabilityGridCell from "./availability-grid-cells/availability-grid-cell";
 import AvailabilityGridHeader from "./availability-grid-cells/availability-grid-header";
 import { TimeSlotDragSelectionState } from "./availability-grid-cells/availability-grid-time-slot";
 import { AvailabilityGridNode } from "./availability-grid-node";
-
 export default function AvailabilityGrid() {
   const { availabilityType, eventId, eventResponses, sortedEventDates, sortedEventTimes } = useAvailabilityGridStore(
     (state) => state.eventData
@@ -25,8 +24,8 @@ export default function AvailabilityGrid() {
   const setHoveredTimeSlot = useAvailabilityGridStore((state) => state.setHoveredTimeSlot);
   const setFocusedDate = useAvailabilityGridStore(useShallow((state) => state.setFocusedDate));
   const setMode = useAvailabilityGridStore(useShallow((state) => state.setMode));
-  const availabilityGridViewWindowSize = useAvailabilityGridStore(
-    useShallow((state) => state.availabilityGridViewWindowSize)
+  const [availabilityGridViewWindowSize, setAvailabilityGridViewWindowSize] = useAvailabilityGridStore(
+    useShallow((state) => [state.availabilityGridViewWindowSize, state.setAvailabilityGridViewWindowSize])
   );
   const [leftMostColumnInView, setLeftMostColumnInView] = useAvailabilityGridStore(
     useShallow((state) => [state.leftMostColumnInView, state.setLeftMostColumnInView])
@@ -46,6 +45,25 @@ export default function AvailabilityGrid() {
   const { toast } = useToast();
 
   // TODO: add timezone logic
+
+  const screenSize = useScreenSize();
+
+  useEffect(() => {
+    switch (screenSize) {
+      case ScreenSize.XXS:
+        return setAvailabilityGridViewWindowSize(4);
+      case ScreenSize.XS:
+        return setAvailabilityGridViewWindowSize(5);
+      case ScreenSize.SM:
+        return setAvailabilityGridViewWindowSize(6);
+      case ScreenSize.MD:
+        return setAvailabilityGridViewWindowSize(7);
+      case ScreenSize.LG:
+        return setAvailabilityGridViewWindowSize(6);
+      default:
+        return setAvailabilityGridViewWindowSize(8);
+    }
+  }, [screenSize, setAvailabilityGridViewWindowSize]);
 
   useEffect(() => {
     return resetGridStateForUser("");
@@ -129,6 +147,7 @@ export default function AvailabilityGrid() {
   const [scope, animate] = useAnimate();
 
   function animateEditAvailabilityButton() {
+    if (!scope.current) return;
     animate(scope.current, {
       transition: { duration: 0.5, ease: "easeInOut" },
       x: [0, -5, 5, -5, 5, 0]
@@ -138,9 +157,8 @@ export default function AvailabilityGrid() {
   const timeSlotColumnsCount = Math.min(sortedEventDates.length, availabilityGridViewWindowSize);
 
   const gridNodes = useMemo(() => {
-    // col header + placeholder + event times + placeholder
-
     const gridNodeCols: AvailabilityGridNode[][] = [];
+    // col header + placeholder + time slots + placeholder
     const gridRowNodeCount = sortedEventTimes.length + 2;
     // row header + event dates5
     const gridColNodeCount = timeSlotColumnsCount + 1;
@@ -164,13 +182,13 @@ export default function AvailabilityGrid() {
       gridNodeCols.push(gridNodeCol);
     }
     return gridNodeCols;
-  }, [sortedEventTimes, sortedEventDates, availabilityGridViewWindowSize, leftMostColumnInView]);
+  }, [sortedEventTimes, sortedEventDates, availabilityGridViewWindowSize, leftMostColumnInView, timeSlotColumnsCount]);
 
   return sortedEventDates.length === 0 || sortedEventTimes.length === 0 ? (
-    <Skeleton className="h-full max-w-[56rem] " />
+    <div />
   ) : (
     <div
-      className="card border-1 flex max-w-[56rem] select-none flex-col pl-2 pr-10 pt-1"
+      className="card flex w-full select-none flex-col pl-0 pr-5 pt-1 sm:pr-8 xl:pl-2 xl:pr-10"
       // mouseUp is cancelled when onContextMenu is triggered so we need to save the selection here as well
       onContextMenu={saveDragSelection}
       onMouseLeave={saveDragSelection}
@@ -178,30 +196,41 @@ export default function AvailabilityGrid() {
       onMouseUp={saveDragSelection}
     >
       <div
-        className={cn("sticky top-[5rem] z-[999] h-[5.4rem] bg-background pl-14 pt-4", {
-          "h-[4,7rem]": availabilityType === AvailabilityType.DAYS_OF_WEEK
-        })}
+        className={cn(
+          "sticky top-[4.6rem] z-[999] h-[6rem] w-[101%] bg-background pl-4 pt-4 xs:pl-10 lg:h-[4.5rem] xl:h-[5rem] xl:pl-14",
+          availabilityType === AvailabilityType.DAYS_OF_WEEK && "h-[5.4rem] lg:h-[4.5rem] xl:h-[5rem]"
+        )}
       >
         <AvailabilityGridHeader
           editAvailabilityButtonAnimationScope={scope}
           handleSaveUserAvailability={handleSaveUserAvailability}
           handleUserChange={resetGridStateForUser}
+          screenSize={screenSize}
         />
       </div>
       <div className="flex h-full w-full">
         <div
           className="grid h-full w-full"
           style={{
-            gridTemplateColumns: `4.5rem repeat(${timeSlotColumnsCount}, minmax(2rem, 1fr))`
+            gridTemplateColumns: `${screenSize <= ScreenSize.XS ? "4.3rem" : "4.5rem"} repeat(${timeSlotColumnsCount}, minmax(1.4rem, 1fr))`
           }}
         >
           {gridNodes.map((columnNodes, displayColIndex) => {
+            let columnHeaderHeight = "";
+            switch (availabilityType) {
+              case AvailabilityType.SPECIFIC_DATES:
+                columnHeaderHeight = screenSize <= ScreenSize.LG ? "3.2rem" : "3.5rem";
+                break;
+              case AvailabilityType.DAYS_OF_WEEK:
+                columnHeaderHeight = "2.6rem";
+                break;
+            }
             return (
               <div
                 className="grid w-full"
                 key={`availability-column-${displayColIndex}`}
                 style={{
-                  gridTemplateRows: `${availabilityType === AvailabilityType.SPECIFIC_DATES ? "3.2rem" : "2.7rem"} 0.7rem repeat(${sortedEventTimes.length - 1}, minmax(0.8rem, 1fr)) 0.7rem`
+                  gridTemplateRows: `${columnHeaderHeight} 0.7rem repeat(${sortedEventTimes.length - 1}, minmax(1.4rem, 1fr)) 0.7rem`
                 }}
               >
                 {columnNodes.map((node) => (
@@ -209,6 +238,7 @@ export default function AvailabilityGrid() {
                     animateEditAvailabilityButton={animateEditAvailabilityButton}
                     key={`availability-cell-${node.offsettedColIndex}-${node.displayedRowIndex}`}
                     node={node}
+                    screenSize={screenSize}
                     timeSlotDragSelectionState={timeSlotDragSelectionState}
                   />
                 ))}

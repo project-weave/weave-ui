@@ -1,8 +1,7 @@
-/** @type {import('tailwindcss').Config} */
-
+import { Config } from "tailwindcss";
 import defaultTheme from "tailwindcss/defaultTheme";
 
-module.exports = {
+export default {
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   future: {
     hoverOnlyWhenSupported: true
@@ -90,4 +89,4 @@ module.exports = {
       ...defaultTheme.screens
     }
   }
-};
+} as Config;

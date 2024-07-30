@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import DropdownWithLabel from "@/components/ui/dropdown-with-label";
 import InputWithLabel from "@/components/ui/input-with-label";
 import useCreateEvent, { CreateEventRequest } from "@/hooks/requests/useCreateEvent";
+import { MediaQueryXS, MediaQueryXXS, ScreenSize } from "@/hooks/useScreenSize";
 import { AvailabilityType } from "@/store/availabilityGridStore";
-import { DAYS_OF_WEEK_DATES, EVENT_TIME_FORMAT, EventDate, EventTime } from "@/types/Event";
+import { EVENT_TIME_FORMAT, EventDate, EventTime } from "@/types/Event";
 import { cn } from "@/utils/cn";
 import { timeFilter } from "@/utils/date";
 import { addMinutes, format, isBefore, isEqual, parse, startOfToday } from "date-fns";
@@ -91,7 +92,7 @@ export default function NewEventForm() {
 
     let dates = [...selectedDates];
     if (availabilityType === AvailabilityType.DAYS_OF_WEEK) {
-      dates = DAYS_OF_WEEK_DATES;
+      dates = Array.from(selectedDaysOfWeek);
     }
     const req: CreateEventRequest = {
       dates,
@@ -137,39 +138,42 @@ export default function NewEventForm() {
     return times;
   }
 
+  // TODO: add actual media queries
   const formSubmissionButton = (
     <>
-      <AnimatePresence>
-        {isFormInView && (
-          <motion.div
-            animate={{ translateY: 0 }}
-            className={cn(
-              "fixed bottom-0 left-0 flex w-full justify-center bg-white px-9 py-5 shadow-[0px_2px_6px_6px] shadow-gray-100 sm:hidden"
-            )}
-            exit={{ translateY: 70 }}
-            initial={{ translateY: 50 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-          >
-            {isPending ? (
-              <div className="flex justify-center">
-                <Loader2 className="h-11 w-11 animate-spin text-primary" />
-              </div>
-            ) : (
-              <Button
-                className={cn(
-                  "bottom-3 left-0 w-full max-w-[26rem] rounded-xl border-[1px] border-primary py-2 align-bottom text-sm "
-                )}
-                disabled={!isFormValid}
-                onClick={createEventHandler}
-                type="submit"
-              >
-                {CREATE_EVENT}
-              </Button>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <div className="hidden sm:block">
+      <MediaQueryXXS maxScreenSize={ScreenSize.XS}>
+        <AnimatePresence>
+          {isFormInView && (
+            <motion.div
+              animate={{ translateY: 0 }}
+              className={cn(
+                "fixed bottom-0 left-0 flex w-full justify-center rounded-t-sm bg-white px-9 py-5 shadow-[0px_2px_6px_6px] shadow-gray-100 sm:hidden"
+              )}
+              exit={{ translateY: 70 }}
+              initial={{ translateY: 50 }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+            >
+              {isPending ? (
+                <div className="flex justify-center">
+                  <Loader2 className="h-11 w-11 animate-spin text-primary" />
+                </div>
+              ) : (
+                <Button
+                  className={cn(
+                    "bottom-3 left-0 w-full max-w-[26rem] rounded-xl border-[1px] border-primary py-2 align-bottom text-sm "
+                  )}
+                  disabled={!isFormValid}
+                  onClick={createEventHandler}
+                  type="submit"
+                >
+                  {CREATE_EVENT}
+                </Button>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </MediaQueryXXS>
+      <MediaQueryXS>
         {isPending ? (
           <div className="flex justify-center">
             <Loader2 className="mt-3 h-12 w-12 animate-spin text-primary" />
@@ -184,7 +188,7 @@ export default function NewEventForm() {
             {CREATE_EVENT}
           </Button>
         )}
-      </div>
+      </MediaQueryXS>
     </>
   );
 

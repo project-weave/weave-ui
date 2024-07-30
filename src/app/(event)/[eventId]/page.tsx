@@ -4,6 +4,7 @@ import AvailabilityGridInfoPanel from "@/components/availability-grid/info-panel
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import useGetEvent, { GetEventResponse } from "@/hooks/requests/useGetEvent";
+import { MediaQueryLG } from "@/hooks/useScreenSize";
 import useAvailabilityGridStore from "@/store/availabilityGridStore";
 import { isAxiosError } from "axios";
 import { redirect, useParams } from "next/navigation";
@@ -16,16 +17,22 @@ export default function Event() {
   const setEventData = useAvailabilityGridStore((state) => state.setEventData);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     setEventData(data as GetEventResponse);
   }, [data, setEventData]);
 
   if (isPending) {
     return (
-      <div className="grid h-[46rem] w-full grid-flow-col justify-center gap-3 pb-4">
-        <div className="w-[20rem]">
-          <Skeleton className="h-full w-full rounded-md bg-primary-light/30" />
-        </div>
-        <div className="w-[56rem]">
+      <div className="mt-4 grid h-fit w-full grid-flow-col justify-center gap-3 pb-10">
+        <MediaQueryLG>
+          <div className="w-[20rem]">
+            <Skeleton className="h-full w-full rounded-md bg-primary-light/30" />
+          </div>
+        </MediaQueryLG>
+        <div className="min-h-[40rem] w-[24rem] xs:w-[28rem] sm:min-h-[44rem] sm:w-[36rem] md:w-[40rem] lg:w-[44rem] xl:w-[56rem]">
           <Skeleton className="h-full w-full rounded-md bg-primary-light/30" />
         </div>
       </div>
@@ -55,13 +62,17 @@ export default function Event() {
   }
 
   return (
-    <div className="mt-4 grid h-fit w-full grid-flow-col justify-center gap-3 pb-4">
-      <div className="hidden w-[20rem] lg:block">
-        <AvailabilityGridInfoPanel />
-      </div>
-      <div className="min-h-[40rem] w-[56rem] sm:min-h-[44rem]">
+    <div className="mt-4 grid h-fit w-full grid-flow-col justify-center gap-3 pb-10">
+      <MediaQueryLG>
+        <div className="w-[18rem] xl:w-[20rem]">
+          <AvailabilityGridInfoPanel />
+        </div>
+      </MediaQueryLG>
+      <div className="h-fit min-h-[40rem] w-[24rem] xs:w-[28rem] sm:min-h-[44rem] sm:w-[36rem] md:w-[40rem] lg:w-[40rem] xl:w-[56rem]">
         <AvailabilityGrid />
       </div>
+      {/* <div className="fixed bottom-0 h-40">Herelajs</div>
+      <div className="bottom-40 h-40"></div> */}
     </div>
   );
 }

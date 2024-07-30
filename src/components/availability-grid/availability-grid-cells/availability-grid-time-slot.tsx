@@ -18,13 +18,12 @@ export type TimeSlotDragSelectionState = {
 
 type AvailabilityGridTimeSlotProps = {
   animateEditAvailabilityButton: () => void;
-  displayedCol: number;
+  borderXSizeStyles: string;
+  cellWidth: string;
   eventDate: EventDate;
   eventTime: EventTime;
   hasDateGapLeft: boolean;
   hasDateGapRight: boolean;
-  isInLastActualCol: boolean;
-  isInLastDisplayedCol: boolean;
   timeSlotDragSelectionState: TimeSlotDragSelectionState;
   timeSlotsCol: number;
   timeSlotsRow: number;
@@ -32,12 +31,12 @@ type AvailabilityGridTimeSlotProps = {
 
 export default function AvailabilityGridTimeSlot({
   animateEditAvailabilityButton,
+  borderXSizeStyles,
+  cellWidth,
   eventDate,
   eventTime,
   hasDateGapLeft,
   hasDateGapRight,
-  isInLastActualCol,
-  isInLastDisplayedCol,
   timeSlotDragSelectionState: {
     isCellBorderOfDragSelectionArea,
     isCellInDragSelectionArea,
@@ -64,6 +63,7 @@ export default function AvailabilityGridTimeSlot({
   const mode = useAvailabilityGridStore((state) => state.mode);
   const isBestTimesEnabled = useAvailabilityGridStore((state) => state.isBestTimesEnabled);
   const isTimeHovered = useAvailabilityGridStore((state) => eventTime === getTimeFromTimeSlot(state.hoveredTimeSlot));
+
   const setHoveredTimeSlot = useAvailabilityGridStore((state) => state.setHoveredTimeSlot);
   const userFilter = useAvailabilityGridStore((state) => state.userFilter);
 
@@ -150,10 +150,10 @@ export default function AvailabilityGridTimeSlot({
 
   function getBorderStyle() {
     if (isViewMode(mode)) return "solid";
-    const rightStyle = hasDateGapRight ? "solid" : "dashed";
-    const leftStyle = hasDateGapLeft ? "solid" : "dashed";
-    const bottomStyle = "dashed";
-    const topStyle = isTimeHovered ? "solid" : "dashed";
+    const rightStyle = hasDateGapRight || isRightBorder ? "solid" : "dashed";
+    const leftStyle = hasDateGapLeft || isLeftBorder ? "solid" : "dashed";
+    const bottomStyle = isBottomBorder ? "solid" : "dashed";
+    const topStyle = isTimeHovered || isTopBorder ? "solid" : "dashed";
     return `${topStyle} ${rightStyle} ${bottomStyle} ${leftStyle}`;
   }
 
@@ -162,44 +162,36 @@ export default function AvailabilityGridTimeSlot({
   return (
     <button
       className={cn(
-        "cursor-pointer border-b-0 border-l-2 border-t-2 border-primary-light outline-none",
+        "h-full cursor-pointer border-b-0 border-t-2 border-primary-light hover:bg-accent",
+        borderXSizeStyles,
         {
-          "border-l-0": timeSlotsCol === 0,
-          "border-l-2 border-l-primary": hasDateGapLeft,
-          "border-r-2": isInLastDisplayedCol && !isInLastActualCol,
+          "bg-primary hover:bg-primary/60": (isSelected || isBeingAdded) && !isBeingRemoved,
+          "border-l-primary": hasDateGapLeft,
+          "border-r-primary": hasDateGapRight,
           "border-t-[3px]": isTimeHovered,
-          "border-t-0": !shouldDisplayBorder && !isTimeHovered,
-          "mr-2 border-r-2 border-r-primary": hasDateGapRight
+          "border-t-0": !shouldDisplayBorder && !isTimeHovered
         },
         isViewMode(mode) && {
           "border-t-secondary": isTimeHovered,
           "hover:border-[3px] hover:border-secondary": true,
           "hover:border-l-[3px]": hasDateGapLeft,
           "hover:border-r-[3px]": hasDateGapRight
+        },
+        isBeingRemoved && {
+          "border-b-4 border-b-secondary": isBottomBorder,
+          "border-l-4 border-l-secondary": isLeftBorder,
+          "border-r-4 border-r-secondary": isRightBorder,
+          "border-t-4 border-t-secondary": isTopBorder
         }
       )}
       onMouseDown={handleMouseDown}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       style={{
-        borderStyle: getBorderStyle()
+        borderStyle: getBorderStyle(),
+        width: cellWidth,
+        ...(isViewMode(mode) ? { backgroundColor: getViewModeCellColour() } : {})
       }}
-      type="button"
-    >
-      <div
-        className={cn(
-          "h-full w-full border-0 border-primary-light hover:bg-accent",
-          { "bg-primary hover:bg-primary/60": (isSelected || isBeingAdded) && !isBeingRemoved },
-          isBeingRemoved && {
-            "border-b-4": isBottomBorder,
-            "border-l-4": isLeftBorder,
-            "border-r-4": isRightBorder,
-            "border-secondary bg-background": true,
-            "border-t-4": isTopBorder
-          }
-        )}
-        style={isViewMode(mode) ? { backgroundColor: getViewModeCellColour() } : {}}
-      />
-    </button>
+    />
   );
 }
