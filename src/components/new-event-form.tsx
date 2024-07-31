@@ -1,10 +1,11 @@
+"use-client";
 import DaysOfWeekPicker from "@/components/days-of-week-picker";
 import Calendar, { MONTH_FORMAT } from "@/components/event-date-calendar";
 import { Button } from "@/components/ui/button";
 import DropdownWithLabel from "@/components/ui/dropdown-with-label";
 import InputWithLabel from "@/components/ui/input-with-label";
 import useCreateEvent, { CreateEventRequest } from "@/hooks/requests/useCreateEvent";
-import { MediaQueryXS, MediaQueryXXS, ScreenSize } from "@/hooks/useScreenSize";
+import { ScreenSize } from "@/hooks/useScreenSize";
 import { AvailabilityType } from "@/store/availabilityGridStore";
 import { EVENT_TIME_FORMAT, EventDate, EventTime } from "@/types/Event";
 import { cn } from "@/utils/cn";
@@ -15,6 +16,7 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { MediaQueryXS, MediaQueryXXS } from "./media-query";
 import { useToast } from "./ui/use-toast";
 
 const EVENT_NAME_LABEL = "Event Name";
@@ -71,8 +73,8 @@ export default function NewEventForm() {
   }, []);
 
   const isTimeRangeValid = useMemo(() => {
-    const parsedStartTime = parse(startTime, TIME_FORMAT, new Date());
-    const parsedEndTime = parse(endTime, TIME_FORMAT, new Date());
+    const parsedStartTime = parse(startTime, TIME_FORMAT, startOfToday());
+    const parsedEndTime = parse(endTime, TIME_FORMAT, startOfToday());
 
     return !isBefore(parsedEndTime, parsedStartTime) && !isEqual(parsedEndTime, parsedStartTime);
   }, [startTime, endTime]);
@@ -87,8 +89,8 @@ export default function NewEventForm() {
   }, [eventName, selectedDates, isTimeRangeValid, availabilityType, selectedDaysOfWeek]);
 
   function createEventHandler() {
-    const parsedStartTime = parse(startTime, TIME_FORMAT, new Date());
-    const parsedEndTime = parse(endTime, TIME_FORMAT, new Date());
+    const parsedStartTime = parse(startTime, TIME_FORMAT, startOfToday());
+    const parsedEndTime = parse(endTime, TIME_FORMAT, startOfToday());
 
     let dates = [...selectedDates];
     if (availabilityType === AvailabilityType.DAYS_OF_WEEK) {
@@ -142,12 +144,11 @@ export default function NewEventForm() {
   const formSubmissionButton = (
     <>
       <MediaQueryXXS maxScreenSize={ScreenSize.XS}>
-        <AnimatePresence>
-          {isFormInView && (
+        {isFormInView && (
+          <AnimatePresence>
             <motion.div
               animate={{ translateY: 0 }}
               className={cn(
-                "fixed bottom-0 left-0 flex w-full justify-center rounded-t-sm bg-white px-9 py-5 shadow-[0px_2px_2px_4px] shadow-gray-200"
               )}
               exit={{ translateY: 70 }}
               initial={{ translateY: 50 }}
@@ -170,9 +171,10 @@ export default function NewEventForm() {
                 </Button>
               )}
             </motion.div>
-          )}
-        </AnimatePresence>
+          </AnimatePresence>
+        )}
       </MediaQueryXXS>
+
       <MediaQueryXS>
         {isPending ? (
           <div className="flex justify-center">
@@ -180,7 +182,7 @@ export default function NewEventForm() {
           </div>
         ) : (
           <Button
-            className="mt-3 h-auto w-full rounded-xl border-[1px] border-primary py-3 align-bottom text-sm "
+            className="mt-3 hidden h-auto w-full rounded-xl border-[1px] border-primary py-3 align-bottom text-sm xs:block "
             disabled={!isFormValid}
             onClick={createEventHandler}
             type="submit"

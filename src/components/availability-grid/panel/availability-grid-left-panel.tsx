@@ -120,46 +120,48 @@ export default function AvailabilityGridLeftPanel() {
         </MotionButton>
       </div>
 
-      <div className="m-3 select-none">
-        <div className="flex items-center justify-between">
-          <div className="flex font-medium">
-            <p className="text-sm text-secondary">{RESPONSES_TITLE}</p>
-            <p className="ml-4 text-sm text-secondary">
-              {currentRepsonseCount}/{totalResponseCount}
-            </p>
+      <div className="grid h-full" style={{ gridTemplateRows: "1fr 16rem" }}>
+        <div className="m-3 select-none">
+          <div className="flex items-center justify-between">
+            <div className="flex font-medium">
+              <p className="text-sm text-secondary">{RESPONSES_TITLE}</p>
+              <p className="ml-4 text-sm text-secondary">
+                {currentRepsonseCount}/{totalResponseCount}
+              </p>
+            </div>
+          </div>
+          <div
+            className="mt-2 grid h-full gap-x-4 gap-y-1 overflow-y-scroll text-secondary scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary-light"
+            style={{ gridAutoRows: "min-content", gridTemplateColumns: `repeat(auto-fill, minmax(5rem, 1fr))` }}
+          >
+            {allParticipantsWithCurrentUser.map((name) => (
+              <AvailabilityGridResponseFilterButton
+                filteredUsersSelectedHoveredTimeSlot={filteredUsersSelectedHoveredTimeSlot}
+                filterUserHandler={filterUserHandler}
+                key={`${name}-filter-button`}
+                mode={mode}
+                name={name}
+                user={user}
+                userFilter={userFilter}
+              />
+            ))}
           </div>
         </div>
-        <div
-          className="mt-2 grid h-[21.3rem] gap-x-4 gap-y-1 overflow-y-scroll text-secondary scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary-light"
-          style={{ gridAutoRows: "min-content", gridTemplateColumns: `repeat(auto-fill, minmax(5rem, 1fr))` }}
-        >
-          {allParticipantsWithCurrentUser.map((name) => (
-            <AvailabilityGridResponseFilterButton
-              filteredUsersSelectedHoveredTimeSlot={filteredUsersSelectedHoveredTimeSlot}
-              filterUserHandler={filterUserHandler}
-              key={`${name}-filter-button`}
-              mode={mode}
-              name={name}
-              user={user}
-              userFilter={userFilter}
+        {availabilityType === AvailabilityType.SPECIFIC_DATES && sortedEventDates.length !== 0 && (
+          <div className="mt-auto h-full self-end">
+            <EventDateCalendar
+              currentMonthOverride={eventCalendarMonthOverride}
+              earliestSelectedDate={sortedEventDates[0]}
+              id="availability-grid-event-calendar"
+              isViewMode={true}
+              latestSelectedDate={sortedEventDates[sortedEventDates.length - 1]}
+              onViewModeDateClick={onViewModeDateClick}
+              selectedDates={new Set(sortedEventDates)}
+              visibleEventDates={visibleEventDates}
             />
-          ))}
-        </div>
+          </div>
+        )}
       </div>
-      {availabilityType === AvailabilityType.SPECIFIC_DATES && sortedEventDates.length !== 0 && (
-        <div className="mt-auto self-end">
-          <EventDateCalendar
-            currentMonthOverride={eventCalendarMonthOverride}
-            earliestSelectedDate={sortedEventDates[0]}
-            id="availability-grid-event-calendar"
-            isViewMode={true}
-            latestSelectedDate={sortedEventDates[sortedEventDates.length - 1]}
-            onViewModeDateClick={onViewModeDateClick}
-            selectedDates={new Set(sortedEventDates)}
-            visibleEventDates={visibleEventDates}
-          />
-        </div>
-      )}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import useAvailabilityGridStore, { AvailabilityType, isEditMode, isViewMode } from "@/store/availabilityGridStore";
 import { EventDate, getDateFromTimeSlot, getTimeSlot } from "@/types/Event";
 import { cn } from "@/utils/cn";
-import { format, isValid, parseISO } from "date-fns";
+import { format, isValid, parseISO, startOfToday } from "date-fns";
 import { motion } from "framer-motion";
 import { useShallow } from "zustand/react/shallow";
 
@@ -31,7 +31,7 @@ export default function AvailabilityGridColumnHeader({
       (state.hoveredTimeSlot === null || eventDate === getDateFromTimeSlot(state.hoveredTimeSlot))
   );
 
-  const parsedDate = isValid(parseISO(eventDate)) ? parseISO(eventDate) : new Date();
+  const parsedDate = isValid(parseISO(eventDate)) ? parseISO(eventDate) : startOfToday();
 
   const allTimeSlotsForDate = sortedEventTimes.map((eventTime) => getTimeSlot(eventTime, eventDate));
   const isAllTimeSlotForDateSelected = allTimeSlotsForDate.every((timeSlot) => selectedTimeSlots.includes(timeSlot));
@@ -53,7 +53,7 @@ export default function AvailabilityGridColumnHeader({
       style={{ width: cellWidth }}
     >
       {availabilityType === AvailabilityType.SPECIFIC_DATES && (
-        <h3 className="text-sm font-semibold text-primary">{format(parsedDate, "EEE")}</h3>
+        <h3 className="text-sm font-semibold text-primary xl:text-base">{format(parsedDate, "EEE")}</h3>
       )}
       <div
         className={cn("border-b-2 border-transparent text-center xl:w-16", {
@@ -64,10 +64,11 @@ export default function AvailabilityGridColumnHeader({
         {availabilityType === AvailabilityType.SPECIFIC_DATES && (
           <MotionButton
             className={cn(
-              "mt-1 h-6 w-[3.4rem] whitespace-nowrap rounded-sm border-2 border-transparent bg-accent-light text-xs font-semibold tracking-wide text-secondary transition-all hover:bg-accent xl:w-[3.8rem]",
+              "mt-1 h-6 w-[3.4rem] whitespace-nowrap rounded-sm border-2 border-transparent bg-accent-light text-xs font-semibold tracking-wide text-secondary transition-all hover:bg-accent xl:w-[3.8rem] xl:text-sm",
               {
                 "bg-primary text-white hover:bg-primary-hover": isAllTimeSlotForDateSelected,
-                "mt-0 cursor-default bg-background text-sm text-secondary hover:bg-background": isViewMode(mode),
+                "mt-0 cursor-default bg-background text-sm text-secondary hover:bg-background xl:text-base":
+                  isViewMode(mode),
                 "ring-[1.5px] ring-primary ring-offset-1": (isDateHovered || isDateFocused) && isEditMode(mode)
               }
             )}
@@ -90,7 +91,7 @@ export default function AvailabilityGridColumnHeader({
             onClick={dateClickedHandler}
             whileTap={isEditMode(mode) ? { scale: 0.9 } : {}}
           >
-            <time dateTime={eventDate}>{format(parsedDate, "EEE")}</time>
+            <time dateTime={eventDate}> {format(parsedDate, "EEE")}</time>
           </MotionButton>
         )}
       </div>

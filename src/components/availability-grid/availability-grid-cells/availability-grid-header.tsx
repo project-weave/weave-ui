@@ -1,5 +1,6 @@
+import { MediaQueryLG } from "@/components/media-query";
 import { Button } from "@/components/ui/button";
-import { MediaQueryLG, ScreenSize } from "@/hooks/useScreenSize";
+import { ScreenSize } from "@/hooks/useScreenSize";
 import useAvailabilityGridStore, { AvailabilityType, isEditMode, isViewMode } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
 import { format, isEqual, parseISO } from "date-fns";
@@ -30,7 +31,6 @@ export default function AvailabilityGridHeader({
   const mode = useAvailabilityGridStore((state) => state.mode);
   const user = useAvailabilityGridStore((state) => state.user);
 
-  const isBestTimesEnabled = useAvailabilityGridStore(useShallow((state) => state.isBestTimesEnabled));
   const [availabilityGridNextPage, availabilityGridPreviousPage] = useAvailabilityGridStore(
     useShallow((state) => [state.nextPage, state.previousPage])
   );
@@ -100,9 +100,11 @@ export default function AvailabilityGridHeader({
           </span>
           <div className="flex w-fit items-center">
             <MediaQueryLG>
-              <BestTimesAvailableSwitch />
+              <div className="ml-3 xl:ml-0">
+                <BestTimesAvailableSwitch />
+              </div>
               <div
-                className={cn("ml-8 mr-3 text-2xs xl:ml-16 xl:text-xs", isPaginationRequired() && "lg:mr-2 xl:mr-12")}
+                className={cn("ml-8 mr-3 text-xs xl:ml-16  xl:text-sm", isPaginationRequired() && "lg:mr-2 xl:mr-9")}
               >
                 {isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}
               </div>

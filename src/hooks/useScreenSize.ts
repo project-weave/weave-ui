@@ -1,5 +1,5 @@
 import tailwindTheme from "@/utils/tailwindTheme";
-import { ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useMediaQuery } from "react-responsive";
 import defaultTailwindTheme from "tailwindcss/defaultTheme";
 import { ScreensConfig } from "tailwindcss/types/config";
@@ -22,7 +22,7 @@ function extractNumPixels(str: string): number {
   return Number(arr[0]);
 }
 
-const breakPoints: Record<ScreenSize, number> = {
+export const breakPoints: Record<ScreenSize, number> = {
   [ScreenSize.LG]: extractNumPixels(screenSizes["lg"]),
   [ScreenSize.MD]: extractNumPixels(screenSizes["md"]),
   [ScreenSize.SM]: extractNumPixels(screenSizes["sm"]),
@@ -56,71 +56,4 @@ export default function useScreenSize() {
   }, [isScreen2XL, isScreenXL, isScreenLG, isScreenMD, isScreenSM, isScreenXS, isScreenXXS]);
 
   return screenSize;
-}
-
-type MediaQueryComponentProps = {
-  children: ReactNode;
-  exclusive?: boolean;
-  maxScreenSize?: ScreenSize;
-};
-
-export function MediaQueryXXS({ children, exclusive, maxScreenSize }: MediaQueryComponentProps) {
-  const max = maxScreenSize !== undefined ? breakPoints[maxScreenSize] - 1 : breakPoints[ScreenSize.XS] - 1;
-  const isScreenXS = useMediaQuery({
-    ...(exclusive || maxScreenSize !== undefined ? { maxWidth: max } : {}),
-    minWidth: breakPoints[ScreenSize.XXS]
-  });
-
-  return isScreenXS ? children : null;
-}
-
-export function MediaQueryXS({ children, exclusive, maxScreenSize }: MediaQueryComponentProps) {
-  const max = maxScreenSize !== undefined ? breakPoints[maxScreenSize] - 1 : breakPoints[ScreenSize.SM] - 1;
-  const isScreenXS = useMediaQuery({
-    ...(exclusive || maxScreenSize !== undefined ? { maxWidth: max } : {}),
-    minWidth: breakPoints[ScreenSize.XS]
-  });
-
-  return isScreenXS ? children : null;
-}
-
-export function MediaQuerySM({ children, exclusive, maxScreenSize }: MediaQueryComponentProps) {
-  const max = maxScreenSize !== undefined ? breakPoints[maxScreenSize] - 1 : breakPoints[ScreenSize.MD] - 1;
-  const isScreenSM = useMediaQuery({
-    ...(exclusive || maxScreenSize !== undefined ? { maxWidth: max } : {}),
-    minWidth: breakPoints[ScreenSize.SM]
-  });
-  return isScreenSM ? children : null;
-}
-
-export function MediaQueryMD({ children, exclusive, maxScreenSize }: MediaQueryComponentProps) {
-  const max = maxScreenSize !== undefined ? breakPoints[maxScreenSize] - 1 : breakPoints[ScreenSize.LG] - 1;
-  const isScreenMD = useMediaQuery({
-    ...(exclusive || maxScreenSize !== undefined ? { maxWidth: max } : {}),
-    minWidth: breakPoints[ScreenSize.MD]
-  });
-  return isScreenMD ? children : null;
-}
-
-export function MediaQueryLG({ children, exclusive, maxScreenSize }: MediaQueryComponentProps) {
-  const max = maxScreenSize !== undefined ? breakPoints[maxScreenSize] - 1 : breakPoints[ScreenSize.XL] - 1;
-  const isScreenLG = useMediaQuery({
-    ...(exclusive || maxScreenSize !== undefined ? { maxWidth: max } : {}),
-    minWidth: breakPoints[ScreenSize.LG]
-  });
-  return isScreenLG ? children : null;
-}
-
-export function MediaQueryXL({ children, exclusive, maxScreenSize }: MediaQueryComponentProps) {
-  const max = maxScreenSize !== undefined ? breakPoints[maxScreenSize] - 1 : breakPoints[ScreenSize.XL] - 1;
-  const isScreenXL = useMediaQuery({
-    ...(exclusive || maxScreenSize !== undefined ? { maxWidth: max } : {}),
-    minWidth: breakPoints[ScreenSize.XL]
-  });
-  return isScreenXL ? children : null;
-}
-
-export function MediaQueryXXL({ children }: MediaQueryComponentProps) {
-  const isScreen2XL = useMediaQuery({ minWidth: breakPoints[ScreenSize.XXL] });
-  return isScreen2XL ? children : null;
 }

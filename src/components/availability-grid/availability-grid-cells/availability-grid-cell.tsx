@@ -105,8 +105,8 @@ export default function AvailabilityGridCell({
   switch (availabilityType) {
     case AvailabilityType.SPECIFIC_DATES:
       topValue = "11rem";
-      if (screenSize === ScreenSize.LG) topValue = "9.1rem";
-      if (screenSize >= ScreenSize.XL) topValue = "9.6rem";
+      if (screenSize === ScreenSize.LG) topValue = "9.3rem";
+      if (screenSize >= ScreenSize.XL) topValue = "9.7rem";
       break;
     case AvailabilityType.DAYS_OF_WEEK:
       topValue = "10rem";
