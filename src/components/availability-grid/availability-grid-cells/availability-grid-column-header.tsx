@@ -1,7 +1,7 @@
 import useAvailabilityGridStore, { AvailabilityType, isEditMode, isViewMode } from "@/store/availabilityGridStore";
 import { EventDate, getDateFromTimeSlot, getTimeSlot } from "@/types/Event";
 import { cn } from "@/utils/cn";
-import { format, parseISO } from "date-fns";
+import { format, isValid, parseISO } from "date-fns";
 import { motion } from "framer-motion";
 import { useShallow } from "zustand/react/shallow";
 
@@ -31,7 +31,7 @@ export default function AvailabilityGridColumnHeader({
       (state.hoveredTimeSlot === null || eventDate === getDateFromTimeSlot(state.hoveredTimeSlot))
   );
 
-  const parsedDate = parseISO(eventDate);
+  const parsedDate = isValid(parseISO(eventDate)) ? parseISO(eventDate) : new Date();
 
   const allTimeSlotsForDate = sortedEventTimes.map((eventTime) => getTimeSlot(eventTime, eventDate));
   const isAllTimeSlotForDateSelected = allTimeSlotsForDate.every((timeSlot) => selectedTimeSlots.includes(timeSlot));
@@ -53,7 +53,7 @@ export default function AvailabilityGridColumnHeader({
       style={{ width: cellWidth }}
     >
       {availabilityType === AvailabilityType.SPECIFIC_DATES && (
-        <h3 className="text-xs font-semibold text-primary xl:text-sm">{format(parsedDate, "EEE")}</h3>
+        <h3 className="text-sm font-semibold text-primary">{format(parsedDate, "EEE")}</h3>
       )}
       <div
         className={cn("border-b-2 border-transparent text-center xl:w-16", {
@@ -64,11 +64,10 @@ export default function AvailabilityGridColumnHeader({
         {availabilityType === AvailabilityType.SPECIFIC_DATES && (
           <MotionButton
             className={cn(
-              "mt-1 h-5 w-[3.2rem] whitespace-nowrap rounded-sm border-2 border-transparent bg-accent-light text-2xs font-semibold tracking-wide text-secondary transition-all hover:bg-accent xl:h-6 xl:w-[3.8rem] xl:text-xs",
+              "mt-1 h-6 w-[3.4rem] whitespace-nowrap rounded-sm border-2 border-transparent bg-accent-light text-xs font-semibold tracking-wide text-secondary transition-all hover:bg-accent xl:w-[3.8rem]",
               {
                 "bg-primary text-white hover:bg-primary-hover": isAllTimeSlotForDateSelected,
-                "mt-0 cursor-default bg-background text-xs text-secondary hover:bg-background xl:text-sm":
-                  isViewMode(mode),
+                "mt-0 cursor-default bg-background text-sm text-secondary hover:bg-background": isViewMode(mode),
                 "ring-[1.5px] ring-primary ring-offset-1": (isDateHovered || isDateFocused) && isEditMode(mode)
               }
             )}

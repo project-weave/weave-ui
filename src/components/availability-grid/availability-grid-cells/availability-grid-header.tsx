@@ -83,17 +83,17 @@ export default function AvailabilityGridHeader({
       >
         <div className="ml-1 flex w-full items-center justify-between">
           <span>
-            <h4 className="whitespace-nowrap text-[0.75rem] text-secondary xl:text-sm">
+            <h4 className="whitespace-nowrap text-xs text-secondary xl:text-sm">
               {"You're now "}
               <span className="font-bold">{isEditMode(mode) ? "editing" : "viewing"} </span>
               {`${isEditMode(mode) ? "your availability" : "all availability"}`}
               {screenSize <= ScreenSize.MD && " for..."}
             </h4>
             {screenSize <= ScreenSize.MD && (
-              <div className="text-ellipsis text-lg font-semibold text-primary"> {eventName} </div>
+              <div className="text-ellipsis text-xl font-semibold text-primary"> {eventName} </div>
             )}
             {availabilityType === AvailabilityType.SPECIFIC_DATES && (
-              <h1 className="mb-[2px] whitespace-nowrap text-base font-semibold tracking-wide text-secondary xl:mr-32 xl:text-xl">
+              <h1 className="mb-[2px] whitespace-nowrap text-lg font-semibold tracking-wide text-secondary xl:mr-32 xl:text-xl">
                 {heading}
               </h1>
             )}

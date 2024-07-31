@@ -20,7 +20,7 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
 
   const saveUserAvailabilityButton = (
     <MotionButton
-      className="h-[1.7rem] whitespace-nowrap rounded-[.4rem]"
+      className="h-[1.9rem] whitespace-nowrap rounded-[.4rem]"
       onClick={() => handleSaveUserAvailability(user)}
       variant="default"
       whileTap={{ scale: 0.94 }}
@@ -32,7 +32,7 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
   const editUserAvailabilityButton = (
     <EditAvailabilityDialog
       allParticipants={allParticipants}
-      className="h-[1.7rem] whitespace-nowrap rounded-[.4rem]"
+      className="h-[1.9rem] whitespace-nowrap rounded-[.4rem]"
     />
   );
 
