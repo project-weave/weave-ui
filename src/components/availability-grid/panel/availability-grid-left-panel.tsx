@@ -13,7 +13,7 @@ import AvailabilityGridResponseFilterButton from "./availability-grid-response-f
 
 const RESPONSES_TITLE = "Responses";
 
-export default function AvailbilityGridInfoPanel() {
+export default function AvailabilityGridLeftPanel() {
   const { allParticipants, availabilityType, eventName, sortedEventDates, timeSlotsToParticipants } =
     useAvailabilityGridStore((state) => state.eventData);
   const userFilter = useAvailabilityGridStore(useShallow((state) => state.userFilter));
@@ -101,7 +101,7 @@ export default function AvailbilityGridInfoPanel() {
   const MotionButton = motion(Button);
 
   return (
-    <div className="card sticky top-[5.5rem] flex h-full max-h-[85vh] cursor-pointer flex-col px-4 pb-4">
+    <div className="card flex h-full cursor-pointer flex-col px-4 pb-4">
       <div className="relative flex justify-between text-ellipsis rounded-2xl border-2 border-primary px-3 py-2 text-sm font-medium text-secondary">
         {eventName}
         <MotionButton
@@ -130,7 +130,7 @@ export default function AvailbilityGridInfoPanel() {
           </div>
         </div>
         <div
-          className="mt-2 grid gap-x-4 gap-y-1 text-secondary"
+          className="mt-2 grid h-[21.3rem] gap-x-4 gap-y-1 overflow-y-scroll text-secondary scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary-light"
           style={{ gridAutoRows: "min-content", gridTemplateColumns: `repeat(auto-fill, minmax(5rem, 1fr))` }}
         >
           {allParticipantsWithCurrentUser.map((name) => (

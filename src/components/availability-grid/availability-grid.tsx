@@ -1,48 +1,32 @@
 "use client";
-import useUpdateAvailability, { UpdateAvailabilityRequest } from "@/hooks/requests/useUpdateAvailability";
 import useGridDragSelect from "@/hooks/useGridDragSelect";
 import useScreenSize, { ScreenSize } from "@/hooks/useScreenSize";
-import useAvailabilityGridStore, { AvailabilityGridMode, AvailabilityType } from "@/store/availabilityGridStore";
+import useAvailabilityGridStore, { AvailabilityType } from "@/store/availabilityGridStore";
 import { EventDate, EventTime, getTimeSlot, TimeSlot } from "@/types/Event";
 import { cn } from "@/utils/cn";
 import { useAnimate } from "framer-motion";
 import { useEffect, useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
-import { useToast } from "../ui/use-toast";
 import AvailabilityGridCell from "./availability-grid-cells/availability-grid-cell";
 import AvailabilityGridHeader from "./availability-grid-cells/availability-grid-header";
 import { TimeSlotDragSelectionState } from "./availability-grid-cells/availability-grid-time-slot";
 import { AvailabilityGridNode } from "./availability-grid-node";
-export default function AvailabilityGrid() {
-  const { availabilityType, eventId, eventResponses, sortedEventDates, sortedEventTimes } = useAvailabilityGridStore(
-    (state) => state.eventData
-  );
-  const setUser = useAvailabilityGridStore(useShallow((state) => state.setUser));
-  const setUserFilter = useAvailabilityGridStore(useShallow((state) => state.setUserFilter));
-  const setIsBestTimesEnabled = useAvailabilityGridStore(useShallow((state) => state.setIsBestTimesEnabled));
-  const setHoveredTimeSlot = useAvailabilityGridStore((state) => state.setHoveredTimeSlot);
-  const setFocusedDate = useAvailabilityGridStore(useShallow((state) => state.setFocusedDate));
-  const setMode = useAvailabilityGridStore(useShallow((state) => state.setMode));
+
+type AvailabilityGridProps = {
+  handleSaveUserAvailability: (user: string) => void;
+};
+
+export default function AvailabilityGrid({ handleSaveUserAvailability }: AvailabilityGridProps) {
+  const { availabilityType, sortedEventDates, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);
+
   const [availabilityGridViewWindowSize, setAvailabilityGridViewWindowSize] = useAvailabilityGridStore(
     useShallow((state) => [state.availabilityGridViewWindowSize, state.setAvailabilityGridViewWindowSize])
   );
-  const [leftMostColumnInView, setLeftMostColumnInView] = useAvailabilityGridStore(
-    useShallow((state) => [state.leftMostColumnInView, state.setLeftMostColumnInView])
+  const leftMostColumnInView = useAvailabilityGridStore(useShallow((state) => state.leftMostColumnInView));
+  const [selectedTimeSlots, addSelectedTimeSlots, removeSelectedTimeSlots] = useAvailabilityGridStore(
+    useShallow((state) => [state.selectedTimeSlots, state.addSelectedTimeSlots, state.removeSelectedTimeSlots])
   );
-
-  const [selectedTimeSlots, setSelectedTimeSlots, addSelectedTimeSlots, removeSelectedTimeSlots] =
-    useAvailabilityGridStore(
-      useShallow((state) => [
-        state.selectedTimeSlots,
-        state.setSelectedTimeSlots,
-        state.addSelectedTimeSlots,
-        state.removeSelectedTimeSlots
-      ])
-    );
-
-  const { mutate } = useUpdateAvailability();
-  const { toast } = useToast();
 
   // TODO: add timezone logic
 
@@ -64,58 +48,6 @@ export default function AvailabilityGrid() {
         return setAvailabilityGridViewWindowSize(8);
     }
   }, [screenSize, setAvailabilityGridViewWindowSize]);
-
-  useEffect(() => {
-    return resetGridStateForUser("");
-  }, []);
-
-  function resetGridStateForUser(user: string) {
-    setUser(user);
-    setIsBestTimesEnabled(false);
-    setUserFilter([]);
-    setHoveredTimeSlot(null);
-    setFocusedDate(null);
-    setLeftMostColumnInView(0);
-
-    const userResponse = eventResponses.find(({ alias }) => {
-      // TODO: use user_id as well when logged in users functionality is implemented
-      return user === alias;
-    });
-
-    if (userResponse !== undefined) {
-      setSelectedTimeSlots(userResponse.availabilities || []);
-    } else {
-      setSelectedTimeSlots([]);
-    }
-  }
-
-  function handleSaveUserAvailability(user: string) {
-    const req: UpdateAvailabilityRequest = {
-      alias: user,
-      availabilities: Array.from(selectedTimeSlots),
-      eventId: eventId
-    };
-
-    mutate(req, {
-      onError: () => {
-        toast({
-          description: "An error occurred while saving your availability. Please try again later.",
-          title: "Oh no! Something went wrong",
-          variant: "failure"
-        });
-      },
-      onSuccess: () => {
-        toast({
-          description: "Your availability has been successfully recorded.",
-          title: "Congrats!",
-          variant: "success"
-        });
-      }
-    });
-
-    setMode(AvailabilityGridMode.VIEW);
-    resetGridStateForUser("");
-  }
 
   const {
     isAdding: isDragAdding,
@@ -204,7 +136,6 @@ export default function AvailabilityGrid() {
         <AvailabilityGridHeader
           editAvailabilityButtonAnimationScope={scope}
           handleSaveUserAvailability={handleSaveUserAvailability}
-          handleUserChange={resetGridStateForUser}
           screenSize={screenSize}
         />
       </div>
@@ -230,7 +161,7 @@ export default function AvailabilityGrid() {
                 className="grid w-full"
                 key={`availability-column-${displayColIndex}`}
                 style={{
-                  gridTemplateRows: `${columnHeaderHeight} 0.7rem repeat(${sortedEventTimes.length - 1}, minmax(1.4rem, 1fr)) 0.7rem`
+                  gridTemplateRows: `${columnHeaderHeight} 0.7rem repeat(${sortedEventTimes.length - 1}, minmax(1rem, 1fr)) 0.7rem`
                 }}
               >
                 {columnNodes.map((node) => (

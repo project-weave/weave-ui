@@ -31,13 +31,16 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={cn("relative flex items-center justify-center overflow-y-scroll", inter.className)}>
+    <html
+      className="overflow-x-hidden scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary-light sm:scrollbar-w-6"
+      lang="en"
+    >
+      <body className={cn("relative flex items-center justify-center ", inter.className)}>
         <Analytics />
         <Providers>
           <div className="flex h-screen w-full max-w-[85rem]">
             <MainNav />
-            <div className="pt-18 z-0 flex w-full justify-center pt-20 2xl:pt-24 ">{children}</div>
+            <div className="pt-18 z-0 w-full pt-20 2xl:pt-24 ">{children}</div>
           </div>
           <Toaster />
         </Providers>

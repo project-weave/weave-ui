@@ -31,6 +31,7 @@ type AvailabilityGridState = {
   hoveredTimeSlot: null | TimeSlot;
   isBestTimesEnabled: boolean;
   mode: AvailabilityGridMode;
+  resetGridStateForUser: (user: string) => void;
   setFocusedDate: (focusedDate: EventDate | null) => void;
   setHoveredTimeSlot: (hoveredTimeSlot: null | TimeSlot) => void;
   setIsBestTimesEnabled: (isBestTimesEnabled: boolean) => void;
@@ -53,6 +54,21 @@ const useAvailabilityGridStore = create<AvailabilityGridState>()(
     hoveredTimeSlot: null,
     isBestTimesEnabled: false,
     mode: AvailabilityGridMode.VIEW,
+    resetGridStateForUser: (user: string) => {
+      const userResponse = (get().eventData.eventResponses || []).find(({ alias }) => {
+        // TODO: use user_id as well when logged in users functionality is implemented
+        return user === alias;
+      });
+      set({
+        focusedDate: null,
+        hoveredTimeSlot: null,
+        isBestTimesEnabled: false,
+        leftMostColumnInView: 0,
+        selectedTimeSlots: userResponse?.availabilities || [],
+        user,
+        userFilter: []
+      });
+    },
     setFocusedDate: (focusedDate: EventDate | null) => set({ focusedDate }),
     setHoveredTimeSlot: (hoveredTimeSlot: null | TimeSlot) => set({ hoveredTimeSlot }),
     setIsBestTimesEnabled: (isBestTimesEnabled: boolean) => set({ isBestTimesEnabled }),

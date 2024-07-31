@@ -226,7 +226,7 @@ export default function EventDateCalendar({
           {isNextAndPrevButtonsVisible && (
             <>
               <MotionButton
-                className={cn("mb-0.5 h-[1.4rem] w-[1.4rem] rounded-[.4rem] border-none px-[1px]", {
+                className={cn("mb-0.5 h-[1.4rem] w-[1.4rem] rounded-[0.45rem] border-none px-[1px]", {
                   "h-5 w-5": isViewMode,
                   "h-7 w-7": size === "large"
                 })}
@@ -238,15 +238,14 @@ export default function EventDateCalendar({
                 <ChevronLeft
                   className={cn("h-[1.1rem] w-[1.1rem] stroke-[3px]", {
                     "h-4 w-4": isViewMode,
-                    "h-6 w-6": size === "large"
+                    "h-5 w-5": size === "large"
                   })}
                 />
               </MotionButton>
-
               <MotionButton
-                className={cn("mb-0.5 ml-[5px] mr-1 h-[1.4rem] w-[1.4rem] rounded-[.4rem] border-none px-[1px]", {
+                className={cn("mb-0.5 ml-[5px] mr-1 h-[1.4rem] w-[1.4rem] rounded-[0.45rem] border-none px-[1px]", {
                   "h-5 w-5": isViewMode,
-                  "h-7 w-7": size === "large"
+                  "ml-2 h-7 w-7": size === "large"
                 })}
                 onClick={setNextMonth}
                 variant={isCurrentMonthLatest ? "default-disabled" : "default"}
@@ -256,7 +255,7 @@ export default function EventDateCalendar({
                 <ChevronRight
                   className={cn("h-[1.1rem] w-[1.1rem] stroke-[3px]", {
                     "h-4 w-4": isViewMode,
-                    "h-6 w-6": size === "large"
+                    "h-5 w-5": size === "large"
                   })}
                 />
               </MotionButton>

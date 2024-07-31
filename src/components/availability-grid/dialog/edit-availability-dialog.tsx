@@ -9,10 +9,10 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog";
 import InputWithError from "@/components/ui/input-with-error";
+import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import useAvailabilityGridStore, { AvailabilityGridMode } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
-import { Label } from "@radix-ui/react-label";
 import { AnimationScope, motion } from "framer-motion";
 import { User } from "lucide-react";
 import Image from "next/image";
@@ -31,15 +31,13 @@ const ENTER_YOUR_NAME = "Enter Your Name";
 type EditAvailabilityDialogProps = {
   allParticipants: string[];
   className?: string;
-  editAvailabilityButtonAnimationScope: AnimationScope;
-  handleUserChange: (user: string) => void;
+  editAvailabilityButtonAnimationScope?: AnimationScope;
 };
 
 export default function EditAvailabilityDialog({
   allParticipants,
   className,
-  editAvailabilityButtonAnimationScope,
-  handleUserChange
+  editAvailabilityButtonAnimationScope
 }: EditAvailabilityDialogProps) {
   const [isEnterNewAvailability, setIsEnterNewAvailability] = useState(true);
   const [enteredUserName, setEnteredUserName] = useState<null | string>(null);
@@ -48,6 +46,7 @@ export default function EditAvailabilityDialog({
   const [nameAlreadyTaken, setNameAlreadyTaken] = useState(false);
 
   const setMode = useAvailabilityGridStore((state) => state.setMode);
+  const resetGridStateForUser = useAvailabilityGridStore((state) => state.resetGridStateForUser);
 
   useEffect(() => {
     if (isEnterNewAvailability) {
@@ -73,7 +72,7 @@ export default function EditAvailabilityDialog({
 
   function onSubmit() {
     if (validUserName) {
-      handleUserChange(isEnterNewAvailability ? enteredUserName! : selectedUserName!);
+      resetGridStateForUser(isEnterNewAvailability ? enteredUserName! : selectedUserName!);
       setMode(AvailabilityGridMode.EDIT);
     }
   }
@@ -120,7 +119,7 @@ export default function EditAvailabilityDialog({
 
         {allParticipants.length > 0 && (
           <div className="mx-auto my-1">
-            <RadioGroup className="flex w-full cursor-pointer space-x-6" defaultValue="new">
+            <RadioGroup className="grid w-full cursor-pointer grid-flow-col space-x-6" defaultValue="new">
               <div className="flex items-center space-x-2">
                 <RadioGroupItem
                   className="border-secondary"
