@@ -8,7 +8,7 @@ export default function NavBar() {
   const router = useRouter();
 
   return (
-    <nav className="fixed z-50 flex w-full bg-white pb-4 pt-7">
+    <nav className="fixed top-0 z-50 flex w-full -translate-y-[18.25rem] bg-white pb-4 pt-[20rem]">
       <Image
         alt="weave-logo"
         className="ml-4 h-8 w-8 cursor-pointer xs:ml-9 md:h-9 md:w-9 "
