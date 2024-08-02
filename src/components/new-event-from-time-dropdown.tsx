@@ -103,7 +103,7 @@ export default function NewEventFromTimeDropdown({
         <div className="relative w-full">
           <div
             className={cn(
-              "peer box-border flex h-10 items-center rounded-2xl bg-background px-4 pb-2.5 pt-3 outline outline-2 outline-primary/40 focus-within:outline-primary hover:outline-primary",
+              "peer box-border flex h-10 items-center rounded-2xl bg-background px-4 pb-2.5 pt-3 text-sm outline outline-2 outline-primary/40 focus-within:outline-primary hover:outline-primary xs:text-base",
               {
                 "outline-primary": open,
                 "outline-red-600/40 focus-within:outline-red-600 hover:outline-red-600": error
@@ -124,7 +124,7 @@ export default function NewEventFromTimeDropdown({
           </Label>
         </div>
       </PopoverTrigger>
-      <PopoverContent className="w-[134px] border-2 border-primary p-0 sm:w-[150px]">
+      <PopoverContent className="w-[140px] border-2 border-primary p-0 sm:w-[154px]">
         <Command className="bg-background" filter={(value, search) => timeFilter(value, search)}>
           <CommandInput className="border-primary py-5 text-sm" />
           <CommandEmpty className="m-2 rounded-sm bg-gray-200 py-1.5 text-center text-xs">{INVALID_TIME} </CommandEmpty>

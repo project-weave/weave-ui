@@ -177,7 +177,7 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
 
             return (
               <div
-                className={cn("box-content grid", {
+                className={cn("grid", {
                   "pr-1": hasDateGapRight
                 })}
                 key={`availability-column-${displayColIndex}`}
