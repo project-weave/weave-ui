@@ -159,7 +159,7 @@ export default function NewEventForm() {
   );
 
   return (
-    <div className="mb-10 flex select-none flex-row justify-center">
+    <div className="flex select-none flex-row justify-center">
       <form
         autoComplete="off"
         className="card mx-auto flex h-full w-full min-w-[22rem] max-w-[26rem] flex-col sm:min-h-[36rem] sm:max-w-[30rem] md:mx-[1rem] xl:max-w-[26rem]"
@@ -234,7 +234,7 @@ export default function NewEventForm() {
             </Button>
           </div>
         </div>
-        <div className="mb-4 flex-grow">
+        <div className="mb-6 flex-grow">
           {availabilityType === AvailabilityType.SPECIFIC_DATES ? (
             <Calendar
               currentMonthOverride={currentCalendarMonth}

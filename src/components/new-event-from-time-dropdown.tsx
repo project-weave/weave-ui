@@ -135,9 +135,12 @@ export default function NewEventFromTimeDropdown({
             {times.map((time) => {
               return (
                 <CommandItem
-                  className={cn("my-[1px] mr-2 flex items-center justify-between text-sm hover:bg-primary/20 ", {
-                    "mb-1 border-[1px] border-primary md:border-[1.5px]": selectedTime === time
-                  })}
+                  className={cn(
+                    "my-[1px] mb-1 mr-2 flex items-center justify-between border-[1px] border-transparent text-sm hover:bg-primary/20 md:border-[1.5px] ",
+                    {
+                      "border-primary ": selectedTime === time
+                    }
+                  )}
                   data-value={time}
                   key={time}
                   onSelect={(t) => {

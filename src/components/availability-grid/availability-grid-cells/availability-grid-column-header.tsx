@@ -53,7 +53,7 @@ export default function AvailabilityGridColumnHeader({
   return (
     <div
       className={cn(
-        "flex h-full  flex-col items-center justify-center border-transparent bg-background pr-[2px] pt-1",
+        "flex h-full flex-col items-center justify-center border-transparent bg-background pr-0.5 pt-1 lg:pt-0",
         borderXSizeStyles,
         {
           "pr-[7px]": hasDateGapRight,
@@ -66,7 +66,7 @@ export default function AvailabilityGridColumnHeader({
         <h3 className="text-sm font-semibold text-primary xl:text-base">{format(parsedDate, "EEE")}</h3>
       )}
       <div
-        className={cn("border-b-2 border-transparent pb-1 text-center xl:w-16", {
+        className={cn("border-b-2 border-transparent pb-0.5 text-center xl:w-16", {
           "border-b-2 border-secondary": (isDateHovered || isDateFocused) && isViewMode(mode)
         })}
       >
@@ -90,7 +90,7 @@ export default function AvailabilityGridColumnHeader({
         {availabilityType === AvailabilityType.DAYS_OF_WEEK && (
           <MotionButton
             className={cn(
-              "mt-1 h-7 w-14 rounded-xl border-2 border-transparent bg-accent-light text-sm font-semibold tracking-wide text-secondary transition-all hover:bg-accent",
+              "mb-0.5 h-7 w-14 rounded-xl border-2 border-transparent bg-accent-light text-sm font-semibold tracking-wide text-secondary transition-all hover:bg-accent",
               {
                 "bg-primary text-white hover:bg-primary-hover": isAllTimeSlotForDateSelected,
                 "cursor-default bg-background text-sm text-secondary hover:bg-background lg:text-base":
