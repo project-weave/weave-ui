@@ -31,7 +31,6 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
   );
 
   // TODO: add timezone logic
-
   const screenSize = useScreenSize();
 
   useEffect(() => {
@@ -154,7 +153,10 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
                 ? screenSize <= ScreenSize.LG
                   ? "4.3rem"
                   : "5rem"
-                : "3.4rem";
+                : screenSize <= ScreenSize.LG
+                  ? "3.4rem"
+                  : "3rem";
+
             const topBottomCellHeight = screenSize <= ScreenSize.LG ? "0.9rem" : "0.7rem";
             const timeSlotCellHeight = screenSize <= ScreenSize.LG ? "1.8rem" : "1.3rem";
 
