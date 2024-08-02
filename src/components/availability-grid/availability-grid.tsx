@@ -121,7 +121,7 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
     <div />
   ) : (
     <div
-      className="card flex w-full select-none flex-col pl-0 pr-5 pt-1 sm:pr-8 xl:pl-2 xl:pr-10"
+      className="card flex h-full w-full select-none flex-col pl-0 pr-5 pt-1 sm:pr-8 xl:pl-2 xl:pr-10"
       // mouseUp is cancelled when onContextMenu is triggered so we need to save the selection here as well
       onContextMenu={saveDragSelection}
       onMouseLeave={saveDragSelection}
