@@ -136,11 +136,11 @@ export default function NewEventForm() {
               transition={{ duration: 0.2, ease: "easeInOut" }}
             >
               <Button
-                className="h-8 w-full max-w-[26rem] rounded-xl border-[1px] border-primary text-sm"
+                className="h-12 w-full max-w-[26rem] rounded-xl border-primary text-sm"
                 disabled={!isFormValid}
                 type="submit"
               >
-                {!isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin text-white" /> : CREATE_EVENT}
+                {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin text-white" /> : CREATE_EVENT}
               </Button>
             </motion.div>
           </AnimatePresence>
@@ -148,7 +148,7 @@ export default function NewEventForm() {
       </MediaQueryXXS>
       <MediaQueryXS>
         <Button
-          className="mt-3 hidden h-12 w-full rounded-xl border-[1px] border-primary align-bottom text-sm xs:block"
+          className="h-12 w-full rounded-xl border-[1px] border-primary align-bottom text-sm"
           disabled={!isFormValid}
           type="submit"
         >
