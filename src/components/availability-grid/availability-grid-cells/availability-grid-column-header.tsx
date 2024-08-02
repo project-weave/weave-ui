@@ -53,14 +53,14 @@ export default function AvailabilityGridColumnHeader({
   return (
     <div
       className={cn(
-        "flex h-full  flex-col items-center justify-center border-transparent bg-background pt-1",
+        "flex h-full  flex-col items-center justify-center border-transparent bg-background pr-[2px] pt-1",
         borderXSizeStyles,
         {
-          "pr-[6px]": hasDateGapRight,
+          "pr-[7px]": hasDateGapRight,
           "pt-2": availabilityType === AvailabilityType.SPECIFIC_DATES
         }
       )}
-      style={{ ...style, width: `calc(100% + ${hasDateGapRight ? "6px" : "0px"}` }}
+      style={{ ...style, width: `calc(100% + ${hasDateGapRight ? "7px" : "2px"}` }}
     >
       {availabilityType === AvailabilityType.SPECIFIC_DATES && (
         <h3 className="text-sm font-semibold text-primary xl:text-base">{format(parsedDate, "EEE")}</h3>

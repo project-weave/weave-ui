@@ -106,6 +106,9 @@ export default function AvailabilityGridHeader({
               <div
                 className={cn(
                   "ml-8 mr-3 text-sm lg:text-xs xl:ml-16 xl:text-sm",
+                  {
+                    "lg:ml-16": availabilityType === AvailabilityType.DAYS_OF_WEEK
+                  },
                   isPaginationRequired() && "lg:mr-2 xl:mr-9"
                 )}
               >
@@ -137,7 +140,7 @@ export default function AvailabilityGridHeader({
           </div>
         )}
       </div>
-      <hr className="h-[2px] bg-secondary" />
+      <hr className="h-[2px] w-[101%] bg-secondary" />
     </>
   );
 }

@@ -112,8 +112,8 @@ export default function Event() {
         </div>
       </div>
       <MediaQueryXXS maxScreenSize={ScreenSize.LG}>
-        <div className="h-16"></div>
-        <div className="fixed bottom-0 z-[100] w-full bg-background px-6 py-4 shadow-[0px_2px_2px_4px] shadow-gray-200">
+        <div className="h-20"></div>
+        <div className="fixed bottom-0 z-[100] w-full bg-background px-6 pb-7 pt-4 shadow-[0px_2px_2px_4px] shadow-gray-200">
           <AvailabilityGridBottomPanel handleSaveUserAvailability={handleSaveUserAvailability} />
         </div>
       </MediaQueryXXS>

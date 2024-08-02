@@ -95,9 +95,9 @@ export default function EditAvailabilityDialog({
         </MotionButton>
       </DialogTrigger>
 
-      <DialogContent className="px-6 md:px-8">
+      <DialogContent className="px-3 xs:px-8">
         <DialogHeader>
-          <DialogTitle className="mb-1 px-1 text-xl text-secondary">Edit Availability</DialogTitle>
+          <DialogTitle className="mb-1 px-1 text-secondary">Edit Availability</DialogTitle>
         </DialogHeader>
         <MotionButton className="mx-8 mt-2" disabled variant="outline" whileTap={{ scale: 0.95 }}>
           <p className="mr-2 text-sm">{LOGIN_WITH_GOOGLE}</p>
@@ -111,12 +111,12 @@ export default function EditAvailabilityDialog({
           </div>
 
           {allParticipants.length > 0 && (
-            <div className="mx-auto my-5 px-0 xs:my-8 xs:px-4">
+            <div className="mx-auto my-8 px-0 xs:px-4">
               <RadioGroup
-                className="mx-auto grid w-full cursor-pointer justify-center xs:grid-flow-col xs:space-x-6"
+                className="mx-auto grid w-full cursor-pointer grid-flow-col justify-center space-x-2 xs:space-x-6"
                 defaultValue="new"
               >
-                <div className="mb-3 flex items-center space-x-2 xs:mb-0">
+                <div className="flex items-center space-x-2">
                   <RadioGroupItem
                     className="border-secondary"
                     id="r1"
@@ -194,9 +194,9 @@ export default function EditAvailabilityDialog({
               </div>
             )}
           </div>
-          <div className="mt-16 flex flex-col">
+          <div className="mt-20 flex flex-col xs:mt-14">
             <MotionButton
-              className="w-full self-end text-sm  md:w-[8rem] "
+              className="w-full self-end text-sm md:w-[8rem] "
               disabled={!validUserName}
               type="submit"
               whileTap={{ scale: 0.95 }}
