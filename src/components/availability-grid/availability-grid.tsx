@@ -131,7 +131,7 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
     >
       <div
         className={cn(
-          "sticky top-[4.6rem] z-[999] h-full bg-background pl-4 pt-4 xs:pl-10 xl:pl-14",
+          "sticky top-[4.6rem] z-[999] h-full w-[101%] bg-background pl-4 pt-4 xs:pl-10 xl:pl-14",
           availabilityType === AvailabilityType.DAYS_OF_WEEK && "h-[5.4rem] lg:h-[4.5rem] xl:h-[5rem]"
         )}
       >

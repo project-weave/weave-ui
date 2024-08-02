@@ -61,7 +61,7 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
           return (
             <div className="flex flex-col items-center text-secondary" key={`days-of-weeks-picker-${date}`}>
               <label
-                className={cn("mb-3 text-sm font-medium md:mb-2", {
+                className={cn("mb-2 text-sm font-medium", {
                   "font-semibold md:mb-5 md:text-lg": size === "large"
                 })}
                 htmlFor={`days-of-weeks-picker-${date}`}
@@ -70,7 +70,7 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
               </label>
               <div className="flex h-full flex-grow">
                 <Button
-                  className={cn("h-full w-full rounded-sm bg-primary px-[.9rem] xs:px-4 sm:px-[18px]", {
+                  className={cn("h-full w-[2rem] rounded-sm bg-primary px-[.9rem] xs:px-4 sm:px-[18px]", {
                     "bg-primary/30 hover:scale-[1.02]": !selectedDaysOfWeek.has(date),
                     "text-md mx-3 w-[4.5rem] rounded-xl": size === "large"
                   })}

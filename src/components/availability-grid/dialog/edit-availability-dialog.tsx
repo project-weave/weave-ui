@@ -95,7 +95,7 @@ export default function EditAvailabilityDialog({
         </MotionButton>
       </DialogTrigger>
 
-      <DialogContent className="px-3 xs:px-8">
+      <DialogContent className="px-8">
         <DialogHeader>
           <DialogTitle className="mb-1 px-1 text-secondary">Edit Availability</DialogTitle>
         </DialogHeader>
@@ -111,12 +111,12 @@ export default function EditAvailabilityDialog({
           </div>
 
           {allParticipants.length > 0 && (
-            <div className="mx-auto my-8 px-0 xs:px-4">
+            <div className="mx-auto my-6 px-4 sm:my-8">
               <RadioGroup
-                className="mx-auto grid w-full cursor-pointer grid-flow-col justify-center space-x-2 xs:space-x-6"
+                className="mx-auto grid w-full cursor-pointer justify-center xs:grid-flow-col xs:space-x-6"
                 defaultValue="new"
               >
-                <div className="flex items-center space-x-2">
+                <div className="mb-3 flex items-center space-x-2 xs:mb-0">
                   <RadioGroupItem
                     className="border-secondary"
                     id="r1"
@@ -124,7 +124,7 @@ export default function EditAvailabilityDialog({
                     value="new"
                   />
                   <Label
-                    className={cn("cursor-pointer text-xs text-secondary md:text-sm", {
+                    className={cn("cursor-pointer text-xs text-secondary sm:text-sm", {
                       "font-medium": isEnterNewAvailability
                     })}
                     htmlFor="r1"
@@ -140,7 +140,7 @@ export default function EditAvailabilityDialog({
                     value="existing"
                   />
                   <Label
-                    className={cn("cursor-pointer text-xs text-secondary md:text-sm", {
+                    className={cn("cursor-pointer text-xs text-secondary sm:text-sm", {
                       "font-medium": !isEnterNewAvailability
                     })}
                     htmlFor="r2"
@@ -160,7 +160,7 @@ export default function EditAvailabilityDialog({
             {isEnterNewAvailability ? (
               <div className="mb-5 mt-4 flex flex-col">
                 <InputWithError
-                  className="text-sm"
+                  className="placeholder:text-sm"
                   containerClassName="w-[86%] mx-auto"
                   errorText={nameAlreadyTaken ? "Name already taken" : undefined}
                   id="name"
@@ -170,7 +170,7 @@ export default function EditAvailabilityDialog({
                 />
               </div>
             ) : (
-              <div className="mt-3 grid max-h-[7rem] w-full grid-cols-3 gap-x-3 gap-y-1 overflow-y-scroll scroll-smooth px-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full md:max-h-64">
+              <div className="mt-3 grid max-h-[6rem] w-full grid-cols-3 gap-x-3 gap-y-1 overflow-y-scroll scroll-smooth px-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full md:max-h-64">
                 {allParticipants.map((paricipant) => (
                   <motion.button
                     className={cn(
@@ -194,7 +194,11 @@ export default function EditAvailabilityDialog({
               </div>
             )}
           </div>
-          <div className="mt-20 flex flex-col xs:mt-14">
+          <div
+            className={cn("mt-20 flex flex-col xs:mt-14", {
+              "mt-8": !isEnterNewAvailability
+            })}
+          >
             <MotionButton
               className="w-full self-end text-sm md:w-[8rem] "
               disabled={!validUserName}
