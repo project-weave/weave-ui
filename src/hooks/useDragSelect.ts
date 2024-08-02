@@ -1,9 +1,9 @@
 import { clearAllBodyScrollLocks, disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import { Dispatch, RefObject, SetStateAction, useEffect, useState } from "react";
 
-export type DragStartHandler<T> = (item: T) => void;
+export type DragStartHandler<T> = (item: null | T) => void;
 export type DragEndHandler = () => void;
-export type DragMoveHandler<T> = (item: T) => void;
+export type DragMoveHandler<T> = (item: null | T) => void;
 
 export enum DragMode {
   ADD,
@@ -41,8 +41,8 @@ export default function useDragSelect<T>(
   const [isDragging, setIsDragging] = useState(false);
   const [mode, setMode] = useState<DragMode>(DragMode.NONE);
 
-  const onMouseDragStart: DragMoveHandler<T> = (item: T) => {
-    if (inputMethod === InputMethod.TOUCH) return;
+  const onMouseDragStart: DragMoveHandler<T> = (item: null | T) => {
+    if (item === null || inputMethod === InputMethod.TOUCH) return;
 
     setInputMethod(InputMethod.MOUSE);
     setIsDragging(true);
@@ -59,8 +59,8 @@ export default function useDragSelect<T>(
     });
   };
 
-  const onMouseDragMove: DragStartHandler<T> = (item: T) => {
-    if (!isDragging) return;
+  const onMouseDragMove: DragStartHandler<T> = (item: null | T) => {
+    if (item === null || !isDragging) return;
 
     switch (mode) {
       case DragMode.ADD:
