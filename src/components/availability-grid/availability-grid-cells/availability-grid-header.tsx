@@ -69,7 +69,7 @@ export default function AvailabilityGridHeader({
   const editUserAvailabilityButton = (
     <EditAvailabilityDialog
       allParticipants={allParticipants}
-      className="h-[1.7rem] whitespace-nowrap rounded-[.4rem] xl:h-[1.9rem]"
+      className="h-[1.7rem] whitespace-nowrap rounded-[.4rem] xl:h-[2rem]"
       editAvailabilityButtonAnimationScope={editAvailabilityButtonAnimationScope}
     />
   );
@@ -77,8 +77,8 @@ export default function AvailabilityGridHeader({
   return (
     <>
       <div
-        className={cn("flex items-center", {
-          "mb-2 mt-2": availabilityType === AvailabilityType.DAYS_OF_WEEK
+        className={cn("flex items-center xl:mb-1", {
+          "mb-2 mt-2 xl:mb-2": availabilityType === AvailabilityType.DAYS_OF_WEEK
         })}
       >
         <div className="ml-1 flex w-full items-center justify-between">
@@ -104,7 +104,10 @@ export default function AvailabilityGridHeader({
                 <BestTimesAvailableSwitch />
               </div>
               <div
-                className={cn("ml-8 mr-3 text-xs xl:ml-16  xl:text-sm", isPaginationRequired() && "lg:mr-2 xl:mr-9")}
+                className={cn(
+                  "ml-8 mr-3 text-sm lg:text-xs xl:ml-16 xl:text-sm",
+                  isPaginationRequired() && "lg:mr-2 xl:mr-9"
+                )}
               >
                 {isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}
               </div>
@@ -114,22 +117,22 @@ export default function AvailabilityGridHeader({
         {isPaginationRequired() && (
           <div className="ml-4 mr-1 flex h-7 items-center whitespace-nowrap xs:pr-2 xl:pr-0">
             <MotionButton
-              className="h-6 w-6 rounded-[0.45rem] px-[2px] py-0 xl:h-7 xl:w-7 xl:rounded-sm"
+              className="h-7 w-7 rounded-sm px-[2px] py-0 lg:h-6 lg:w-6 lg:rounded-[0.45rem] xl:h-7 xl:w-7  xl:rounded-sm"
               onClick={availabilityGridPreviousPage}
               variant={isFirstColInView ? "default-disabled" : "default"}
               whileTap={!isFirstColInView ? { scale: 0.95 } : {}}
             >
               <span className="sr-only">Previous Columns</span>
-              <ChevronLeft className="h-[1.1rem] w-[1.1rem] stroke-[3px] xl:h-5 xl:w-5" />
+              <ChevronLeft className="h-5 w-5 stroke-[3px] lg:h-4 lg:w-4  xl:h-5 xl:w-5" />
             </MotionButton>
             <MotionButton
-              className="ml-[5px] h-6 w-6 rounded-[0.45rem] px-[2px] py-0 xl:h-7 xl:w-7 xl:rounded-sm"
+              className="ml-[5px] h-7 w-7 rounded-sm px-[2px] py-0 lg:h-6 lg:w-6 lg:rounded-[0.45rem] xl:h-7 xl:w-7 xl:rounded-sm"
               onClick={availabilityGridNextPage}
               variant={isLastColInView ? "default-disabled" : "default"}
               whileTap={!isLastColInView ? { scale: 0.95 } : {}}
             >
               <span className="sr-only">Next Columns</span>
-              <ChevronRight className="h-[1.1rem] w-[1.1rem] stroke-[3px] xl:h-5 xl:w-5" />
+              <ChevronRight className="h-5 w-5 stroke-[3px] lg:h-4 lg:w-4 xl:h-5 xl:w-5" />
             </MotionButton>
           </div>
         )}

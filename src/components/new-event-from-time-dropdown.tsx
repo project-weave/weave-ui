@@ -103,7 +103,7 @@ export default function NewEventFromTimeDropdown({
         <div className="relative w-full">
           <div
             className={cn(
-              "peer box-border flex h-10 items-center rounded-2xl bg-background px-4 pb-2.5 pt-3 text-sm outline outline-2 outline-primary/40 focus-within:outline-primary hover:outline-primary xs:text-base",
+              "peer box-border flex h-10 items-center rounded-2xl bg-background px-4 pb-2.5 pt-3 outline outline-2 outline-primary/40 focus-within:outline-primary hover:outline-primary",
               {
                 "outline-primary": open,
                 "outline-red-600/40 focus-within:outline-red-600 hover:outline-red-600": error
@@ -147,7 +147,7 @@ export default function NewEventFromTimeDropdown({
                   value={time}
                 >
                   {time === NEXT_DAY_MIDNIGHT_REPRESENTATION ? nextDayMidnight : <span>{time}</span>}
-                  <Check className={cn("h-5 w-5 ", selectedTime === time ? "opacity-100" : "opacity-0")} />
+                  <Check className={cn("h-4 w-4 ", selectedTime === time ? "opacity-100" : "opacity-0")} />
                 </CommandItem>
               );
             })}

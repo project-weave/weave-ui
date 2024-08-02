@@ -1,13 +1,5 @@
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import InputWithError from "@/components/ui/input-with-error";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -102,26 +94,29 @@ export default function EditAvailabilityDialog({
           {EDIT_AVAILABILITY}
         </MotionButton>
       </DialogTrigger>
-      <form onSubmit={onSubmit}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="mb-1 px-1 text-secondary">Edit Availability</DialogTitle>
-          </DialogHeader>
-          <MotionButton className="mx-8 mt-2" disabled variant="outline" whileTap={{ scale: 0.95 }}>
-            <p className="mr-2 text-xs">{LOGIN_WITH_GOOGLE}</p>
-            <Image alt="google-logo" className="h-4 w-4" height={40} src="/google.png" width={40} />
-          </MotionButton>
 
-          <div className="flex-column my-2 flex w-full items-center text-xs">
+      <DialogContent className="px-6 md:px-8">
+        <DialogHeader>
+          <DialogTitle className="mb-1 px-1 text-xl text-secondary">Edit Availability</DialogTitle>
+        </DialogHeader>
+        <MotionButton className="mx-8 mt-2" disabled variant="outline" whileTap={{ scale: 0.95 }}>
+          <p className="mr-2 text-sm">{LOGIN_WITH_GOOGLE}</p>
+          <Image alt="google-logo" className="h-4 w-4" height={40} src="/google.png" width={40} />
+        </MotionButton>
+        <form onSubmit={onSubmit}>
+          <div className="flex-column my-2 flex w-full items-center">
             <hr className="h-[2px] w-full bg-secondary" />
             <span className="mx-4 whitespace-nowrap text-xs text-secondary">{CONTINUE_WITHOUT_LOGIN}</span>
             <hr className="h-[2px] w-full bg-secondary" />
           </div>
 
           {allParticipants.length > 0 && (
-            <div className="mx-auto my-1">
-              <RadioGroup className="grid w-full cursor-pointer grid-flow-col space-x-6" defaultValue="new">
-                <div className="flex items-center space-x-2">
+            <div className="mx-auto my-5 px-0 xs:my-8 xs:px-4">
+              <RadioGroup
+                className="mx-auto grid w-full cursor-pointer justify-center xs:grid-flow-col xs:space-x-6"
+                defaultValue="new"
+              >
+                <div className="mb-3 flex items-center space-x-2 xs:mb-0">
                   <RadioGroupItem
                     className="border-secondary"
                     id="r1"
@@ -129,7 +124,7 @@ export default function EditAvailabilityDialog({
                     value="new"
                   />
                   <Label
-                    className={cn("cursor-pointer text-xs text-secondary", {
+                    className={cn("cursor-pointer text-xs text-secondary md:text-sm", {
                       "font-medium": isEnterNewAvailability
                     })}
                     htmlFor="r1"
@@ -145,7 +140,7 @@ export default function EditAvailabilityDialog({
                     value="existing"
                   />
                   <Label
-                    className={cn("cursor-pointer text-xs text-secondary", {
+                    className={cn("cursor-pointer text-xs text-secondary md:text-sm", {
                       "font-medium": !isEnterNewAvailability
                     })}
                     htmlFor="r2"
@@ -157,15 +152,15 @@ export default function EditAvailabilityDialog({
             </div>
           )}
           <div className="mb-3 mt-4">
-            <Label className="mb-2 ml-4 text-xs font-semibold text-secondary">
+            <Label className="mb-2 ml-2 text-sm font-semibold text-secondary">
               {isEnterNewAvailability ? ENTER_YOUR_NAME : SELECT_EXISTING_USER}
             </Label>
-            <hr className="mx-auto mt-1 h-[1.5px] w-[95%] bg-secondary" />
+            <hr className="mx-auto mt-1 h-[1.5px] w-full bg-secondary" />
 
             {isEnterNewAvailability ? (
               <div className="mb-5 mt-4 flex flex-col">
                 <InputWithError
-                  className="text-xs"
+                  className="text-sm"
                   containerClassName="w-[86%] mx-auto"
                   errorText={nameAlreadyTaken ? "Name already taken" : undefined}
                   id="name"
@@ -175,7 +170,7 @@ export default function EditAvailabilityDialog({
                 />
               </div>
             ) : (
-              <div className="mx-2 mt-3 grid max-h-64 w-full grid-cols-3 gap-x-3 gap-y-1 overflow-y-scroll scroll-smooth px-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full">
+              <div className="mt-3 grid max-h-[7rem] w-full grid-cols-3 gap-x-3 gap-y-1 overflow-y-scroll scroll-smooth px-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full md:max-h-64">
                 {allParticipants.map((paricipant) => (
                   <motion.button
                     className={cn(
@@ -187,6 +182,7 @@ export default function EditAvailabilityDialog({
                     )}
                     key={`edit-availability-button-${paricipant}`}
                     onClick={() => setSelectedUserName(paricipant)}
+                    type="button"
                     whileTap={{ scale: 0.92 }}
                   >
                     <User className="h-4 w-4" />
@@ -198,21 +194,18 @@ export default function EditAvailabilityDialog({
               </div>
             )}
           </div>
-
-          <DialogFooter>
-            <DialogClose asChild>
-              <MotionButton
-                className="min-w-[6rem] text-xs"
-                disabled={!validUserName}
-                type="submit"
-                whileTap={{ scale: 0.95 }}
-              >
-                {CONTINUE}
-              </MotionButton>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </form>
+          <div className="mt-16 flex flex-col">
+            <MotionButton
+              className="w-full self-end text-sm  md:w-[8rem] "
+              disabled={!validUserName}
+              type="submit"
+              whileTap={{ scale: 0.95 }}
+            >
+              {CONTINUE}
+            </MotionButton>
+          </div>
+        </form>
+      </DialogContent>
     </Dialog>
   );
 }

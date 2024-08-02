@@ -53,27 +53,27 @@ export default function AvailabilityGridColumnHeader({
   return (
     <div
       className={cn(
-        "flex h-full w-full flex-col items-center justify-center border-transparent bg-background",
+        "flex h-full  flex-col items-center justify-center border-transparent bg-background pt-1",
         borderXSizeStyles,
         {
-          "mr-1": hasDateGapRight
+          "pr-[6px]": hasDateGapRight,
+          "pt-2": availabilityType === AvailabilityType.SPECIFIC_DATES
         }
       )}
-      style={style}
+      style={{ ...style, width: `calc(100% + ${hasDateGapRight ? "6px" : "0px"}` }}
     >
       {availabilityType === AvailabilityType.SPECIFIC_DATES && (
         <h3 className="text-sm font-semibold text-primary xl:text-base">{format(parsedDate, "EEE")}</h3>
       )}
       <div
-        className={cn("border-b-2 border-transparent text-center xl:w-16", {
-          "border-b-2 border-secondary": (isDateHovered || isDateFocused) && isViewMode(mode),
-          "pb-1": availabilityType === AvailabilityType.SPECIFIC_DATES
+        className={cn("border-b-2 border-transparent pb-1 text-center xl:w-16", {
+          "border-b-2 border-secondary": (isDateHovered || isDateFocused) && isViewMode(mode)
         })}
       >
         {availabilityType === AvailabilityType.SPECIFIC_DATES && (
           <MotionButton
             className={cn(
-              "mt-1 h-6 w-[3.4rem] whitespace-nowrap rounded-sm border-2 border-transparent bg-accent-light text-xs font-semibold tracking-wide text-secondary transition-all hover:bg-accent xl:w-[3.8rem] xl:text-sm",
+              "mt-1 h-6 w-[3.7rem] whitespace-nowrap rounded-sm border-2 border-transparent bg-accent-light text-xs font-semibold tracking-wide text-secondary transition-all hover:bg-accent xl:h-[1.7rem] xl:w-[4.2rem] xl:text-sm",
               {
                 "bg-primary text-white hover:bg-primary-hover": isAllTimeSlotForDateSelected,
                 "mt-0 cursor-default bg-background text-sm text-secondary hover:bg-background xl:text-base":
@@ -90,10 +90,11 @@ export default function AvailabilityGridColumnHeader({
         {availabilityType === AvailabilityType.DAYS_OF_WEEK && (
           <MotionButton
             className={cn(
-              "my-1 h-7 w-14 rounded-xl border-2 border-transparent bg-accent-light text-xs font-semibold tracking-wide text-secondary transition-all hover:bg-accent",
+              "mt-1 h-7 w-14 rounded-xl border-2 border-transparent bg-accent-light text-sm font-semibold tracking-wide text-secondary transition-all hover:bg-accent",
               {
                 "bg-primary text-white hover:bg-primary-hover": isAllTimeSlotForDateSelected,
-                "cursor-default bg-background text-sm text-secondary hover:bg-background": isViewMode(mode),
+                "cursor-default bg-background text-sm text-secondary hover:bg-background lg:text-base":
+                  isViewMode(mode),
                 "ring-2 ring-primary ring-offset-2": (isDateHovered || isDateFocused) && isEditMode(mode)
               }
             )}

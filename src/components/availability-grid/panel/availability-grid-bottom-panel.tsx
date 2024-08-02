@@ -32,14 +32,14 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
   const editUserAvailabilityButton = (
     <EditAvailabilityDialog
       allParticipants={allParticipants}
-      className="h-[1.9rem] whitespace-nowrap rounded-[.4rem]"
+      className="h-[2.2rem] whitespace-nowrap rounded-[.4rem]"
     />
   );
 
   return (
     <div className="m-auto grid max-w-[50rem] grid-flow-col justify-between">
       <BestTimesAvailableSwitch />
-      <div className="text-xs">{isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}</div>
+      <div className="text-sm">{isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}</div>
     </div>
   );
 }

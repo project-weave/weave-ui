@@ -86,6 +86,7 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
                   onTouchEnd={onTouchDragEnd}
                   onTouchMove={handleTouchMove}
                   onTouchStart={handleTouchStart}
+                  type="button"
                 />
               </div>
             </div>

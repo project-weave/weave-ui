@@ -45,6 +45,7 @@ export default function AvailbilityGridBResponseFilterButton({
         }
       )}
       onClick={() => filterUserHandler(name)}
+      type="button"
       whileTap={isViewMode(mode) ? { scale: 0.92 } : {}}
     >
       <User className="h-4 w-4" />
