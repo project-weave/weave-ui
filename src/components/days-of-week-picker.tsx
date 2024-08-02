@@ -70,14 +70,16 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
               </label>
               <div className="flex h-full flex-grow">
                 <Button
-                  className={cn("h-full w-[2rem] rounded-sm bg-primary px-[.9rem] xs:px-4 sm:px-[18px]", {
-                    "bg-primary/30 hover:scale-[1.02]": !selectedDaysOfWeek.has(date),
-                    "text-md mx-3 w-[4.5rem] rounded-xl": size === "large"
-                  })}
+                  className={cn(
+                    "h-full w-[2.16rem] rounded-sm bg-primary px-[.9rem] xs:px-4 sm:w-[2.4rem] sm:px-[18px]",
+                    {
+                      "bg-primary/30 hover:scale-[1.02]": !selectedDaysOfWeek.has(date),
+                      "text-md mx-3 w-[4.5rem] rounded-xl sm:w-[4.5rem]": size === "large"
+                    }
+                  )}
                   drag-select-attr={date}
                   onMouseDown={(e: MouseEvent<HTMLButtonElement>) => {
-                    if (!isLeftClick(e)) return;
-                    onMouseDragStart(date);
+                    if (isLeftClick(e)) onMouseDragStart(date);
                   }}
                   onMouseEnter={() => {
                     onMouseDragMove(date);
