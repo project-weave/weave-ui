@@ -140,7 +140,7 @@ export default function AvailabilityGridHeader({
           </div>
         )}
       </div>
-      <hr className="h-[2px] w-[101%] bg-secondary" />
+      <hr className="h-[2px] bg-secondary" />
     </>
   );
 }

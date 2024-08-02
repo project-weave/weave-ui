@@ -23,7 +23,7 @@ type useDragSelectReturn<T> = {
   onMouseDragStart: DragStartHandler<T>;
   onTouchDragEnd: DragEndHandler;
   onTouchDragMove: DragMoveHandler<T>;
-  onTouchDragStart: DragStartHandler<null | T>;
+  onTouchDragStart: DragStartHandler<T>;
 };
 
 export default function useDragSelect<T>(
@@ -43,6 +43,7 @@ export default function useDragSelect<T>(
 
   const onMouseDragStart: DragMoveHandler<T> = (item: T) => {
     if (inputMethod === InputMethod.TOUCH) return;
+
     setInputMethod(InputMethod.MOUSE);
     setIsDragging(true);
     setSelected((prev) => {
@@ -85,8 +86,9 @@ export default function useDragSelect<T>(
     setIsDragging(false);
   };
 
-  const onTouchDragMove: DragMoveHandler<T> = (item: T) => {
-    if (!isDragging) return;
+  const onTouchDragMove: DragMoveHandler<T> = (item: null | T) => {
+    if (!item || !isDragging) return;
+
     if (containerRef && containerRef.current !== null) {
       disableBodyScroll(containerRef.current);
     }
@@ -114,7 +116,7 @@ export default function useDragSelect<T>(
     }
   };
 
-  const onTouchDragStart: DragStartHandler<null | T> = (item: null | T) => {
+  const onTouchDragStart: DragStartHandler<T> = (item: null | T) => {
     if (inputMethod === InputMethod.MOUSE) return;
     setInputMethod(InputMethod.TOUCH);
 

@@ -11,7 +11,6 @@ import { cn } from "@/utils/cn";
 import { format, isBefore, isEqual, parse, startOfToday } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { MediaQueryXS, MediaQueryXXS } from "./media-query";
@@ -39,7 +38,6 @@ export default function NewEventForm() {
   const [startTime, setStartTime] = useState<EventTime>("9:00 am");
   const [endTime, setEndTime] = useState<EventTime>("9:00 pm");
 
-  const router = useRouter();
   const { toast } = useToast();
   const { isPending, mutate } = useCreateEvent();
 
@@ -96,6 +94,7 @@ export default function NewEventForm() {
     if (availabilityType === AvailabilityType.DAYS_OF_WEEK) {
       dates = Array.from(selectedDaysOfWeek);
     }
+
     const req: CreateEventRequest = {
       dates,
       endTime: format(parsedEndTime, EVENT_TIME_FORMAT),
@@ -112,18 +111,16 @@ export default function NewEventForm() {
           variant: "failure"
         });
       },
-      onSuccess: (data) => {
+      onSuccess: () => {
         toast({
           description: "Your event has been successfully created.",
           title: "Congrats!",
           variant: "success"
         });
-        router.push(`/${data.eventId}`);
       }
     });
   }
 
-  // TODO: add actual media queries
   const formSubmissionButton = (
     <>
       <MediaQueryXXS maxScreenSize={ScreenSize.XS}>
@@ -138,39 +135,25 @@ export default function NewEventForm() {
               initial={{ translateY: 50 }}
               transition={{ duration: 0.2, ease: "easeInOut" }}
             >
-              {isPending ? (
-                <div className="flex justify-center">
-                  <Loader2 className="h-11 w-11 animate-spin text-primary" />
-                </div>
-              ) : (
-                <Button
-                  className={cn(
-                    "bottom-3 left-0 w-full max-w-[26rem] rounded-xl border-[1px] border-primary py-2 align-bottom text-sm "
-                  )}
-                  disabled={!isFormValid}
-                  type="submit"
-                >
-                  {CREATE_EVENT}
-                </Button>
-              )}
+              <Button
+                className="h-8 w-full max-w-[26rem] rounded-xl border-[1px] border-primary text-sm"
+                disabled={!isFormValid}
+                type="submit"
+              >
+                {!isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin text-white" /> : CREATE_EVENT}
+              </Button>
             </motion.div>
           </AnimatePresence>
         )}
       </MediaQueryXXS>
       <MediaQueryXS>
-        {isPending ? (
-          <div className="flex justify-center">
-            <Loader2 className="mt-3 h-12 w-12 animate-spin text-primary" />
-          </div>
-        ) : (
-          <Button
-            className="mt-3 hidden h-auto w-full rounded-xl border-[1px] border-primary py-3 align-bottom text-sm xs:block "
-            disabled={!isFormValid}
-            type="submit"
-          >
-            {CREATE_EVENT}
-          </Button>
-        )}
+        <Button
+          className="mt-3 hidden h-12 w-full rounded-xl border-[1px] border-primary align-bottom text-sm xs:block"
+          disabled={!isFormValid}
+          type="submit"
+        >
+          {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin py-0 text-white" /> : CREATE_EVENT}
+        </Button>
       </MediaQueryXS>
     </>
   );

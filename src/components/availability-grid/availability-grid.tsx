@@ -149,16 +149,14 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
           }}
         >
           {gridNodes.map((columnNodes, displayColIndex) => {
-            let columnHeaderHeight = "";
-            switch (availabilityType) {
-              case AvailabilityType.SPECIFIC_DATES:
-                columnHeaderHeight = "5rem";
-                if (screenSize <= ScreenSize.LG) columnHeaderHeight = "4.3rem";
-                break;
-              case AvailabilityType.DAYS_OF_WEEK:
-                columnHeaderHeight = "3.4rem";
-                break;
-            }
+            const columnHeaderHeight =
+              availabilityType === AvailabilityType.SPECIFIC_DATES
+                ? screenSize <= ScreenSize.LG
+                  ? "4.3rem"
+                  : "5rem"
+                : "3.4rem";
+            const topBottomCellHeight = screenSize <= ScreenSize.LG ? "0.9rem" : "0.7rem";
+            const timeSlotCellHeight = screenSize <= ScreenSize.LG ? "1.8rem" : "1.3rem";
 
             let hasDateGapLeft = false;
             let hasDateGapRight = false;
@@ -168,8 +166,7 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
               const eventDate = sortedEventDates[timeSlotsColumnIndex];
               const prevEventDate = sortedEventDates[colHeaderNode.getSortedEventDatesIndex() - 1];
               const nextEventDate = sortedEventDates[colHeaderNode.getSortedEventDatesIndex() + 1];
-              hasDateGapLeft =
-                timeSlotsColumnIndex !== 0 && !isConsecutiveDay(parseISO(prevEventDate), parseISO(eventDate));
+              hasDateGapLeft = displayColIndex !== 1 && !isConsecutiveDay(parseISO(prevEventDate), parseISO(eventDate));
               hasDateGapRight =
                 displayColIndex !== gridNodes.length - 1 &&
                 !isConsecutiveDay(parseISO(eventDate), parseISO(nextEventDate));
@@ -182,7 +179,7 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
                 })}
                 key={`availability-column-${displayColIndex}`}
                 style={{
-                  gridTemplateRows: `${columnHeaderHeight} 0.7rem repeat(${sortedEventTimes.length - 1}, minmax(1.3rem, 1fr)) 0.7rem`
+                  gridTemplateRows: `${columnHeaderHeight} ${topBottomCellHeight} repeat(${sortedEventTimes.length - 1}, minmax(${timeSlotCellHeight}, 1fr)) ${topBottomCellHeight}`
                 }}
               >
                 {columnNodes.map((node) => {

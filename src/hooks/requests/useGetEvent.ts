@@ -8,7 +8,7 @@ export interface GetEventResponse {
   responses: EventResponse[];
 }
 
-async function getEvent(eventId: string) {
+export async function getEvent(eventId: string) {
   const { data } = await axios.get(`/api/v1/event/${eventId}`);
   return data;
 }
