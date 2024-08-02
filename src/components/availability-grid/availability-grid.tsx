@@ -4,6 +4,8 @@ import useScreenSize, { ScreenSize } from "@/hooks/useScreenSize";
 import useAvailabilityGridStore, { AvailabilityType } from "@/store/availabilityGridStore";
 import { EventDate, EventTime, getTimeSlot, TimeSlot } from "@/types/Event";
 import { cn } from "@/utils/cn";
+import { isConsecutiveDay } from "@/utils/date";
+import { parseISO } from "date-fns";
 import { useAnimate } from "framer-motion";
 import { useEffect, useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
@@ -129,7 +131,7 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
     >
       <div
         className={cn(
-          "sticky top-[4.6rem] z-[999] h-[6.4rem] w-[101%] bg-background pl-4 pt-4 xs:h-[6.5rem] xs:pl-10 lg:h-[4.8rem] xl:h-[5.1rem] xl:pl-14",
+          "sticky top-[4.6rem] z-[999]  h-full w-[101%] bg-background pb-2 pl-4 pt-4 xs:pl-10 xl:pb-3 xl:pl-14",
           availabilityType === AvailabilityType.DAYS_OF_WEEK && "h-[5.4rem] lg:h-[4.5rem] xl:h-[5rem]"
         )}
       >
@@ -157,23 +159,45 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
                 columnHeaderHeight = "2.6rem";
                 break;
             }
+
+            let hasDateGapLeft = false;
+            let hasDateGapRight = false;
+            const colHeaderNode = columnNodes[0];
+            const timeSlotsColumnIndex = colHeaderNode.getSortedEventDatesIndex();
+            if (timeSlotsColumnIndex !== -1) {
+              const eventDate = sortedEventDates[timeSlotsColumnIndex];
+              const prevEventDate = sortedEventDates[colHeaderNode.getSortedEventDatesIndex() - 1];
+              const nextEventDate = sortedEventDates[colHeaderNode.getSortedEventDatesIndex() + 1];
+              hasDateGapLeft =
+                timeSlotsColumnIndex !== 0 && !isConsecutiveDay(parseISO(prevEventDate), parseISO(eventDate));
+              hasDateGapRight =
+                displayColIndex !== gridNodes.length - 1 &&
+                !isConsecutiveDay(parseISO(eventDate), parseISO(nextEventDate));
+            }
+
             return (
               <div
-                className="grid w-full"
+                className={cn("box-content grid", {
+                  "pr-1": hasDateGapRight
+                })}
                 key={`availability-column-${displayColIndex}`}
                 style={{
-                  gridTemplateRows: `${columnHeaderHeight} 0.7rem repeat(${sortedEventTimes.length - 1}, minmax(1rem, 1fr)) 0.7rem`
+                  gridTemplateRows: `${columnHeaderHeight} 0.7rem repeat(${sortedEventTimes.length - 1}, minmax(1.3rem, 1fr)) 0.7rem`
                 }}
               >
-                {columnNodes.map((node) => (
-                  <AvailabilityGridCell
-                    animateEditAvailabilityButton={animateEditAvailabilityButton}
-                    key={`availability-cell-${node.offsettedColIndex}-${node.displayedRowIndex}`}
-                    node={node}
-                    screenSize={screenSize}
-                    timeSlotDragSelectionState={timeSlotDragSelectionState}
-                  />
-                ))}
+                {columnNodes.map((node) => {
+                  return (
+                    <AvailabilityGridCell
+                      animateEditAvailabilityButton={animateEditAvailabilityButton}
+                      hasDateGapLeft={hasDateGapLeft}
+                      hasDateGapRight={hasDateGapRight}
+                      key={`availability-cell-${node.offsettedColIndex}-${node.displayedRowIndex}`}
+                      node={node}
+                      screenSize={screenSize}
+                      timeSlotDragSelectionState={timeSlotDragSelectionState}
+                    />
+                  );
+                })}
               </div>
             );
           })}

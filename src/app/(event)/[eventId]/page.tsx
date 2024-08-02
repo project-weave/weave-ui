@@ -20,7 +20,7 @@ export default function Event() {
 
   const { eventId } = useAvailabilityGridStore((state) => state.eventData);
   const setEventData = useAvailabilityGridStore((state) => state.setEventData);
-  const resetGridStateForUser = useAvailabilityGridStore(useShallow((state) => state.resetGridStateForUser));
+  const resetGridState = useAvailabilityGridStore(useShallow((state) => state.resetGridState));
   const setMode = useAvailabilityGridStore(useShallow((state) => state.setMode));
   const selectedTimeSlots = useAvailabilityGridStore(useShallow((state) => state.selectedTimeSlots));
 
@@ -29,7 +29,7 @@ export default function Event() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    return resetGridStateForUser("");
+    return resetGridState();
   }, []);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export default function Event() {
         <div className="hidden w-[18rem] lg:block xl:w-[20rem]">
           <Skeleton className="h-full w-full rounded-md bg-primary-light/30" />
         </div>
-        <div className="sms min-h-[40rem] w-[24rem] xs:w-[28rem] sm:w-[36rem] md:w-[40rem] lg:w-[44rem] xl:w-[56rem]">
+        <div className="mb-4 h-full min-h-[40rem] w-[24rem] xs:w-[28rem] sm:min-h-[44rem] sm:w-[36rem] md:w-[40rem] lg:w-[40rem] xl:w-[56rem]">
           <Skeleton className="h-full w-full rounded-md bg-primary-light/30" />
         </div>
       </div>
@@ -96,7 +96,7 @@ export default function Event() {
     });
 
     setMode(AvailabilityGridMode.VIEW);
-    resetGridStateForUser("");
+    resetGridState();
   }
 
   return (
@@ -107,7 +107,7 @@ export default function Event() {
             <AvailabilityGridLeftPanel />
           </div>
         </MediaQueryLG>
-        <div className="mb-4 h-fit min-h-[40rem] w-[24rem] xs:w-[28rem] sm:min-h-[44rem] sm:w-[36rem] md:w-[40rem] lg:w-[40rem] xl:w-[56rem]">
+        <div className="h-full min-h-[40rem] w-[24rem] pb-4 xs:w-[28rem] sm:min-h-[44rem] sm:w-[36rem] md:w-[40rem] lg:w-[40rem] xl:w-[56rem]">
           <AvailabilityGrid handleSaveUserAvailability={handleSaveUserAvailability} />
         </div>
       </div>

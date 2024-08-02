@@ -32,7 +32,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
-      className="overflow-x-hidden scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary-light sm:scrollbar-w-6"
+      className="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary-light sm:scrollbar-w-6"
       lang="en"
     >
       <body className={cn("relative flex items-center justify-center ", inter.className)}>

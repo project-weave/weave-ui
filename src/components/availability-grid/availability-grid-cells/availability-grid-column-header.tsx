@@ -3,20 +3,23 @@ import { EventDate, getDateFromTimeSlot, getTimeSlot } from "@/types/Event";
 import { cn } from "@/utils/cn";
 import { format, isValid, parseISO, startOfToday } from "date-fns";
 import { motion } from "framer-motion";
+import { CSSProperties } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import { Button } from "../../ui/button";
 
 type AvailabilityGridColumnHeaderProps = {
   borderXSizeStyles: string;
-  cellWidth: string;
   eventDate: EventDate;
+  hasDateGapRight: boolean;
+  style: CSSProperties;
 };
 
 export default function AvailabilityGridColumnHeader({
   borderXSizeStyles,
-  cellWidth,
-  eventDate
+  eventDate,
+  hasDateGapRight,
+  style
 }: AvailabilityGridColumnHeaderProps) {
   const { availabilityType, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);
   const mode = useAvailabilityGridStore((state) => state.mode);
@@ -49,8 +52,14 @@ export default function AvailabilityGridColumnHeader({
 
   return (
     <div
-      className={cn("flex flex-col items-center justify-center border-transparent bg-background", borderXSizeStyles)}
-      style={{ width: cellWidth }}
+      className={cn(
+        "flex h-full w-full flex-col items-center justify-center border-transparent bg-background",
+        borderXSizeStyles,
+        {
+          "mr-1": hasDateGapRight
+        }
+      )}
+      style={style}
     >
       {availabilityType === AvailabilityType.SPECIFIC_DATES && (
         <h3 className="text-sm font-semibold text-primary xl:text-base">{format(parsedDate, "EEE")}</h3>

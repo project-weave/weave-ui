@@ -1,9 +1,6 @@
 import { ScreenSize } from "@/hooks/useScreenSize";
 import useAvailabilityGridStore, { AvailabilityType, isViewMode } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
-import { isConsecutiveDay } from "@/utils/date";
-import { parseISO } from "date-fns";
-import { CSSProperties, ReactNode } from "react";
 
 import { AvailabilityGridNode, NodeType } from "../availability-grid-node";
 import AvailabilityGridColumnHeader from "./availability-grid-column-header";
@@ -12,12 +9,16 @@ import AvailabilityGridTimeSlot, { TimeSlotDragSelectionState } from "./availabi
 
 type AvailabilityGridCellProps = {
   animateEditAvailabilityButton: () => void;
+  hasDateGapLeft: boolean;
+  hasDateGapRight: boolean;
   node: AvailabilityGridNode;
   screenSize: ScreenSize;
   timeSlotDragSelectionState: TimeSlotDragSelectionState;
 };
 export default function AvailabilityGridCell({
   animateEditAvailabilityButton,
+  hasDateGapLeft,
+  hasDateGapRight,
   node,
   screenSize,
   timeSlotDragSelectionState
@@ -25,53 +26,13 @@ export default function AvailabilityGridCell({
   const { availabilityType, sortedEventDates, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);
   const mode = useAvailabilityGridStore((state) => state.mode);
 
-  const timeSlotsCol = node.getTimeSlotsColumnIndex();
-  const timeSlotsRow = node.getTimeSlotsRowIndex();
-  const eventDate = sortedEventDates[timeSlotsCol];
-  const eventTime = sortedEventTimes[timeSlotsRow];
-
-  const prevEventDate = sortedEventDates[timeSlotsCol - 1];
-  const nextEventDate = sortedEventDates[timeSlotsCol + 1];
-
+  const timeSlotsCol = node.getSortedEventDatesIndex();
+  const timeSlotsRow = node.getSortedEventTimesIndex();
   const isInFirstDisplayedCol = node.displayedColIndex === 1;
   const isInFirstActualCol = node.offsettedColIndex === 1;
 
-  const hasDateGapLeft = !isInFirstDisplayedCol && !isConsecutiveDay(parseISO(prevEventDate), parseISO(eventDate));
-  const hasDateGapRight =
-    !node.isNodeInLastDisplayedCol && !isConsecutiveDay(parseISO(eventDate), parseISO(nextEventDate));
-
-  const CellWrapper = ({
-    children,
-    className,
-    style
-  }: {
-    children: ReactNode;
-    className?: string;
-    style?: CSSProperties;
-  }) => (
-    <div
-      className={cn(
-        "w-full",
-        {
-          "pl-[1.5px] xl:pl-[2px]": hasDateGapLeft,
-          "pr-[1.5px] xl:pr-[2px]": hasDateGapRight
-        },
-        className
-      )}
-      style={style}
-    >
-      {children}
-    </div>
-  );
-
-  function getCellBorderStyle() {
-    if (isViewMode(mode)) return "solid";
-    const rightStyle = hasDateGapRight ? "solid" : "dashed";
-    const leftStyle = hasDateGapLeft ? "solid" : "dashed";
-    const bottomStyle = "dashed";
-    const topStyle = "dashed";
-    return `${topStyle} ${rightStyle} ${bottomStyle} ${leftStyle}`;
-  }
+  const eventDate = sortedEventDates[timeSlotsCol];
+  const eventTime = sortedEventTimes[timeSlotsRow];
 
   function getBorderXSizeStyles(
     isCellInFirstDisplayedCol: boolean,
@@ -89,7 +50,16 @@ export default function AvailabilityGridCell({
 
     return classNames.join(" ");
   }
-  const borderStyle = getCellBorderStyle();
+
+  function getFirstAndLastCellBorderStyle() {
+    if (isViewMode(mode)) return "solid";
+    const rightStyle = hasDateGapRight ? "solid" : "dashed";
+    const leftStyle = hasDateGapLeft ? "solid" : "dashed";
+    const bottomStyle = "dashed";
+    const topStyle = "dashed";
+    return `${topStyle} ${rightStyle} ${bottomStyle} ${leftStyle}`;
+  }
+
   const borderXSizeStyles = getBorderXSizeStyles(
     isInFirstDisplayedCol,
     isInFirstActualCol,
@@ -98,8 +68,6 @@ export default function AvailabilityGridCell({
     hasDateGapLeft,
     hasDateGapRight
   );
-  const cellWidthGapOffset = hasDateGapRight ? (screenSize < ScreenSize.LG ? "3px" : "4px") : "0px";
-  const cellWidth = `calc(100% - ${cellWidthGapOffset})`;
 
   let topValue = "";
   switch (availabilityType) {
@@ -118,77 +86,68 @@ export default function AvailabilityGridCell({
   switch (node.getRenderType()) {
     case NodeType.COLUMN_HEADER_PLACEHOLDER:
       return (
-        <CellWrapper
-          className="z-[100] h-full bg-background"
+        <div
+          className="m-0 h-full w-full bg-background"
           style={{
             position: "sticky",
-            top: `${topValue}`
+            top: `${topValue}`,
+            zIndex: 100
           }}
         >
           &nbsp;
-        </CellWrapper>
+        </div>
       );
     case NodeType.PLACEHOLDER:
-      return <div>&nbsp;</div>;
+      return <div className="h-full w-full">&nbsp;</div>;
     case NodeType.ROW_HEADER:
       return <AvailabilityGridRowHeader eventTime={eventTime} />;
     case NodeType.COLUMN_HEADER:
       return (
-        <CellWrapper
-          className="z-[100] h-full bg-background"
+        <AvailabilityGridColumnHeader
+          borderXSizeStyles={borderXSizeStyles}
+          eventDate={eventDate}
+          hasDateGapRight={hasDateGapRight}
           style={{
             position: "sticky",
-            top: `${topValue}`
+            top: `${topValue}`,
+            zIndex: 100
           }}
-        >
-          <AvailabilityGridColumnHeader
-            borderXSizeStyles={borderXSizeStyles}
-            cellWidth={cellWidth}
-            eventDate={eventDate}
-          />
-        </CellWrapper>
+        />
       );
 
     case NodeType.FIRST_CELL_IN_COLUMN:
       return (
-        <CellWrapper>
-          <div
-            className={cn("h-full border-t-0 border-primary-light", borderXSizeStyles, {
-              "border-l-primary": hasDateGapLeft,
-              "border-r-primary": hasDateGapRight
-            })}
-            style={{ borderStyle, width: cellWidth }}
-          />
-        </CellWrapper>
+        <div
+          className={cn("h-full w-full border-t-0 border-primary-light", borderXSizeStyles, {
+            "border-l-primary": hasDateGapLeft,
+            "border-r-primary": hasDateGapRight
+          })}
+          style={{ borderStyle: getFirstAndLastCellBorderStyle() }}
+        />
       );
     case NodeType.LAST_CELL_IN_COLUMN:
       return (
-        <CellWrapper>
-          <div
-            className={cn("h-full border-b-0 border-t-2 border-primary-light", borderXSizeStyles, {
-              "border-l-primary": hasDateGapLeft,
-              "border-r-primary": hasDateGapRight
-            })}
-            style={{ borderStyle, width: cellWidth }}
-          />
-        </CellWrapper>
+        <div
+          className={cn("h-full w-full border-b-0 border-t-2 border-primary-light", borderXSizeStyles, {
+            "border-l-primary": hasDateGapLeft,
+            "border-r-primary": hasDateGapRight
+          })}
+          style={{ borderStyle: getFirstAndLastCellBorderStyle() }}
+        />
       );
     case NodeType.TIME_SLOT:
       return (
-        <CellWrapper>
-          <AvailabilityGridTimeSlot
-            animateEditAvailabilityButton={animateEditAvailabilityButton}
-            borderXSizeStyles={borderXSizeStyles}
-            cellWidth={cellWidth}
-            eventDate={eventDate}
-            eventTime={eventTime}
-            hasDateGapLeft={hasDateGapLeft}
-            hasDateGapRight={hasDateGapRight}
-            timeSlotDragSelectionState={timeSlotDragSelectionState}
-            timeSlotsCol={timeSlotsCol}
-            timeSlotsRow={timeSlotsRow}
-          />
-        </CellWrapper>
+        <AvailabilityGridTimeSlot
+          animateEditAvailabilityButton={animateEditAvailabilityButton}
+          borderXSizeStyles={borderXSizeStyles}
+          eventDate={eventDate}
+          eventTime={eventTime}
+          hasDateGapLeft={hasDateGapLeft}
+          hasDateGapRight={hasDateGapRight}
+          timeSlotDragSelectionState={timeSlotDragSelectionState}
+          timeSlotsCol={timeSlotsCol}
+          timeSlotsRow={timeSlotsRow}
+        />
       );
   }
 }

@@ -5,6 +5,7 @@ import { cn } from "@/utils/cn";
 import { isLeftClick } from "@/utils/mouseEvent";
 import { parseISO } from "date-fns";
 import { MouseEvent, useEffect, useState } from "react";
+import style from "styled-jsx/style";
 
 export type TimeSlotDragSelectionState = {
   isCellBorderOfDragSelectionArea: (row: number, col: number) => CellBorderCheck;
@@ -19,7 +20,6 @@ export type TimeSlotDragSelectionState = {
 type AvailabilityGridTimeSlotProps = {
   animateEditAvailabilityButton: () => void;
   borderXSizeStyles: string;
-  cellWidth: string;
   eventDate: EventDate;
   eventTime: EventTime;
   hasDateGapLeft: boolean;
@@ -32,7 +32,6 @@ type AvailabilityGridTimeSlotProps = {
 export default function AvailabilityGridTimeSlot({
   animateEditAvailabilityButton,
   borderXSizeStyles,
-  cellWidth,
   eventDate,
   eventTime,
   hasDateGapLeft,
@@ -162,7 +161,7 @@ export default function AvailabilityGridTimeSlot({
   return (
     <button
       className={cn(
-        "h-full cursor-pointer border-b-0 border-t-2 border-primary-light hover:bg-accent",
+        "h-full w-full cursor-pointer border-b-0 border-t-2 border-primary-light hover:bg-accent",
         borderXSizeStyles,
         {
           "bg-primary hover:bg-primary/60": (isSelected || isBeingAdded) && !isBeingRemoved,
@@ -189,8 +188,8 @@ export default function AvailabilityGridTimeSlot({
       onMouseLeave={handleMouseLeave}
       style={{
         borderStyle: getBorderStyle(),
-        width: cellWidth,
-        ...(isViewMode(mode) ? { backgroundColor: getViewModeCellColour() } : {})
+        ...(isViewMode(mode) ? { backgroundColor: getViewModeCellColour() } : {}),
+        ...style
       }}
     />
   );

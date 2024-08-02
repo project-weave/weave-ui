@@ -37,7 +37,7 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
   );
 
   return (
-    <div className="grid grid-flow-col justify-between">
+    <div className="m-auto grid max-w-[50rem] grid-flow-col justify-between">
       <BestTimesAvailableSwitch />
       <div className="text-xs">{isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}</div>
     </div>

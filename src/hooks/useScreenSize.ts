@@ -35,7 +35,6 @@ export const breakPoints: Record<ScreenSize, number> = {
 // Mobile first
 export default function useScreenSize() {
   const [screenSize, setScreenSize] = useState<ScreenSize>(ScreenSize.XXS);
-  console.log(screenSize);
 
   const isScreenXXS = useMediaQuery({ minWidth: breakPoints[ScreenSize.XXS] });
   const isScreenXS = useMediaQuery({ minWidth: breakPoints[ScreenSize.XS] });

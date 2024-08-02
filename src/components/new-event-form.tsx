@@ -2,26 +2,23 @@
 import DaysOfWeekPicker from "@/components/days-of-week-picker";
 import Calendar, { MONTH_FORMAT } from "@/components/event-date-calendar";
 import { Button } from "@/components/ui/button";
-import DropdownWithLabel from "@/components/ui/dropdown-with-label";
 import InputWithLabel from "@/components/ui/input-with-label";
 import useCreateEvent, { CreateEventRequest } from "@/hooks/requests/useCreateEvent";
 import { ScreenSize } from "@/hooks/useScreenSize";
 import { AvailabilityType } from "@/store/availabilityGridStore";
 import { EVENT_TIME_FORMAT, EventDate, EventTime } from "@/types/Event";
 import { cn } from "@/utils/cn";
-import { timeFilter } from "@/utils/date";
-import { addMinutes, format, isBefore, isEqual, parse, startOfToday } from "date-fns";
+import { format, isBefore, isEqual, parse, startOfToday } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { MediaQueryXS, MediaQueryXXS } from "./media-query";
+import TimeDropdown, { DROPDOWN_TIME_FORMAT, NEXT_DAY_MIDNIGHT_REPRESENTATION } from "./new-event-from-time-dropdown";
 import { useToast } from "./ui/use-toast";
 
 const EVENT_NAME_LABEL = "Event Name";
-const START_TIME_LABEL = "Start Time";
-const END_TIME_LABEL = "End Time";
 
 const WHAT_EVENT_NAME = "What is the name of your event?";
 const WHAT_TIMES = "What times are you checking availability for?";
@@ -30,8 +27,6 @@ const I_WANT_TO_BE_NOTIFIED = "I want to be notified when there is a new availab
 const CREATE_EVENT = "Create Event";
 const TO = "to";
 const OR = "or";
-
-const TIME_FORMAT = "h:mm a";
 
 export default function NewEventForm() {
   const [currentCalendarMonth, setCurrentCalendarMonth] = useState(format(startOfToday(), MONTH_FORMAT));
@@ -73,8 +68,10 @@ export default function NewEventForm() {
   }, []);
 
   const isTimeRangeValid = useMemo(() => {
-    const parsedStartTime = parse(startTime, TIME_FORMAT, startOfToday());
-    const parsedEndTime = parse(endTime, TIME_FORMAT, startOfToday());
+    if (endTime === NEXT_DAY_MIDNIGHT_REPRESENTATION) return true;
+
+    const parsedStartTime = parse(startTime, DROPDOWN_TIME_FORMAT, startOfToday());
+    const parsedEndTime = parse(endTime, DROPDOWN_TIME_FORMAT, startOfToday());
 
     return !isBefore(parsedEndTime, parsedStartTime) && !isEqual(parsedEndTime, parsedStartTime);
   }, [startTime, endTime]);
@@ -88,9 +85,12 @@ export default function NewEventForm() {
     );
   }, [eventName, selectedDates, isTimeRangeValid, availabilityType, selectedDaysOfWeek]);
 
-  function createEventHandler() {
-    const parsedStartTime = parse(startTime, TIME_FORMAT, startOfToday());
-    const parsedEndTime = parse(endTime, TIME_FORMAT, startOfToday());
+  function onSubmit() {
+    const parsedStartTime = parse(startTime, DROPDOWN_TIME_FORMAT, startOfToday());
+    const parsedEndTime =
+      endTime === NEXT_DAY_MIDNIGHT_REPRESENTATION
+        ? parse("12:00 am", "h:mm a", startOfToday())
+        : parse(endTime, DROPDOWN_TIME_FORMAT, startOfToday());
 
     let dates = [...selectedDates];
     if (availabilityType === AvailabilityType.DAYS_OF_WEEK) {
@@ -123,23 +123,6 @@ export default function NewEventForm() {
     });
   }
 
-  function possibleTimes() {
-    const startTime = new Date(0, 0, 0, 0, 0);
-    const endTime = new Date(0, 0, 0, 23, 30);
-
-    const times: EventTime[] = [];
-    let currentTime = startTime;
-    const interval = 30;
-
-    while (currentTime <= endTime) {
-      const formattedTime = format(currentTime, TIME_FORMAT).toLowerCase();
-      times.push(formattedTime);
-      currentTime = addMinutes(currentTime, interval);
-    }
-
-    return times;
-  }
-
   // TODO: add actual media queries
   const formSubmissionButton = (
     <>
@@ -165,7 +148,6 @@ export default function NewEventForm() {
                     "bottom-3 left-0 w-full max-w-[26rem] rounded-xl border-[1px] border-primary py-2 align-bottom text-sm "
                   )}
                   disabled={!isFormValid}
-                  onClick={createEventHandler}
                   type="submit"
                 >
                   {CREATE_EVENT}
@@ -175,7 +157,6 @@ export default function NewEventForm() {
           </AnimatePresence>
         )}
       </MediaQueryXXS>
-
       <MediaQueryXS>
         {isPending ? (
           <div className="flex justify-center">
@@ -185,7 +166,6 @@ export default function NewEventForm() {
           <Button
             className="mt-3 hidden h-auto w-full rounded-xl border-[1px] border-primary py-3 align-bottom text-sm xs:block "
             disabled={!isFormValid}
-            onClick={createEventHandler}
             type="submit"
           >
             {CREATE_EVENT}
@@ -202,6 +182,7 @@ export default function NewEventForm() {
         className="card mx-auto flex h-full w-full min-w-[22rem] max-w-[26rem] flex-col sm:min-h-[36rem] sm:max-w-[30rem] md:mx-[1rem] xl:max-w-[26rem]"
         onSubmit={(e) => {
           e.preventDefault();
+          onSubmit();
         }}
         ref={formRef}
       >
@@ -223,24 +204,18 @@ export default function NewEventForm() {
         <div className="mb-4 flex w-full flex-col md:mb-5">
           <p className="mb-3 text-xs font-medium text-secondary sm:mb-4">{WHAT_TIMES}</p>
           <div className="flex w-full items-center justify-between">
-            <DropdownWithLabel
-              emptyOptionText={"Invalid time"}
+            <TimeDropdown
               error={!isTimeRangeValid}
-              filterFunc={timeFilter}
-              label={START_TIME_LABEL}
-              options={possibleTimes()}
-              selected={startTime}
-              setSelected={setStartTime}
+              isStartTime={true}
+              selectedTime={startTime}
+              setSelectedTime={setStartTime}
             />
             <p className="mx-6 text-2xs text-secondary"> {TO} </p>
-            <DropdownWithLabel
-              emptyOptionText={"Invalid time"}
+            <TimeDropdown
               error={!isTimeRangeValid}
-              filterFunc={timeFilter}
-              label={END_TIME_LABEL}
-              options={possibleTimes()}
-              selected={endTime}
-              setSelected={setEndTime}
+              isStartTime={false}
+              selectedTime={endTime}
+              setSelectedTime={setEndTime}
             />
           </div>
         </div>

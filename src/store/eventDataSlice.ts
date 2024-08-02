@@ -8,7 +8,7 @@ import {
   TIME_SLOT_INTERVAL_MINUTES,
   TimeSlot
 } from "@/types/Event";
-import { addMinutes, format, parseISO } from "date-fns";
+import { addDays, addMinutes, format, parseISO } from "date-fns";
 
 import { AvailabilityType } from "./availabilityGridStore";
 
@@ -46,7 +46,12 @@ export const createEventDataSlice = (set, get): EventDataSlice => ({
 
     const sortedEventTimes: EventTime[] = [];
     let currentTime = parseISO(getTimeSlot(event.startTime));
-    const endTime = addMinutes(parseISO(getTimeSlot(event.endTime)), TIME_SLOT_INTERVAL_MINUTES);
+
+    let endTime = parseISO(getTimeSlot(event.endTime));
+    if (event.endTime === "00:00:00") {
+      endTime = addDays(endTime, 1);
+    }
+
     while (currentTime <= endTime) {
       const formattedTime = format(currentTime, EVENT_TIME_FORMAT);
       sortedEventTimes.push(formattedTime);

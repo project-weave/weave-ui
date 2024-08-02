@@ -46,7 +46,7 @@ export default function EditAvailabilityDialog({
   const [nameAlreadyTaken, setNameAlreadyTaken] = useState(false);
 
   const setMode = useAvailabilityGridStore((state) => state.setMode);
-  const resetGridStateForUser = useAvailabilityGridStore((state) => state.resetGridStateForUser);
+  const setUSerGridState = useAvailabilityGridStore((state) => state.setUserGridState);
 
   useEffect(() => {
     if (isEnterNewAvailability) {
@@ -72,7 +72,7 @@ export default function EditAvailabilityDialog({
 
   function onSubmit() {
     if (validUserName) {
-      resetGridStateForUser(isEnterNewAvailability ? enteredUserName! : selectedUserName!);
+      setUSerGridState(isEnterNewAvailability ? enteredUserName! : selectedUserName!);
       setMode(AvailabilityGridMode.EDIT);
     }
   }
@@ -102,116 +102,117 @@ export default function EditAvailabilityDialog({
           {EDIT_AVAILABILITY}
         </MotionButton>
       </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle className="mb-1 px-1 text-secondary">Edit Availability</DialogTitle>
-        </DialogHeader>
-        <MotionButton className="mx-8 mt-2" disabled variant="outline" whileTap={{ scale: 0.95 }}>
-          <p className="mr-2 text-xs">{LOGIN_WITH_GOOGLE}</p>
-          <Image alt="google-logo" className="h-4 w-4" height={40} src="/google.png" width={40} />
-        </MotionButton>
+      <form onSubmit={onSubmit}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="mb-1 px-1 text-secondary">Edit Availability</DialogTitle>
+          </DialogHeader>
+          <MotionButton className="mx-8 mt-2" disabled variant="outline" whileTap={{ scale: 0.95 }}>
+            <p className="mr-2 text-xs">{LOGIN_WITH_GOOGLE}</p>
+            <Image alt="google-logo" className="h-4 w-4" height={40} src="/google.png" width={40} />
+          </MotionButton>
 
-        <div className="flex-column my-2 flex w-full items-center text-xs">
-          <hr className="h-[2px] w-full bg-secondary" />
-          <span className="mx-4 whitespace-nowrap text-xs text-secondary">{CONTINUE_WITHOUT_LOGIN}</span>
-          <hr className="h-[2px] w-full bg-secondary" />
-        </div>
-
-        {allParticipants.length > 0 && (
-          <div className="mx-auto my-1">
-            <RadioGroup className="grid w-full cursor-pointer grid-flow-col space-x-6" defaultValue="new">
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem
-                  className="border-secondary"
-                  id="r1"
-                  onClick={() => setIsEnterNewAvailability(true)}
-                  value="new"
-                />
-                <Label
-                  className={cn("cursor-pointer text-xs text-secondary", {
-                    "font-medium": isEnterNewAvailability
-                  })}
-                  htmlFor="r1"
-                >
-                  {ENTER_NEW_AVAILABILITY}
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem
-                  className="border-secondary"
-                  id="r2"
-                  onClick={() => setIsEnterNewAvailability(false)}
-                  value="existing"
-                />
-                <Label
-                  className={cn("cursor-pointer text-xs text-secondary", {
-                    "font-medium": !isEnterNewAvailability
-                  })}
-                  htmlFor="r2"
-                >
-                  {EDIT_EXISTING_AVAILABILITY}
-                </Label>
-              </div>
-            </RadioGroup>
+          <div className="flex-column my-2 flex w-full items-center text-xs">
+            <hr className="h-[2px] w-full bg-secondary" />
+            <span className="mx-4 whitespace-nowrap text-xs text-secondary">{CONTINUE_WITHOUT_LOGIN}</span>
+            <hr className="h-[2px] w-full bg-secondary" />
           </div>
-        )}
-        <div className="mb-3 mt-4">
-          <Label className="mb-2 ml-4 text-xs font-semibold text-secondary">
-            {isEnterNewAvailability ? ENTER_YOUR_NAME : SELECT_EXISTING_USER}
-          </Label>
-          <hr className="mx-auto mt-1 h-[1.5px] w-[95%] bg-secondary" />
 
-          {isEnterNewAvailability ? (
-            <div className="mb-5 mt-4 flex flex-col">
-              <InputWithError
-                className="text-xs"
-                containerClassName="w-[86%] mx-auto"
-                errorText={nameAlreadyTaken ? "Name already taken" : undefined}
-                id="name"
-                onChange={(e) => setEnteredUserName(e.target.value)}
-                placeholder={WHAT_IS_YOUR_NAME}
-                value={enteredUserName ? enteredUserName : ""}
-              />
-            </div>
-          ) : (
-            <div className="mx-2 mt-3 grid max-h-64 w-full grid-cols-3 gap-x-3 gap-y-1 overflow-y-scroll scroll-smooth px-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full">
-              {allParticipants.map((paricipant) => (
-                <motion.button
-                  className={cn(
-                    "my-[2px] inline-flex w-full flex-row items-center rounded-xl border-2 border-primary-light bg-background px-2 py-[5px] outline-none duration-100 hover:bg-accent-light",
-                    {
-                      "border-2 border-primary bg-accent font-semibold hover:bg-purple-200":
-                        paricipant === selectedUserName
-                    }
-                  )}
-                  key={`edit-availability-button-${paricipant}`}
-                  onClick={() => setSelectedUserName(paricipant)}
-                  whileTap={{ scale: 0.92 }}
-                >
-                  <User className="h-4 w-4" />
-                  <span className="mx-1 max-w-[6rem] overflow-hidden text-ellipsis whitespace-nowrap text-2xs">
-                    {paricipant}
-                  </span>
-                </motion.button>
-              ))}
+          {allParticipants.length > 0 && (
+            <div className="mx-auto my-1">
+              <RadioGroup className="grid w-full cursor-pointer grid-flow-col space-x-6" defaultValue="new">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem
+                    className="border-secondary"
+                    id="r1"
+                    onClick={() => setIsEnterNewAvailability(true)}
+                    value="new"
+                  />
+                  <Label
+                    className={cn("cursor-pointer text-xs text-secondary", {
+                      "font-medium": isEnterNewAvailability
+                    })}
+                    htmlFor="r1"
+                  >
+                    {ENTER_NEW_AVAILABILITY}
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem
+                    className="border-secondary"
+                    id="r2"
+                    onClick={() => setIsEnterNewAvailability(false)}
+                    value="existing"
+                  />
+                  <Label
+                    className={cn("cursor-pointer text-xs text-secondary", {
+                      "font-medium": !isEnterNewAvailability
+                    })}
+                    htmlFor="r2"
+                  >
+                    {EDIT_EXISTING_AVAILABILITY}
+                  </Label>
+                </div>
+              </RadioGroup>
             </div>
           )}
-        </div>
+          <div className="mb-3 mt-4">
+            <Label className="mb-2 ml-4 text-xs font-semibold text-secondary">
+              {isEnterNewAvailability ? ENTER_YOUR_NAME : SELECT_EXISTING_USER}
+            </Label>
+            <hr className="mx-auto mt-1 h-[1.5px] w-[95%] bg-secondary" />
 
-        <DialogFooter>
-          <DialogClose asChild>
-            <MotionButton
-              className="min-w-[6rem] text-xs"
-              disabled={!validUserName}
-              onClick={onSubmit}
-              type="submit"
-              whileTap={{ scale: 0.95 }}
-            >
-              {CONTINUE}
-            </MotionButton>
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
+            {isEnterNewAvailability ? (
+              <div className="mb-5 mt-4 flex flex-col">
+                <InputWithError
+                  className="text-xs"
+                  containerClassName="w-[86%] mx-auto"
+                  errorText={nameAlreadyTaken ? "Name already taken" : undefined}
+                  id="name"
+                  onChange={(e) => setEnteredUserName(e.target.value)}
+                  placeholder={WHAT_IS_YOUR_NAME}
+                  value={enteredUserName ? enteredUserName : ""}
+                />
+              </div>
+            ) : (
+              <div className="mx-2 mt-3 grid max-h-64 w-full grid-cols-3 gap-x-3 gap-y-1 overflow-y-scroll scroll-smooth px-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full">
+                {allParticipants.map((paricipant) => (
+                  <motion.button
+                    className={cn(
+                      "my-[2px] inline-flex w-full flex-row items-center rounded-xl border-2 border-primary-light bg-background px-2 py-[5px] outline-none duration-100 hover:bg-accent-light",
+                      {
+                        "border-2 border-primary bg-accent font-semibold hover:bg-purple-200":
+                          paricipant === selectedUserName
+                      }
+                    )}
+                    key={`edit-availability-button-${paricipant}`}
+                    onClick={() => setSelectedUserName(paricipant)}
+                    whileTap={{ scale: 0.92 }}
+                  >
+                    <User className="h-4 w-4" />
+                    <span className="mx-1 max-w-[6rem] overflow-hidden text-ellipsis whitespace-nowrap text-2xs">
+                      {paricipant}
+                    </span>
+                  </motion.button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <DialogClose asChild>
+              <MotionButton
+                className="min-w-[6rem] text-xs"
+                disabled={!validUserName}
+                type="submit"
+                whileTap={{ scale: 0.95 }}
+              >
+                {CONTINUE}
+              </MotionButton>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </form>
     </Dialog>
   );
 }
