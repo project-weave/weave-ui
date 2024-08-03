@@ -102,7 +102,7 @@ export default function AvailabilityGridLeftPanel() {
 
   return (
     <div className="card flex h-full cursor-pointer flex-col px-4 pb-4">
-      <div className="relative flex justify-between text-ellipsis rounded-2xl border-2 border-primary px-3 py-2 text-sm font-medium text-secondary">
+      <div className="mt relative flex justify-between text-ellipsis rounded-2xl border-2 border-primary px-3 py-2 text-sm font-medium text-secondary">
         {eventName}
         <MotionButton
           className="absolute -end-1 -top-[1.5px] h-10 rounded-2xl hover:bg-primary-hover"
@@ -120,46 +120,43 @@ export default function AvailabilityGridLeftPanel() {
         </MotionButton>
       </div>
 
-      <div className="grid h-full" style={{ gridTemplateRows: "1fr 16rem" }}>
-        <div className="m-3 select-none">
-          <div className="flex items-center justify-between">
-            <div className="flex font-medium">
-              <p className="text-sm text-secondary">{RESPONSES_TITLE}</p>
-              <p className="ml-4 text-sm text-secondary">
-                {currentRepsonseCount}/{totalResponseCount}
-              </p>
-            </div>
-          </div>
-          <div
-            className="mt-2 grid h-full gap-x-4 gap-y-1 overflow-y-scroll text-secondary scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary-light"
-            style={{ gridAutoRows: "min-content", gridTemplateColumns: `repeat(auto-fill, minmax(5rem, 1fr))` }}
-          >
-            {allParticipantsWithCurrentUser.map((name) => (
-              <AvailabilityGridResponseFilterButton
-                filteredUsersSelectedHoveredTimeSlot={filteredUsersSelectedHoveredTimeSlot}
-                filterUserHandler={filterUserHandler}
-                key={`${name}-filter-button`}
-                mode={mode}
-                name={name}
-                user={user}
-                userFilter={userFilter}
-              />
-            ))}
-          </div>
+      <div className="ml-2 mt-2 flex items-center justify-between">
+        <div className="flex font-medium">
+          <p className="text-sm text-secondary">{RESPONSES_TITLE}</p>
+          <p className="ml-4 text-sm text-secondary">
+            {currentRepsonseCount}/{totalResponseCount}
+          </p>
         </div>
+      </div>
+
+      <div
+        className="m-3 box-border grid flex-1 gap-x-4 gap-y-1 overflow-y-scroll text-secondary scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary-light"
+        style={{ gridAutoRows: "min-content", gridTemplateColumns: `repeat(auto-fill, minmax(5rem, 1fr))` }}
+      >
+        {allParticipantsWithCurrentUser.map((name) => (
+          <AvailabilityGridResponseFilterButton
+            filteredUsersSelectedHoveredTimeSlot={filteredUsersSelectedHoveredTimeSlot}
+            filterUserHandler={filterUserHandler}
+            key={`${name}-filter-button`}
+            mode={mode}
+            name={name}
+            user={user}
+            userFilter={userFilter}
+          />
+        ))}
+      </div>
+      <div className="h-[16rem]">
         {availabilityType === AvailabilityType.SPECIFIC_DATES && sortedEventDates.length !== 0 && (
-          <div className="mt-auto h-full self-end">
-            <EventDateCalendar
-              currentMonthOverride={eventCalendarMonthOverride}
-              earliestSelectedDate={sortedEventDates[0]}
-              id="availability-grid-event-calendar"
-              isViewMode={true}
-              latestSelectedDate={sortedEventDates[sortedEventDates.length - 1]}
-              onViewModeDateClick={onViewModeDateClick}
-              selectedDates={new Set(sortedEventDates)}
-              visibleEventDates={visibleEventDates}
-            />
-          </div>
+          <EventDateCalendar
+            currentMonthOverride={eventCalendarMonthOverride}
+            earliestSelectedDate={sortedEventDates[0]}
+            id="availability-grid-event-calendar"
+            isViewMode={true}
+            latestSelectedDate={sortedEventDates[sortedEventDates.length - 1]}
+            onViewModeDateClick={onViewModeDateClick}
+            selectedDates={new Set(sortedEventDates)}
+            visibleEventDates={visibleEventDates}
+          />
         )}
       </div>
     </div>

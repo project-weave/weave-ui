@@ -124,7 +124,7 @@ export default function EditAvailabilityDialog({
                     value="new"
                   />
                   <Label
-                    className={cn("cursor-pointer text-xs text-secondary sm:text-sm", {
+                    className={cn("cursor-pointer text-[0.85rem] text-secondary sm:text-sm", {
                       "font-medium": isEnterNewAvailability
                     })}
                     htmlFor="r1"
@@ -140,7 +140,7 @@ export default function EditAvailabilityDialog({
                     value="existing"
                   />
                   <Label
-                    className={cn("cursor-pointer text-xs text-secondary sm:text-sm", {
+                    className={cn("cursor-pointer text-[0.85rem] text-secondary sm:text-sm", {
                       "font-medium": !isEnterNewAvailability
                     })}
                     htmlFor="r2"
@@ -195,9 +195,11 @@ export default function EditAvailabilityDialog({
             )}
           </div>
           <div
-            className={cn("mt-20 flex flex-col xs:mt-14", {
-              "mt-8": !isEnterNewAvailability
-            })}
+            className={cn(
+              "mt-14 flex flex-col",
+              !isEnterNewAvailability && "xs:mt",
+              allParticipants.length === 0 && "mt-10"
+            )}
           >
             <MotionButton
               className="w-full self-end text-sm md:w-[8rem] "

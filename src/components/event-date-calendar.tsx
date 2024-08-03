@@ -228,7 +228,7 @@ export default function EventDateCalendar({
           {isNextAndPrevButtonsVisible && (
             <>
               <MotionButton
-                className={cn("mb-0.5 h-[1.4rem] w-[1.4rem] rounded-[0.45rem] border-none px-[1px]", {
+                className={cn("mb-0.5 h-[1.6rem] w-[1.6rem] rounded-[0.45rem] border-none px-[1px]", {
                   "h-5 w-5": isViewMode,
                   "h-7 w-7": size === "large"
                 })}
@@ -238,14 +238,14 @@ export default function EventDateCalendar({
               >
                 <span className="sr-only">Previous Columns</span>
                 <ChevronLeft
-                  className={cn("h-[1.1rem] w-[1.1rem] stroke-[3px]", {
+                  className={cn("h-[1.2rem] w-[1.2rem] stroke-[3px]", {
                     "h-4 w-4": isViewMode,
                     "h-5 w-5": size === "large"
                   })}
                 />
               </MotionButton>
               <MotionButton
-                className={cn("mb-0.5 ml-[5px] mr-1 h-[1.4rem] w-[1.4rem] rounded-[0.45rem] border-none px-[1px]", {
+                className={cn("mb-0.5 ml-[5px] mr-1 h-[1.6rem] w-[1.6rem] rounded-[0.45rem] border-none px-[1px]", {
                   "h-5 w-5": isViewMode,
                   "ml-2 h-7 w-7": size === "large"
                 })}
@@ -255,7 +255,7 @@ export default function EventDateCalendar({
               >
                 <span className="sr-only">Next Columns</span>
                 <ChevronRight
-                  className={cn("h-[1.1rem] w-[1.1rem] stroke-[3px]", {
+                  className={cn("h-[1.2rem] w-[1.2rem] stroke-[3px]", {
                     "h-4 w-4": isViewMode,
                     "h-5 w-5": size === "large"
                   })}

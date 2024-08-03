@@ -36,9 +36,9 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
   useEffect(() => {
     switch (screenSize) {
       case ScreenSize.XXS:
-        return setAvailabilityGridViewWindowSize(4);
       case ScreenSize.XS:
-        return setAvailabilityGridViewWindowSize(5);
+        return setAvailabilityGridViewWindowSize(4);
+
       case ScreenSize.SM:
         return setAvailabilityGridViewWindowSize(6);
       case ScreenSize.MD:
@@ -121,7 +121,7 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
     <div />
   ) : (
     <div
-      className="card flex h-fit w-full select-none flex-col pl-0 pr-5 pt-1 sm:pr-8 xl:pl-2 xl:pr-10"
+      className="card flex h-full w-full select-none flex-col pl-0 pr-5 pt-1 sm:pr-8 xl:pl-2 xl:pr-10"
       // mouseUp is cancelled when onContextMenu is triggered so we need to save the selection here as well
       onContextMenu={saveDragSelection}
       onMouseLeave={saveDragSelection}
@@ -144,7 +144,7 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
         <div
           className="grid h-full w-full"
           style={{
-            gridTemplateColumns: `${screenSize <= ScreenSize.XS ? "4.3rem" : "4.7rem"} repeat(${timeSlotColumnsCount}, minmax(1.4rem, 1fr))`
+            gridTemplateColumns: `${screenSize <= ScreenSize.XS ? "4.3rem" : "4.7rem"} repeat(${timeSlotColumnsCount}, minmax(1.5rem, 1fr))`
           }}
         >
           {gridNodes.map((columnNodes, displayColIndex) => {

@@ -8,6 +8,7 @@ export default function NavBar() {
   const router = useRouter();
 
   return (
+    // adding padding and translating down to hide overflowed components on mobile
     <nav className="fixed top-0 z-50 flex w-full -translate-y-[18.25rem] bg-white pb-4 pt-[20rem]">
       <Image
         alt="weave-logo"
