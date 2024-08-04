@@ -100,12 +100,12 @@ export default function AvailabilityGridHeader({
           </span>
           <div className="flex w-fit items-center">
             <MediaQueryLG>
-              <div className="ml-3 xl:ml-0">
+              <div className="ml-3 lg:ml-0">
                 <BestTimesAvailableSwitch />
               </div>
               <div
                 className={cn(
-                  "ml-8 mr-3 text-sm lg:text-xs xl:ml-16 xl:text-sm",
+                  "ml-8 mr-3 text-sm lg:ml-6 lg:text-xs xl:ml-16 xl:text-sm",
                   {
                     "lg:ml-16": availabilityType === AvailabilityType.DAYS_OF_WEEK
                   },

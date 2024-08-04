@@ -48,11 +48,11 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
 
   return (
     <>
-      <div style={{ height: open && isViewMode(mode) ? "calc(8.8rem + 15vh)" : "8.2rem" }}></div>
+      <div className="3rem"></div>
       <div
         className={cn(
-          "fixed bottom-0 w-full rounded-t-2xl bg-background pb-4 shadow-[0px_2px_2px_4px] shadow-gray-200",
-          isEditMode(mode) && "rounded-t-none pt-2"
+          "fixed bottom-0 w-full rounded-t-2xl bg-background pb-4 shadow-[0px_1px_1px_2px] shadow-gray-100",
+          isEditMode(mode) && "rounded-t-none pt-2 shadow-[0px_2px_2px_4px] "
         )}
       >
         <div className="flex w-full flex-col">
@@ -92,9 +92,8 @@ function ResponsesAccordion({ open, setOpen }) {
   } = useEventResponsesFilters();
   return (
     <>
-      <motion.header
-        className="flex h-[3.2rem] w-full items-center justify-between rounded-t-2xl bg-accent px-6 text-center font-medium"
-        initial={false}
+      <header
+        className="flex h-[3.3rem] w-full items-center justify-between rounded-t-2xl bg-accent/80 px-6 pt-0.5 text-center font-medium"
         onClick={() => setOpen((state) => !state)}
       >
         <span className="flex">
@@ -108,13 +107,13 @@ function ResponsesAccordion({ open, setOpen }) {
             <X className="h-4 w-4 text-secondary" />
           </motion.div>
         )}
-      </motion.header>
+      </header>
 
       <AnimatePresence initial={false}>
         {open && totalResponseCount !== 0 && (
           <motion.section
             animate="open"
-            className="flex max-h-[15vh] w-full justify-center overflow-y-scroll bg-accent/30 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary-light"
+            className="flex max-h-[15vh] w-full justify-center overflow-y-scroll bg-accent/20 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary-light"
             exit="collapsed"
             initial="collapsed"
             key="content"

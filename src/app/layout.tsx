@@ -40,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <div className="flex h-screen w-full max-w-[85rem]">
             <MainNav />
-            <div className="pt-18 z-0 w-full pt-20 2xl:pt-24 ">{children}</div>
+            <div className="z-0 w-full pt-[3.25rem] md:pt-[3.75rem] ">{children}</div>
           </div>
           <Toaster />
         </Providers>
