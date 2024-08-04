@@ -1,12 +1,13 @@
 import EventDateCalendar, { MONTH_FORMAT } from "@/components/event-date-calendar";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import useAvailabilityGridStore, { AvailabilityType, isEditMode } from "@/store/availabilityGridStore";
+import useEventResponsesFilters from "@/hooks/useEventResponsesFilters";
+import useAvailabilityGridStore, { AvailabilityType } from "@/store/availabilityGridStore";
 import { EventDate } from "@/types/Event";
 import { format, parseISO } from "date-fns";
 import { motion } from "framer-motion";
 import { Copy } from "lucide-react";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useRef } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import AvailabilityGridResponseFilterButton from "./availability-grid-response-filter-button";
@@ -14,13 +15,9 @@ import AvailabilityGridResponseFilterButton from "./availability-grid-response-f
 const RESPONSES_TITLE = "Responses";
 
 export default function AvailabilityGridLeftPanel() {
-  const { allParticipants, availabilityType, eventName, sortedEventDates, timeSlotsToParticipants } =
-    useAvailabilityGridStore((state) => state.eventData);
-  const userFilter = useAvailabilityGridStore(useShallow((state) => state.userFilter));
-  const setUserFilter = useAvailabilityGridStore((state) => state.setUserFilter);
-
-  const mode = useAvailabilityGridStore((state) => state.mode);
-  const user = useAvailabilityGridStore((state) => state.user);
+  const { availabilityType, eventId, eventName, sortedEventDates } = useAvailabilityGridStore(
+    (state) => state.eventData
+  );
 
   const [leftMostColumnInView, setLeftMostColumnInView] = useAvailabilityGridStore(
     useShallow((state) => [state.leftMostColumnInView, state.setLeftMostColumnInView])
@@ -28,25 +25,16 @@ export default function AvailabilityGridLeftPanel() {
   const availabilityGridViewWindowSize = useAvailabilityGridStore((state) => state.availabilityGridViewWindowSize);
 
   const setFocusedDate = useAvailabilityGridStore((state) => state.setFocusedDate);
-  const hoveredTimeSlot = useAvailabilityGridStore((state) => state.hoveredTimeSlot);
 
   const { toast } = useToast();
 
-  const allParticipantsWithCurrentUser = useMemo(() => {
-    if (allParticipants.includes(user) || user === "") return allParticipants;
-    return [user, ...allParticipants];
-  }, [allParticipants, user]);
-
-  let filteredUsersSelectedHoveredTimeSlot = [] as string[];
-  if (hoveredTimeSlot === null) {
-    filteredUsersSelectedHoveredTimeSlot = allParticipantsWithCurrentUser;
-  } else if (userFilter.length === 0) {
-    filteredUsersSelectedHoveredTimeSlot = timeSlotsToParticipants[hoveredTimeSlot] ?? [];
-  } else {
-    filteredUsersSelectedHoveredTimeSlot = (timeSlotsToParticipants[hoveredTimeSlot] ?? []).filter((user) =>
-      userFilter.includes(user)
-    );
-  }
+  const {
+    allParticipantsWithCurrentUser,
+    currentResponseCount,
+    currentResponses,
+    onFliterClicked,
+    totalResponseCount
+  } = useEventResponsesFilters();
 
   const visibleEventDates = sortedEventDates.slice(
     leftMostColumnInView,
@@ -79,23 +67,6 @@ export default function AvailabilityGridLeftPanel() {
     [setFocusedDate, sortedEventDates]
   );
 
-  function filterUserHandler(user: string) {
-    if (isEditMode(mode)) return;
-
-    const newUserFilter = [...userFilter];
-    if (newUserFilter.includes(user)) {
-      newUserFilter.splice(userFilter.indexOf(user), 1);
-    } else {
-      newUserFilter.push(user);
-    }
-    setUserFilter(newUserFilter);
-  }
-
-  const totalResponseCount = userFilter.length === 0 ? allParticipantsWithCurrentUser.length : userFilter.length;
-  const currentRepsonseCount = isEditMode(mode)
-    ? 1
-    : Math.min(totalResponseCount, filteredUsersSelectedHoveredTimeSlot.length);
-
   const eventCalendarMonthOverride = format(parseISO(sortedEventDates[leftMostColumnInView]), MONTH_FORMAT);
 
   const MotionButton = motion(Button);
@@ -107,7 +78,8 @@ export default function AvailabilityGridLeftPanel() {
         <MotionButton
           className="absolute -end-1 -top-[1.5px] h-10 rounded-2xl hover:bg-primary-hover"
           onClick={() => {
-            navigator.clipboard.writeText(window.location.href);
+            const url = `${window.location.origin}/${eventId}`;
+            navigator.clipboard.writeText(url);
             toast({
               description: "Copied link to clipboard.",
               variant: "success"
@@ -124,7 +96,7 @@ export default function AvailabilityGridLeftPanel() {
         <div className="flex font-medium">
           <p className="text-sm text-secondary">{RESPONSES_TITLE}</p>
           <p className="ml-4 text-sm text-secondary">
-            {currentRepsonseCount}/{totalResponseCount}
+            {currentResponseCount}/{totalResponseCount}
           </p>
         </div>
       </div>
@@ -135,13 +107,10 @@ export default function AvailabilityGridLeftPanel() {
       >
         {allParticipantsWithCurrentUser.map((name) => (
           <AvailabilityGridResponseFilterButton
-            filteredUsersSelectedHoveredTimeSlot={filteredUsersSelectedHoveredTimeSlot}
-            filterUserHandler={filterUserHandler}
+            currentResponses={currentResponses}
             key={`${name}-filter-button`}
-            mode={mode}
             name={name}
-            user={user}
-            userFilter={userFilter}
+            onFilterClicked={onFliterClicked}
           />
         ))}
       </div>

@@ -238,7 +238,7 @@ export default function EventDateCalendar({
               >
                 <span className="sr-only">Previous Columns</span>
                 <ChevronLeft
-                  className={cn("h-[1.2rem] w-[1.2rem] stroke-[3px]", {
+                  className={cn("h-[1.2rem] w-[1.2rem] stroke-[3px] pr-[1px]", {
                     "h-4 w-4": isViewMode,
                     "h-5 w-5": size === "large"
                   })}
@@ -255,7 +255,7 @@ export default function EventDateCalendar({
               >
                 <span className="sr-only">Next Columns</span>
                 <ChevronRight
-                  className={cn("h-[1.2rem] w-[1.2rem] stroke-[3px]", {
+                  className={cn("h-[1.2rem] w-[1.2rem] stroke-[3px] pl-[1px]", {
                     "h-4 w-4": isViewMode,
                     "h-5 w-5": size === "large"
                   })}

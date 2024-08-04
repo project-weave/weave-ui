@@ -101,9 +101,9 @@ export default function Event() {
 
   return (
     <div className="flex h-fit flex-col">
-      <div className="mb-6 mt-4 grid h-full w-full grid-flow-col justify-center gap-3">
+      <div className="mt-4 grid h-full w-full grid-flow-col justify-center gap-3">
         <MediaQueryLG>
-          <div className="sticky top-[5.5rem] h-full max-h-[85vh] min-h-[40rem] w-[18rem] sm:min-h-[45rem] xl:w-[20rem]">
+          <div className="sticky top-[5.5rem] h-full max-h-[86vh] min-h-[40rem] w-[18rem] sm:min-h-[45rem] xl:w-[20rem]">
             <AvailabilityGridLeftPanel />
           </div>
         </MediaQueryLG>
@@ -112,10 +112,7 @@ export default function Event() {
         </div>
       </div>
       <MediaQueryXXS maxScreenSize={ScreenSize.LG}>
-        <div className="h-24"></div>
-        <div className="fixed bottom-0 z-[100] w-full bg-background px-6 pb-6 pt-4 shadow-[0px_2px_2px_4px] shadow-gray-200">
-          <AvailabilityGridBottomPanel handleSaveUserAvailability={handleSaveUserAvailability} />
-        </div>
+        <AvailabilityGridBottomPanel handleSaveUserAvailability={handleSaveUserAvailability} />
       </MediaQueryXXS>
     </div>
   );

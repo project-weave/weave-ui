@@ -129,7 +129,7 @@ export default function NewEventForm() {
             <motion.div
               animate={{ translateY: 0 }}
               className={cn(
-                "fixed bottom-0 left-0 flex w-full justify-center rounded-t-sm bg-white px-9 py-5 shadow-[0px_2px_2px_4px] shadow-gray-200"
+                "fixed bottom-0 left-0 flex w-full justify-center rounded-t-sm bg-white px-9 pb-6 pt-4 shadow-[0px_2px_2px_4px] shadow-gray-200"
               )}
               exit={{ translateY: 70 }}
               initial={{ translateY: 50 }}

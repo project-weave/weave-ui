@@ -57,7 +57,7 @@ export default function AvailabilityGridHeader({
 
   const saveUserAvailabilityButton = (
     <MotionButton
-      className="h-[1.7rem] whitespace-nowrap rounded-[.4rem] xl:h-[1.9rem]"
+      className="h-[1.7rem] whitespace-nowrap rounded-[.5rem] xl:h-[1.9rem]"
       onClick={() => handleSaveUserAvailability(user)}
       variant="default"
       whileTap={{ scale: 0.94 }}
@@ -69,7 +69,7 @@ export default function AvailabilityGridHeader({
   const editUserAvailabilityButton = (
     <EditAvailabilityDialog
       allParticipants={allParticipants}
-      className="h-[1.7rem] whitespace-nowrap rounded-[.4rem] xl:h-[2rem]"
+      className="h-[1.7rem] whitespace-nowrap rounded-[.5rem] xl:h-[2rem]"
       editAvailabilityButtonAnimationScope={editAvailabilityButtonAnimationScope}
     />
   );
@@ -126,7 +126,7 @@ export default function AvailabilityGridHeader({
               whileTap={!isFirstColInView ? { scale: 0.95 } : {}}
             >
               <span className="sr-only">Previous Columns</span>
-              <ChevronLeft className="h-5 w-5 stroke-[3px] lg:h-4 lg:w-4  xl:h-5 xl:w-5" />
+              <ChevronLeft className="h-5 w-5 stroke-[3px] pl-[1px] lg:h-4 lg:w-4  xl:h-5 xl:w-5" />
             </MotionButton>
             <MotionButton
               className="ml-[5px] h-7 w-7 rounded-sm px-[2px] py-0 lg:h-6 lg:w-6 lg:rounded-[0.45rem] xl:h-7 xl:w-7 xl:rounded-sm"
@@ -135,7 +135,7 @@ export default function AvailabilityGridHeader({
               whileTap={!isLastColInView ? { scale: 0.95 } : {}}
             >
               <span className="sr-only">Next Columns</span>
-              <ChevronRight className="h-5 w-5 stroke-[3px] lg:h-4 lg:w-4 xl:h-5 xl:w-5" />
+              <ChevronRight className="h-5 w-5 stroke-[3px] pl-[1px] lg:h-4 lg:w-4 xl:h-5 xl:w-5" />
             </MotionButton>
           </div>
         )}
