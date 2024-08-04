@@ -48,7 +48,7 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
 
   return (
     <>
-      <div style={{ height: open && isViewMode(mode) ? "calc(8.8rem + 14vh)" : "8.2rem" }}></div>
+      <div style={{ height: open && isViewMode(mode) ? "calc(8.8rem + 15vh)" : "8.2rem" }}></div>
       <div
         className={cn(
           "fixed bottom-0 w-full rounded-t-2xl bg-background pb-4 shadow-[0px_2px_2px_4px] shadow-gray-200",
@@ -93,7 +93,7 @@ function ResponsesAccordion({ open, setOpen }) {
   return (
     <>
       <motion.header
-        className="flex h-12 w-full items-center justify-between rounded-t-2xl bg-accent px-6 text-center font-medium"
+        className="flex h-[3.2rem] w-full items-center justify-between rounded-t-2xl bg-accent px-6 text-center font-medium"
         initial={false}
         onClick={() => setOpen((state) => !state)}
       >
@@ -103,26 +103,22 @@ function ResponsesAccordion({ open, setOpen }) {
             {currentResponseCount}/{totalResponseCount}
           </p>
         </span>
-        {currentResponseCount !== 0 && (
-          <motion.div
-            animate={{ rotate: open ? "0" : "-45deg" }}
-            initial={false}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
-          >
+        {totalResponseCount !== 0 && (
+          <motion.div animate={{ rotate: open ? "0" : "-45deg" }} initial={false} transition={{ ease: "easeInOut" }}>
             <X className="h-4 w-4 text-secondary" />
           </motion.div>
         )}
       </motion.header>
 
       <AnimatePresence initial={false}>
-        {open && currentResponseCount !== 0 && (
+        {open && totalResponseCount !== 0 && (
           <motion.section
             animate="open"
-            className="flex max-h-[14vh] w-full justify-center overflow-y-scroll bg-accent/30 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary-light"
+            className="flex max-h-[15vh] w-full justify-center overflow-y-scroll bg-accent/30 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary-light"
             exit="collapsed"
             initial="collapsed"
             key="content"
-            transition={{ duration: 0.4, ease: "easeInOut" }}
+            transition={{ ease: "easeInOut" }}
             variants={{
               collapsed: { height: 0, opacity: 0 },
               open: { height: "auto", opacity: 1 }
@@ -131,7 +127,7 @@ function ResponsesAccordion({ open, setOpen }) {
             <div className="mx-8 my-2 max-w-[40rem] flex-1 px-1 text-secondary xs:mx-11 md:my-4">
               {allParticipantsWithCurrentUser.map((name) => (
                 <AvailbilityGridResponseFilterButton
-                  className="m-1 text-[0.73rem]"
+                  className="m-1 p-[3px] text-[0.74rem]"
                   currentResponses={currentResponses}
                   key={`${name}-filter-button-bottom-panel`}
                   name={name}
