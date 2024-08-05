@@ -60,7 +60,7 @@ export default function EditAvailabilityDialog({
         setValidUserName(false);
       }
     }
-  }, [enteredUserName, selectedUserName, isEnterNewAvailability]);
+  }, [enteredUserName, selectedUserName, isEnterNewAvailability, allParticipants]);
 
   function onSubmit() {
     if (validUserName) {

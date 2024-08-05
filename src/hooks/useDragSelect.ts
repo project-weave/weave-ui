@@ -74,7 +74,6 @@ export default function useDragSelect<T>(
 
   const onTouchDragStart: DragStartHandler<T> = (item: null | T) => {
     if (!item) return;
-    console.log(item);
 
     setSelected((prev) => {
       const newSelected = new Set(prev);

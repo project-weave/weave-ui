@@ -158,9 +158,9 @@ export default function AvailabilityGridTimeSlot({
   }
 
   useRegisterNonPassiveTouchEvents({
-    ref: timeSlotCellRef,
+    onTouchMove: handleTouchMove,
     onTouchStart: handleTouchStart,
-    onTouchMove: handleTouchMove
+    ref: timeSlotCellRef
   });
 
   const isSelected = selectedTimeSlots.includes(timeSlot);
@@ -208,7 +208,6 @@ export default function AvailabilityGridTimeSlot({
 
   return (
     <button
-      ref={timeSlotCellRef}
       className={cn(
         "h-full w-full cursor-pointer touch-none border-b-0 border-t-2 border-primary-light",
         borderXSizeStyles,
@@ -238,6 +237,7 @@ export default function AvailabilityGridTimeSlot({
       onMouseDown={handleMouseDown}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      ref={timeSlotCellRef}
       style={{
         borderStyle: getBorderStyle(),
         ...(isViewMode(mode) ? { backgroundColor: getViewModeCellColour() } : {}),

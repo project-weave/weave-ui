@@ -1,19 +1,19 @@
 import { useEffect } from "react";
 
 type useRegisterNonPassiveTouchEventsProps = {
-  onTouchStart?: (event: TouchEvent) => void;
-  onTouchMove?: (event: TouchEvent) => void;
-  onTouchEnd?: (event: TouchEvent) => void;
   onTouchCancel?: (event: TouchEvent) => void;
+  onTouchEnd?: (event: TouchEvent) => void;
+  onTouchMove?: (event: TouchEvent) => void;
+  onTouchStart?: (event: TouchEvent) => void;
   ref: React.RefObject<HTMLElement>;
 };
 
 export default function useRegisterNonPassiveTouchEvents({
-  ref,
-  onTouchStart,
-  onTouchEnd,
   onTouchCancel,
-  onTouchMove
+  onTouchEnd,
+  onTouchMove,
+  onTouchStart,
+  ref
 }: useRegisterNonPassiveTouchEventsProps) {
   useEffect(() => {
     if (!ref?.current) return;

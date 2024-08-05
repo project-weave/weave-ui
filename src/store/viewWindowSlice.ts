@@ -18,23 +18,23 @@ export const createViewWindowSlice = (set, get): ViewWindowSlice => ({
   nextPage: () =>
     set((state) => {
       return {
+        hoveredTimeSlot: null,
         leftMostColumnInView: ensureWithinBounds(
           0,
           get().getMaxLeftMostColumnInView(),
           state.leftMostColumnInView + state.availabilityGridViewWindowSize
-        ),
-        hoveredTimeSlot: null
+        )
       };
     }),
   previousPage: () =>
     set((state) => {
       return {
+        hoveredTimeSlot: null,
         leftMostColumnInView: ensureWithinBounds(
           0,
           get().getMaxLeftMostColumnInView(),
           state.leftMostColumnInView - state.availabilityGridViewWindowSize
-        ),
-        hoveredTimeSlot: null
+        )
       };
     }),
   setAvailabilityGridViewWindowSize: (availabilityGridViewWindowSize: number) =>

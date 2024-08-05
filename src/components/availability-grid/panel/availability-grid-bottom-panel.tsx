@@ -67,8 +67,8 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
           {isViewMode(mode) && (
             <ResponsesAccordion
               accordionOpen={accordionOpen}
-              setAccordionOpen={setAccordionOpen}
               setAccordionExplicitlyClosed={setAccordionExplicitlyClosed}
+              setAccordionOpen={setAccordionOpen}
             />
           )}
           <div className="z-10 mx-auto grid w-full max-w-[45rem] grid-flow-col justify-between px-6 pt-5">
@@ -96,7 +96,7 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
   );
 }
 
-function ResponsesAccordion({ accordionOpen, setAccordionOpen, setAccordionExplicitlyClosed }) {
+function ResponsesAccordion({ accordionOpen, setAccordionExplicitlyClosed, setAccordionOpen }) {
   const {
     allParticipantsWithCurrentUser,
     currentResponseCount,
@@ -126,8 +126,8 @@ function ResponsesAccordion({ accordionOpen, setAccordionOpen, setAccordionExpli
         </span>
         {totalResponseCount !== 0 && (
           <motion.div
-            className="mr-2"
             animate={{ rotate: accordionOpen ? "-180deg" : "0" }}
+            className="mr-2"
             initial={false}
             transition={{ ease: "easeInOut" }}
           >
@@ -147,8 +147,8 @@ function ResponsesAccordion({ accordionOpen, setAccordionOpen, setAccordionExpli
               key="content"
               transition={{ ease: "easeInOut" }}
               variants={{
-                collapsed: { height: 0, opacity: 0 },
-                accordionOpen: { height: "auto", opacity: 1 }
+                accordionOpen: { height: "auto", opacity: 1 },
+                collapsed: { height: 0, opacity: 0 }
               }}
             >
               <div className="mx-5 mb-2  mt-2 max-w-[40rem] flex-1 px-1 text-secondary xs:mx-6 md:my-4 ">

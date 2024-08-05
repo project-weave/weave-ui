@@ -30,12 +30,12 @@ type useGridDragSelectReturn = {
   isCellBorderOfSelectionArea: GridDragSelectionCellBorderCheck;
   isCellInSelectionArea: GridDragSelectionCellCheck;
   isDragging: boolean;
+  onMouseDragEnd: GridDragEndHandler;
   onMouseDragMove: GridDragMoveHandler;
   onMouseDragStart: GridDragStartHandler;
+  onTouchDragEnd: GridDragEndHandler;
   onTouchDragMove: GridDragMoveHandler;
   onTouchDragStart: GridDragStartHandler;
-  onMouseDragEnd: GridDragEndHandler;
-  onTouchDragEnd: GridDragEndHandler;
 };
 
 export default function useGridDragSelect<T, U, V>(
@@ -189,12 +189,12 @@ export default function useGridDragSelect<T, U, V>(
     isCellBorderOfSelectionArea,
     isCellInSelectionArea,
     isDragging,
+    onMouseDragEnd,
     onMouseDragMove,
     onMouseDragStart,
-    onMouseDragEnd,
+    onTouchDragEnd,
     onTouchDragMove,
-    onTouchDragStart,
-    onTouchDragEnd
+    onTouchDragStart
   };
 }
 

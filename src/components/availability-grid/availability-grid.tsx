@@ -55,12 +55,12 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
     isCellBorderOfSelectionArea: isCellBorderOfSelectionArea,
     isCellInSelectionArea: isCellInDragSelectionArea,
     isDragging: isDragSelecting,
-    onMouseDragStart,
-    onMouseDragMove,
     onMouseDragEnd,
+    onMouseDragMove,
+    onMouseDragStart,
+    onTouchDragEnd,
     onTouchDragMove,
-    onTouchDragStart,
-    onTouchDragEnd
+    onTouchDragStart
   } = useGridDragSelect<EventTime, EventDate, TimeSlot>(
     sortedEventTimes,
     sortedEventDates,
@@ -120,7 +120,7 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
       gridNodeCols.push(gridNodeCol);
     }
     return gridNodeCols;
-  }, [sortedEventTimes, sortedEventDates, availabilityGridViewWindowSize, leftMostColumnInView, timeSlotColumnsCount]);
+  }, [sortedEventTimes, sortedEventDates, leftMostColumnInView, timeSlotColumnsCount]);
 
   return sortedEventDates.length === 0 || sortedEventTimes.length === 0 ? (
     <div />

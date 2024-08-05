@@ -39,13 +39,13 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
           <DayOfWeekButton
             date={date}
             key={`dow-button-${date}`}
+            onMouseDragMove={onMouseDragMove}
+            onMouseDragStart={onMouseDragStart}
+            onTouchDragEnd={onTouchDragEnd}
+            onTouchDragMove={onTouchDragMove}
+            onTouchDragStart={onTouchDragStart}
             selected={selectedDaysOfWeek.has(date)}
             size={size}
-            onMouseDragStart={onMouseDragStart}
-            onMouseDragMove={onMouseDragMove}
-            onTouchDragStart={onTouchDragStart}
-            onTouchDragMove={onTouchDragMove}
-            onTouchDragEnd={onTouchDragEnd}
           />
         ))}
       </div>
@@ -55,11 +55,11 @@ export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOf
 
 function DayOfWeekButton({
   date,
-  onTouchDragStart,
-  onTouchDragMove,
-  onTouchDragEnd,
-  onMouseDragStart,
   onMouseDragMove,
+  onMouseDragStart,
+  onTouchDragEnd,
+  onTouchDragMove,
+  onTouchDragStart,
   selected,
   size
 }) {
@@ -83,7 +83,7 @@ function DayOfWeekButton({
     onTouchDragMove(date as EventDate);
   }
 
-  useRegisterNonPassiveTouchEvents({ ref: buttonRef, onTouchStart: handleTouchStart, onTouchMove: handleTouchMove });
+  useRegisterNonPassiveTouchEvents({ onTouchMove: handleTouchMove, onTouchStart: handleTouchStart, ref: buttonRef });
 
   const formattedDateOfWeek = format(parseISO(date), "E");
 
@@ -99,7 +99,6 @@ function DayOfWeekButton({
       </label>
       <div className="flex h-full flex-grow touch-none">
         <Button
-          ref={buttonRef}
           className={cn(
             "h-full w-[2.16rem] touch-none rounded-sm bg-primary px-[.9rem] xs:px-4 sm:w-[2.4rem] sm:px-[1.2rem]",
             {
@@ -112,6 +111,7 @@ function DayOfWeekButton({
           onMouseEnter={handleMouseEnter}
           onTouchCancel={onTouchDragEnd}
           onTouchEnd={onTouchDragEnd}
+          ref={buttonRef}
           type="button"
         />
       </div>

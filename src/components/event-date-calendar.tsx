@@ -1,5 +1,6 @@
 "use client";
 import useDragSelect, { extractDragSelectData } from "@/hooks/useDragSelect";
+import useRegisterNonPassiveTouchEvents from "@/hooks/useRegisterNonPassiveTouchEvents";
 import { EVENT_DATE_FORMAT, EventDate } from "@/types/Event";
 import { cn } from "@/utils/cn";
 import { isLeftClick } from "@/utils/mouseEvent";
@@ -20,8 +21,6 @@ import {
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Dispatch, MouseEvent, SetStateAction, useEffect, useRef, useState } from "react";
-
-import useRegisterNonPassiveTouchEvents from "@/hooks/useRegisterNonPassiveTouchEvents";
 
 import { Button } from "./ui/button";
 
@@ -217,17 +216,18 @@ export default function EventDateCalendar({
           {days.map((day) => (
             <DateButton
               day={day}
+              firstDayCurrentMonth={firstDayCurrentMonth}
               id={id}
               isViewMode={isViewMode}
+              key={`calendar-day-button-${day}`}
+              onMouseDragMove={onMouseDragMove}
+              onMouseDragStart={onMouseDragStart}
               onTouchDragEnd={onTouchDragEnd}
               onTouchDragMove={onTouchDragMove}
               onTouchDragStart={onTouchDragStart}
-              onMouseDragStart={onMouseDragStart}
-              onMouseDragMove={onMouseDragMove}
               onViewModeDateClick={onViewModeDateClick}
-              firstDayCurrentMonth={firstDayCurrentMonth}
-              size={size}
               selectedDates={selectedDates}
+              size={size}
               visibleEventDates={visibleEventDates}
             />
           ))}
@@ -239,17 +239,17 @@ export default function EventDateCalendar({
 
 function DateButton({
   day,
+  firstDayCurrentMonth,
   id,
   isViewMode,
-  onMouseDragStart,
   onMouseDragMove,
-  onTouchDragStart,
-  onTouchDragMove,
+  onMouseDragStart,
   onTouchDragEnd,
+  onTouchDragMove,
+  onTouchDragStart,
   onViewModeDateClick,
-  firstDayCurrentMonth,
-  size,
   selectedDates,
+  size,
   visibleEventDates
 }) {
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -306,11 +306,10 @@ function DateButton({
     if (!isViewMode) onTouchDragEnd();
   }
 
-  useRegisterNonPassiveTouchEvents({ ref: buttonRef, onTouchStart: handleTouchStart, onTouchMove: handleTouchMove });
+  useRegisterNonPassiveTouchEvents({ onTouchMove: handleTouchMove, onTouchStart: handleTouchStart, ref: buttonRef });
 
   return (
     <Button
-      ref={buttonRef}
       className={cn(
         "my-[3px] flex h-[1.9rem] cursor-pointer touch-none items-center justify-center rounded-full border-2 border-primary-light/30 p-[1px] text-sm font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
         !isDaySelected
@@ -361,6 +360,7 @@ function DateButton({
       onMouseEnter={handleMouseEnter}
       onTouchCancel={handleTouchEnd}
       onTouchEnd={handleTouchEnd}
+      ref={buttonRef}
       type="button"
       variant={isDaySelected ? "default" : "outline"}
     >
