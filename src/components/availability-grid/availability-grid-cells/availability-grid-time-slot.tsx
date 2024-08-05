@@ -4,7 +4,6 @@ import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availa
 import { EventDate, EventTime, getTimeFromTimeSlot, getTimeSlot, TimeSlot } from "@/types/Event";
 import { cn } from "@/utils/cn";
 import { isLeftClick } from "@/utils/mouseEvent";
-import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import { parseISO } from "date-fns";
 import { MouseEvent, useEffect, useState } from "react";
 import style from "styled-jsx/style";
@@ -19,7 +18,6 @@ export type TimeSlotDragSelectionState = {
   onTouchDragMove: GridDragMoveHandler;
   onTouchDragStart: GridDragStartHandler;
   selectedTimeSlots: TimeSlot[];
-  containerRef: React.RefObject<HTMLElement>;
 };
 
 type AvailabilityGridTimeSlotProps = {
@@ -50,8 +48,7 @@ export default function AvailabilityGridTimeSlot({
     onMouseDragStart,
     onTouchDragMove,
     onTouchDragStart,
-    selectedTimeSlots,
-    containerRef
+    selectedTimeSlots
   },
   timeSlotsCol,
   timeSlotsRow
@@ -98,7 +95,6 @@ export default function AvailabilityGridTimeSlot({
   }
 
   function handleTouchStart(e: React.TouchEvent) {
-    console.log("start: row: " + timeSlotsRow + " col: " + timeSlotsCol);
     const touch = e.touches[0];
     const touchX = touch.clientX;
     const touchY = touch.clientY;
@@ -107,9 +103,6 @@ export default function AvailabilityGridTimeSlot({
     const row = isNaN(Number(rowStr)) ? -1 : Number(rowStr);
     const col = isNaN(Number(colStr)) ? -1 : Number(colStr);
 
-    if (isViewMode(mode)) {
-      if (containerRef && containerRef.current !== null) disableBodyScroll(containerRef.current);
-    }
     if (isEditMode(mode)) onTouchDragStart(Number(row), Number(col));
     if (row !== -1 && col !== -1) setHoveredTimeSlot(getTimeSlot(sortedEventTimes[row], sortedEventDates[col]));
   }
@@ -123,17 +116,11 @@ export default function AvailabilityGridTimeSlot({
     const row = isNaN(Number(rowStr)) ? -1 : Number(rowStr);
     const col = isNaN(Number(colStr)) ? -1 : Number(colStr);
 
-    if (isViewMode(mode)) {
-      if (containerRef && containerRef.current !== null) disableBodyScroll(containerRef.current);
-    }
     if (isEditMode(mode)) onTouchDragMove(Number(row), Number(col));
     if (row !== -1 && col !== -1) setHoveredTimeSlot(getTimeSlot(sortedEventTimes[row], sortedEventDates[col]));
   }
 
   function handleTouchEnd() {
-    if (isViewMode(mode)) {
-      if (containerRef && containerRef.current !== null) enableBodyScroll(containerRef.current);
-    }
     setHoveredTimeSlot(null);
   }
 
@@ -211,7 +198,7 @@ export default function AvailabilityGridTimeSlot({
   return (
     <button
       className={cn(
-        "h-full w-full cursor-pointer border-b-0 border-t-2 border-primary-light",
+        "h-full w-full cursor-pointer touch-none border-b-0 border-t-2 border-primary-light",
         borderXSizeStyles,
         {
           "bg-primary hover:bg-primary/60": (isSelected || isBeingAdded) && !isBeingRemoved,
@@ -221,7 +208,7 @@ export default function AvailabilityGridTimeSlot({
           "border-t-0": !shouldDisplayBorder && !isTimeHovered
         },
         isViewMode(mode) && isTimeHovered && "border-t-secondary",
-        isEditMode(mode) && isTimeSlotHovered && "bg-accent",
+        isEditMode(mode) && isDragSelecting && isTimeSlotHovered && "bg-accent",
         isViewMode(mode) &&
           isTimeSlotHovered && {
             "border-[3px] border-secondary": true,

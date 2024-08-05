@@ -48,16 +48,16 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
 
   return (
     <>
-      <div style={{ height: open && isViewMode(mode) ? "calc(8.8rem + 15vh)" : "8.2rem" }}></div>
+      <div style={{ height: open && isViewMode(mode) ? "calc(9.2rem + 15vh)" : "8.6rem" }}></div>
       <div
         className={cn(
-          "fixed bottom-0 w-full rounded-t-2xl bg-background pb-4 shadow-[0px_1px_1px_2px] shadow-gray-100",
-          isEditMode(mode) && "rounded-t-none pt-2 shadow-[0px_2px_2px_4px] "
+          "fixed bottom-0 w-full rounded-t-3xl bg-background pb-5 shadow-[0px_2px_2px_4px] shadow-gray-100",
+          isEditMode(mode) && "rounded-t-none pt-2"
         )}
       >
         <div className="flex w-full flex-col">
           {isViewMode(mode) && <ResponsesAccordion open={open} setOpen={setOpen} />}
-          <div className="z-10 mx-auto grid w-full max-w-[45rem] grid-flow-col justify-between px-4 pt-3">
+          <div className="z-10 mx-auto grid w-full max-w-[45rem] grid-flow-col justify-between px-4 pt-5">
             <MotionButton
               className="h-[2.2rem] rounded-[.5rem] border-2 text-sm"
               onClick={() => {
@@ -93,12 +93,12 @@ function ResponsesAccordion({ open, setOpen }) {
   return (
     <>
       <header
-        className="flex h-[3.3rem] w-full items-center justify-between rounded-t-2xl bg-accent/60 px-6 pt-0.5 text-center font-medium"
+        className="flex h-[3.8rem] w-full items-center  justify-between rounded-t-2xl bg-accent/25 px-6 pt-0.5 text-center font-medium shadow-gray-100"
         onClick={() => setOpen((state) => !state)}
       >
-        <span className="flex">
+        <span className="ml-1 flex">
           <p className="text-secondary">{RESPONSES_TITLE}</p>
-          <p className="ml-2 text-secondary">
+          <p className="ml-4 text-secondary">
             {currentResponseCount}/{totalResponseCount}
           </p>
         </span>
@@ -111,33 +111,36 @@ function ResponsesAccordion({ open, setOpen }) {
 
       <AnimatePresence initial={false}>
         {open && totalResponseCount !== 0 && (
-          <motion.section
-            animate="open"
-            className="flex max-h-[15vh] w-full justify-center overflow-y-scroll bg-accent/20 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary-light"
-            exit="collapsed"
-            initial="collapsed"
-            key="content"
-            transition={{ ease: "easeInOut" }}
-            variants={{
-              collapsed: { height: 0, opacity: 0 },
-              open: { height: "auto", opacity: 1 }
-            }}
-          >
-            <div className="mx-8 my-2 max-w-[40rem] flex-1 px-1 text-secondary xs:mx-11 md:my-4">
-              {allParticipantsWithCurrentUser.map((name) => (
-                <AvailbilityGridResponseFilterButton
-                  className="m-1 p-[3px] text-[0.74rem]"
-                  currentResponses={currentResponses}
-                  key={`${name}-filter-button-bottom-panel`}
-                  name={name}
-                  onFilterClicked={onFliterClicked}
-                />
-              ))}
-            </div>
-          </motion.section>
+          <>
+            <motion.section
+              animate="open"
+              className="flex h-full max-h-[14vh] w-full justify-center overflow-y-scroll  bg-accent/25 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary-light"
+              exit="collapsed"
+              initial="collapsed"
+              key="content"
+              transition={{ ease: "easeInOut" }}
+              variants={{
+                collapsed: { height: 0, opacity: 0 },
+                open: { height: "auto", opacity: 1 }
+              }}
+            >
+              <div className="mx-8 mb-2 max-w-[40rem] flex-1 px-1 text-secondary xs:mx-8 md:my-4">
+                {allParticipantsWithCurrentUser.map((name) => (
+                  <AvailbilityGridResponseFilterButton
+                    className="m-1 p-[3px] text-[0.74rem]"
+                    currentResponses={currentResponses}
+                    key={`${name}-filter-button-bottom-panel`}
+                    name={name}
+                    onFilterClicked={onFliterClicked}
+                  />
+                ))}
+              </div>
+            </motion.section>
+            <div className="h-3 bg-accent/20" />
+          </>
         )}
       </AnimatePresence>
-      <hr className="hidden h-0.5 bg-accent md:block" />
+      <hr className="h-0.5 bg-accent" />
     </>
   );
 }

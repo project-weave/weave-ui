@@ -120,13 +120,13 @@ export default function AvailabilityGridHeader({
         {isPaginationRequired() && (
           <div className="ml-4 mr-1 flex h-7 items-center whitespace-nowrap xs:pr-2 xl:pr-0">
             <MotionButton
-              className="h-7 w-7 rounded-sm px-[2px] py-0 lg:h-6 lg:w-6 lg:rounded-[0.45rem] xl:h-7 xl:w-7  xl:rounded-sm"
+              className="h-7 w-7 rounded-sm px-[2px] py-0 lg:h-6 lg:w-6 lg:rounded-[0.45rem] xl:h-7 xl:w-7 xl:rounded-sm"
               onClick={availabilityGridPreviousPage}
               variant={isFirstColInView ? "default-disabled" : "default"}
               whileTap={!isFirstColInView ? { scale: 0.95 } : {}}
             >
               <span className="sr-only">Previous Columns</span>
-              <ChevronLeft className="h-5 w-5 stroke-[3px] pl-[1px] lg:h-4 lg:w-4  xl:h-5 xl:w-5" />
+              <ChevronLeft className="h-5 w-5 stroke-[3px] pr-[1px] lg:h-4 lg:w-4  xl:h-5 xl:w-5" />
             </MotionButton>
             <MotionButton
               className="ml-[5px] h-7 w-7 rounded-sm px-[2px] py-0 lg:h-6 lg:w-6 lg:rounded-[0.45rem] xl:h-7 xl:w-7 xl:rounded-sm"

@@ -1,5 +1,4 @@
-import { clearAllBodyScrollLocks, disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
-import { Dispatch, RefObject, SetStateAction, useEffect, useMemo, useState } from "react";
+import { Dispatch, SetStateAction, useMemo, useState } from "react";
 
 export type DragStartHandler<T> = (item: null | T) => void;
 export type DragEndHandler = () => void;
@@ -28,13 +27,8 @@ type useDragSelectReturn<T> = {
 
 export default function useDragSelect<T>(
   selected: Set<T>,
-  setSelected: Dispatch<SetStateAction<Set<T>>>,
-  containerRef: RefObject<HTMLElement>
+  setSelected: Dispatch<SetStateAction<Set<T>>>
 ): useDragSelectReturn<T> {
-  useEffect(() => {
-    return clearAllBodyScrollLocks();
-  }, []);
-
   // NOTE: This does not handle devices that use both mouse and touch
   const [inputMethod, setInputMethod] = useState(InputMethod.NONE);
   const [dragMode, setDragMode] = useState<DragMode>(DragMode.NONE);
@@ -83,9 +77,13 @@ export default function useDragSelect<T>(
     }
   };
 
+  const onMouseDragEnd: DragEndHandler = () => {
+    setDragMode(DragMode.NONE);
+    setInputMethod(InputMethod.NONE);
+  };
+
   const onTouchDragStart: DragStartHandler<T> = (item: null | T) => {
-    if (item === null || inputMethod === InputMethod.MOUSE) return;
-    if (containerRef && containerRef.current !== null) disableBodyScroll(containerRef.current);
+    if (!item || inputMethod === InputMethod.MOUSE) return;
 
     setInputMethod(InputMethod.TOUCH);
     setSelected((prev) => {
@@ -101,13 +99,8 @@ export default function useDragSelect<T>(
     });
   };
 
-  const onMouseDragEnd: DragEndHandler = () => {
-    setDragMode(DragMode.NONE);
-  };
-
   const onTouchDragMove: DragMoveHandler<T> = (item: null | T) => {
-    if (!item || !isDragging) return;
-    if (containerRef && containerRef.current !== null) disableBodyScroll(containerRef.current);
+    if (!item || inputMethod === InputMethod.MOUSE) return;
 
     switch (dragMode) {
       case DragMode.NONE:
@@ -133,9 +126,8 @@ export default function useDragSelect<T>(
   };
 
   const onTouchDragEnd: DragEndHandler = () => {
-    if (containerRef && containerRef.current !== null) enableBodyScroll(containerRef.current);
-
     setDragMode(DragMode.NONE);
+    setInputMethod(InputMethod.NONE);
   };
 
   return {

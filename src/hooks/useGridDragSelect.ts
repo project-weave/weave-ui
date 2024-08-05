@@ -1,5 +1,4 @@
-import { clearAllBodyScrollLocks, disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
-import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 export type CellPosition = {
   col: number;
@@ -51,13 +50,8 @@ export default function useGridDragSelect<T, U, V>(
   mappingFunction: (arg1: T, arg2: U) => V,
   selected: V[],
   addSelected: (toAdd: V[]) => void,
-  removeSelected: (toRemove: V[]) => void,
-  containerRef: RefObject<HTMLElement>
+  removeSelected: (toRemove: V[]) => void
 ): useGridDragSelectReturn {
-  useEffect(() => {
-    return clearAllBodyScrollLocks();
-  }, []);
-
   const startCellPositionRef = useRef<CellPosition | null>(null);
   const endCellPositionRef = useRef<CellPosition | null>(null);
 
@@ -68,7 +62,8 @@ export default function useGridDragSelect<T, U, V>(
     return dragMode !== DragMode.NONE;
   }, [dragMode]);
 
-  function onMouseDragStart(row: number, col: number) {
+  const onMouseDragStart: GridDragMoveHandler = (row: number, col: number) => {
+    // onTouchDragStart always occurs before onMouseDragStart
     if (inputMethod === InputMethod.TOUCH) return;
 
     startCellPositionRef.current = { col, row };
@@ -81,60 +76,60 @@ export default function useGridDragSelect<T, U, V>(
     } else {
       setDragMode(DragMode.REMOVE);
     }
-  }
+  };
 
-  function onMouseDragMove(row: number, col: number) {
-    if (!isDragging || !startCellPositionRef.current || !endCellPositionRef.current) return;
+  const onMouseDragMove: GridDragMoveHandler = (row: number, col: number) => {
+    if (inputMethod === InputMethod.TOUCH || !startCellPositionRef.current || !endCellPositionRef.current) return;
+    if (!isDragging) return;
 
     endCellPositionRef.current = { col, row };
-  }
+  };
 
   function onMouseDragEnd() {
     saveAndClearCurrentSelection();
+    setDragMode(DragMode.NONE);
   }
 
-  function onTouchDragStart(row: number, col: number) {
-    if (row === -1 || col === -1) return;
-    if (containerRef && containerRef.current !== null) disableBodyScroll(containerRef.current);
+  const onTouchDragStart: GridDragStartHandler = (row: number, col: number) => {
+    if (row === -1 || col === -1 || inputMethod === InputMethod.MOUSE) return;
 
+    setInputMethod(InputMethod.TOUCH);
     startCellPositionRef.current = { col, row };
     endCellPositionRef.current = { col, row };
 
     const element = mappingFunction(sortedRows[row], sortedCols[col]);
-
-    setInputMethod(InputMethod.TOUCH);
-
     if (!selected.includes(element)) {
       setDragMode(DragMode.ADD);
     } else {
       setDragMode(DragMode.REMOVE);
     }
-  }
+  };
 
-  function onTouchDragMove(row: number, col: number) {
+  const onTouchDragMove: GridDragMoveHandler = (row: number, col: number) => {
     if (
       row === -1 ||
       col === -1 ||
-      !isDragging ||
       !startCellPositionRef.current ||
       !endCellPositionRef.current ||
       inputMethod === InputMethod.MOUSE
-    )
+    ) {
       return;
-    if (containerRef && containerRef.current !== null) disableBodyScroll(containerRef.current);
+    }
+    console.log("onTouchDragMode");
+
+    if (!isDragging) onTouchDragStart(row, col);
+
     endCellPositionRef.current = { col, row };
-  }
+  };
 
-  function onTouchDragEnd() {
-    if (containerRef && containerRef.current !== null) enableBodyScroll(containerRef.current);
+  const onTouchDragEnd: GridDragEndHandler = () => {
     saveAndClearCurrentSelection();
-  }
+    setDragMode(DragMode.NONE);
+  };
 
-  const saveAndClearCurrentSelection = useCallback(() => {
+  function saveAndClearCurrentSelection() {
     if (!isDragging) return;
-
     const currentSelection = [] as V[];
-
     if (startCellPositionRef.current === null || endCellPositionRef.current === null) return [];
     const [minRow, maxRow] = [
       Math.min(startCellPositionRef.current.row, endCellPositionRef.current.row),
@@ -150,7 +145,11 @@ export default function useGridDragSelect<T, U, V>(
         currentSelection.push(el);
       }
     }
-    clearCurrentSelection();
+
+    // NOTE: need to clear selection before calling add/remove
+    // addSelection/removeSelection will cause the grid rerender
+    // and we would like to show that the seleciton is completed when the grid is rerendered
+    clearSelection();
 
     switch (dragMode) {
       case DragMode.ADD:
@@ -162,13 +161,12 @@ export default function useGridDragSelect<T, U, V>(
       default:
         break;
     }
-  }, [dragMode, isDragging]);
+  }
 
-  const clearCurrentSelection: GridDragClearHandler = useCallback(() => {
-    setDragMode(DragMode.NONE);
+  function clearSelection() {
     startCellPositionRef.current = null;
     endCellPositionRef.current = null;
-  }, []);
+  }
 
   const isCellInSelectionArea: GridDragSelectionCellCheck = (row: number, col: number): boolean => {
     if (startCellPositionRef.current === null || endCellPositionRef.current === null) return false;

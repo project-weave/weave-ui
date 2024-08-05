@@ -7,7 +7,7 @@ import { cn } from "@/utils/cn";
 import { isConsecutiveDay } from "@/utils/date";
 import { parseISO } from "date-fns";
 import { useAnimate } from "framer-motion";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import AvailabilityGridCell from "./availability-grid-cells/availability-grid-cell";
@@ -20,8 +20,6 @@ type AvailabilityGridProps = {
 };
 
 export default function AvailabilityGrid({ handleSaveUserAvailability }: AvailabilityGridProps) {
-  const dragSelectContainerRef = useRef<HTMLDivElement>(null);
-
   const { availabilityType, sortedEventDates, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);
 
   const [availabilityGridViewWindowSize, setAvailabilityGridViewWindowSize] = useAvailabilityGridStore(
@@ -69,8 +67,7 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
     getTimeSlot,
     selectedTimeSlots,
     addSelectedTimeSlots,
-    removeSelectedTimeSlots,
-    dragSelectContainerRef
+    removeSelectedTimeSlots
   );
 
   const timeSlotDragSelectionState: TimeSlotDragSelectionState = {
@@ -82,8 +79,7 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
     onMouseDragStart,
     onTouchDragMove,
     onTouchDragStart,
-    selectedTimeSlots,
-    containerRef: dragSelectContainerRef
+    selectedTimeSlots
   };
 
   const [scope, animate] = useAnimate();
@@ -137,7 +133,6 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
       // putting saveDragSelection here to handle the case where the user lets go of the mouse outside of the grid cells
       onMouseUp={onMouseDragEnd}
       onTouchEnd={onTouchDragEnd}
-      ref={dragSelectContainerRef}
     >
       <div
         className={cn(

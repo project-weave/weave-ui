@@ -19,7 +19,7 @@ import {
 } from "date-fns";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import React, { Dispatch, MouseEvent, SetStateAction, useEffect, useRef, useState } from "react";
+import React, { Dispatch, MouseEvent, SetStateAction, useEffect, useState } from "react";
 
 import { Button } from "./ui/button";
 
@@ -82,10 +82,8 @@ export default function EventDateCalendar({
     }
   }, [currentMonthOverride]);
 
-  const dragSelectContainerRef = useRef<HTMLDivElement>(null);
-
   const { onMouseDragEnd, onMouseDragMove, onMouseDragStart, onTouchDragEnd, onTouchDragMove, onTouchDragStart } =
-    useDragSelect<EventDate>(selectedDates, setSelectedDates!, dragSelectContainerRef);
+    useDragSelect<EventDate>(selectedDates, setSelectedDates!);
 
   function handleTouchStart(e: React.TouchEvent) {
     const touch = e.touches[e.touches.length - 1];
@@ -281,7 +279,7 @@ export default function EventDateCalendar({
           })}
         </div>
 
-        <div className="mt-2 grid grid-cols-7" ref={dragSelectContainerRef}>
+        <div className="mt-2 grid touch-none grid-cols-7">
           {days.map((day) => {
             const formattedDay = format(day, EVENT_DATE_FORMAT);
             const formattedPrevDay = format(sub(day, { days: 1 }), EVENT_DATE_FORMAT);
@@ -298,7 +296,7 @@ export default function EventDateCalendar({
             return (
               <Button
                 className={cn(
-                  "my-[3px] flex h-[1.9rem] cursor-pointer items-center justify-center rounded-full border-2 border-primary-light/30 p-[1px] text-sm font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
+                  "my-[3px] flex h-[1.9rem] cursor-pointer touch-none items-center justify-center rounded-full border-2 border-primary-light/30 p-[1px] text-sm font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
                   !isDaySelected
                     ? {
                         "border-transparent bg-background": true,
@@ -351,9 +349,7 @@ export default function EventDateCalendar({
                 onTouchCancel={handleTouchEnd}
                 onTouchEnd={handleTouchEnd}
                 onTouchMove={handleTouchMove}
-                onTouchStart={(e) => {
-                  handleTouchStart(e);
-                }}
+                onTouchStart={handleTouchStart}
                 type="button"
                 variant={isDaySelected ? "default" : "outline"}
               >

@@ -41,8 +41,8 @@ export default function AvailbilityGridResponseFilterButton({
           "border-transparent font-medium text-secondary no-underline hover:bg-accent-light": name === user
         },
         {
-          "border-gray-100 bg-transparent text-gray-400": noFilterAndSelectedHoveredTime,
-          "border-gray-500  bg-transparent text-gray-700": isNotFilteredOutAndSelectedHoveredTime
+          "border-gray-100 bg-transparent text-gray-300": noFilterAndSelectedHoveredTime,
+          "border-gray-400 bg-transparent text-gray-500": isNotFilteredOutAndSelectedHoveredTime
         },
         className
       )}
