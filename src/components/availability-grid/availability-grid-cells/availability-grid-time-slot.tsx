@@ -1,20 +1,25 @@
+import { DragMode } from "@/hooks/useDragSelect";
 import { CellBorderCheck, GridDragMoveHandler, GridDragStartHandler } from "@/hooks/useGridDragSelect";
 import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
 import { EventDate, EventTime, getTimeFromTimeSlot, getTimeSlot, TimeSlot } from "@/types/Event";
 import { cn } from "@/utils/cn";
 import { isLeftClick } from "@/utils/mouseEvent";
+import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import { parseISO } from "date-fns";
 import { MouseEvent, useEffect, useState } from "react";
 import style from "styled-jsx/style";
 
 export type TimeSlotDragSelectionState = {
+  dragMode: DragMode;
   isCellBorderOfDragSelectionArea: (row: number, col: number) => CellBorderCheck;
   isCellInDragSelectionArea: (row: number, col: number) => boolean;
-  isDragAdding: boolean;
   isDragSelecting: boolean;
-  onDragMove: GridDragMoveHandler;
-  onDragStart: GridDragStartHandler;
+  onMouseDragMove: GridDragMoveHandler;
+  onMouseDragStart: GridDragStartHandler;
+  onTouchDragMove: GridDragMoveHandler;
+  onTouchDragStart: GridDragStartHandler;
   selectedTimeSlots: TimeSlot[];
+  containerRef: React.RefObject<HTMLElement>;
 };
 
 type AvailabilityGridTimeSlotProps = {
@@ -37,13 +42,16 @@ export default function AvailabilityGridTimeSlot({
   hasDateGapLeft,
   hasDateGapRight,
   timeSlotDragSelectionState: {
+    dragMode,
     isCellBorderOfDragSelectionArea,
     isCellInDragSelectionArea,
-    isDragAdding,
     isDragSelecting,
-    onDragMove,
-    onDragStart,
-    selectedTimeSlots
+    onMouseDragMove,
+    onMouseDragStart,
+    onTouchDragMove,
+    onTouchDragStart,
+    selectedTimeSlots,
+    containerRef
   },
   timeSlotsCol,
   timeSlotsRow
@@ -59,9 +67,12 @@ export default function AvailabilityGridTimeSlot({
     (state) => state.eventData
   );
 
+  const timeSlot = getTimeSlot(eventTime, eventDate);
+
   const mode = useAvailabilityGridStore((state) => state.mode);
   const isBestTimesEnabled = useAvailabilityGridStore((state) => state.isBestTimesEnabled);
   const isTimeHovered = useAvailabilityGridStore((state) => eventTime === getTimeFromTimeSlot(state.hoveredTimeSlot));
+  const isTimeSlotHovered = useAvailabilityGridStore((state) => state.hoveredTimeSlot === timeSlot);
 
   const setHoveredTimeSlot = useAvailabilityGridStore((state) => state.setHoveredTimeSlot);
   const userFilter = useAvailabilityGridStore((state) => state.userFilter);
@@ -71,18 +82,58 @@ export default function AvailabilityGridTimeSlot({
     if (isViewMode(mode)) {
       animateEditAvailabilityButton();
     } else {
-      onDragStart(timeSlotsRow, timeSlotsCol);
+      onMouseDragStart(timeSlotsRow, timeSlotsCol);
+      setHoveredTimeSlot(getTimeSlot(sortedEventTimes[timeSlotsRow], sortedEventDates[timeSlotsCol]));
     }
   }
 
   function handleMouseEnter() {
-    if (isEditMode(mode)) {
-      onDragMove(timeSlotsRow, timeSlotsCol);
-    }
+    if (isEditMode(mode)) onMouseDragMove(timeSlotsRow, timeSlotsCol);
+
     setHoveredTimeSlot(getTimeSlot(sortedEventTimes[timeSlotsRow], sortedEventDates[timeSlotsCol]));
   }
 
   function handleMouseLeave() {
+    setHoveredTimeSlot(null);
+  }
+
+  function handleTouchStart(e: React.TouchEvent) {
+    console.log("start: row: " + timeSlotsRow + " col: " + timeSlotsCol);
+    const touch = e.touches[0];
+    const touchX = touch.clientX;
+    const touchY = touch.clientY;
+    const touchedElement = document.elementFromPoint(touchX, touchY);
+    const [rowStr, colStr] = (touchedElement?.getAttribute("drag-select-attr") || "-1_-1").split("_");
+    const row = isNaN(Number(rowStr)) ? -1 : Number(rowStr);
+    const col = isNaN(Number(colStr)) ? -1 : Number(colStr);
+
+    if (isViewMode(mode)) {
+      if (containerRef && containerRef.current !== null) disableBodyScroll(containerRef.current);
+    }
+    if (isEditMode(mode)) onTouchDragStart(Number(row), Number(col));
+    if (row !== -1 && col !== -1) setHoveredTimeSlot(getTimeSlot(sortedEventTimes[row], sortedEventDates[col]));
+  }
+
+  function handleTouchMove(e: React.TouchEvent) {
+    const touch = e.touches[0];
+    const touchX = touch.clientX;
+    const touchY = touch.clientY;
+    const touchedElement = document.elementFromPoint(touchX, touchY);
+    const [rowStr, colStr] = (touchedElement?.getAttribute("drag-select-attr") || "-1_-1").split("_");
+    const row = isNaN(Number(rowStr)) ? -1 : Number(rowStr);
+    const col = isNaN(Number(colStr)) ? -1 : Number(colStr);
+
+    if (isViewMode(mode)) {
+      if (containerRef && containerRef.current !== null) disableBodyScroll(containerRef.current);
+    }
+    if (isEditMode(mode)) onTouchDragMove(Number(row), Number(col));
+    if (row !== -1 && col !== -1) setHoveredTimeSlot(getTimeSlot(sortedEventTimes[row], sortedEventDates[col]));
+  }
+
+  function handleTouchEnd() {
+    if (isViewMode(mode)) {
+      if (containerRef && containerRef.current !== null) enableBodyScroll(containerRef.current);
+    }
     setHoveredTimeSlot(null);
   }
 
@@ -96,8 +147,8 @@ export default function AvailabilityGridTimeSlot({
       this way, only necessary cells will rerender and only during dragging (not during view mode and not during normal cell hover)
     */
     const unsub = useAvailabilityGridStore.subscribe(() => {
-      const isBeingAdded = isDragAdding && isCellInDragSelectionArea(timeSlotsRow, timeSlotsCol);
-      const isBeingRemoved = !isDragAdding && isCellInDragSelectionArea(timeSlotsRow, timeSlotsCol);
+      const isBeingAdded = dragMode === DragMode.ADD && isCellInDragSelectionArea(timeSlotsRow, timeSlotsCol);
+      const isBeingRemoved = dragMode === DragMode.REMOVE && isCellInDragSelectionArea(timeSlotsRow, timeSlotsCol);
       const { isBottomBorder, isLeftBorder, isRightBorder, isTopBorder } = isCellBorderOfDragSelectionArea(
         timeSlotsRow,
         timeSlotsCol
@@ -114,7 +165,6 @@ export default function AvailabilityGridTimeSlot({
     return unsub;
   }, [isDragSelecting]);
 
-  const timeSlot = getTimeSlot(eventTime, eventDate);
   const isSelected = selectedTimeSlots.includes(timeSlot);
 
   const filteredParticipants = userFilter.length === 0 ? allParticipants : userFilter;
@@ -161,7 +211,7 @@ export default function AvailabilityGridTimeSlot({
   return (
     <button
       className={cn(
-        "h-full w-full cursor-pointer border-b-0 border-t-2 border-primary-light hover:bg-accent",
+        "h-full w-full cursor-pointer border-b-0 border-t-2 border-primary-light",
         borderXSizeStyles,
         {
           "bg-primary hover:bg-primary/60": (isSelected || isBeingAdded) && !isBeingRemoved,
@@ -170,12 +220,14 @@ export default function AvailabilityGridTimeSlot({
           "border-t-[3px]": isTimeHovered,
           "border-t-0": !shouldDisplayBorder && !isTimeHovered
         },
-        isViewMode(mode) && {
-          "border-t-secondary": isTimeHovered,
-          "hover:border-[3px] hover:border-secondary": true,
-          "hover:border-l-[3px]": hasDateGapLeft,
-          "hover:border-r-[3px]": hasDateGapRight
-        },
+        isViewMode(mode) && isTimeHovered && "border-t-secondary",
+        isEditMode(mode) && isTimeSlotHovered && "bg-accent",
+        isViewMode(mode) &&
+          isTimeSlotHovered && {
+            "border-[3px] border-secondary": true,
+            "border-l-[3px]": hasDateGapLeft,
+            "border-r-[3px]": hasDateGapRight
+          },
         isBeingRemoved && {
           "border-b-4 border-b-secondary": isBottomBorder,
           "border-l-4 border-l-secondary": isLeftBorder,
@@ -183,9 +235,13 @@ export default function AvailabilityGridTimeSlot({
           "border-t-4 border-t-secondary": isTopBorder
         }
       )}
+      drag-select-attr={`${timeSlotsRow}_${timeSlotsCol}`}
       onMouseDown={handleMouseDown}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onTouchEnd={handleTouchEnd}
+      onTouchMove={handleTouchMove}
+      onTouchStart={handleTouchStart}
       style={{
         borderStyle: getBorderStyle(),
         ...(isViewMode(mode) ? { backgroundColor: getViewModeCellColour() } : {}),

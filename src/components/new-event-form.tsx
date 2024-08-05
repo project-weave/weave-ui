@@ -112,11 +112,13 @@ export default function NewEventForm() {
         });
       },
       onSuccess: () => {
-        toast({
-          description: "Your event has been successfully created.",
-          title: "Congrats!",
-          variant: "success"
-        });
+        setTimeout(() => {
+          toast({
+            description: "Your event has been successfully created.",
+            title: "Congrats!",
+            variant: "success"
+          });
+        }, 700);
       }
     });
   }
