@@ -102,7 +102,7 @@ export default function AvailabilityGridLeftPanel() {
       </div>
 
       <div
-        className="m-3 box-border grid flex-1 gap-x-4 gap-y-1 overflow-y-scroll text-secondary scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary-light"
+        className="m-3 box-border grid flex-1 gap-x-3 gap-y-1 overflow-y-scroll text-secondary scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary-light"
         style={{ gridAutoRows: "min-content", gridTemplateColumns: `repeat(auto-fill, minmax(5rem, 1fr))` }}
       >
         {allParticipantsWithCurrentUser.map((name) => (

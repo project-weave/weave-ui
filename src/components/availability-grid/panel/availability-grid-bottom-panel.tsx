@@ -48,7 +48,7 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
 
   return (
     <>
-      <div className="3rem"></div>
+      <div style={{ height: open && isViewMode(mode) ? "calc(8.8rem + 15vh)" : "8.2rem" }}></div>
       <div
         className={cn(
           "fixed bottom-0 w-full rounded-t-2xl bg-background pb-4 shadow-[0px_1px_1px_2px] shadow-gray-100",
@@ -93,7 +93,7 @@ function ResponsesAccordion({ open, setOpen }) {
   return (
     <>
       <header
-        className="flex h-[3.3rem] w-full items-center justify-between rounded-t-2xl bg-accent/80 px-6 pt-0.5 text-center font-medium"
+        className="flex h-[3.3rem] w-full items-center justify-between rounded-t-2xl bg-accent/60 px-6 pt-0.5 text-center font-medium"
         onClick={() => setOpen((state) => !state)}
       >
         <span className="flex">

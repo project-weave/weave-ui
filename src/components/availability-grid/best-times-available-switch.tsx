@@ -5,9 +5,19 @@ import { getDateFromTimeSlot } from "@/types/Event";
 import { cn } from "@/utils/cn";
 import { useShallow } from "zustand/react/shallow";
 
-const BEST_TIMES_BUTTON_TEXT = "Best Times";
+const DEFAULT_LABEL = "Best Times";
 
-export default function BestTimesAvailableSwitch() {
+type BestTimesAvailableSwitchProps = {
+  labelStyles?: string;
+  labelText?: string;
+  switchStyles?: string;
+};
+
+export default function BestTimesAvailableSwitch({
+  labelStyles,
+  labelText,
+  switchStyles
+}: BestTimesAvailableSwitchProps) {
   const { allParticipants, sortedEventDates, timeSlotsToParticipants } = useAvailabilityGridStore(
     (state) => state.eventData
   );
@@ -65,14 +75,17 @@ export default function BestTimesAvailableSwitch() {
   return (
     <div className={cn("flex items-center space-x-2", { invisible: isEditMode(mode) })}>
       <Label
-        className="cursor-pointer whitespace-nowrap text-sm font-semibold text-secondary lg:text-xs xl:text-sm"
+        className={cn(
+          "cursor-pointer whitespace-nowrap text-sm font-semibold text-secondary lg:text-xs xl:text-sm",
+          labelStyles
+        )}
         htmlFor="best-times"
       >
-        {BEST_TIMES_BUTTON_TEXT}
+        {labelText ? labelText : DEFAULT_LABEL}
       </Label>
       <Switch
         checked={isBestTimesEnabled}
-        className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-accent"
+        className={cn("data-[state=checked]:bg-primary data-[state=unchecked]:bg-accent", switchStyles)}
         id="best-times"
         onClick={handleBestTimesToggle}
       />
