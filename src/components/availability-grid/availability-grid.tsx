@@ -55,10 +55,10 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
     isCellBorderOfSelectionArea: isCellBorderOfSelectionArea,
     isCellInSelectionArea: isCellInDragSelectionArea,
     isDragging: isDragSelecting,
-    onMouseDragMove,
     onMouseDragStart,
-    onTouchDragMove,
+    onMouseDragMove,
     onMouseDragEnd,
+    onTouchDragMove,
     onTouchDragStart,
     onTouchDragEnd
   } = useGridDragSelect<EventTime, EventDate, TimeSlot>(

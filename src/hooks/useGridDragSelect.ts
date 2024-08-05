@@ -18,12 +18,6 @@ export enum DragMode {
   NONE
 }
 
-enum InputMethod {
-  MOUSE,
-  TOUCH,
-  NONE
-}
-
 export type GridDragClearHandler = () => void;
 export type GridDragStartHandler = (row: number, col: number) => void;
 export type GridDragMoveHandler = (row: number, col: number) => void;
@@ -55,7 +49,6 @@ export default function useGridDragSelect<T, U, V>(
   const startCellPositionRef = useRef<CellPosition | null>(null);
   const endCellPositionRef = useRef<CellPosition | null>(null);
 
-  const [inputMethod, setInputMethod] = useState(InputMethod.NONE);
   const [dragMode, setDragMode] = useState<DragMode>(DragMode.NONE);
 
   const isDragging = useMemo(() => {
@@ -63,14 +56,10 @@ export default function useGridDragSelect<T, U, V>(
   }, [dragMode]);
 
   const onMouseDragStart: GridDragMoveHandler = (row: number, col: number) => {
-    // onTouchDragStart always occurs before onMouseDragStart
-    if (inputMethod === InputMethod.TOUCH) return;
-
     startCellPositionRef.current = { col, row };
     endCellPositionRef.current = { col, row };
 
     const element = mappingFunction(sortedRows[row], sortedCols[col]);
-    setInputMethod(InputMethod.MOUSE);
     if (!selected.includes(element)) {
       setDragMode(DragMode.ADD);
     } else {
@@ -79,8 +68,7 @@ export default function useGridDragSelect<T, U, V>(
   };
 
   const onMouseDragMove: GridDragMoveHandler = (row: number, col: number) => {
-    if (inputMethod === InputMethod.TOUCH || !startCellPositionRef.current || !endCellPositionRef.current) return;
-    if (!isDragging) return;
+    if ((!isDragging && !startCellPositionRef.current) || !endCellPositionRef.current) return;
 
     endCellPositionRef.current = { col, row };
   };
@@ -91,9 +79,7 @@ export default function useGridDragSelect<T, U, V>(
   }
 
   const onTouchDragStart: GridDragStartHandler = (row: number, col: number) => {
-    if (row === -1 || col === -1 || inputMethod === InputMethod.MOUSE) return;
-
-    setInputMethod(InputMethod.TOUCH);
+    if (row === -1 || col === -1) return;
     startCellPositionRef.current = { col, row };
     endCellPositionRef.current = { col, row };
 
@@ -106,18 +92,8 @@ export default function useGridDragSelect<T, U, V>(
   };
 
   const onTouchDragMove: GridDragMoveHandler = (row: number, col: number) => {
-    if (
-      row === -1 ||
-      col === -1 ||
-      !startCellPositionRef.current ||
-      !endCellPositionRef.current ||
-      inputMethod === InputMethod.MOUSE
-    ) {
-      return;
-    }
-    console.log("onTouchDragMode");
-
-    if (!isDragging) onTouchDragStart(row, col);
+    if (row === -1 || col === -1) return;
+    if (!isDragging || !startCellPositionRef.current || !endCellPositionRef.current) onTouchDragStart(row, col);
 
     endCellPositionRef.current = { col, row };
   };
@@ -220,4 +196,14 @@ export default function useGridDragSelect<T, U, V>(
     onTouchDragStart,
     onTouchDragEnd
   };
+}
+
+export function extractGridDragSelectData(e: TouchEvent) {
+  const touch = e.touches[0];
+
+  const touchX = touch.clientX;
+  const touchY = touch.clientY;
+
+  const touchedElement = document.elementFromPoint(touchX, touchY);
+  return touchedElement?.getAttribute("grid-drag-select-attr");
 }

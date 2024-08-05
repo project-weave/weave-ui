@@ -1,5 +1,5 @@
 "use client";
-import useDragSelect from "@/hooks/useDragSelect";
+import useDragSelect, { extractDragSelectData } from "@/hooks/useDragSelect";
 import { EVENT_DATE_FORMAT, EventDate } from "@/types/Event";
 import { cn } from "@/utils/cn";
 import { isLeftClick } from "@/utils/mouseEvent";
@@ -19,7 +19,9 @@ import {
 } from "date-fns";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import React, { Dispatch, MouseEvent, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, MouseEvent, SetStateAction, useEffect, useRef, useState } from "react";
+
+import useRegisterNonPassiveTouchEvents from "@/hooks/useRegisterNonPassiveTouchEvents";
 
 import { Button } from "./ui/button";
 
@@ -81,68 +83,11 @@ export default function EventDateCalendar({
       setCurrentMonth(currentMonthOverride);
     }
   }, [currentMonthOverride]);
-
   const { onMouseDragEnd, onMouseDragMove, onMouseDragStart, onTouchDragEnd, onTouchDragMove, onTouchDragStart } =
     useDragSelect<EventDate>(selectedDates, setSelectedDates!);
 
-  function handleTouchStart(e: React.TouchEvent) {
-    const touch = e.touches[e.touches.length - 1];
-    const touchX = touch.clientX;
-    const touchY = touch.clientY;
-    const touchedElement = document.elementFromPoint(touchX, touchY);
-    const date: EventDate | null = touchedElement?.getAttribute("drag-select-attr") || null;
-
-    if (isViewMode) {
-      if (date !== null && selectedDates.has(date)) {
-        onViewModeDateClick(date);
-      }
-    } else {
-      if (date === null || !isBefore(parseISO(date), startOfToday())) {
-        onTouchDragStart(date);
-      }
-    }
-  }
-
-  function handleTouchMove(e: React.TouchEvent) {
-    const touch = e.touches[e.touches.length - 1];
-    const touchX = touch.clientX;
-    const touchY = touch.clientY;
-    const touchedElement = document.elementFromPoint(touchX, touchY);
-    const date: EventDate | null = touchedElement?.getAttribute("drag-select-attr") || null;
-
-    if (!isViewMode && date !== null && !isBefore(parseISO(date), startOfToday())) {
-      onTouchDragMove(date);
-    }
-  }
-
-  function handleMouseEnter(day: EventDate) {
-    if (!isViewMode && !isBefore(parseISO(day), startOfToday())) {
-      onMouseDragMove(day);
-    }
-  }
-
-  function handleMouseDown(day: EventDate) {
-    if (isViewMode) {
-      if (selectedDates.has(day)) {
-        onViewModeDateClick(day);
-      }
-    } else {
-      if (!isBefore(parseISO(day), startOfToday()) || selectedDates.has(day)) {
-        onMouseDragStart(day);
-      }
-    }
-  }
-
-  function handleTouchEnd() {
-    if (!isViewMode) {
-      onTouchDragEnd();
-    }
-  }
-
   function handleMouseUp() {
-    if (!isViewMode) {
-      onMouseDragEnd();
-    }
+    if (!isViewMode) onMouseDragEnd();
   }
 
   const firstDayCurrentMonth = parse(currentMonth, MONTH_FORMAT, startOfToday());
@@ -154,27 +99,19 @@ export default function EventDateCalendar({
 
   const latestdMonth = latestSelectedDate ? format(parseISO(latestSelectedDate), MONTH_FORMAT) : "";
   const isCurrentMonthLatest = latestdMonth === currentMonth;
-
   const isNextAndPrevButtonsVisible = !isCurrentMonthEarliest || !isCurrentMonthLatest;
 
   function setPrevMonth() {
     if (isCurrentMonthEarliest) return;
-
     const firstDayPrevMonth = sub(firstDayCurrentMonth, { months: 1 });
     setCurrentMonth(format(firstDayPrevMonth, MONTH_FORMAT));
     setCurrentMonthOverride?.(format(firstDayPrevMonth, MONTH_FORMAT));
   }
-
   function setNextMonth() {
     if (isCurrentMonthLatest) return;
-
     const firstDayNextMonth = add(firstDayCurrentMonth, { months: 1 });
     setCurrentMonth(format(firstDayNextMonth, MONTH_FORMAT));
     setCurrentMonthOverride?.(format(firstDayNextMonth, MONTH_FORMAT));
-  }
-
-  function isBeforeToday(date: Date) {
-    return isBefore(date, startOfToday());
   }
 
   function getFirstDayOfCalendar(currentMonth: string): Date {
@@ -182,7 +119,6 @@ export default function EventDateCalendar({
     const firstDayCurrentMonthDayOfWeek = getDay(firstDayCurrentMonth);
     return sub(firstDayCurrentMonth, { days: firstDayCurrentMonthDayOfWeek });
   }
-
   function getLastDayOfCalendar(currentMonth: string): Date {
     const firstDayCurrentMonth = parse(currentMonth, MONTH_FORMAT, startOfToday());
     const lastDayOfCurrentMonth = endOfMonth(firstDayCurrentMonth);
@@ -194,9 +130,7 @@ export default function EventDateCalendar({
     end: getLastDayOfCalendar(currentMonth),
     start: getFirstDayOfCalendar(currentMonth)
   });
-
   const weekDays: string[] = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
   const MotionButton = motion(Button);
 
   return (
@@ -280,85 +214,157 @@ export default function EventDateCalendar({
         </div>
 
         <div className="mt-2 grid touch-none grid-cols-7">
-          {days.map((day) => {
-            const formattedDay = format(day, EVENT_DATE_FORMAT);
-            const formattedPrevDay = format(sub(day, { days: 1 }), EVENT_DATE_FORMAT);
-            const formattedNextDay = format(add(day, { days: 1 }), EVENT_DATE_FORMAT);
-
-            const isDaySelected = selectedDates.has(formattedDay);
-            const isPrevDaySelected = selectedDates.has(formattedPrevDay);
-            const isNextDaySelected = selectedDates.has(formattedNextDay);
-
-            const isDayVisible = visibleEventDates?.includes(formattedDay);
-            const isPrevDayVisible = visibleEventDates?.includes(formattedPrevDay);
-            const isNextDayVisible = visibleEventDates?.includes(formattedNextDay);
-
-            return (
-              <Button
-                className={cn(
-                  "my-[3px] flex h-[1.9rem] cursor-pointer touch-none items-center justify-center rounded-full border-2 border-primary-light/30 p-[1px] text-sm font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
-                  !isDaySelected
-                    ? {
-                        "border-transparent bg-background": true,
-                        "text-secondary": isSameMonth(day, firstDayCurrentMonth),
-                        "text-secondary-light hover:text-secondary":
-                          !isToday(day) && !isSameMonth(day, firstDayCurrentMonth)
-                      }
-                    : {
-                        "bg-primary/70": !isSameMonth(day, firstDayCurrentMonth),
-                        "bg-secondary hover:bg-secondary/80": isToday(day),
-                        "ml-auto w-full rounded-r-none border-r-0": isNextDaySelected && day.getDay() !== 6,
-                        "mr-auto w-full rounded-l-none": isPrevDaySelected && day.getDay() !== 0,
-                        "rounded-l-full": isNextDaySelected && !isPrevDaySelected,
-                        "rounded-r-full": isPrevDaySelected && !isNextDaySelected
-                      },
-                  isDaySelected && {
-                    "border-secondary bg-secondary hover:bg-secondary/80": isToday(day),
-                    "ml-auto w-full rounded-r-none border-r-0": isNextDaySelected && day.getDay() !== 6,
-                    "mr-auto w-full rounded-l-none": isPrevDaySelected && day.getDay() !== 0,
-                    "rounded-l-full": isNextDaySelected && !isPrevDaySelected,
-                    "rounded-r-full": isPrevDaySelected && !isNextDaySelected
-                  },
-                  isViewMode && {
-                    "text-secondary opacity-40 hover:bg-background": !isDaySelected,
-                    "text-xs": true
-                  },
-                  isViewMode &&
-                    !isDayVisible &&
-                    isDaySelected && {
-                      "bg-primary/40 hover:bg-primary/60": isToday(day),
-                      "border-l-0": !isPrevDayVisible && isPrevDaySelected && day.getDay() !== 0,
-                      "border-primary-light bg-accent-light text-secondary hover:bg-accent": true,
-                      "border-r-0": !isNextDayVisible && isNextDaySelected && day.getDay() !== 6
-                    },
-                  {
-                    "font-bold text-primary": isToday(day) && !isDaySelected,
-                    "my-[3px] h-6 px-2": isViewMode,
-                    "my-4 h-14 border-[1px] px-8 py-2 text-lg sm:text-lg": size === "large",
-                    "text-gray-200 hover:bg-background hover:text-gray-200":
-                      !isViewMode && isBeforeToday(day) && !selectedDates.has(formattedDay)
-                  }
-                )}
-                drag-select-attr={formattedDay}
-                id={id}
-                key={`calendar-day-${day}`}
-                onMouseDown={(e: MouseEvent<HTMLButtonElement>) => {
-                  if (isLeftClick(e)) handleMouseDown(formattedDay);
-                }}
-                onMouseEnter={() => handleMouseEnter(formattedDay)}
-                onTouchCancel={handleTouchEnd}
-                onTouchEnd={handleTouchEnd}
-                onTouchMove={handleTouchMove}
-                onTouchStart={handleTouchStart}
-                type="button"
-                variant={isDaySelected ? "default" : "outline"}
-              >
-                {format(day, "d")}
-              </Button>
-            );
-          })}
+          {days.map((day) => (
+            <DateButton
+              day={day}
+              id={id}
+              isViewMode={isViewMode}
+              onTouchDragEnd={onTouchDragEnd}
+              onTouchDragMove={onTouchDragMove}
+              onTouchDragStart={onTouchDragStart}
+              onMouseDragStart={onMouseDragStart}
+              onMouseDragMove={onMouseDragMove}
+              onViewModeDateClick={onViewModeDateClick}
+              firstDayCurrentMonth={firstDayCurrentMonth}
+              size={size}
+              selectedDates={selectedDates}
+              visibleEventDates={visibleEventDates}
+            />
+          ))}
         </div>
       </div>
     </div>
+  );
+}
+
+function DateButton({
+  day,
+  id,
+  isViewMode,
+  onMouseDragStart,
+  onMouseDragMove,
+  onTouchDragStart,
+  onTouchDragMove,
+  onTouchDragEnd,
+  onViewModeDateClick,
+  firstDayCurrentMonth,
+  size,
+  selectedDates,
+  visibleEventDates
+}) {
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  const formattedDay = format(day, EVENT_DATE_FORMAT);
+  const formattedPrevDay = format(sub(day, { days: 1 }), EVENT_DATE_FORMAT);
+  const formattedNextDay = format(add(day, { days: 1 }), EVENT_DATE_FORMAT);
+
+  const isDaySelected = selectedDates.has(formattedDay);
+  const isPrevDaySelected = selectedDates.has(formattedPrevDay);
+  const isNextDaySelected = selectedDates.has(formattedNextDay);
+
+  const isDayVisible = visibleEventDates?.includes(formattedDay);
+  const isPrevDayVisible = visibleEventDates?.includes(formattedPrevDay);
+  const isNextDayVisible = visibleEventDates?.includes(formattedNextDay);
+
+  function isBeforeToday(date: Date) {
+    return isBefore(date, startOfToday());
+  }
+
+  function handleMouseDown(e: MouseEvent) {
+    if (!isLeftClick(e)) return;
+
+    if (isViewMode) {
+      if (selectedDates.has(formattedDay)) onViewModeDateClick(formattedDay);
+    } else {
+      if (!isBefore(parseISO(formattedDay), startOfToday()) || selectedDates.has(formattedDay))
+        onMouseDragStart(formattedDay);
+    }
+  }
+  function handleMouseEnter() {
+    if (!isViewMode && !isBefore(parseISO(formattedDay), startOfToday())) onMouseDragMove(formattedDay);
+  }
+
+  function handleTouchStart(e: TouchEvent) {
+    if (e.cancelable) e.preventDefault();
+
+    const date = extractDragSelectData(e) as EventDate;
+    if (isViewMode) {
+      if (date !== null && selectedDates.has(date)) onViewModeDateClick(date);
+    } else {
+      if (date === null || !isBefore(parseISO(date), startOfToday())) onTouchDragStart(date);
+    }
+  }
+
+  function handleTouchMove(e: TouchEvent) {
+    if (e.cancelable) e.preventDefault();
+
+    const date = extractDragSelectData(e) as EventDate;
+    if (!isViewMode && date !== null && !isBefore(parseISO(date), startOfToday())) onTouchDragMove(date);
+  }
+
+  function handleTouchEnd() {
+    if (!isViewMode) onTouchDragEnd();
+  }
+
+  useRegisterNonPassiveTouchEvents({ ref: buttonRef, onTouchStart: handleTouchStart, onTouchMove: handleTouchMove });
+
+  return (
+    <Button
+      ref={buttonRef}
+      className={cn(
+        "my-[3px] flex h-[1.9rem] cursor-pointer touch-none items-center justify-center rounded-full border-2 border-primary-light/30 p-[1px] text-sm font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
+        !isDaySelected
+          ? {
+              "border-transparent bg-background": true,
+              "text-secondary": isSameMonth(day, firstDayCurrentMonth),
+              "text-secondary-light hover:text-secondary": !isToday(day) && !isSameMonth(day, firstDayCurrentMonth)
+            }
+          : {
+              "bg-primary/70": !isSameMonth(day, firstDayCurrentMonth),
+              "bg-secondary hover:bg-secondary/80": isToday(day),
+              "ml-auto w-full rounded-r-none border-r-0": isNextDaySelected && day.getDay() !== 6,
+              "mr-auto w-full rounded-l-none": isPrevDaySelected && day.getDay() !== 0,
+              "rounded-l-full": isNextDaySelected && !isPrevDaySelected,
+              "rounded-r-full": isPrevDaySelected && !isNextDaySelected
+            },
+        isDaySelected && {
+          "border-secondary bg-secondary hover:bg-secondary/80": isToday(day),
+          "ml-auto w-full rounded-r-none border-r-0": isNextDaySelected && day.getDay() !== 6,
+          "mr-auto w-full rounded-l-none": isPrevDaySelected && day.getDay() !== 0,
+          "rounded-l-full": isNextDaySelected && !isPrevDaySelected,
+          "rounded-r-full": isPrevDaySelected && !isNextDaySelected
+        },
+        isViewMode && {
+          "text-secondary opacity-40 hover:bg-background": !isDaySelected,
+          "text-xs": true
+        },
+        isViewMode &&
+          !isDayVisible &&
+          isDaySelected && {
+            "bg-primary/40 hover:bg-primary/60": isToday(day),
+            "border-l-0": !isPrevDayVisible && isPrevDaySelected && day.getDay() !== 0,
+            "border-primary-light bg-accent-light text-secondary hover:bg-accent": true,
+            "border-r-0": !isNextDayVisible && isNextDaySelected && day.getDay() !== 6
+          },
+        {
+          "font-bold text-primary": isToday(day) && !isDaySelected,
+          "my-[3px] h-6 px-2": isViewMode,
+          "my-4 h-14 border-[1px] px-8 py-2 text-lg sm:text-lg": size === "large",
+          "text-gray-200 hover:bg-background hover:text-gray-200":
+            !isViewMode && isBeforeToday(day) && !selectedDates.has(formattedDay)
+        }
+      )}
+      drag-select-attr={formattedDay}
+      id={id}
+      key={`calendar-day-${day}`}
+      onMouseDown={handleMouseDown}
+      onMouseEnter={handleMouseEnter}
+      onTouchCancel={handleTouchEnd}
+      onTouchEnd={handleTouchEnd}
+      type="button"
+      variant={isDaySelected ? "default" : "outline"}
+    >
+      {format(day, "d")}
+    </Button>
   );
 }

@@ -1,11 +1,17 @@
 import { DragMode } from "@/hooks/useDragSelect";
-import { CellBorderCheck, GridDragMoveHandler, GridDragStartHandler } from "@/hooks/useGridDragSelect";
+import {
+  CellBorderCheck,
+  extractGridDragSelectData,
+  GridDragMoveHandler,
+  GridDragStartHandler
+} from "@/hooks/useGridDragSelect";
+import useRegisterNonPassiveTouchEvents from "@/hooks/useRegisterNonPassiveTouchEvents";
 import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
 import { EventDate, EventTime, getTimeFromTimeSlot, getTimeSlot, TimeSlot } from "@/types/Event";
 import { cn } from "@/utils/cn";
 import { isLeftClick } from "@/utils/mouseEvent";
 import { parseISO } from "date-fns";
-import { MouseEvent, useEffect, useState } from "react";
+import { MouseEvent, useEffect, useRef, useState } from "react";
 import style from "styled-jsx/style";
 
 export type TimeSlotDragSelectionState = {
@@ -74,55 +80,7 @@ export default function AvailabilityGridTimeSlot({
   const setHoveredTimeSlot = useAvailabilityGridStore((state) => state.setHoveredTimeSlot);
   const userFilter = useAvailabilityGridStore((state) => state.userFilter);
 
-  function handleMouseDown(e: MouseEvent<HTMLButtonElement>) {
-    if (!isLeftClick(e)) return;
-    if (isViewMode(mode)) {
-      animateEditAvailabilityButton();
-    } else {
-      onMouseDragStart(timeSlotsRow, timeSlotsCol);
-      setHoveredTimeSlot(getTimeSlot(sortedEventTimes[timeSlotsRow], sortedEventDates[timeSlotsCol]));
-    }
-  }
-
-  function handleMouseEnter() {
-    if (isEditMode(mode)) onMouseDragMove(timeSlotsRow, timeSlotsCol);
-
-    setHoveredTimeSlot(getTimeSlot(sortedEventTimes[timeSlotsRow], sortedEventDates[timeSlotsCol]));
-  }
-
-  function handleMouseLeave() {
-    setHoveredTimeSlot(null);
-  }
-
-  function handleTouchStart(e: React.TouchEvent) {
-    const touch = e.touches[0];
-    const touchX = touch.clientX;
-    const touchY = touch.clientY;
-    const touchedElement = document.elementFromPoint(touchX, touchY);
-    const [rowStr, colStr] = (touchedElement?.getAttribute("drag-select-attr") || "-1_-1").split("_");
-    const row = isNaN(Number(rowStr)) ? -1 : Number(rowStr);
-    const col = isNaN(Number(colStr)) ? -1 : Number(colStr);
-
-    if (isEditMode(mode)) onTouchDragStart(Number(row), Number(col));
-    if (row !== -1 && col !== -1) setHoveredTimeSlot(getTimeSlot(sortedEventTimes[row], sortedEventDates[col]));
-  }
-
-  function handleTouchMove(e: React.TouchEvent) {
-    const touch = e.touches[0];
-    const touchX = touch.clientX;
-    const touchY = touch.clientY;
-    const touchedElement = document.elementFromPoint(touchX, touchY);
-    const [rowStr, colStr] = (touchedElement?.getAttribute("drag-select-attr") || "-1_-1").split("_");
-    const row = isNaN(Number(rowStr)) ? -1 : Number(rowStr);
-    const col = isNaN(Number(colStr)) ? -1 : Number(colStr);
-
-    if (isEditMode(mode)) onTouchDragMove(Number(row), Number(col));
-    if (row !== -1 && col !== -1) setHoveredTimeSlot(getTimeSlot(sortedEventTimes[row], sortedEventDates[col]));
-  }
-
-  function handleTouchEnd() {
-    setHoveredTimeSlot(null);
-  }
+  const timeSlotCellRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     /*    
@@ -151,6 +109,59 @@ export default function AvailabilityGridTimeSlot({
 
     return unsub;
   }, [isDragSelecting]);
+
+  function handleMouseDown(e: MouseEvent<HTMLButtonElement>) {
+    // touchStart and touchEnd occurs before mouseEnd
+    // need to prevent this on touch screens as mouseStart is trigged on touch as well
+    if (!isLeftClick(e)) return;
+    if (isViewMode(mode)) animateEditAvailabilityButton();
+    if (isEditMode(mode)) {
+      onMouseDragStart(timeSlotsRow, timeSlotsCol);
+      setHoveredTimeSlot(getTimeSlot(sortedEventTimes[timeSlotsRow], sortedEventDates[timeSlotsCol]));
+    }
+  }
+
+  function handleMouseEnter(e: MouseEvent<HTMLButtonElement>) {
+    if (!isLeftClick(e)) return;
+    if (isEditMode(mode)) onMouseDragMove(timeSlotsRow, timeSlotsCol);
+    setHoveredTimeSlot(getTimeSlot(sortedEventTimes[timeSlotsRow], sortedEventDates[timeSlotsCol]));
+  }
+
+  function handleMouseLeave() {
+    setHoveredTimeSlot(null);
+  }
+
+  function extractRowCol(e: TouchEvent) {
+    const data = extractGridDragSelectData(e);
+    if (!data) return [-1, -1];
+
+    const [rowStr, colStr] = data.split("_");
+    const row = isNaN(Number(rowStr)) ? -1 : Number(rowStr);
+    const col = isNaN(Number(colStr)) ? -1 : Number(colStr);
+    return [row, col];
+  }
+
+  function handleTouchStart(e: TouchEvent) {
+    if (e.cancelable) e.preventDefault();
+    const [row, col] = extractRowCol(e);
+
+    if (isEditMode(mode)) onTouchDragStart(row, col);
+    if (row !== -1 && col !== -1) setHoveredTimeSlot(getTimeSlot(sortedEventTimes[row], sortedEventDates[col]));
+  }
+
+  function handleTouchMove(e: TouchEvent) {
+    if (e.cancelable) e.preventDefault();
+
+    const [row, col] = extractRowCol(e);
+    if (isEditMode(mode)) onTouchDragMove(row, col);
+    if (row !== -1 && col !== -1) setHoveredTimeSlot(getTimeSlot(sortedEventTimes[row], sortedEventDates[col]));
+  }
+
+  useRegisterNonPassiveTouchEvents({
+    ref: timeSlotCellRef,
+    onTouchStart: handleTouchStart,
+    onTouchMove: handleTouchMove
+  });
 
   const isSelected = selectedTimeSlots.includes(timeSlot);
 
@@ -197,6 +208,7 @@ export default function AvailabilityGridTimeSlot({
 
   return (
     <button
+      ref={timeSlotCellRef}
       className={cn(
         "h-full w-full cursor-pointer touch-none border-b-0 border-t-2 border-primary-light",
         borderXSizeStyles,
@@ -222,13 +234,10 @@ export default function AvailabilityGridTimeSlot({
           "border-t-4 border-t-secondary": isTopBorder
         }
       )}
-      drag-select-attr={`${timeSlotsRow}_${timeSlotsCol}`}
+      grid-drag-select-attr={`${timeSlotsRow}_${timeSlotsCol}`}
       onMouseDown={handleMouseDown}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      onTouchEnd={handleTouchEnd}
-      onTouchMove={handleTouchMove}
-      onTouchStart={handleTouchStart}
       style={{
         borderStyle: getBorderStyle(),
         ...(isViewMode(mode) ? { backgroundColor: getViewModeCellColour() } : {}),

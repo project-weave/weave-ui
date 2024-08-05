@@ -84,7 +84,7 @@ const useAvailabilityGridStore = create<AvailabilityGridState>()(
     },
     toggleIsBestTimesEnabled: () =>
       set((prev) => {
-        return { ...prev, isBestTimesEnabled: !prev.isBestTimesEnabled };
+        return { ...prev, isBestTimesEnabled: !prev.isBestTimesEnabled, hoveredTimeSlot: null };
       }),
     user: "",
     userFilter: []

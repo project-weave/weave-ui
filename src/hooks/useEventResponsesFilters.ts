@@ -2,7 +2,7 @@ import useAvailabilityGridStore, { isEditMode } from "@/store/availabilityGridSt
 import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
-type EventResponsesFiltersReturn = {
+type useEventResponsesFiltersReturn = {
   allParticipantsWithCurrentUser: string[];
   currentResponseCount: number;
   currentResponses: string[];
@@ -10,7 +10,7 @@ type EventResponsesFiltersReturn = {
   totalResponseCount: number;
 };
 
-export default function useEventResponsesFilters(): EventResponsesFiltersReturn {
+export default function useEventResponsesFilters(): useEventResponsesFiltersReturn {
   const { allParticipants, timeSlotsToParticipants } = useAvailabilityGridStore((state) => state.eventData);
   const user = useAvailabilityGridStore((state) => state.user);
   const hoveredTimeSlot = useAvailabilityGridStore((state) => state.hoveredTimeSlot);

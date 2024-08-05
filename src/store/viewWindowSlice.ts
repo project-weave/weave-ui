@@ -22,7 +22,8 @@ export const createViewWindowSlice = (set, get): ViewWindowSlice => ({
           0,
           get().getMaxLeftMostColumnInView(),
           state.leftMostColumnInView + state.availabilityGridViewWindowSize
-        )
+        ),
+        hoveredTimeSlot: null
       };
     }),
   previousPage: () =>
@@ -32,7 +33,8 @@ export const createViewWindowSlice = (set, get): ViewWindowSlice => ({
           0,
           get().getMaxLeftMostColumnInView(),
           state.leftMostColumnInView - state.availabilityGridViewWindowSize
-        )
+        ),
+        hoveredTimeSlot: null
       };
     }),
   setAvailabilityGridViewWindowSize: (availabilityGridViewWindowSize: number) =>

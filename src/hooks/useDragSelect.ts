@@ -10,12 +10,6 @@ export enum DragMode {
   NONE
 }
 
-enum InputMethod {
-  MOUSE,
-  TOUCH,
-  NONE
-}
-
 type useDragSelectReturn<T> = {
   onMouseDragEnd: DragEndHandler;
   onMouseDragMove: DragMoveHandler<T>;
@@ -29,8 +23,6 @@ export default function useDragSelect<T>(
   selected: Set<T>,
   setSelected: Dispatch<SetStateAction<Set<T>>>
 ): useDragSelectReturn<T> {
-  // NOTE: This does not handle devices that use both mouse and touch
-  const [inputMethod, setInputMethod] = useState(InputMethod.NONE);
   const [dragMode, setDragMode] = useState<DragMode>(DragMode.NONE);
 
   const isDragging = useMemo(() => {
@@ -38,9 +30,8 @@ export default function useDragSelect<T>(
   }, [dragMode]);
 
   const onMouseDragStart: DragMoveHandler<T> = (item: null | T) => {
-    if (item === null || inputMethod === InputMethod.TOUCH) return;
+    if (item === null) return;
 
-    setInputMethod(InputMethod.MOUSE);
     setSelected((prev) => {
       const newSelected = new Set(prev);
       if (!selected.has(item)) {
@@ -79,13 +70,12 @@ export default function useDragSelect<T>(
 
   const onMouseDragEnd: DragEndHandler = () => {
     setDragMode(DragMode.NONE);
-    setInputMethod(InputMethod.NONE);
   };
 
   const onTouchDragStart: DragStartHandler<T> = (item: null | T) => {
-    if (!item || inputMethod === InputMethod.MOUSE) return;
+    if (!item) return;
+    console.log(item);
 
-    setInputMethod(InputMethod.TOUCH);
     setSelected((prev) => {
       const newSelected = new Set(prev);
       if (!selected.has(item)) {
@@ -100,7 +90,7 @@ export default function useDragSelect<T>(
   };
 
   const onTouchDragMove: DragMoveHandler<T> = (item: null | T) => {
-    if (!item || inputMethod === InputMethod.MOUSE) return;
+    if (!item) return;
 
     switch (dragMode) {
       case DragMode.NONE:
@@ -127,7 +117,6 @@ export default function useDragSelect<T>(
 
   const onTouchDragEnd: DragEndHandler = () => {
     setDragMode(DragMode.NONE);
-    setInputMethod(InputMethod.NONE);
   };
 
   return {
@@ -138,4 +127,12 @@ export default function useDragSelect<T>(
     onTouchDragMove,
     onTouchDragStart
   };
+}
+
+export function extractDragSelectData(e: TouchEvent) {
+  const touch = e.touches[0];
+  const touchX = touch.clientX;
+  const touchY = touch.clientY;
+  const touchedElement = document.elementFromPoint(touchX, touchY);
+  return touchedElement?.getAttribute("drag-select-attr");
 }

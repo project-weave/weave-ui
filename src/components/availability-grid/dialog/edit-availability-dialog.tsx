@@ -151,11 +151,11 @@ export default function EditAvailabilityDialog({
               </RadioGroup>
             </div>
           )}
-          <div className="mb-3 mt-4">
+          <div className="mb-3 mt-6">
             <Label className="mb-2 ml-2 text-sm font-semibold text-secondary">
               {isEnterNewAvailability ? ENTER_YOUR_NAME : SELECT_EXISTING_USER}
             </Label>
-            <hr className="mx-auto mt-1 h-[1.5px] w-full bg-secondary" />
+            <hr className="mx-auto mt-1 h-[1px] w-full bg-secondary" />
 
             {isEnterNewAvailability ? (
               <div className="mb-5 mt-4 flex flex-col">
@@ -170,7 +170,7 @@ export default function EditAvailabilityDialog({
                 />
               </div>
             ) : (
-              <div className="mt-3 grid max-h-[6rem] w-full grid-cols-3 gap-x-3 gap-y-1 overflow-y-scroll scroll-smooth px-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full md:max-h-64">
+              <div className="mt-3 grid max-h-[7rem] w-full grid-cols-3 gap-x-3 gap-y-1 overflow-y-scroll scroll-smooth px-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary scrollbar-thumb-rounded-full md:max-h-64">
                 {allParticipants.map((paricipant) => (
                   <motion.button
                     className={cn(
@@ -197,7 +197,7 @@ export default function EditAvailabilityDialog({
           <div
             className={cn(
               "mt-14 flex flex-col",
-              !isEnterNewAvailability && "xs:mt",
+              !isEnterNewAvailability && "mt-8",
               allParticipants.length === 0 && "mt-10"
             )}
           >
