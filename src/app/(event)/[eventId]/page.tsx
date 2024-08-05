@@ -103,7 +103,7 @@ export default function Event() {
     <div className="flex h-fit flex-col">
       <div className="mt-4 grid h-full w-full grid-flow-col justify-center gap-3 pb-4">
         <MediaQueryLG>
-          <div className="sticky top-[4.1rem] h-full max-h-[86vh] min-h-[40rem] w-[18rem] sm:min-h-[45rem] xl:w-[20rem]">
+          <div className="sticky top-[4.3rem] h-full max-h-[86vh] min-h-[40rem] w-[18rem] sm:min-h-[45rem] xl:w-[20rem]">
             <AvailabilityGridLeftPanel />
           </div>
         </MediaQueryLG>

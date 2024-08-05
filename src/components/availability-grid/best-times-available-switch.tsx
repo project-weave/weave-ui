@@ -85,7 +85,7 @@ export default function BestTimesAvailableSwitch({
       </Label>
       <Switch
         checked={isBestTimesEnabled}
-        className={cn("data-[state=checked]:bg-primary data-[state=unchecked]:bg-accent", switchStyles)}
+        className={cn("data-[state=unchecked]:bg-accent first-letter:data-[state=checked]:bg-primary", switchStyles)}
         id="best-times"
         onClick={handleBestTimesToggle}
       />

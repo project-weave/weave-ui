@@ -130,8 +130,8 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
     >
       <div
         className={cn(
-          "sticky top-[3.1rem] z-[999] w-[101%] bg-background pl-4 pt-4 xs:pl-10 xl:pl-14",
-          availabilityType === AvailabilityType.DAYS_OF_WEEK && "h-[5.4rem] lg:h-[4.5rem] xl:h-[5rem]"
+          "sticky top-[3.3rem] z-[999] w-[101%] bg-background pl-4 pt-4 xs:pl-10 xl:pl-14",
+          availabilityType === AvailabilityType.DAYS_OF_WEEK && "h-[5.5rem] lg:h-[4.3rem] xl:h-[4.5rem]"
         )}
       >
         <AvailabilityGridHeader
@@ -151,11 +151,9 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
             const columnHeaderHeight =
               availabilityType === AvailabilityType.SPECIFIC_DATES
                 ? screenSize <= ScreenSize.LG
-                  ? "4.2rem"
+                  ? "3.9rem"
                   : "4.7rem"
-                : screenSize <= ScreenSize.LG
-                  ? "3.6rem"
-                  : "3.2rem";
+                : "2.8rem";
 
             const topBottomCellHeight = screenSize <= ScreenSize.LG ? "0.9rem" : "0.7rem";
             const timeSlotCellHeight = screenSize <= ScreenSize.LG ? "1.8rem" : "1.4rem";

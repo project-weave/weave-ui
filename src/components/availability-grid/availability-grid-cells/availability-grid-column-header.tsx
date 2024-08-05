@@ -53,7 +53,7 @@ export default function AvailabilityGridColumnHeader({
   return (
     <div
       className={cn(
-        "flex h-full flex-col items-center justify-center border-transparent bg-background pr-0.5 pt-1 lg:pt-0",
+        "flex h-full flex-col items-center justify-center border-transparent bg-background pb-0.5 pr-0.5 pt-1",
         borderXSizeStyles,
         {
           "pr-[7px]": hasDateGapRight,
