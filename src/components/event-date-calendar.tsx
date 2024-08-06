@@ -20,9 +20,11 @@ import {
 } from "date-fns";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import dynamic from "next/dynamic";
 import { Dispatch, MouseEvent, SetStateAction, useEffect, useRef, useState } from "react";
 
 import { Button } from "./ui/button";
+import { Skeleton } from "./ui/skeleton";
 
 type EventDateCalendarViewModeProps = {
   currentMonthOverride?: string;
@@ -56,7 +58,7 @@ type EventDateCalendarProps = EventDateCalendarEditModeProps | EventDateCalendar
 
 export const MONTH_FORMAT = "yyyy-MM";
 
-export default function EventDateCalendar({
+const EventDateCalendar = ({
   currentMonthOverride,
   earliestSelectedDate,
   id,
@@ -68,7 +70,7 @@ export default function EventDateCalendar({
   setSelectedDates,
   size,
   visibleEventDates
-}: EventDateCalendarProps) {
+}: EventDateCalendarProps) => {
   const defaultMonth =
     currentMonthOverride !== undefined
       ? currentMonthOverride
@@ -134,7 +136,7 @@ export default function EventDateCalendar({
 
   return (
     <div
-      className={cn("card border-1 h-fit select-none p-5 pt-3", {
+      className={cn("card h-fit select-none border-[1px] p-5 pt-3", {
         "h-full w-full px-12 pb-5 pt-8": size === "large"
       })}
       onContextMenu={handleMouseUp}
@@ -235,7 +237,12 @@ export default function EventDateCalendar({
       </div>
     </div>
   );
-}
+};
+
+export default dynamic(() => Promise.resolve(EventDateCalendar), {
+  loading: () => <Skeleton className="h-full w-full rounded-md bg-primary-light/30" />,
+  ssr: false
+});
 
 function DateButton({
   day,
