@@ -1,6 +1,6 @@
 "use-client";
 import DaysOfWeekPicker from "@/components/days-of-week-picker";
-import Calendar, { MONTH_FORMAT } from "@/components/event-date-calendar";
+import EventDateCalendar, { MONTH_FORMAT } from "@/components/event-date-calendar";
 import { Button } from "@/components/ui/button";
 import InputWithLabel from "@/components/ui/input-with-label";
 import useCreateEvent, { CreateEventRequest } from "@/hooks/requests/useCreateEvent";
@@ -239,9 +239,9 @@ export default function NewEventForm() {
               </Button>
             </div>
           </div>
-          <div className="mb-6 flex-grow">
+          <div className="mb-6 h-[20.5rem]">
             {availabilityType === AvailabilityType.SPECIFIC_DATES ? (
-              <Calendar
+              <EventDateCalendar
                 currentMonthOverride={currentCalendarMonth}
                 id="create-event-calendar-sm"
                 isViewMode={false}
@@ -258,7 +258,7 @@ export default function NewEventForm() {
         </form>
         <div className="hidden w-[47rem] xl:block">
           {availabilityType === AvailabilityType.SPECIFIC_DATES ? (
-            <Calendar
+            <EventDateCalendar
               currentMonthOverride={currentCalendarMonth}
               id="create-event-calendar-lg"
               isViewMode={false}
