@@ -64,7 +64,7 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
       <div style={{ height: accordionOpen && isViewMode(mode) ? "calc(8.6rem + 14vh)" : "8.2rem" }}></div>
       <div
         className={cn(
-          "fixed bottom-0 w-full rounded-t-3xl bg-background pb-4 shadow-[0px_-1px_6px_2px] shadow-gray-100",
+          "fixed bottom-0 w-full rounded-t-3xl bg-background pb-5 shadow-[0px_-1px_6px_2px] shadow-gray-100",
           isEditMode(mode) && "rounded-t-none pt-2"
         )}
       >
