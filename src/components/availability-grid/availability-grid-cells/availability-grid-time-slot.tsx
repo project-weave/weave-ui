@@ -157,6 +157,10 @@ export default function AvailabilityGridTimeSlot({
     if (row !== -1 && col !== -1) setHoveredTimeSlot(getTimeSlot(sortedEventTimes[row], sortedEventDates[col]));
   }
 
+  function handleTouchEnd() {
+    if (isEditMode(mode)) setHoveredTimeSlot(null);
+  }
+
   useRegisterNonPassiveTouchEvents({
     onTouchMove: handleTouchMove,
     onTouchStart: handleTouchStart,
@@ -237,6 +241,7 @@ export default function AvailabilityGridTimeSlot({
       onMouseDown={handleMouseDown}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onTouchEnd={handleTouchEnd}
       ref={timeSlotCellRef}
       style={{
         borderStyle: getBorderStyle(),
