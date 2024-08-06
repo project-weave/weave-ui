@@ -150,7 +150,7 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
         <div
           className="grid h-full w-full"
           style={{
-            gridTemplateColumns: `${screenSize <= ScreenSize.XS ? "4.3rem" : "4.7rem"} repeat(${timeSlotColumnsCount}, minmax(1.5rem, 1fr))`
+            gridTemplateColumns: `${screenSize <= ScreenSize.XS ? "4.3rem" : "4.7rem"} repeat(${timeSlotColumnsCount}, minmax(1.3rem, 1fr))`
           }}
         >
           {gridNodes.map((columnNodes, displayColIndex) => {
@@ -161,8 +161,8 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
                   : "4.7rem"
                 : "2.8rem";
 
-            const topBottomCellHeight = screenSize <= ScreenSize.LG ? "0.9rem" : "0.7rem";
-            const timeSlotCellHeight = screenSize <= ScreenSize.LG ? "1.8rem" : "1.4rem";
+            const topBottomCellHeight = "0.7rem";
+            const timeSlotCellHeight = "1.6rem";
 
             let hasDateGapLeft = false;
             let hasDateGapRight = false;
