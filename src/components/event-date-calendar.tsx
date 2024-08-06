@@ -240,7 +240,7 @@ const EventDateCalendar = ({
 };
 
 export default dynamic(() => Promise.resolve(EventDateCalendar), {
-  loading: () => <Skeleton className="h-full min-h-[21rem] w-full rounded-md bg-primary-light/30" />,
+  loading: () => <Skeleton className="h-full min-h-[16rem] w-full rounded-md bg-primary-light/30" />,
   ssr: false
 });
 
