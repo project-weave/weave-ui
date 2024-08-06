@@ -1,30 +1,40 @@
 import useAvailabilityGridStore, { AvailabilityType, isEditMode, isViewMode } from "@/store/availabilityGridStore";
-import { EventDate, getTimeSlot } from "@/types/Event";
+import { EventDate, getDateFromTimeSlot, getTimeSlot } from "@/types/Event";
 import { cn } from "@/utils/cn";
-import { format, parseISO } from "date-fns";
+import { format, isValid, parseISO, startOfToday } from "date-fns";
 import { motion } from "framer-motion";
+import { CSSProperties } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import { Button } from "../../ui/button";
 
 type AvailabilityGridColumnHeaderProps = {
+  borderXSizeStyles: string;
   eventDate: EventDate;
   hasDateGapRight: boolean;
+  style: CSSProperties;
 };
 
 export default function AvailabilityGridColumnHeader({
+  borderXSizeStyles,
   eventDate,
-  hasDateGapRight
+  hasDateGapRight,
+  style
 }: AvailabilityGridColumnHeaderProps) {
   const { availabilityType, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);
   const mode = useAvailabilityGridStore((state) => state.mode);
   const [selectedTimeSlots, addSelectedTimeSlot, removeSelectedTimeSlot] = useAvailabilityGridStore(
     useShallow((state) => [state.selectedTimeSlots, state.addSelectedTimeSlots, state.removeSelectedTimeSlots])
   );
-  const focusedDate = useAvailabilityGridStore((state) => state.focusedDate);
 
-  const isDateFocused = focusedDate === eventDate;
-  const parsedDate = parseISO(eventDate);
+  const isDateHovered = useAvailabilityGridStore((state) => eventDate === getDateFromTimeSlot(state.hoveredTimeSlot));
+  const isDateFocused = useAvailabilityGridStore(
+    (state) =>
+      eventDate === state.focusedDate &&
+      (state.hoveredTimeSlot === null || eventDate === getDateFromTimeSlot(state.hoveredTimeSlot))
+  );
+
+  const parsedDate = isValid(parseISO(eventDate)) ? parseISO(eventDate) : startOfToday();
 
   const allTimeSlotsForDate = sortedEventTimes.map((eventTime) => getTimeSlot(eventTime, eventDate));
   const isAllTimeSlotForDateSelected = allTimeSlotsForDate.every((timeSlot) => selectedTimeSlots.includes(timeSlot));
@@ -40,60 +50,61 @@ export default function AvailabilityGridColumnHeader({
 
   const MotionButton = motion(Button);
 
-  const topValue = availabilityType === AvailabilityType.SPECIFIC_DATES ? "10rem" : "9.2rem";
-
   return (
     <div
-      className={cn("w-full bg-background text-center", {
-        "mr-2": hasDateGapRight
-      })}
-      style={{
-        position: "sticky",
-        top: `${topValue}`
-      }}
+      className={cn(
+        "flex h-full flex-col items-center justify-center border-transparent bg-background pb-0.5 pr-0.5 pt-1",
+        borderXSizeStyles,
+        {
+          "pr-[7px]": hasDateGapRight,
+          "pt-2": availabilityType === AvailabilityType.SPECIFIC_DATES
+        }
+      )}
+      style={{ ...style, width: `calc(100% + ${hasDateGapRight ? "7px" : "2px"}` }}
     >
       {availabilityType === AvailabilityType.SPECIFIC_DATES && (
-        <>
-          <h3 className=" font-semibold text-primary">{format(parsedDate, "EEE")}</h3>
-          <div
-            className={cn("m-auto flex w-fit items-center justify-center rounded-md border-2 border-transparent", {
-              "border-secondary": isDateFocused
-            })}
-          >
-            <MotionButton
-              className={cn(
-                "h-6 rounded-sm border-none bg-accent-light px-2 text-xs font-semibold tracking-wide text-secondary transition-all hover:bg-accent",
-                {
-                  "bg-primary text-white hover:bg-primary-hover": isAllTimeSlotForDateSelected,
-                  "cursor-default bg-background text-sm text-secondary hover:bg-background": isViewMode(mode)
-                }
-              )}
-              onClick={dateClickedHandler}
-              whileTap={isEditMode(mode) ? { scale: 0.9 } : {}}
-            >
-              <time dateTime={eventDate}>{format(parsedDate, "MMM d")}</time>
-            </MotionButton>
-          </div>
-        </>
+        <h3 className="text-sm font-semibold text-primary xl:text-base">{format(parsedDate, "EEE")}</h3>
       )}
-      {availabilityType === AvailabilityType.DAYS_OF_WEEK && (
-        <div>
-          {/* <h3 className="py-3 text-xl font-semibold text-secondary">{format(parsedDate, "EEE")}</h3> */}
+      <div
+        className={cn("border-b-2 border-transparent pb-0.5 text-center xl:w-16", {
+          "border-b-2 border-secondary": (isDateHovered || isDateFocused) && isViewMode(mode)
+        })}
+      >
+        {availabilityType === AvailabilityType.SPECIFIC_DATES && (
           <MotionButton
             className={cn(
-              "h-8 w-16 rounded-xl border-none bg-accent-light px-3 py-2 pt-7 font-semibold tracking-wide transition-all hover:bg-accent",
+              "mt-1 h-6 w-[3.7rem] whitespace-nowrap rounded-sm border-2 border-transparent bg-accent-light text-xs font-semibold tracking-wide text-secondary transition-all hover:bg-accent xl:h-[1.7rem] xl:w-[4.2rem] xl:text-sm",
               {
                 "bg-primary text-white hover:bg-primary-hover": isAllTimeSlotForDateSelected,
-                "cursor-default bg-background text-lg text-secondary hover:bg-background": isViewMode(mode)
+                "mt-0 cursor-default bg-background text-sm text-secondary hover:bg-background xl:text-base":
+                  isViewMode(mode),
+                "ring-[1.5px] ring-primary ring-offset-1": (isDateHovered || isDateFocused) && isEditMode(mode)
               }
             )}
             onClick={dateClickedHandler}
             whileTap={isEditMode(mode) ? { scale: 0.9 } : {}}
           >
-            <time dateTime={eventDate}>{format(parsedDate, "EEE")}</time>
+            <time dateTime={eventDate}>{format(parsedDate, "MMM d")}</time>
           </MotionButton>
-        </div>
-      )}
+        )}
+        {availabilityType === AvailabilityType.DAYS_OF_WEEK && (
+          <MotionButton
+            className={cn(
+              "mb-0.5 h-7 w-14 rounded-xl border-2 border-transparent bg-accent-light text-sm font-semibold tracking-wide text-secondary transition-all hover:bg-accent",
+              {
+                "bg-primary text-white hover:bg-primary-hover": isAllTimeSlotForDateSelected,
+                "cursor-default bg-background text-sm text-secondary hover:bg-background lg:text-base":
+                  isViewMode(mode),
+                "ring-2 ring-primary ring-offset-2": (isDateHovered || isDateFocused) && isEditMode(mode)
+              }
+            )}
+            onClick={dateClickedHandler}
+            whileTap={isEditMode(mode) ? { scale: 0.9 } : {}}
+          >
+            <time dateTime={eventDate}> {format(parsedDate, "EEE")}</time>
+          </MotionButton>
+        )}
+      </div>
     </div>
   );
 }

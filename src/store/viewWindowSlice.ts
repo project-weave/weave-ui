@@ -5,12 +5,12 @@ export type ViewWindowSlice = {
   leftMostColumnInView: number;
   nextPage: () => void;
   previousPage: () => void;
-  setAvailabilityGridViewWindowSize: (viewWindowSize: number) => void;
+  setAvailabilityGridViewWindowSize: (availabilityGridViewWindowSize: number) => void;
   setLeftMostColumnInView: (column: number) => void;
 };
 
 export const createViewWindowSlice = (set, get): ViewWindowSlice => ({
-  availabilityGridViewWindowSize: 8,
+  availabilityGridViewWindowSize: 4,
   getMaxLeftMostColumnInView: () =>
     Math.max(0, get().eventData.sortedEventDates.length - get().availabilityGridViewWindowSize),
   isPaginationRequired: () => get().availabilityGridViewWindowSize < get().eventData.sortedEventDates.length,
@@ -18,6 +18,7 @@ export const createViewWindowSlice = (set, get): ViewWindowSlice => ({
   nextPage: () =>
     set((state) => {
       return {
+        hoveredTimeSlot: null,
         leftMostColumnInView: ensureWithinBounds(
           0,
           get().getMaxLeftMostColumnInView(),
@@ -28,6 +29,7 @@ export const createViewWindowSlice = (set, get): ViewWindowSlice => ({
   previousPage: () =>
     set((state) => {
       return {
+        hoveredTimeSlot: null,
         leftMostColumnInView: ensureWithinBounds(
           0,
           get().getMaxLeftMostColumnInView(),
@@ -35,7 +37,8 @@ export const createViewWindowSlice = (set, get): ViewWindowSlice => ({
         )
       };
     }),
-  setAvailabilityGridViewWindowSize: (viewWindowSize: number) => set({ viewWindowSize }),
+  setAvailabilityGridViewWindowSize: (availabilityGridViewWindowSize: number) =>
+    set({ availabilityGridViewWindowSize }),
   setLeftMostColumnInView: (size: number) =>
     set({ leftMostColumnInView: ensureWithinBounds(0, get().getMaxLeftMostColumnInView(), size) })
 });

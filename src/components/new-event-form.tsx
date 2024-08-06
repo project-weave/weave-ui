@@ -1,24 +1,23 @@
+"use-client";
 import DaysOfWeekPicker from "@/components/days-of-week-picker";
 import Calendar, { MONTH_FORMAT } from "@/components/event-date-calendar";
 import { Button } from "@/components/ui/button";
-import DropdownWithLabel from "@/components/ui/dropdown-with-label";
 import InputWithLabel from "@/components/ui/input-with-label";
 import useCreateEvent, { CreateEventRequest } from "@/hooks/requests/useCreateEvent";
+import { ScreenSize } from "@/hooks/useScreenSize";
 import { AvailabilityType } from "@/store/availabilityGridStore";
-import { DAYS_OF_WEEK_DATES, EVENT_TIME_FORMAT, EventDate, EventTime } from "@/types/Event";
+import { EVENT_TIME_FORMAT, EventDate, EventTime } from "@/types/Event";
 import { cn } from "@/utils/cn";
-import { timeFilter } from "@/utils/date";
-import { addMinutes, format, isBefore, isEqual, parse, startOfToday } from "date-fns";
+import { format, isBefore, isEqual, parse, startOfToday } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { MediaQueryXS, MediaQueryXXS } from "./media-query";
+import TimeDropdown, { DROPDOWN_TIME_FORMAT, NEXT_DAY_MIDNIGHT_REPRESENTATION } from "./new-event-from-time-dropdown";
 import { useToast } from "./ui/use-toast";
 
 const EVENT_NAME_LABEL = "Event Name";
-const START_TIME_LABEL = "Start Time";
-const END_TIME_LABEL = "End Time";
 
 const WHAT_EVENT_NAME = "What is the name of your event?";
 const WHAT_TIMES = "What times are you checking availability for?";
@@ -27,8 +26,6 @@ const I_WANT_TO_BE_NOTIFIED = "I want to be notified when there is a new availab
 const CREATE_EVENT = "Create Event";
 const TO = "to";
 const OR = "or";
-
-const TIME_FORMAT = "h:mm a";
 
 export default function NewEventForm() {
   const [currentCalendarMonth, setCurrentCalendarMonth] = useState(format(startOfToday(), MONTH_FORMAT));
@@ -41,7 +38,6 @@ export default function NewEventForm() {
   const [startTime, setStartTime] = useState<EventTime>("9:00 am");
   const [endTime, setEndTime] = useState<EventTime>("9:00 pm");
 
-  const router = useRouter();
   const { toast } = useToast();
   const { isPending, mutate } = useCreateEvent();
 
@@ -70,8 +66,10 @@ export default function NewEventForm() {
   }, []);
 
   const isTimeRangeValid = useMemo(() => {
-    const parsedStartTime = parse(startTime, TIME_FORMAT, new Date());
-    const parsedEndTime = parse(endTime, TIME_FORMAT, new Date());
+    if (endTime === NEXT_DAY_MIDNIGHT_REPRESENTATION) return true;
+
+    const parsedStartTime = parse(startTime, DROPDOWN_TIME_FORMAT, startOfToday());
+    const parsedEndTime = parse(endTime, DROPDOWN_TIME_FORMAT, startOfToday());
 
     return !isBefore(parsedEndTime, parsedStartTime) && !isEqual(parsedEndTime, parsedStartTime);
   }, [startTime, endTime]);
@@ -85,14 +83,18 @@ export default function NewEventForm() {
     );
   }, [eventName, selectedDates, isTimeRangeValid, availabilityType, selectedDaysOfWeek]);
 
-  function createEventHandler() {
-    const parsedStartTime = parse(startTime, TIME_FORMAT, new Date());
-    const parsedEndTime = parse(endTime, TIME_FORMAT, new Date());
+  function onSubmit() {
+    const parsedStartTime = parse(startTime, DROPDOWN_TIME_FORMAT, startOfToday());
+    const parsedEndTime =
+      endTime === NEXT_DAY_MIDNIGHT_REPRESENTATION
+        ? parse("12:00 am", "h:mm a", startOfToday())
+        : parse(endTime, DROPDOWN_TIME_FORMAT, startOfToday());
 
     let dates = [...selectedDates];
     if (availabilityType === AvailabilityType.DAYS_OF_WEEK) {
-      dates = DAYS_OF_WEEK_DATES;
+      dates = Array.from(selectedDaysOfWeek);
     }
+
     const req: CreateEventRequest = {
       dates,
       endTime: format(parsedEndTime, EVENT_TIME_FORMAT),
@@ -109,92 +111,63 @@ export default function NewEventForm() {
           variant: "failure"
         });
       },
-      onSuccess: (data) => {
-        toast({
-          description: "Your event has been successfully created.",
-          title: "Congrats!",
-          variant: "success"
-        });
-        router.push(`/${data.eventId}`);
+      onSuccess: () => {
+        setTimeout(() => {
+          toast({
+            description: "Your event has been successfully created.",
+            title: "Congrats!",
+            variant: "success"
+          });
+        }, 700);
       }
     });
   }
 
-  function possibleTimes() {
-    const startTime = new Date(0, 0, 0, 0, 0);
-    const endTime = new Date(0, 0, 0, 23, 30);
-
-    const times: EventTime[] = [];
-    let currentTime = startTime;
-    const interval = 30;
-
-    while (currentTime <= endTime) {
-      const formattedTime = format(currentTime, TIME_FORMAT).toLowerCase();
-      times.push(formattedTime);
-      currentTime = addMinutes(currentTime, interval);
-    }
-
-    return times;
-  }
-
   const formSubmissionButton = (
     <>
-      <AnimatePresence>
+      <MediaQueryXXS maxScreenSize={ScreenSize.XS}>
         {isFormInView && (
-          <motion.div
-            animate={{ translateY: 0 }}
-            className={cn(
-              "fixed bottom-0 left-0 flex w-full justify-center bg-white px-9 py-5 shadow-[0px_2px_6px_6px] shadow-gray-100 sm:hidden"
-            )}
-            exit={{ translateY: 70 }}
-            initial={{ translateY: 50 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
-          >
-            {isPending ? (
-              <div className="flex justify-center">
-                <Loader2 className="h-11 w-11 animate-spin text-primary" />
-              </div>
-            ) : (
+          <AnimatePresence>
+            <motion.div
+              animate={{ translateY: 0 }}
+              className={cn(
+                "fixed bottom-0 left-0 flex w-full justify-center rounded-t-sm bg-white px-9 pb-6 pt-4 shadow-[0px_2px_2px_4px] shadow-gray-200"
+              )}
+              exit={{ translateY: 70 }}
+              initial={{ translateY: 50 }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+            >
               <Button
-                className={cn(
-                  "bottom-3 left-0 w-full max-w-[26rem] rounded-xl border-[1px] border-primary py-2 align-bottom text-sm "
-                )}
+                className="h-12 w-full max-w-[26rem] rounded-xl border-primary text-sm"
                 disabled={!isFormValid}
-                onClick={createEventHandler}
                 type="submit"
               >
-                {CREATE_EVENT}
+                {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin text-white" /> : CREATE_EVENT}
               </Button>
-            )}
-          </motion.div>
+            </motion.div>
+          </AnimatePresence>
         )}
-      </AnimatePresence>
-      <div className="hidden sm:block">
-        {isPending ? (
-          <div className="flex justify-center">
-            <Loader2 className="mt-3 h-12 w-12 animate-spin text-primary" />
-          </div>
-        ) : (
-          <Button
-            className="mt-3 h-auto w-full rounded-xl border-[1px] border-primary py-3 align-bottom text-sm "
-            disabled={!isFormValid}
-            onClick={createEventHandler}
-            type="submit"
-          >
-            {CREATE_EVENT}
-          </Button>
-        )}
-      </div>
+      </MediaQueryXXS>
+      <MediaQueryXS>
+        <Button
+          className="h-12 w-full rounded-xl border-[1px] border-primary align-bottom text-sm"
+          disabled={!isFormValid}
+          type="submit"
+        >
+          {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin py-0 text-white" /> : CREATE_EVENT}
+        </Button>
+      </MediaQueryXS>
     </>
   );
 
   return (
-    <div className="mb-10 flex select-none flex-row justify-center">
+    <div className="flex select-none flex-row justify-center">
       <form
         autoComplete="off"
         className="card mx-auto flex h-full w-full min-w-[22rem] max-w-[26rem] flex-col sm:min-h-[36rem] sm:max-w-[30rem] md:mx-[1rem] xl:max-w-[26rem]"
         onSubmit={(e) => {
           e.preventDefault();
+          onSubmit();
         }}
         ref={formRef}
       >
@@ -216,24 +189,18 @@ export default function NewEventForm() {
         <div className="mb-4 flex w-full flex-col md:mb-5">
           <p className="mb-3 text-xs font-medium text-secondary sm:mb-4">{WHAT_TIMES}</p>
           <div className="flex w-full items-center justify-between">
-            <DropdownWithLabel
-              emptyOptionText={"Invalid time"}
+            <TimeDropdown
               error={!isTimeRangeValid}
-              filterFunc={timeFilter}
-              label={START_TIME_LABEL}
-              options={possibleTimes()}
-              selected={startTime}
-              setSelected={setStartTime}
+              isStartTime={true}
+              selectedTime={startTime}
+              setSelectedTime={setStartTime}
             />
             <p className="mx-6 text-2xs text-secondary"> {TO} </p>
-            <DropdownWithLabel
-              emptyOptionText={"Invalid time"}
+            <TimeDropdown
               error={!isTimeRangeValid}
-              filterFunc={timeFilter}
-              label={END_TIME_LABEL}
-              options={possibleTimes()}
-              selected={endTime}
-              setSelected={setEndTime}
+              isStartTime={false}
+              selectedTime={endTime}
+              setSelectedTime={setEndTime}
             />
           </div>
         </div>
@@ -269,7 +236,7 @@ export default function NewEventForm() {
             </Button>
           </div>
         </div>
-        <div className="mb-4 flex-grow">
+        <div className="mb-6 flex-grow">
           {availabilityType === AvailabilityType.SPECIFIC_DATES ? (
             <Calendar
               currentMonthOverride={currentCalendarMonth}

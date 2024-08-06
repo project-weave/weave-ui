@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 export type CellPosition = {
   col: number;
@@ -12,21 +12,30 @@ export type CellBorderCheck = {
   isTopBorder: boolean;
 };
 
+export enum DragMode {
+  ADD,
+  REMOVE,
+  NONE
+}
+
 export type GridDragClearHandler = () => void;
 export type GridDragStartHandler = (row: number, col: number) => void;
 export type GridDragMoveHandler = (row: number, col: number) => void;
-export type GridDragSaveHandler = () => void;
+export type GridDragEndHandler = () => void;
 export type GridDragSelectionCellCheck = (row: number, col: number) => boolean;
 export type GridDragSelectionCellBorderCheck = (row: number, col: number) => CellBorderCheck;
 
 type useGridDragSelectReturn = {
-  isAdding: boolean;
+  dragMode: DragMode;
   isCellBorderOfSelectionArea: GridDragSelectionCellBorderCheck;
   isCellInSelectionArea: GridDragSelectionCellCheck;
-  isSelecting: boolean;
-  onDragMove: GridDragMoveHandler;
-  onDragStart: GridDragStartHandler;
-  saveCurrentSelection: GridDragSaveHandler;
+  isDragging: boolean;
+  onMouseDragEnd: GridDragEndHandler;
+  onMouseDragMove: GridDragMoveHandler;
+  onMouseDragStart: GridDragStartHandler;
+  onTouchDragEnd: GridDragEndHandler;
+  onTouchDragMove: GridDragMoveHandler;
+  onTouchDragStart: GridDragStartHandler;
 };
 
 export default function useGridDragSelect<T, U, V>(
@@ -40,39 +49,63 @@ export default function useGridDragSelect<T, U, V>(
   const startCellPositionRef = useRef<CellPosition | null>(null);
   const endCellPositionRef = useRef<CellPosition | null>(null);
 
-  const [isSelecting, setIsSelecting] = useState(false);
-  const [isAdding, setIsAdding] = useState(false);
+  const [dragMode, setDragMode] = useState<DragMode>(DragMode.NONE);
 
-  const onDragMove = useCallback(
-    (row: number, col: number) => {
-      if (isSelecting && startCellPositionRef.current && endCellPositionRef.current) {
-        endCellPositionRef.current = { col, row };
-      }
-    },
-    [isSelecting]
-  );
+  const isDragging = useMemo(() => {
+    return dragMode !== DragMode.NONE;
+  }, [dragMode]);
 
-  const onDragStart = useCallback(
-    (row: number, col: number) => {
-      setIsSelecting(true);
-      startCellPositionRef.current = { col, row };
-      endCellPositionRef.current = { col, row };
+  const onMouseDragStart: GridDragMoveHandler = (row: number, col: number) => {
+    startCellPositionRef.current = { col, row };
+    endCellPositionRef.current = { col, row };
 
-      const element = mappingFunction(sortedRows[row], sortedCols[col]);
-      if (selected.includes(element)) {
-        setIsAdding(false);
-      } else {
-        setIsAdding(true);
-      }
-    },
-    [selected, sortedCols, sortedRows]
-  );
+    const element = mappingFunction(sortedRows[row], sortedCols[col]);
+    if (!selected.includes(element)) {
+      setDragMode(DragMode.ADD);
+    } else {
+      setDragMode(DragMode.REMOVE);
+    }
+  };
 
-  const saveCurrentSelection: GridDragSaveHandler = useCallback(() => {
-    if (!isSelecting) return;
+  const onMouseDragMove: GridDragMoveHandler = (row: number, col: number) => {
+    if ((!isDragging && !startCellPositionRef.current) || !endCellPositionRef.current) return;
 
+    endCellPositionRef.current = { col, row };
+  };
+
+  function onMouseDragEnd() {
+    saveAndClearCurrentSelection();
+    setDragMode(DragMode.NONE);
+  }
+
+  const onTouchDragStart: GridDragStartHandler = (row: number, col: number) => {
+    if (row === -1 || col === -1) return;
+    startCellPositionRef.current = { col, row };
+    endCellPositionRef.current = { col, row };
+
+    const element = mappingFunction(sortedRows[row], sortedCols[col]);
+    if (!selected.includes(element)) {
+      setDragMode(DragMode.ADD);
+    } else {
+      setDragMode(DragMode.REMOVE);
+    }
+  };
+
+  const onTouchDragMove: GridDragMoveHandler = (row: number, col: number) => {
+    if (row === -1 || col === -1) return;
+    if (!isDragging || !startCellPositionRef.current || !endCellPositionRef.current) onTouchDragStart(row, col);
+
+    endCellPositionRef.current = { col, row };
+  };
+
+  const onTouchDragEnd: GridDragEndHandler = () => {
+    saveAndClearCurrentSelection();
+    setDragMode(DragMode.NONE);
+  };
+
+  function saveAndClearCurrentSelection() {
+    if (!isDragging) return;
     const currentSelection = [] as V[];
-
     if (startCellPositionRef.current === null || endCellPositionRef.current === null) return [];
     const [minRow, maxRow] = [
       Math.min(startCellPositionRef.current.row, endCellPositionRef.current.row),
@@ -89,20 +122,27 @@ export default function useGridDragSelect<T, U, V>(
       }
     }
 
-    clearCurrentSelection();
+    // NOTE: need to clear selection before calling add/remove
+    // addSelection/removeSelection will cause the grid rerender
+    // and we would like to show that the seleciton is completed when the grid is rerendered
+    clearSelection();
 
-    if (!isAdding) {
-      removeSelected(currentSelection);
-    } else {
-      addSelected(currentSelection);
+    switch (dragMode) {
+      case DragMode.ADD:
+        addSelected(currentSelection);
+        break;
+      case DragMode.REMOVE:
+        removeSelected(currentSelection);
+        break;
+      default:
+        break;
     }
-  }, [isAdding, isSelecting]);
+  }
 
-  const clearCurrentSelection: GridDragClearHandler = useCallback(() => {
-    setIsSelecting(false);
+  function clearSelection() {
     startCellPositionRef.current = null;
     endCellPositionRef.current = null;
-  }, []);
+  }
 
   const isCellInSelectionArea: GridDragSelectionCellCheck = (row: number, col: number): boolean => {
     if (startCellPositionRef.current === null || endCellPositionRef.current === null) return false;
@@ -145,12 +185,25 @@ export default function useGridDragSelect<T, U, V>(
   };
 
   return {
-    isAdding,
+    dragMode,
     isCellBorderOfSelectionArea,
     isCellInSelectionArea,
-    isSelecting,
-    onDragMove,
-    onDragStart,
-    saveCurrentSelection
+    isDragging,
+    onMouseDragEnd,
+    onMouseDragMove,
+    onMouseDragStart,
+    onTouchDragEnd,
+    onTouchDragMove,
+    onTouchDragStart
   };
+}
+
+export function extractGridDragSelectData(e: TouchEvent) {
+  const touch = e.touches[0];
+
+  const touchX = touch.clientX;
+  const touchY = touch.clientY;
+
+  const touchedElement = document.elementFromPoint(touchX, touchY);
+  return touchedElement?.getAttribute("grid-drag-select-attr");
 }

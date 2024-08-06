@@ -1,7 +1,6 @@
+import { ScreenSize } from "@/hooks/useScreenSize";
 import useAvailabilityGridStore, { AvailabilityType, isViewMode } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
-import { isConsecutiveDay } from "@/utils/date";
-import { parseISO } from "date-fns";
 
 import { AvailabilityGridNode, NodeType } from "../availability-grid-node";
 import AvailabilityGridColumnHeader from "./availability-grid-column-header";
@@ -10,31 +9,49 @@ import AvailabilityGridTimeSlot, { TimeSlotDragSelectionState } from "./availabi
 
 type AvailabilityGridCellProps = {
   animateEditAvailabilityButton: () => void;
+  hasDateGapLeft: boolean;
+  hasDateGapRight: boolean;
   node: AvailabilityGridNode;
+  screenSize: ScreenSize;
   timeSlotDragSelectionState: TimeSlotDragSelectionState;
 };
 export default function AvailabilityGridCell({
   animateEditAvailabilityButton,
+  hasDateGapLeft,
+  hasDateGapRight,
   node,
+  screenSize,
   timeSlotDragSelectionState
 }: AvailabilityGridCellProps) {
   const { availabilityType, sortedEventDates, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);
   const mode = useAvailabilityGridStore((state) => state.mode);
 
-  const timeSlotsCol = node.getTimeSlotsColumnIndex();
-  const timeSlotsRow = node.getTimeSlotsRowIndex();
+  const timeSlotsCol = node.getSortedEventDatesIndex();
+  const timeSlotsRow = node.getSortedEventTimesIndex();
+  const isInFirstDisplayedCol = node.displayedColIndex === 1;
+  const isInFirstActualCol = node.offsettedColIndex === 1;
+
   const eventDate = sortedEventDates[timeSlotsCol];
   const eventTime = sortedEventTimes[timeSlotsRow];
 
-  const prevEventDate = sortedEventDates[timeSlotsCol - 1];
-  const nextEventDate = sortedEventDates[timeSlotsCol + 1];
+  function getBorderXSizeStyles(
+    isCellInFirstDisplayedCol: boolean,
+    isCellInFirstActualCol: boolean,
+    isCellInLastDisplayedCol: boolean,
+    isCellInLastActualCol: boolean,
+    hasDateGapLeft: boolean,
+    hasDateGapRight: boolean
+  ): string {
+    const classNames: string[] = ["border-l-[1px] border-r-[1px]"];
+    if (isCellInFirstDisplayedCol) classNames.push("border-l-0");
+    if (hasDateGapLeft || (isCellInFirstDisplayedCol && !isCellInFirstActualCol)) classNames.push("border-l-2");
+    if (isCellInLastActualCol) classNames.push("border-r-0");
+    if (hasDateGapRight || (isCellInLastDisplayedCol && !isCellInLastActualCol)) classNames.push("border-r-2");
 
-  const hasDateGapLeft =
-    node.displayedColIndex !== 1 && !isConsecutiveDay(parseISO(prevEventDate), parseISO(eventDate));
-  const hasDateGapRight =
-    !node.isNodeInLastActualCol && !isConsecutiveDay(parseISO(eventDate), parseISO(nextEventDate));
+    return classNames.join(" ");
+  }
 
-  function getBorderStyle() {
+  function getFirstAndLastCellBorderStyle() {
     if (isViewMode(mode)) return "solid";
     const rightStyle = hasDateGapRight ? "solid" : "dashed";
     const leftStyle = hasDateGapLeft ? "solid" : "dashed";
@@ -43,67 +60,90 @@ export default function AvailabilityGridCell({
     return `${topStyle} ${rightStyle} ${bottomStyle} ${leftStyle}`;
   }
 
-  const topValue = availabilityType === AvailabilityType.SPECIFIC_DATES ? "10rem" : "9.2rem";
+  const borderXSizeStyles = getBorderXSizeStyles(
+    isInFirstDisplayedCol,
+    isInFirstActualCol,
+    node.isNodeInLastDisplayedCol,
+    node.isNodeInLastActualCol,
+    hasDateGapLeft,
+    hasDateGapRight
+  );
+
+  let topValue = "";
+  switch (availabilityType) {
+    case AvailabilityType.SPECIFIC_DATES:
+      topValue = "9.24rem";
+      if (screenSize === ScreenSize.LG) topValue = "7.5rem";
+      if (screenSize >= ScreenSize.XL) topValue = "7.9rem";
+      break;
+    case AvailabilityType.DAYS_OF_WEEK:
+      topValue = "8.80rem";
+      if (screenSize === ScreenSize.LG) topValue = "7.60rem";
+      if (screenSize >= ScreenSize.XL) topValue = "7.8rem";
+      break;
+  }
 
   switch (node.getRenderType()) {
     case NodeType.COLUMN_HEADER_PLACEHOLDER:
       return (
         <div
-          className="sticky z-[999] h-full bg-background"
+          className="m-0 h-full w-full bg-background"
           style={{
             position: "sticky",
-            top: `${topValue}`
+            top: `${topValue}`,
+            zIndex: 100
           }}
         >
           &nbsp;
         </div>
       );
     case NodeType.PLACEHOLDER:
-      return <div>&nbsp;</div>;
+      return <div className="h-full w-full">&nbsp;</div>;
     case NodeType.ROW_HEADER:
       return <AvailabilityGridRowHeader eventTime={eventTime} />;
     case NodeType.COLUMN_HEADER:
-      return <AvailabilityGridColumnHeader eventDate={eventDate} hasDateGapRight={hasDateGapRight} />;
+      return (
+        <AvailabilityGridColumnHeader
+          borderXSizeStyles={borderXSizeStyles}
+          eventDate={eventDate}
+          hasDateGapRight={hasDateGapRight}
+          style={{
+            position: "sticky",
+            top: `${topValue}`,
+            zIndex: 100
+          }}
+        />
+      );
 
     case NodeType.FIRST_CELL_IN_COLUMN:
       return (
         <div
-          className={cn("border-b-0 border-l-2 border-t-0 border-primary-light", {
-            "border-l-0": node.offsettedColIndex === 1,
-            "border-l-2 border-l-primary": hasDateGapLeft,
-            "border-r-2": node.isNodeInLastDisplayedCol && !node.isNodeInLastActualCol,
-            "mr-2 border-r-2 border-r-primary": hasDateGapRight
+          className={cn("h-full w-full border-t-0 border-primary-light", borderXSizeStyles, {
+            "border-l-primary": hasDateGapLeft,
+            "border-r-primary": hasDateGapRight
           })}
-          style={{
-            borderStyle: getBorderStyle()
-          }}
+          style={{ borderStyle: getFirstAndLastCellBorderStyle() }}
         />
       );
     case NodeType.LAST_CELL_IN_COLUMN:
       return (
         <div
-          className={cn("border-b-0 border-l-2 border-t-2 border-primary-light", {
-            "border-l-0": node.offsettedColIndex === 1,
-            "border-l-2 border-l-primary": hasDateGapLeft,
-            "border-r-2": node.isNodeInLastDisplayedCol && !node.isNodeInLastActualCol,
-            "mr-2 border-r-2 border-r-primary": hasDateGapRight
+          className={cn("h-full w-full border-b-0 border-t-2 border-primary-light", borderXSizeStyles, {
+            "border-l-primary": hasDateGapLeft,
+            "border-r-primary": hasDateGapRight
           })}
-          style={{
-            borderStyle: getBorderStyle()
-          }}
+          style={{ borderStyle: getFirstAndLastCellBorderStyle() }}
         />
       );
     case NodeType.TIME_SLOT:
       return (
         <AvailabilityGridTimeSlot
           animateEditAvailabilityButton={animateEditAvailabilityButton}
-          displayedCol={node.displayedColIndex}
+          borderXSizeStyles={borderXSizeStyles}
           eventDate={eventDate}
           eventTime={eventTime}
           hasDateGapLeft={hasDateGapLeft}
           hasDateGapRight={hasDateGapRight}
-          isInLastActualCol={node.isNodeInLastActualCol}
-          isInLastDisplayedCol={node.isNodeInLastDisplayedCol}
           timeSlotDragSelectionState={timeSlotDragSelectionState}
           timeSlotsCol={timeSlotsCol}
           timeSlotsRow={timeSlotsRow}

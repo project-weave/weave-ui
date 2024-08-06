@@ -15,8 +15,8 @@ export default function LandingPage() {
   const wordHeight = 77;
 
   return (
-    <div className="mt-14 flex h-fit w-full flex-col items-center">
-      <div className="grid w-full">
+    <div className="mt-10 flex flex-col items-center">
+      <div className="grid h-full w-full">
         <h1 className="flex flex-col text-center text-[2.6rem] font-semibold leading-[3.2rem] sm:mt-8 sm:leading-[3rem] md:text-[3.7rem] md:leading-[4rem] xl:text-[4.3rem] xl:leading-[4.3rem]">
           <div>find time for</div>
           <div className="relative h-[50px] overflow-hidden sm:mt-0 sm:h-[50px] md:h-[68px] xl:h-[75px] ">
@@ -61,7 +61,7 @@ export default function LandingPage() {
       </Button>
 
       <div className="h-full min-h-screen w-full pb-10 sm:mt-10 xl:mt-20">
-        <div className="pt-24 sm:pt-[6rem]" ref={eventFormRef}>
+        <div className="pt-20" ref={eventFormRef}>
           <NewEventForm />
         </div>
       </div>

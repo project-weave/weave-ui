@@ -48,7 +48,7 @@ export class AvailabilityGridNode {
     return NodeType.TIME_SLOT;
   }
 
-  getTimeSlotsColumnIndex(): number {
+  getSortedEventDatesIndex(): number {
     const renderType = this.getRenderType();
     if (
       renderType !== NodeType.COLUMN_HEADER &&
@@ -56,14 +56,14 @@ export class AvailabilityGridNode {
       renderType !== NodeType.FIRST_CELL_IN_COLUMN &&
       renderType !== NodeType.LAST_CELL_IN_COLUMN
     )
-      return 0;
+      return -1;
 
     return this.offsettedColIndex - 1;
   }
 
-  getTimeSlotsRowIndex(): number {
+  getSortedEventTimesIndex(): number {
     const renderType = this.getRenderType();
-    if (renderType !== NodeType.ROW_HEADER && renderType !== NodeType.TIME_SLOT) return 0;
+    if (renderType !== NodeType.ROW_HEADER && renderType !== NodeType.TIME_SLOT) return -1;
 
     return this.displayedRowIndex - 2;
   }

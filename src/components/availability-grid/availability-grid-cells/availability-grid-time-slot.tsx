@@ -1,30 +1,38 @@
-import { CellBorderCheck, GridDragMoveHandler, GridDragStartHandler } from "@/hooks/useGridDragSelect";
+import { DragMode } from "@/hooks/useDragSelect";
+import {
+  CellBorderCheck,
+  extractGridDragSelectData,
+  GridDragMoveHandler,
+  GridDragStartHandler
+} from "@/hooks/useGridDragSelect";
+import useRegisterNonPassiveTouchEvents from "@/hooks/useRegisterNonPassiveTouchEvents";
 import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
 import { EventDate, EventTime, getTimeFromTimeSlot, getTimeSlot, TimeSlot } from "@/types/Event";
 import { cn } from "@/utils/cn";
 import { isLeftClick } from "@/utils/mouseEvent";
 import { parseISO } from "date-fns";
-import { MouseEvent, useEffect, useState } from "react";
+import { MouseEvent, useEffect, useRef, useState } from "react";
+import style from "styled-jsx/style";
 
 export type TimeSlotDragSelectionState = {
+  dragMode: DragMode;
   isCellBorderOfDragSelectionArea: (row: number, col: number) => CellBorderCheck;
   isCellInDragSelectionArea: (row: number, col: number) => boolean;
-  isDragAdding: boolean;
   isDragSelecting: boolean;
-  onDragMove: GridDragMoveHandler;
-  onDragStart: GridDragStartHandler;
+  onMouseDragMove: GridDragMoveHandler;
+  onMouseDragStart: GridDragStartHandler;
+  onTouchDragMove: GridDragMoveHandler;
+  onTouchDragStart: GridDragStartHandler;
   selectedTimeSlots: TimeSlot[];
 };
 
 type AvailabilityGridTimeSlotProps = {
   animateEditAvailabilityButton: () => void;
-  displayedCol: number;
+  borderXSizeStyles: string;
   eventDate: EventDate;
   eventTime: EventTime;
   hasDateGapLeft: boolean;
   hasDateGapRight: boolean;
-  isInLastActualCol: boolean;
-  isInLastDisplayedCol: boolean;
   timeSlotDragSelectionState: TimeSlotDragSelectionState;
   timeSlotsCol: number;
   timeSlotsRow: number;
@@ -32,19 +40,20 @@ type AvailabilityGridTimeSlotProps = {
 
 export default function AvailabilityGridTimeSlot({
   animateEditAvailabilityButton,
+  borderXSizeStyles,
   eventDate,
   eventTime,
   hasDateGapLeft,
   hasDateGapRight,
-  isInLastActualCol,
-  isInLastDisplayedCol,
   timeSlotDragSelectionState: {
+    dragMode,
     isCellBorderOfDragSelectionArea,
     isCellInDragSelectionArea,
-    isDragAdding,
     isDragSelecting,
-    onDragMove,
-    onDragStart,
+    onMouseDragMove,
+    onMouseDragStart,
+    onTouchDragMove,
+    onTouchDragStart,
     selectedTimeSlots
   },
   timeSlotsCol,
@@ -61,31 +70,17 @@ export default function AvailabilityGridTimeSlot({
     (state) => state.eventData
   );
 
+  const timeSlot = getTimeSlot(eventTime, eventDate);
+
   const mode = useAvailabilityGridStore((state) => state.mode);
   const isBestTimesEnabled = useAvailabilityGridStore((state) => state.isBestTimesEnabled);
   const isTimeHovered = useAvailabilityGridStore((state) => eventTime === getTimeFromTimeSlot(state.hoveredTimeSlot));
+  const isTimeSlotHovered = useAvailabilityGridStore((state) => state.hoveredTimeSlot === timeSlot);
+
   const setHoveredTimeSlot = useAvailabilityGridStore((state) => state.setHoveredTimeSlot);
   const userFilter = useAvailabilityGridStore((state) => state.userFilter);
 
-  function handleMouseDown(e: MouseEvent<HTMLButtonElement>) {
-    if (!isLeftClick(e)) return;
-    if (isViewMode(mode)) {
-      animateEditAvailabilityButton();
-    } else {
-      onDragStart(timeSlotsRow, timeSlotsCol);
-    }
-  }
-
-  function handleMouseEnter() {
-    if (isEditMode(mode)) {
-      onDragMove(timeSlotsRow, timeSlotsCol);
-    }
-    setHoveredTimeSlot(getTimeSlot(sortedEventTimes[timeSlotsRow], sortedEventDates[timeSlotsCol]));
-  }
-
-  function handleMouseLeave() {
-    setHoveredTimeSlot(null);
-  }
+  const timeSlotCellRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     /*    
@@ -97,8 +92,8 @@ export default function AvailabilityGridTimeSlot({
       this way, only necessary cells will rerender and only during dragging (not during view mode and not during normal cell hover)
     */
     const unsub = useAvailabilityGridStore.subscribe(() => {
-      const isBeingAdded = isDragAdding && isCellInDragSelectionArea(timeSlotsRow, timeSlotsCol);
-      const isBeingRemoved = !isDragAdding && isCellInDragSelectionArea(timeSlotsRow, timeSlotsCol);
+      const isBeingAdded = dragMode === DragMode.ADD && isCellInDragSelectionArea(timeSlotsRow, timeSlotsCol);
+      const isBeingRemoved = dragMode === DragMode.REMOVE && isCellInDragSelectionArea(timeSlotsRow, timeSlotsCol);
       const { isBottomBorder, isLeftBorder, isRightBorder, isTopBorder } = isCellBorderOfDragSelectionArea(
         timeSlotsRow,
         timeSlotsCol
@@ -115,7 +110,59 @@ export default function AvailabilityGridTimeSlot({
     return unsub;
   }, [isDragSelecting]);
 
-  const timeSlot = getTimeSlot(eventTime, eventDate);
+  function handleMouseDown(e: MouseEvent<HTMLButtonElement>) {
+    // touchStart and touchEnd occurs before mouseEnd
+    // need to prevent this on touch screens as mouseStart is trigged on touch as well
+    if (!isLeftClick(e)) return;
+    if (isViewMode(mode)) animateEditAvailabilityButton();
+    if (isEditMode(mode)) {
+      onMouseDragStart(timeSlotsRow, timeSlotsCol);
+      setHoveredTimeSlot(getTimeSlot(sortedEventTimes[timeSlotsRow], sortedEventDates[timeSlotsCol]));
+    }
+  }
+
+  function handleMouseEnter(e: MouseEvent<HTMLButtonElement>) {
+    if (!isLeftClick(e)) return;
+    if (isEditMode(mode)) onMouseDragMove(timeSlotsRow, timeSlotsCol);
+    setHoveredTimeSlot(getTimeSlot(sortedEventTimes[timeSlotsRow], sortedEventDates[timeSlotsCol]));
+  }
+
+  function handleMouseLeave() {
+    setHoveredTimeSlot(null);
+  }
+
+  function extractRowCol(e: TouchEvent) {
+    const data = extractGridDragSelectData(e);
+    if (!data) return [-1, -1];
+
+    const [rowStr, colStr] = data.split("_");
+    const row = isNaN(Number(rowStr)) ? -1 : Number(rowStr);
+    const col = isNaN(Number(colStr)) ? -1 : Number(colStr);
+    return [row, col];
+  }
+
+  function handleTouchStart(e: TouchEvent) {
+    if (e.cancelable) e.preventDefault();
+    const [row, col] = extractRowCol(e);
+
+    if (isEditMode(mode)) onTouchDragStart(row, col);
+    if (row !== -1 && col !== -1) setHoveredTimeSlot(getTimeSlot(sortedEventTimes[row], sortedEventDates[col]));
+  }
+
+  function handleTouchMove(e: TouchEvent) {
+    if (e.cancelable) e.preventDefault();
+
+    const [row, col] = extractRowCol(e);
+    if (isEditMode(mode)) onTouchDragMove(row, col);
+    if (row !== -1 && col !== -1) setHoveredTimeSlot(getTimeSlot(sortedEventTimes[row], sortedEventDates[col]));
+  }
+
+  useRegisterNonPassiveTouchEvents({
+    onTouchMove: handleTouchMove,
+    onTouchStart: handleTouchStart,
+    ref: timeSlotCellRef
+  });
+
   const isSelected = selectedTimeSlots.includes(timeSlot);
 
   const filteredParticipants = userFilter.length === 0 ? allParticipants : userFilter;
@@ -150,10 +197,10 @@ export default function AvailabilityGridTimeSlot({
 
   function getBorderStyle() {
     if (isViewMode(mode)) return "solid";
-    const rightStyle = hasDateGapRight ? "solid" : "dashed";
-    const leftStyle = hasDateGapLeft ? "solid" : "dashed";
-    const bottomStyle = "dashed";
-    const topStyle = isTimeHovered ? "solid" : "dashed";
+    const rightStyle = hasDateGapRight || isRightBorder ? "solid" : "dashed";
+    const leftStyle = hasDateGapLeft || isLeftBorder ? "solid" : "dashed";
+    const bottomStyle = isBottomBorder ? "solid" : "dashed";
+    const topStyle = isTimeHovered || isTopBorder ? "solid" : "dashed";
     return `${topStyle} ${rightStyle} ${bottomStyle} ${leftStyle}`;
   }
 
@@ -162,44 +209,40 @@ export default function AvailabilityGridTimeSlot({
   return (
     <button
       className={cn(
-        "cursor-pointer border-b-0 border-l-2 border-t-2 border-primary-light outline-none",
+        "h-full w-full cursor-pointer touch-none appearance-none border-b-0 border-t-2 border-primary-light outline-none",
+        borderXSizeStyles,
         {
-          "border-l-0": timeSlotsCol === 0,
-          "border-l-2 border-l-primary": hasDateGapLeft,
-          "border-r-2": isInLastDisplayedCol && !isInLastActualCol,
+          "bg-primary hover:bg-primary/60": (isSelected || isBeingAdded) && !isBeingRemoved,
+          "border-l-primary": hasDateGapLeft,
+          "border-r-primary": hasDateGapRight,
           "border-t-[3px]": isTimeHovered,
-          "border-t-0": !shouldDisplayBorder && !isTimeHovered,
-          "mr-2 border-r-2 border-r-primary": hasDateGapRight
+          "border-t-0": !shouldDisplayBorder && !isTimeHovered
         },
-        isViewMode(mode) && {
-          "border-t-secondary": isTimeHovered,
-          "hover:border-[3px] hover:border-secondary": true,
-          "hover:border-l-[3px]": hasDateGapLeft,
-          "hover:border-r-[3px]": hasDateGapRight
+        isViewMode(mode) && isTimeHovered && "border-t-secondary",
+        isEditMode(mode) && isDragSelecting && isTimeSlotHovered && "bg-accent",
+        isViewMode(mode) &&
+          isTimeSlotHovered && {
+            "border-[3px] border-secondary": true,
+            "border-l-[3px]": hasDateGapLeft,
+            "border-r-[3px]": hasDateGapRight
+          },
+        isBeingRemoved && {
+          "border-b-4 border-b-secondary": isBottomBorder,
+          "border-l-4 border-l-secondary": isLeftBorder,
+          "border-r-4 border-r-secondary": isRightBorder,
+          "border-t-4 border-t-secondary": isTopBorder
         }
       )}
+      grid-drag-select-attr={`${timeSlotsRow}_${timeSlotsCol}`}
       onMouseDown={handleMouseDown}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      ref={timeSlotCellRef}
       style={{
-        borderStyle: getBorderStyle()
+        borderStyle: getBorderStyle(),
+        ...(isViewMode(mode) ? { backgroundColor: getViewModeCellColour() } : {}),
+        ...style
       }}
-      type="button"
-    >
-      <div
-        className={cn(
-          "h-full w-full border-0 border-primary-light hover:bg-accent",
-          { "bg-primary hover:bg-primary/60": (isSelected || isBeingAdded) && !isBeingRemoved },
-          isBeingRemoved && {
-            "border-b-4": isBottomBorder,
-            "border-l-4": isLeftBorder,
-            "border-r-4": isRightBorder,
-            "border-secondary bg-background": true,
-            "border-t-4": isTopBorder
-          }
-        )}
-        style={isViewMode(mode) ? { backgroundColor: getViewModeCellColour() } : {}}
-      />
-    </button>
+    />
   );
 }

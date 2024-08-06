@@ -23,7 +23,7 @@ export function Toaster() {
         }
         return (
           <Toast key={id} {...props} variant={variant}>
-            <div className="grid grid-flow-col items-center gap-1">
+            <div className="grid grid-flow-col items-center gap-1 text-sm 2xl:text-base">
               <div className="mr-2 mt-[.2px]">{icon}</div>
               <div>
                 {title && <ToastTitle>{title}</ToastTitle>}

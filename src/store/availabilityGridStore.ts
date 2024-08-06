@@ -31,12 +31,14 @@ type AvailabilityGridState = {
   hoveredTimeSlot: null | TimeSlot;
   isBestTimesEnabled: boolean;
   mode: AvailabilityGridMode;
+  resetGridState: () => void;
   setFocusedDate: (focusedDate: EventDate | null) => void;
   setHoveredTimeSlot: (hoveredTimeSlot: null | TimeSlot) => void;
   setIsBestTimesEnabled: (isBestTimesEnabled: boolean) => void;
   setMode: (mode: AvailabilityGridMode) => void;
   setUser: (user: string) => void;
   setUserFilter: (filteredUsers: string[]) => void;
+  setUserGridState: (user: string) => void;
   toggleIsBestTimesEnabled: () => void;
   user: string;
   userFilter: string[];
@@ -53,15 +55,36 @@ const useAvailabilityGridStore = create<AvailabilityGridState>()(
     hoveredTimeSlot: null,
     isBestTimesEnabled: false,
     mode: AvailabilityGridMode.VIEW,
+    resetGridState: () => {
+      set({
+        focusedDate: null,
+        hoveredTimeSlot: null,
+        isBestTimesEnabled: false,
+        leftMostColumnInView: 0,
+        selectedTimeSlots: [],
+        user: "",
+        userFilter: []
+      });
+    },
     setFocusedDate: (focusedDate: EventDate | null) => set({ focusedDate }),
     setHoveredTimeSlot: (hoveredTimeSlot: null | TimeSlot) => set({ hoveredTimeSlot }),
     setIsBestTimesEnabled: (isBestTimesEnabled: boolean) => set({ isBestTimesEnabled }),
     setMode: (mode: AvailabilityGridMode) => set({ mode }),
     setUser: (user: string) => set({ user }),
     setUserFilter: (userFilter: string[]) => set({ userFilter }),
+    setUserGridState: (user: string) => {
+      const userResponse = (get().eventData.eventResponses || []).find(({ alias }) => {
+        // TODO: use user_id as well when logged in users functionality is implemented
+        return user === alias;
+      });
+      set({
+        selectedTimeSlots: userResponse?.availabilities || [],
+        user
+      });
+    },
     toggleIsBestTimesEnabled: () =>
       set((prev) => {
-        return { ...prev, isBestTimesEnabled: !prev.isBestTimesEnabled };
+        return { ...prev, hoveredTimeSlot: null, isBestTimesEnabled: !prev.isBestTimesEnabled };
       }),
     user: "",
     userFilter: []

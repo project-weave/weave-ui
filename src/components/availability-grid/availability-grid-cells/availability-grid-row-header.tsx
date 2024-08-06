@@ -22,7 +22,7 @@ export default function AvailabilityGridRowHeader({ eventTime }: AvailabilityGri
   return (
     <time
       className={cn(
-        "ml-2 mr-2 -translate-y-2 text-right text-2xs font-medium text-primary duration-300",
+        "-translate-y-1.5 pr-2 text-right text-2xs font-medium text-primary duration-300 sm:-translate-y-2 sm:text-[0.75rem] xl:text-xs",
         { "opacity-0": parsedDateTime.getMinutes() !== 0 },
         {
           "font-bold opacity-100": isHoveredTimeSlot || isPrevTimeSlotHovered,

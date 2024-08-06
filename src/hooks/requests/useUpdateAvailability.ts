@@ -19,7 +19,7 @@ async function updateAvailability({
   return axios.post(`/api/v1/event/${eventId}/availability`, { alias, availabilities });
 }
 
-const useUpdateAvailability = () => {
+function useUpdateAvailability() {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -31,6 +31,7 @@ const useUpdateAvailability = () => {
     },
 
     onMutate: async (data) => {
+      // cancel any outgoing queries
       await queryClient.cancelQueries({ queryKey: ["event", `${data.eventId}`] });
 
       const prevEventData = queryClient.getQueryData(["event", `${data.eventId}`]);
@@ -66,6 +67,6 @@ const useUpdateAvailability = () => {
       }
     }
   });
-};
+}
 
 export default useUpdateAvailability;
