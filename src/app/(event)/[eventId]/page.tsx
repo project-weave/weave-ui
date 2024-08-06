@@ -107,7 +107,7 @@ export default function Event() {
             <AvailabilityGridLeftPanel />
           </div>
         </MediaQueryLG>
-        <div className="h-full min-h-[40rem] w-[24rem] xs:w-[28rem] sm:min-h-[45rem] sm:w-[36rem] md:w-[40rem] xl:w-[56rem]">
+        <div className="h-fit min-h-[40rem] w-[24rem] xs:w-[28rem] sm:w-[36rem] md:w-[40rem] lg:h-full lg:min-h-[45rem] xl:w-[56rem]">
           <AvailabilityGrid handleSaveUserAvailability={handleSaveUserAvailability} />
         </div>
       </div>
