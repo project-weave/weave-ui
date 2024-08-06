@@ -64,7 +64,7 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
       <div style={{ height: accordionOpen && isViewMode(mode) ? "calc(8.6rem + 14vh)" : "8.2rem" }}></div>
       <div
         className={cn(
-          "fixed bottom-0 w-full rounded-t-3xl bg-background pb-5 shadow-[0px_-1px_6px_2px] shadow-gray-100",
+          "fixed bottom-0 w-full rounded-t-3xl bg-background pb-5 shadow-[0px_-1px_6px_1px] shadow-gray-100",
           isEditMode(mode) && "rounded-t-none pt-2"
         )}
       >
@@ -81,7 +81,7 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
               totalResponseCount={totalResponseCount}
             />
           )}
-          <div className="z-10 mx-auto grid w-full max-w-[45rem] grid-flow-col justify-between px-6 pt-3">
+          <div className="z-10 mx-auto grid w-full max-w-[45rem] grid-flow-col justify-between px-6 pt-4">
             <MotionButton
               className="h-[2rem] rounded-[.5rem] border-2 text-sm"
               onClick={() => {

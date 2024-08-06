@@ -127,25 +127,27 @@ export default function NewEventForm() {
     <>
       <MediaQueryXXS maxScreenSize={ScreenSize.XS}>
         {isFormInView && (
-          <AnimatePresence>
-            <motion.div
-              animate={{ translateY: 0 }}
-              className={cn(
-                "fixed bottom-0 left-0 flex w-full justify-center rounded-t-sm bg-white px-9 pb-6 pt-4 shadow-[0px_2px_2px_4px] shadow-gray-200"
-              )}
-              exit={{ translateY: 70 }}
-              initial={{ translateY: 50 }}
-              transition={{ duration: 0.2, ease: "easeInOut" }}
-            >
-              <Button
-                className="h-12 w-full max-w-[26rem] rounded-xl border-primary text-sm"
-                disabled={!isFormValid}
-                type="submit"
+          <>
+            <AnimatePresence>
+              <motion.div
+                animate={{ translateY: 0 }}
+                className={cn(
+                  "fixed bottom-0 left-0 flex w-full justify-center rounded-t-sm bg-white px-9 pb-6 pt-4 shadow-[0px_2px_2px_4px] shadow-gray-200"
+                )}
+                exit={{ translateY: 70 }}
+                initial={{ translateY: 50 }}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
               >
-                {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin text-white" /> : CREATE_EVENT}
-              </Button>
-            </motion.div>
-          </AnimatePresence>
+                <Button
+                  className="h-12 w-full max-w-[26rem] rounded-xl border-primary text-sm"
+                  disabled={!isFormValid}
+                  type="submit"
+                >
+                  {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin text-white" /> : CREATE_EVENT}
+                </Button>
+              </motion.div>
+            </AnimatePresence>
+          </>
         )}
       </MediaQueryXXS>
       <MediaQueryXS>
@@ -161,117 +163,125 @@ export default function NewEventForm() {
   );
 
   return (
-    <div className="flex select-none flex-row justify-center">
-      <form
-        autoComplete="off"
-        className="card mx-auto flex h-full w-full min-w-[22rem] max-w-[26rem] flex-col sm:min-h-[36rem] sm:max-w-[30rem] md:mx-[1rem] xl:max-w-[26rem]"
-        onSubmit={(e) => {
-          e.preventDefault();
-          onSubmit();
-        }}
-        ref={formRef}
-      >
-        <div className="mb-4 flex flex-col md:mb-5">
-          <p className="mb-3 text-xs font-medium text-secondary sm:mb-4">{WHAT_EVENT_NAME}</p>
-          <InputWithLabel
-            id="event-name"
-            label={EVENT_NAME_LABEL}
-            onBlur={(e) => {
-              setEventName(e.target.value.trim());
-            }}
-            onChange={(e) => {
-              setEventName(e.target.value);
-            }}
-            type="text"
-            value={eventName}
-          />
-        </div>
-        <div className="mb-4 flex w-full flex-col md:mb-5">
-          <p className="mb-3 text-xs font-medium text-secondary sm:mb-4">{WHAT_TIMES}</p>
-          <div className="flex w-full items-center justify-between">
-            <TimeDropdown
-              error={!isTimeRangeValid}
-              isStartTime={true}
-              selectedTime={startTime}
-              setSelectedTime={setStartTime}
-            />
-            <p className="mx-6 text-2xs text-secondary"> {TO} </p>
-            <TimeDropdown
-              error={!isTimeRangeValid}
-              isStartTime={false}
-              selectedTime={endTime}
-              setSelectedTime={setEndTime}
+    <>
+      <div className="flex select-none flex-row justify-center">
+        <form
+          autoComplete="off"
+          className="card mx-auto flex h-full w-full min-w-[22rem] max-w-[26rem] flex-col sm:min-h-[36rem] sm:max-w-[30rem] md:mx-[1rem] xl:max-w-[26rem]"
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSubmit();
+          }}
+          ref={formRef}
+        >
+          <div className="mb-4 flex flex-col md:mb-5">
+            <p className="mb-3 text-xs font-medium text-secondary sm:mb-4">{WHAT_EVENT_NAME}</p>
+            <InputWithLabel
+              id="event-name"
+              label={EVENT_NAME_LABEL}
+              onBlur={(e) => {
+                setEventName(e.target.value.trim());
+              }}
+              onChange={(e) => {
+                setEventName(e.target.value);
+              }}
+              type="text"
+              value={eventName}
             />
           </div>
-        </div>
-        <div className="mb-5 flex flex-col  md:mb-6">
-          <p className="mb-3 text-xs font-medium text-secondary">{WHAT_AVAILABILITY}</p>
-          <div className="flex w-full items-center justify-between">
-            <Button
-              className={cn("h-auto w-full border-[1px] border-primary text-sm", {
-                "hover:bg-primary": availabilityType === AvailabilityType.SPECIFIC_DATES
-              })}
-              onClick={() => setAvailabilityType(AvailabilityType.SPECIFIC_DATES)}
-              type="button"
-              variant={availabilityType === AvailabilityType.SPECIFIC_DATES ? "default" : "outline"}
-            >
-              <span className="leading-5">
-                <div>Specific</div>
-                <div>Dates</div>
-              </span>
-            </Button>
-            <p className="mx-6 text-xs text-secondary"> {OR} </p>
-            <Button
-              className={cn("h-auto w-full border-[1px] border-primary text-sm", {
-                "hover:bg-primary": availabilityType === AvailabilityType.DAYS_OF_WEEK
-              })}
-              onClick={() => setAvailabilityType(AvailabilityType.DAYS_OF_WEEK)}
-              type="button"
-              variant={availabilityType === AvailabilityType.DAYS_OF_WEEK ? "default" : "outline"}
-            >
-              <span className="leading-5">
-                <div>Days Of</div>
-                <div>The Week</div>
-              </span>
-            </Button>
+          <div className="mb-4 flex w-full flex-col md:mb-5">
+            <p className="mb-3 text-xs font-medium text-secondary sm:mb-4">{WHAT_TIMES}</p>
+            <div className="flex w-full items-center justify-between">
+              <TimeDropdown
+                error={!isTimeRangeValid}
+                isStartTime={true}
+                selectedTime={startTime}
+                setSelectedTime={setStartTime}
+              />
+              <p className="mx-6 text-2xs text-secondary"> {TO} </p>
+              <TimeDropdown
+                error={!isTimeRangeValid}
+                isStartTime={false}
+                selectedTime={endTime}
+                setSelectedTime={setEndTime}
+              />
+            </div>
           </div>
-        </div>
-        <div className="mb-6 flex-grow">
+          <div className="mb-5 flex flex-col  md:mb-6">
+            <p className="mb-3 text-xs font-medium text-secondary">{WHAT_AVAILABILITY}</p>
+            <div className="flex w-full items-center justify-between">
+              <Button
+                className={cn("h-auto w-full border-[1px] border-primary text-sm", {
+                  "hover:bg-primary": availabilityType === AvailabilityType.SPECIFIC_DATES
+                })}
+                onClick={() => setAvailabilityType(AvailabilityType.SPECIFIC_DATES)}
+                type="button"
+                variant={availabilityType === AvailabilityType.SPECIFIC_DATES ? "default" : "outline"}
+              >
+                <span className="leading-5">
+                  <div>Specific</div>
+                  <div>Dates</div>
+                </span>
+              </Button>
+              <p className="mx-6 text-xs text-secondary"> {OR} </p>
+              <Button
+                className={cn("h-auto w-full border-[1px] border-primary text-sm", {
+                  "hover:bg-primary": availabilityType === AvailabilityType.DAYS_OF_WEEK
+                })}
+                onClick={() => setAvailabilityType(AvailabilityType.DAYS_OF_WEEK)}
+                type="button"
+                variant={availabilityType === AvailabilityType.DAYS_OF_WEEK ? "default" : "outline"}
+              >
+                <span className="leading-5">
+                  <div>Days Of</div>
+                  <div>The Week</div>
+                </span>
+              </Button>
+            </div>
+          </div>
+          <div className="mb-6 flex-grow">
+            {availabilityType === AvailabilityType.SPECIFIC_DATES ? (
+              <Calendar
+                currentMonthOverride={currentCalendarMonth}
+                id="create-event-calendar-sm"
+                isViewMode={false}
+                selectedDates={selectedDates}
+                setCurrentMonthOverride={setCurrentCalendarMonth}
+                setSelectedDates={setSelectedDates}
+                size="small"
+              />
+            ) : (
+              <DaysOfWeekPicker selectedDaysOfWeek={selectedDaysOfWeek} setSelectedDaysOfWeek={setSelectedDaysOfWeek} />
+            )}
+          </div>
+          {formSubmissionButton}
+        </form>
+        <div className="hidden w-[47rem] xl:block">
           {availabilityType === AvailabilityType.SPECIFIC_DATES ? (
             <Calendar
               currentMonthOverride={currentCalendarMonth}
-              id="create-event-calendar-sm"
+              id="create-event-calendar-lg"
               isViewMode={false}
               selectedDates={selectedDates}
               setCurrentMonthOverride={setCurrentCalendarMonth}
               setSelectedDates={setSelectedDates}
-              size="small"
+              size="large"
             />
           ) : (
-            <DaysOfWeekPicker selectedDaysOfWeek={selectedDaysOfWeek} setSelectedDaysOfWeek={setSelectedDaysOfWeek} />
+            <DaysOfWeekPicker
+              selectedDaysOfWeek={selectedDaysOfWeek}
+              setSelectedDaysOfWeek={setSelectedDaysOfWeek}
+              size="large"
+            />
           )}
         </div>
-        {formSubmissionButton}
-      </form>
-      <div className="hidden w-[47rem] xl:block">
-        {availabilityType === AvailabilityType.SPECIFIC_DATES ? (
-          <Calendar
-            currentMonthOverride={currentCalendarMonth}
-            id="create-event-calendar-lg"
-            isViewMode={false}
-            selectedDates={selectedDates}
-            setCurrentMonthOverride={setCurrentCalendarMonth}
-            setSelectedDates={setSelectedDates}
-            size="large"
-          />
-        ) : (
-          <DaysOfWeekPicker
-            selectedDaysOfWeek={selectedDaysOfWeek}
-            setSelectedDaysOfWeek={setSelectedDaysOfWeek}
-            size="large"
-          />
-        )}
       </div>
-    </div>
+      {/* add spacing on the bottom when button is fixed to bottom of*/}
+      {isFormInView && (
+        <MediaQueryXXS maxScreenSize={ScreenSize.XS}>
+          <div className="h-20" />
+        </MediaQueryXXS>
+      )}
+    </>
   );
 }
