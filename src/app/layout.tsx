@@ -38,7 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={cn("relative flex items-center justify-center ", inter.className)}>
         <Analytics />
         <Providers>
-          <div className="flex h-screen w-full max-w-[85rem]">
+          <div className="mx-auto flex h-screen w-full max-w-[85rem]">
             <MainNav />
             <div className="z-0 w-full pt-[3.25rem] md:pt-[3.75rem] ">{children}</div>
           </div>

@@ -38,7 +38,7 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
 
   const saveUserAvailabilityButton = (
     <MotionButton
-      className="h-[2.2rem] whitespace-nowrap rounded-[.5rem]"
+      className="h-[2rem] whitespace-nowrap rounded-[.5rem]"
       onClick={() => handleSaveUserAvailability(user)}
       variant="default"
       whileTap={{ scale: 0.94 }}
@@ -48,18 +48,15 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
   );
 
   const editUserAvailabilityButton = (
-    <EditAvailabilityDialog
-      allParticipants={allParticipants}
-      className="h-[2.2rem] whitespace-nowrap rounded-[.5rem]"
-    />
+    <EditAvailabilityDialog allParticipants={allParticipants} className="h-[2rem] whitespace-nowrap rounded-[.5rem]" />
   );
 
   return (
     <>
-      <div style={{ height: accordionOpen && isViewMode(mode) ? "calc(9.2rem + 15vh)" : "8.6rem" }}></div>
+      <div style={{ height: accordionOpen && isViewMode(mode) ? "calc(8.6rem + 14vh)" : "8.2rem" }}></div>
       <div
         className={cn(
-          "fixed bottom-0 w-full rounded-t-3xl bg-background pb-5 shadow-[0px_-1px_6px_2px] shadow-gray-100",
+          "fixed bottom-0 w-full rounded-t-3xl bg-background pb-4 shadow-[0px_-1px_6px_2px] shadow-gray-100",
           isEditMode(mode) && "rounded-t-none pt-2"
         )}
       >
@@ -71,9 +68,9 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
               setAccordionOpen={setAccordionOpen}
             />
           )}
-          <div className="z-10 mx-auto grid w-full max-w-[45rem] grid-flow-col justify-between px-6 pt-5">
+          <div className="z-10 mx-auto grid w-full max-w-[45rem] grid-flow-col justify-between px-6 pt-3">
             <MotionButton
-              className="h-[2.2rem] rounded-[.5rem] border-2 text-sm"
+              className="h-[2rem] rounded-[.5rem] border-2 text-sm"
               onClick={() => {
                 const url = `${window.location.origin}/${eventId}`;
                 navigator.clipboard.writeText(url);
@@ -108,7 +105,7 @@ function ResponsesAccordion({ accordionOpen, setAccordionExplicitlyClosed, setAc
     <>
       <header
         className={cn(
-          "flex h-[4rem] w-full items-center justify-between rounded-t-2xl border-[1px] border-b-0 border-accent bg-background px-6 pt-1 text-center font-medium sm:border-2 sm:border-b-0 md:px-14",
+          "flex h-[3rem] w-full items-center justify-between rounded-t-2xl border-[1px] border-b-0 border-accent bg-background px-6 pt-1 text-center font-medium sm:border-2 sm:border-b-0 md:px-14",
           !accordionOpen && "border-b-[1px] border-accent sm:border-2"
         )}
         onClick={() =>
@@ -151,7 +148,7 @@ function ResponsesAccordion({ accordionOpen, setAccordionExplicitlyClosed, setAc
                 collapsed: { height: 0, opacity: 0 }
               }}
             >
-              <div className="mx-5 mb-2  mt-2 max-w-[40rem] flex-1 px-1 text-secondary xs:mx-6 md:my-4 ">
+              <div className="mx-5 mb-2 mt-2 max-w-[40rem] flex-1 px-1 text-secondary xs:mx-6 md:my-4 ">
                 {allParticipantsWithCurrentUser.map((name) => (
                   <AvailbilityGridResponseFilterButton
                     className="m-1 p-[3px] text-[0.74rem]"
@@ -163,7 +160,7 @@ function ResponsesAccordion({ accordionOpen, setAccordionExplicitlyClosed, setAc
                 ))}
               </div>
             </motion.section>
-            <div className="h-1 border-b-[1px] border-accent sm:border-b-2" />
+            <div className="h-0 border-b-[1px] border-accent pt-1 sm:border-b-2" />
           </>
         )}
       </AnimatePresence>

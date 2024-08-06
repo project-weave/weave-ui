@@ -64,7 +64,7 @@ export default function AvailabilityGridLeftPanel() {
       scrollToDate();
       setFocusedDateTimeout();
     },
-    [setFocusedDate, sortedEventDates]
+    [setFocusedDate, sortedEventDates, setLeftMostColumnInView]
   );
 
   const eventCalendarMonthOverride = format(parseISO(sortedEventDates[leftMostColumnInView]), MONTH_FORMAT);

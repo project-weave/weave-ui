@@ -1,8 +1,8 @@
 "use client";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScreenSize } from "@/hooks/useScreenSize";
-import useAvailabilityGridStore, { isViewMode } from "@/store/availabilityGridStore";
-import { Settings } from "lucide-react";
+import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
+import { Settings, User } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -15,6 +15,7 @@ const SIGN_UP = "Sign Up";
 export default function NavBar() {
   const eventId = useAvailabilityGridStore((state) => state.eventData.eventId);
   const mode = useAvailabilityGridStore((state) => state.mode);
+  const user = useAvailabilityGridStore((state) => state.user);
 
   const router = useRouter();
   const pathName = usePathname();
@@ -22,23 +23,38 @@ export default function NavBar() {
 
   return (
     // adding padding and translating down to hide overflowed components on mobile
-    <nav className="fixed top-0 z-50 flex w-full -translate-y-[18.25rem] items-center justify-between bg-white pb-[0.75rem] pt-[19.25rem]">
-      <Image
-        alt="weave-logo"
-        className="ml-4 h-8 w-8 cursor-pointer sm:ml-6 md:ml-9 md:h-9 md:w-9"
-        height={40}
-        onClick={() => router.push("/")}
-        src="/favicon.ico"
-        width={40}
-      />
+    <nav className="fixed top-0 z-50 mx-auto flex w-full max-w-[85rem] -translate-y-[18.25rem] bg-white pb-[0.75rem] pt-[19.25rem]">
+      <div className="mx-auto flex w-full items-end justify-between ">
+        <Image
+          alt="weave-logo"
+          className="ml-4 h-8 w-8 cursor-pointer sm:ml-6 md:ml-9 md:h-9 md:w-9"
+          height={40}
+          onClick={() => router.push("/")}
+          src="/favicon.ico"
+          width={40}
+        />
 
-      <ul className="items-enter mr-5 flex">
-        <li>
-          <MediaQueryXXS maxScreenSize={ScreenSize.LG}>
-            {isEventPage && isViewMode(mode) && <SettingsPopover />}
-          </MediaQueryXXS>
-        </li>
-        {/* <li>
+        <ul className="flex items-center">
+          <li>
+            <MediaQueryXXS maxScreenSize={ScreenSize.LG}>
+              {isEventPage && isViewMode(mode) && (
+                <span className="mr-4">
+                  <SettingsPopover />
+                </span>
+              )}
+            </MediaQueryXXS>
+          </li>
+          <li>
+            {isEventPage && isEditMode(mode) && (
+              <div className="mr-3 flex w-full font-semibold text-secondary">
+                <User className="mr-2 h-6 w-6" />
+                <span className="max-w-[9rem] overflow-hidden text-ellipsis whitespace-nowrap sm:max-w-[14rem] md:max-w-[20rem] lg:max-w-[30rem] xl:max-w-[40rem]">
+                  {user}
+                </span>
+              </div>
+            )}
+          </li>
+          {/* <li>
           <Button className="h-8 rounded-2xl border-none bg-transparent  text-black hover:bg-accent-light">
             {SIGN_UP}
           </Button>
@@ -48,7 +64,8 @@ export default function NavBar() {
             {LOGIN}
           </Button>
         </li> */}
-      </ul>
+        </ul>
+      </div>
     </nav>
   );
 }
