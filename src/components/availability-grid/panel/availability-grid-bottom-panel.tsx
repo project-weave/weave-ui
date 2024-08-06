@@ -31,10 +31,18 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
 
   const MotionButton = motion(Button);
 
+  const {
+    allParticipantsWithCurrentUser,
+    currentResponseCount,
+    currentResponses,
+    onFliterClicked,
+    totalResponseCount
+  } = useEventResponsesFilters();
+
   useEffect(() => {
-    if (accordionExplicitlyClosed) return;
+    if (accordionExplicitlyClosed || totalResponseCount === 0) return;
     if (isAnyTimeSlotHovered) setAccordionOpen(true);
-  }, [isAnyTimeSlotHovered, accordionExplicitlyClosed]);
+  }, [isAnyTimeSlotHovered, accordionExplicitlyClosed, totalResponseCount]);
 
   const saveUserAvailabilityButton = (
     <MotionButton
@@ -64,8 +72,13 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
           {isViewMode(mode) && (
             <ResponsesAccordion
               accordionOpen={accordionOpen}
+              allParticipantsWithCurrentUser={allParticipantsWithCurrentUser}
+              currentResponseCount={currentResponseCount}
+              currentResponses={currentResponses}
+              onFilterClicked={onFliterClicked}
               setAccordionExplicitlyClosed={setAccordionExplicitlyClosed}
               setAccordionOpen={setAccordionOpen}
+              totalResponseCount={totalResponseCount}
             />
           )}
           <div className="z-10 mx-auto grid w-full max-w-[45rem] grid-flow-col justify-between px-6 pt-3">
@@ -93,14 +106,16 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
   );
 }
 
-function ResponsesAccordion({ accordionOpen, setAccordionExplicitlyClosed, setAccordionOpen }) {
-  const {
-    allParticipantsWithCurrentUser,
-    currentResponseCount,
-    currentResponses,
-    onFliterClicked,
-    totalResponseCount
-  } = useEventResponsesFilters();
+function ResponsesAccordion({
+  accordionOpen,
+  allParticipantsWithCurrentUser,
+  currentResponseCount,
+  currentResponses,
+  onFilterClicked,
+  setAccordionExplicitlyClosed,
+  setAccordionOpen,
+  totalResponseCount
+}) {
   return (
     <>
       <header
@@ -157,7 +172,7 @@ function ResponsesAccordion({ accordionOpen, setAccordionExplicitlyClosed, setAc
                     currentResponses={currentResponses}
                     key={`${name}-filter-button-bottom-panel`}
                     name={name}
-                    onFilterClicked={onFliterClicked}
+                    onFilterClicked={onFilterClicked}
                   />
                 ))}
               </div>

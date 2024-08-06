@@ -118,7 +118,7 @@ export default function NewEventForm() {
             title: "Congrats!",
             variant: "success"
           });
-        }, 700);
+        }, 1000);
       }
     });
   }
