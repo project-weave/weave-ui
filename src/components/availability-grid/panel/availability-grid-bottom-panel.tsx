@@ -159,7 +159,7 @@ function ResponsesAccordion({
               exit="collapsed"
               initial="collapsed"
               key="content"
-              transition={{ ease: "easeInOut" }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
               variants={{
                 accordionOpen: { height: "auto", opacity: 1 },
                 collapsed: { height: 0, opacity: 0 }
@@ -177,7 +177,17 @@ function ResponsesAccordion({
                 ))}
               </div>
             </motion.section>
-            <div className="h-0 border-b-[1px] border-accent pt-1 sm:border-b-2" />
+            <motion.div
+              animate="open"
+              className="h-1 border-b-[1px] border-accent pt-1 sm:border-b-2"
+              exit="collapsed"
+              initial="collapsed"
+              transition={{ duration: 0.24, ease: "easeOut" }}
+              variants={{
+                collapsed: { height: 0, opacity: 0 },
+                open: { height: "auto", opacity: 1 }
+              }}
+            />
           </>
         )}
       </AnimatePresence>

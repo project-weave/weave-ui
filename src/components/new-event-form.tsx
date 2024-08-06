@@ -16,6 +16,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { MediaQueryXS, MediaQueryXXS } from "./media-query";
 import TimeDropdown, { DROPDOWN_TIME_FORMAT, NEXT_DAY_MIDNIGHT_REPRESENTATION } from "./new-event-from-time-dropdown";
 import { useToast } from "./ui/use-toast";
+import { opacity } from "tailwindcss/defaultTheme";
 
 const EVENT_NAME_LABEL = "Event Name";
 
@@ -126,29 +127,31 @@ export default function NewEventForm() {
   const formSubmissionButton = (
     <>
       <MediaQueryXXS maxScreenSize={ScreenSize.XS}>
-        {isFormInView && (
-          <>
-            <AnimatePresence>
-              <motion.div
-                animate={{ translateY: 0 }}
-                className={cn(
-                  "fixed bottom-0 left-0 flex w-full justify-center rounded-t-sm bg-white px-9 pb-6 pt-4 shadow-[0px_2px_2px_4px] shadow-gray-200"
-                )}
-                exit={{ translateY: 70 }}
-                initial={{ translateY: 50 }}
-                transition={{ duration: 0.2, ease: "easeInOut" }}
+        <AnimatePresence>
+          {isFormInView && (
+            <motion.div
+              animate="shiftUp"
+              className={cn(
+                "fixed bottom-0 left-0 flex w-full justify-center rounded-t-sm bg-white px-9 pb-6 pt-4 shadow-[0px_2px_2px_4px] shadow-gray-200"
+              )}
+              exit="shiftDown"
+              initial="shiftDown"
+              transition={{ ease: "easeInOut" }}
+              variants={{
+                shiftDown: { opacity: 0, translateY: 70 },
+                shiftUp: { opacity: 1, translateY: 0 }
+              }}
+            >
+              <Button
+                className="h-12 w-full max-w-[26rem] rounded-xl border-primary text-sm"
+                disabled={!isFormValid}
+                type="submit"
               >
-                <Button
-                  className="h-12 w-full max-w-[26rem] rounded-xl border-primary text-sm"
-                  disabled={!isFormValid}
-                  type="submit"
-                >
-                  {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin text-white" /> : CREATE_EVENT}
-                </Button>
-              </motion.div>
-            </AnimatePresence>
-          </>
-        )}
+                {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin text-white" /> : CREATE_EVENT}
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </MediaQueryXXS>
       <MediaQueryXS>
         <Button
