@@ -239,7 +239,7 @@ export default function NewEventForm() {
               </Button>
             </div>
           </div>
-          <div className="mb-6 h-[20.5rem]">
+          <div className="mb-2 h-[20.5rem] xs:mb-6">
             {availabilityType === AvailabilityType.SPECIFIC_DATES ? (
               <EventDateCalendar
                 currentMonthOverride={currentCalendarMonth}
