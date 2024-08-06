@@ -90,7 +90,9 @@ export default function AvailabilityGridHeader({
               {screenSize <= ScreenSize.MD && " for..."}
             </h4>
             {screenSize <= ScreenSize.MD && (
-              <div className="overflow-hidden text-ellipsis text-xl font-semibold text-primary"> {eventName} </div>
+              <div className="max-w-[16rem] overflow-hidden text-ellipsis text-lg font-semibold text-primary sm:max-w-[24rem] md:max-w-[30rem]">
+                {eventName}
+              </div>
             )}
             {availabilityType === AvailabilityType.SPECIFIC_DATES && (
               <h1 className="mb-[2px] whitespace-nowrap text-lg font-semibold tracking-wide text-secondary xl:mr-32 xl:text-xl">
