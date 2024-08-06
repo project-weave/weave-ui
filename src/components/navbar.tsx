@@ -47,8 +47,8 @@ export default function NavBar() {
           </li>
           <li>
             {isEventPage && isEditMode(mode) && (
-              <div className="mr-4 flex w-full font-semibold text-secondary">
-                <User className="mr-2 h-6 w-6" />
+              <div className="mr-4 flex w-full font-semibold text-secondary sm:mr-6 md:mr-9">
+                <User className="mr-2 h-6 w-6 " />
                 <span className="max-w-[9rem] overflow-hidden text-ellipsis whitespace-nowrap sm:max-w-[14rem] md:max-w-[20rem] lg:max-w-[30rem] xl:max-w-[40rem]">
                   {user}
                 </span>

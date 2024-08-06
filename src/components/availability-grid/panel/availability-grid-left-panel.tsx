@@ -114,7 +114,7 @@ export default function AvailabilityGridLeftPanel() {
           />
         ))}
       </div>
-      <div className="h-[16rem]">
+      <div className="min-h-[16rem]">
         {availabilityType === AvailabilityType.SPECIFIC_DATES && sortedEventDates.length !== 0 && (
           <EventDateCalendar
             currentMonthOverride={eventCalendarMonthOverride}
