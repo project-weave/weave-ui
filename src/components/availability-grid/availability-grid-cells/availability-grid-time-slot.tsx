@@ -209,7 +209,7 @@ export default function AvailabilityGridTimeSlot({
   return (
     <button
       className={cn(
-        "h-full w-full cursor-pointer touch-none border-b-0 border-t-2 border-primary-light",
+        "h-full w-full cursor-pointer touch-none appearance-none border-b-0 border-t-2 border-primary-light outline-none",
         borderXSizeStyles,
         {
           "bg-primary hover:bg-primary/60": (isSelected || isBeingAdded) && !isBeingRemoved,

@@ -2,6 +2,7 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScreenSize } from "@/hooks/useScreenSize";
 import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
+import { motion } from "framer-motion";
 import { Settings, User } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -46,7 +47,7 @@ export default function NavBar() {
           </li>
           <li>
             {isEventPage && isEditMode(mode) && (
-              <div className="mr-3 flex w-full font-semibold text-secondary">
+              <div className="mr-4 flex w-full font-semibold text-secondary">
                 <User className="mr-2 h-6 w-6" />
                 <span className="max-w-[9rem] overflow-hidden text-ellipsis whitespace-nowrap sm:max-w-[14rem] md:max-w-[20rem] lg:max-w-[30rem] xl:max-w-[40rem]">
                   {user}
@@ -74,9 +75,12 @@ function SettingsPopover() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button className="t-1 appearance-none border-none p-1 outline-none hover:bg-transparent">
+        <motion.button
+          className="border-none bg-transparent p-1 outline-none hover:bg-transparent"
+          whileTap={{ scale: 0.96 }}
+        >
           <Settings className="h-6 w-6 translate-y-1 cursor-pointer text-secondary md:h-7 md:w-7" />
-        </button>
+        </motion.button>
       </PopoverTrigger>
       <PopoverContent className="mr-2 mt-2 w-[12rem] bg-background px-4">
         <header className="text-sm font-medium text-secondary">View Settings</header>

@@ -106,14 +106,16 @@ function ResponsesAccordion({ accordionOpen, setAccordionExplicitlyClosed, setAc
       <header
         className={cn(
           "flex h-[3rem] w-full items-center justify-between rounded-t-2xl border-[1px] border-b-0 border-accent bg-background px-6 pt-1 text-center font-medium sm:border-2 sm:border-b-0 md:px-14",
+          totalResponseCount !== 0 && "cursor-pointer",
           !accordionOpen && "border-b-[1px] border-accent sm:border-2"
         )}
-        onClick={() =>
+        onClick={() => {
+          if (totalResponseCount === 0) return;
           setAccordionOpen((isOpen) => {
             if (isOpen) setAccordionExplicitlyClosed(true);
             return !isOpen;
-          })
-        }
+          });
+        }}
       >
         <span className="ml-1 flex">
           <p className="text-secondary">{RESPONSES_TITLE}</p>

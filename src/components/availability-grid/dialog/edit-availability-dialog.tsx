@@ -101,7 +101,7 @@ export default function EditAvailabilityDialog({
         </DialogHeader>
         <MotionButton className="mx-8 mt-2" disabled variant="outline" whileTap={{ scale: 0.95 }}>
           <p className="mr-2 text-sm">{LOGIN_WITH_GOOGLE}</p>
-          <Image alt="google-logo" className="h-4 w-4" height={40} src="/google.png" width={40} />
+          <Image alt="google-logo" className="h-4 w-4" height={40} key="google-logo" src="/google.png" width={40} />
         </MotionButton>
         <form onSubmit={onSubmit}>
           <div className="flex-column my-2 flex w-full items-center">
