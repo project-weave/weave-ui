@@ -45,8 +45,6 @@ export default function NewEventFromTimeDropdown({
     search = search.trim().toLowerCase();
     value = value.toLowerCase();
 
-    if (value.includes(search)) return 1;
-
     const ampmMatch = search.match(/(a|p)m?$/);
     const ampm = ampmMatch ? ` ${ampmMatch[0]}` : "";
     search = search.replace(/(a|p)m?$/, "").trim();
@@ -70,7 +68,7 @@ export default function NewEventFromTimeDropdown({
         patterns.push(`${search.slice(0, 2)}:${search.slice(2, 4)}${ampm}`);
       }
     }
-    return patterns.some((pattern) => value.includes(pattern)) ? 1 : 0;
+    return patterns.some((pattern) => value.startsWith(pattern)) ? 1 : 0;
   }
 
   const startTime = new Date(0, 0, 0, 0, isStartTime ? 0 : 30);
@@ -85,15 +83,13 @@ export default function NewEventFromTimeDropdown({
     times.push(time);
     currentTime = addMinutes(currentTime, interval);
   }
-
   if (!isStartTime) {
     times.push(NEXT_DAY_MIDNIGHT_REPRESENTATION);
   }
 
   const nextDayMidnight = (
     <span>
-      {"12:00 am "}
-      <sup>+1</sup>
+      12:00 am <sup>+1</sup>
     </span>
   );
 
@@ -153,6 +149,7 @@ export default function NewEventFromTimeDropdown({
                   <Check className={cn("h-4 w-4 ", selectedTime === time ? "opacity-100" : "opacity-0")} />
                 </CommandItem>
               );
+              2;
             })}
           </CommandGroup>
         </Command>
