@@ -3,9 +3,9 @@ import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 type useEventResponsesFiltersReturn = {
-  allParticipantsWithCurrentUser: string[];
-  currentResponseCount: number;
-  currentResponses: string[];
+  allUsersForEvent: string[];
+  hoveredTimeSlotResponsesCount: number;
+  hoveredTimeSlotResponses: string[];
   onFliterClicked: (user: string) => void;
   totalResponseCount: number;
 };
@@ -19,22 +19,26 @@ export default function useEventResponsesFilters(): useEventResponsesFiltersRetu
   );
   const mode = useAvailabilityGridStore((state) => state.mode);
 
-  const allParticipantsWithCurrentUser = useMemo(() => {
+  const allUsersForEvent = useMemo(() => {
     if (allParticipants.includes(user) || user === "") return allParticipants;
     return [user, ...allParticipants];
   }, [allParticipants, user]);
 
-  let currentResponses = [] as string[];
+  let hoveredTimeSlotResponses = [] as string[];
   if (hoveredTimeSlot === null) {
-    currentResponses = allParticipantsWithCurrentUser;
+    hoveredTimeSlotResponses = allUsersForEvent;
   } else if (userFilter.length === 0) {
-    currentResponses = timeSlotsToParticipants[hoveredTimeSlot] ?? [];
+    hoveredTimeSlotResponses = timeSlotsToParticipants[hoveredTimeSlot] ?? [];
   } else {
-    currentResponses = (timeSlotsToParticipants[hoveredTimeSlot] ?? []).filter((user) => userFilter.includes(user));
+    hoveredTimeSlotResponses = (timeSlotsToParticipants[hoveredTimeSlot] ?? []).filter((user) =>
+      userFilter.includes(user)
+    );
   }
 
-  const totalResponseCount = userFilter.length === 0 ? allParticipantsWithCurrentUser.length : userFilter.length;
-  const currentResponseCount = isEditMode(mode) ? 1 : Math.min(totalResponseCount, currentResponses.length);
+  const totalResponseCount = userFilter.length === 0 ? allUsersForEvent.length : userFilter.length;
+  const hoveredTimeSlotResponsesCount = isEditMode(mode)
+    ? 1
+    : Math.min(totalResponseCount, hoveredTimeSlotResponses.length);
 
   function onFliterClicked(user: string) {
     if (isEditMode(mode)) return;
@@ -49,9 +53,9 @@ export default function useEventResponsesFilters(): useEventResponsesFiltersRetu
   }
 
   return {
-    allParticipantsWithCurrentUser,
-    currentResponseCount,
-    currentResponses,
+    allUsersForEvent,
+    hoveredTimeSlotResponsesCount,
+    hoveredTimeSlotResponses,
     onFliterClicked: onFliterClicked,
     totalResponseCount
   };

@@ -7,6 +7,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Copy } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { ScrollArea } from "@/components/ui/scroll-area";
+import useScreenSize, { ScreenSize } from "@/hooks/useScreenSize";
 import EditAvailabilityDialog from "../dialog/edit-availability-dialog";
 import AvailbilityGridResponseFilterButton from "./availability-grid-response-filter-button";
 
@@ -20,6 +22,7 @@ type AvailabilityGridBottomPanelProps = {
 
 export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability }: AvailabilityGridBottomPanelProps) {
   const { allParticipants, eventId } = useAvailabilityGridStore((state) => state.eventData);
+  const screenSize = useScreenSize();
 
   const user = useAvailabilityGridStore((state) => state.user);
   const mode = useAvailabilityGridStore((state) => state.mode);
@@ -32,9 +35,9 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
   const MotionButton = motion(Button);
 
   const {
-    allParticipantsWithCurrentUser,
-    currentResponseCount,
-    currentResponses,
+    allUsersForEvent,
+    hoveredTimeSlotResponsesCount,
+    hoveredTimeSlotResponses,
     onFliterClicked,
     totalResponseCount
   } = useEventResponsesFilters();
@@ -46,7 +49,7 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
 
   const saveUserAvailabilityButton = (
     <MotionButton
-      className="h-[2rem] whitespace-nowrap rounded-[.5rem]"
+      className="h-[2rem] whitespace-nowrap rounded-[.5rem] sm:h-[2.3rem] md:h-[2.6rem] md:px-6 md:text-[1.05rem]"
       onClick={() => handleSaveUserAvailability(user)}
       variant="default"
       whileTap={{ scale: 0.94 }}
@@ -56,12 +59,27 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
   );
 
   const editUserAvailabilityButton = (
-    <EditAvailabilityDialog allParticipants={allParticipants} className="h-[2rem] whitespace-nowrap rounded-[.5rem]" />
+    <EditAvailabilityDialog
+      allParticipants={allParticipants}
+      className="h-[2rem] whitespace-nowrap rounded-[.5rem] sm:h-[2.3rem] md:h-[2.6rem] md:px-6 md:text-[1.05rem]"
+    />
   );
+
+  let spacingHeightStyle = "";
+
+  if (accordionOpen && isViewMode(mode)) {
+    if (screenSize <= ScreenSize.XS) spacingHeightStyle = "calc(8.4rem + 14vh)";
+    if (screenSize === ScreenSize.SM) spacingHeightStyle = "calc(9.6rem + 14vh)";
+    if (screenSize >= ScreenSize.MD) spacingHeightStyle = "calc(10.6rem + 18vh)";
+  } else {
+    if (screenSize <= ScreenSize.XS) spacingHeightStyle = "8rem";
+    if (screenSize === ScreenSize.SM) spacingHeightStyle = "9rem";
+    if (screenSize >= ScreenSize.MD) spacingHeightStyle = "10rem";
+  }
 
   return (
     <>
-      <div style={{ height: accordionOpen && isViewMode(mode) ? "calc(8.6rem + 14vh)" : "8.2rem" }}></div>
+      <div style={{ height: spacingHeightStyle }}></div>
       <div
         className={cn(
           "fixed bottom-0 w-full rounded-t-3xl bg-background pb-5 shadow-[0px_-1px_6px_1px] shadow-gray-100",
@@ -72,18 +90,18 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
           {isViewMode(mode) && (
             <ResponsesAccordion
               accordionOpen={accordionOpen}
-              allParticipantsWithCurrentUser={allParticipantsWithCurrentUser}
-              currentResponseCount={currentResponseCount}
-              currentResponses={currentResponses}
+              allUsersForEvent={allUsersForEvent}
+              hoveredTimeSlotResponsesCount={hoveredTimeSlotResponsesCount}
+              hoveredTimeSlotResponses={hoveredTimeSlotResponses}
               onFilterClicked={onFliterClicked}
               setAccordionExplicitlyClosed={setAccordionExplicitlyClosed}
               setAccordionOpen={setAccordionOpen}
               totalResponseCount={totalResponseCount}
             />
           )}
-          <div className="z-10 mx-auto grid w-full max-w-[45rem] grid-flow-col justify-between px-6 pt-4">
+          <div className="z-10 mx-auto grid w-full max-w-[56rem] grid-flow-col justify-between px-6 pt-4">
             <MotionButton
-              className="h-[2rem] rounded-[.5rem] border-2 text-sm"
+              className="h-[2rem] rounded-[.5rem] border-2 text-sm sm:h-[2.3rem] md:h-[2.6rem] md:px-6 md:text-[1.05rem]"
               onClick={() => {
                 const url = `${window.location.origin}/${eventId}`;
                 navigator.clipboard.writeText(url);
@@ -96,7 +114,7 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
               variant="outline"
               whileTap={{ scaleX: 0.97 }}
             >
-              {COPY_LINK} <Copy className="ml-2 h-4 w-4" />
+              {COPY_LINK} <Copy className="ml-2 h-4 w-4 md:ml-3 md:h-5 md:w-5" />
             </MotionButton>
             <div className="text-sm">{isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}</div>
           </div>
@@ -108,9 +126,9 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
 
 function ResponsesAccordion({
   accordionOpen,
-  allParticipantsWithCurrentUser,
-  currentResponseCount,
-  currentResponses,
+  allUsersForEvent,
+  hoveredTimeSlotResponsesCount,
+  hoveredTimeSlotResponses,
   onFilterClicked,
   setAccordionExplicitlyClosed,
   setAccordionOpen,
@@ -120,7 +138,7 @@ function ResponsesAccordion({
     <>
       <header
         className={cn(
-          "flex h-[3rem] w-full items-center justify-between rounded-t-2xl border-[1px] border-b-0 border-accent bg-background px-6 pt-1 text-center font-medium sm:border-2 sm:border-b-0 md:px-14",
+          "flex h-[3rem] w-full items-center justify-between rounded-t-2xl border-[1px] border-b-0 border-accent bg-background px-5 pt-1 text-center font-medium sm:h-[3.5rem] sm:border-2 sm:border-b-0 sm:pt-0 md:h-[3.6rem] md:px-7",
           totalResponseCount !== 0 && "cursor-pointer",
           !accordionOpen && "border-b-[1px] border-accent sm:border-2"
         )}
@@ -132,10 +150,10 @@ function ResponsesAccordion({
           });
         }}
       >
-        <span className="ml-1 flex">
+        <span className="ml-1 flex md:text-[1.1rem]">
           <p className="text-secondary">{RESPONSES_TITLE}</p>
           <p className="ml-4 text-secondary">
-            {currentResponseCount}/{totalResponseCount}
+            {hoveredTimeSlotResponsesCount}/{totalResponseCount}
           </p>
         </span>
         {totalResponseCount !== 0 && (
@@ -155,7 +173,7 @@ function ResponsesAccordion({
           <>
             <motion.section
               animate="accordionOpen"
-              className="flex h-full max-h-[14vh] w-full justify-center overflow-y-scroll border-t-[1px] border-accent bg-background scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary-light sm:border-t-2"
+              className="flex h-full max-h-[14vh] w-full justify-center border-t-[1px] border-accent bg-background sm:border-t-2 md:max-h-[18vh]"
               exit="collapsed"
               initial="collapsed"
               key="content"
@@ -165,17 +183,19 @@ function ResponsesAccordion({
                 collapsed: { height: 0, opacity: 0 }
               }}
             >
-              <div className="mx-5 mb-2 mt-2 max-w-[40rem] flex-1 px-1 text-secondary xs:mx-6 md:my-4 ">
-                {allParticipantsWithCurrentUser.map((name) => (
-                  <AvailbilityGridResponseFilterButton
-                    className="m-1 p-[3px] text-[0.74rem]"
-                    currentResponses={currentResponses}
-                    key={`${name}-filter-button-bottom-panel`}
-                    name={name}
-                    onFilterClicked={onFilterClicked}
-                  />
-                ))}
-              </div>
+              <ScrollArea className="mr-2 w-full md:mr-4">
+                <div className="mx-auto my-1 max-w-[48rem] flex-1 px-5 text-secondary sm:grid sm:grid-cols-4 sm:px-7 md:my-2 md:grid-cols-5 ">
+                  {allUsersForEvent.map((name) => (
+                    <AvailbilityGridResponseFilterButton
+                      className="m-1 p-[3px] text-[0.74rem] font-medium md:text-[0.84rem]"
+                      hoveredTimeSlotResponses={hoveredTimeSlotResponses}
+                      key={`${name}-filter-button-bottom-panel`}
+                      name={name}
+                      onFilterClicked={onFilterClicked}
+                    />
+                  ))}
+                </div>
+              </ScrollArea>
             </motion.section>
             <motion.div
               animate="open"

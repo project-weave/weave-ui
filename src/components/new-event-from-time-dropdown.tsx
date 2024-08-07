@@ -125,7 +125,7 @@ export default function NewEventFromTimeDropdown({
           <CommandInput className="border-primary py-5 text-sm" />
           <CommandEmpty className="m-2 rounded-sm bg-gray-200 py-1.5 text-center text-xs">{INVALID_TIME} </CommandEmpty>
           <CommandGroup
-            className="my-1 max-h-[105px] overflow-y-scroll scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary sm:max-h-[150px] xl:max-h-[180px]"
+            className="scrollbar-primary my-1 max-h-[105px] overflow-y-scroll sm:max-h-[150px] xl:max-h-[180px]"
             ref={commandGroupRef}
           >
             {times.map((time) => {

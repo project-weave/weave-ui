@@ -1,10 +1,14 @@
+import useScreenSize, { ScreenSize } from "@/hooks/useScreenSize";
 import useAvailabilityGridStore, { AvailabilityType } from "@/store/availabilityGridStore";
 import debounce from "lodash.debounce";
 import { useEffect, useState } from "react";
 
+// NOTE: this height is only applied to screen sizes that are less than ScreenSize.MD
 export default function useAvailabilityGridHeight() {
   const { sortedEventTimes, availabilityType } = useAvailabilityGridStore((state) => state.eventData);
   const [gridHeightStyle, setGridHeightStyle] = useState("fit-content");
+
+  const screenSize = useScreenSize();
 
   useEffect(() => {
     function handleResize() {
@@ -19,11 +23,12 @@ export default function useAvailabilityGridHeight() {
         2 * topBottomCellHeight +
         approxGridHeaderHeight;
 
-      const approxTopSpacing = 72; // approx height of nav and top padding
-      const approxBottomSpacing = 0.15 * window.innerHeight + 96; // approx height of bottom panel with accordion open
-      const leewaySpace = 60;
+      const approxTopSpacing = 72;
+      const approxBottomPanelSpacing =
+        screenSize <= ScreenSize.SM ? 116 + 0.14 * window.innerHeight : 135 + 0.18 * window.innerHeight;
+      const leewaySpace = 50;
 
-      const approxMaxHeight = window.innerHeight - approxTopSpacing - approxBottomSpacing - leewaySpace;
+      const approxMaxHeight = window.innerHeight - approxTopSpacing - approxBottomPanelSpacing - leewaySpace;
 
       if (approxGridHeight <= approxMaxHeight) {
         setGridHeightStyle(`${approxMaxHeight}px`);
@@ -40,7 +45,7 @@ export default function useAvailabilityGridHeight() {
     return () => {
       window.removeEventListener("resize", debouncedEventListener);
     };
-  }, [sortedEventTimes]);
+  }, [sortedEventTimes, screenSize]);
 
   return gridHeightStyle;
 }

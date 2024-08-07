@@ -43,7 +43,7 @@ export default function Event() {
         <div className="hidden h-[85vh] max-h-[50rem] min-h-[28rem] w-[18rem] lg:block xl:w-[20rem]">
           <Skeleton className="h-full w-full rounded-md bg-primary-light/30" />
         </div>
-        <div className="h-full w-[24rem] xs:w-[28rem] sm:w-[36rem] md:w-[40rem] lg:w-[44rem] xl:w-[56rem]">
+        <div className="h-full w-[24rem] xs:w-[95vw] lg:w-[44rem] xl:w-[56rem]">
           <Skeleton className="h-full w-full rounded-md bg-primary-light/30" />
         </div>
       </div>
@@ -108,7 +108,7 @@ export default function Event() {
             <AvailabilityGridLeftPanel />
           </div>
         </MediaQueryLG>
-        <div className="h-full w-[24rem] xs:w-[28rem] sm:w-[36rem] md:w-[40rem] lg:w-[44rem] xl:w-[56rem]">
+        <div className="h-full w-[24rem] xs:w-[95vw] md:w-[45rem] lg:w-[44rem] xl:w-[56rem]">
           <AvailabilityGrid handleSaveUserAvailability={handleSaveUserAvailability} />
         </div>
       </div>

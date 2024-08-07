@@ -35,14 +35,10 @@ export default function NavBar() {
           width={40}
         />
 
-        <ul className="flex items-center">
+        <ul className="mr-4 flex items-center sm:mr-6 md:mr-9">
           <li>
             <MediaQueryXXS maxScreenSize={ScreenSize.LG}>
-              {isEventPage && isViewMode(mode) && (
-                <span className="mr-4">
-                  <SettingsPopover />
-                </span>
-              )}
+              {isEventPage && isViewMode(mode) && <SettingsPopover />}
             </MediaQueryXXS>
           </li>
           <li>

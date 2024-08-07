@@ -29,9 +29,9 @@ export default function AvailabilityGridLeftPanel() {
   const { toast } = useToast();
 
   const {
-    allParticipantsWithCurrentUser,
-    currentResponseCount,
-    currentResponses,
+    allUsersForEvent,
+    hoveredTimeSlotResponsesCount,
+    hoveredTimeSlotResponses,
     onFliterClicked,
     totalResponseCount
   } = useEventResponsesFilters();
@@ -75,7 +75,6 @@ export default function AvailabilityGridLeftPanel() {
     <div className="card flex h-full cursor-pointer flex-col px-4 pb-4">
       <div className="relative flex justify-between rounded-2xl border-2 border-primary px-3 py-2 text-sm font-medium text-secondary">
         <p className="max-w-[80%] overflow-hidden text-ellipsis">{eventName}</p>
-
         <MotionButton
           className="absolute -end-1 -top-[1.5px] h-10 rounded-2xl hover:bg-primary-hover"
           onClick={() => {
@@ -97,18 +96,18 @@ export default function AvailabilityGridLeftPanel() {
         <div className="flex font-medium">
           <p className="text-sm text-secondary">{RESPONSES_TITLE}</p>
           <p className="ml-4 text-sm text-secondary">
-            {currentResponseCount}/{totalResponseCount}
+            {hoveredTimeSlotResponsesCount}/{totalResponseCount}
           </p>
         </div>
       </div>
 
       <div
-        className="m-3 box-border grid flex-1 gap-x-3 gap-y-1 overflow-y-scroll text-secondary scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary-light"
-        style={{ gridAutoRows: "min-content", gridTemplateColumns: `repeat(auto-fill, minmax(5rem, 1fr))` }}
+        className="scrollbar-primary m-3 box-border grid flex-1 gap-x-0.5 gap-y-1 overflow-y-scroll text-secondary"
+        style={{ gridAutoRows: "min-content", gridTemplateColumns: `repeat(2, minmax(5rem, 1fr))` }}
       >
-        {allParticipantsWithCurrentUser.map((name) => (
+        {allUsersForEvent.map((name) => (
           <AvailabilityGridResponseFilterButton
-            currentResponses={currentResponses}
+            hoveredTimeSlotResponses={hoveredTimeSlotResponses}
             key={`${name}-filter-button`}
             name={name}
             onFilterClicked={onFliterClicked}

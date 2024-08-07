@@ -88,7 +88,12 @@
   .card {
     @apply h-full w-full rounded-xl border-[1px] border-primary bg-background px-8 py-5;
   }
+  
+  .scrollbar-primary {
+    @apply scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary-light
+  }
 }
+
 
 
 .selection-transparent::selection {

@@ -162,7 +162,7 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
                 : "3.3rem";
 
             const topBottomCellHeight = "0.7rem";
-            const timeSlotCellHeight = "1.5rem";
+            const timeSlotCellHeight = screenSize <= ScreenSize.MD ? "1.5rem" : "1.45rem";
 
             let hasDateGapLeft = false;
             let hasDateGapRight = false;
