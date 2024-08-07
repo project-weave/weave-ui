@@ -223,7 +223,7 @@ export default function AvailabilityGridTimeSlot({
           "border-t-0": !shouldDisplayBorder && !isTimeHovered
         },
         isViewMode(mode) && isTimeHovered && "border-t-secondary",
-        isEditMode(mode) && isDragSelecting && isTimeSlotHovered && "bg-accent",
+        isEditMode(mode) && isTimeSlotHovered && "bg-accent",
         isViewMode(mode) &&
           isTimeSlotHovered && {
             "border-[3px] border-secondary": true,

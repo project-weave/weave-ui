@@ -28,6 +28,7 @@ export default function Event() {
   const { toast } = useToast();
 
   useEffect(() => {
+    resetGridState();
     window.scrollTo(0, 0);
     return resetGridState();
   }, []);
@@ -39,10 +40,10 @@ export default function Event() {
   if (isPending) {
     return (
       <div className="mb-10 mt-4 grid h-fit w-full grid-flow-col justify-center gap-3">
-        <div className="hidden w-[18rem] lg:block xl:w-[20rem]">
+        <div className="hidden h-[85vh] max-h-[50rem] min-h-[28rem] w-[18rem] lg:block xl:w-[20rem]">
           <Skeleton className="h-full w-full rounded-md bg-primary-light/30" />
         </div>
-        <div className="h-full w-[24rem] xs:w-[28rem] sm:w-[36rem] md:w-[40rem] lg:min-h-[45rem] xl:w-[56rem]">
+        <div className="h-full w-[24rem] xs:w-[28rem] sm:w-[36rem] md:w-[40rem] lg:w-[44rem] xl:w-[56rem]">
           <Skeleton className="h-full w-full rounded-md bg-primary-light/30" />
         </div>
       </div>
@@ -100,14 +101,14 @@ export default function Event() {
   }
 
   return (
-    <div className="flex h-fit flex-col">
-      <div className="mt-4 grid h-full w-full grid-flow-col justify-center gap-3 pb-4">
+    <div className="flex flex-col">
+      <div className="mt-4 grid w-full grid-flow-col justify-center gap-3 pb-4">
         <MediaQueryLG>
-          <div className="sticky top-[4.3rem] h-full max-h-[86vh] min-h-[40rem] w-[18rem] sm:min-h-[45rem] xl:w-[20rem]">
+          <div className="sticky top-[4.3rem] h-[85vh] max-h-[50rem] min-h-[28rem] w-[18rem] xl:w-[20rem]">
             <AvailabilityGridLeftPanel />
           </div>
         </MediaQueryLG>
-        <div className="h-fit w-[24rem] xs:w-[28rem] sm:w-[36rem] md:w-[40rem] lg:h-full lg:min-h-[45rem] xl:w-[56rem]">
+        <div className="h-full w-[24rem] xs:w-[28rem] sm:w-[36rem] md:w-[40rem] lg:w-[44rem] xl:w-[56rem]">
           <AvailabilityGrid handleSaveUserAvailability={handleSaveUserAvailability} />
         </div>
       </div>

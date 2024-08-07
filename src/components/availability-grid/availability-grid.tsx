@@ -10,6 +10,7 @@ import { useAnimate } from "framer-motion";
 import { useEffect, useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
+import useAvailabilityGridHeight from "@/hooks/useAvailabilityGridHeight";
 import AvailabilityGridCell from "./availability-grid-cells/availability-grid-cell";
 import AvailabilityGridHeader from "./availability-grid-cells/availability-grid-header";
 import { TimeSlotDragSelectionState } from "./availability-grid-cells/availability-grid-time-slot";
@@ -38,7 +39,6 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
       case ScreenSize.XXS:
       case ScreenSize.XS:
         return setAvailabilityGridViewWindowSize(4);
-
       case ScreenSize.SM:
         return setAvailabilityGridViewWindowSize(6);
       case ScreenSize.MD:
@@ -122,24 +122,24 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
     return gridNodeCols;
   }, [sortedEventTimes, sortedEventDates, leftMostColumnInView, timeSlotColumnsCount]);
 
+  const gridHeightStyle = useAvailabilityGridHeight();
+
   return sortedEventDates.length === 0 || sortedEventTimes.length === 0 ? (
     <div />
   ) : (
     <div
-      className="card flex h-fit w-full select-none flex-col pl-0 pr-5 pt-1 sm:pr-8 lg:h-full xl:pl-2 xl:pr-10"
+      className="card flex w-full select-none flex-col pl-0 pr-5 pt-1 sm:pr-8 xl:pl-2 xl:pr-10"
       // mouseUp is cancelled when onContextMenu is triggered so we need to save the selection here as well
       onContextMenu={onMouseDragEnd}
       onMouseLeave={onMouseDragEnd}
       // putting saveDragSelection here to handle the case where the user lets go of the mouse outside of the grid cells
       onMouseUp={onMouseDragEnd}
       onTouchEnd={onTouchDragEnd}
+      style={{
+        height: screenSize <= ScreenSize.MD ? gridHeightStyle : "100%"
+      }}
     >
-      <div
-        className={cn(
-          "sticky top-[3.3rem] z-[999] w-[101%] bg-background pl-4 pt-4 xs:pl-10 xl:pl-14",
-          availabilityType === AvailabilityType.DAYS_OF_WEEK && "h-[5.5rem] lg:h-[4.3rem] xl:h-[4.5rem]"
-        )}
-      >
+      <div className={cn("sticky top-[3.3rem] z-[999] w-[101%] bg-background pb-1 pl-4 pt-4 xs:pl-10 xl:pl-14")}>
         <AvailabilityGridHeader
           editAvailabilityButtonAnimationScope={scope}
           handleSaveUserAvailability={handleSaveUserAvailability}
@@ -159,10 +159,10 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
                 ? screenSize <= ScreenSize.LG
                   ? "3.9rem"
                   : "4.7rem"
-                : "2.8rem";
+                : "3.3rem";
 
             const topBottomCellHeight = "0.7rem";
-            const timeSlotCellHeight = "1.6rem";
+            const timeSlotCellHeight = "1.5rem";
 
             let hasDateGapLeft = false;
             let hasDateGapRight = false;

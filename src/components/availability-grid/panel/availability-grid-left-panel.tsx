@@ -73,8 +73,9 @@ export default function AvailabilityGridLeftPanel() {
 
   return (
     <div className="card flex h-full cursor-pointer flex-col px-4 pb-4">
-      <div className="mt relative flex justify-between text-ellipsis rounded-2xl border-2 border-primary px-3 py-2 text-sm font-medium text-secondary">
-        {eventName}
+      <div className="relative flex justify-between rounded-2xl border-2 border-primary px-3 py-2 text-sm font-medium text-secondary">
+        <p className="max-w-[80%] overflow-hidden text-ellipsis">{eventName}</p>
+
         <MotionButton
           className="absolute -end-1 -top-[1.5px] h-10 rounded-2xl hover:bg-primary-hover"
           onClick={() => {
@@ -114,8 +115,8 @@ export default function AvailabilityGridLeftPanel() {
           />
         ))}
       </div>
-      <div className="min-h-[16rem]">
-        {availabilityType === AvailabilityType.SPECIFIC_DATES && sortedEventDates.length !== 0 && (
+      {availabilityType === AvailabilityType.SPECIFIC_DATES && sortedEventDates.length !== 0 && (
+        <div className="min-h-[16rem]">
           <EventDateCalendar
             currentMonthOverride={eventCalendarMonthOverride}
             earliestSelectedDate={sortedEventDates[0]}
@@ -126,8 +127,8 @@ export default function AvailabilityGridLeftPanel() {
             selectedDates={new Set(sortedEventDates)}
             visibleEventDates={visibleEventDates}
           />
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

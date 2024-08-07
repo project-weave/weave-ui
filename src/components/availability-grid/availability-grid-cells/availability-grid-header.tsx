@@ -57,7 +57,7 @@ export default function AvailabilityGridHeader({
 
   const saveUserAvailabilityButton = (
     <MotionButton
-      className="h-[1.7rem] whitespace-nowrap rounded-[.5rem] xl:h-[1.9rem]"
+      className="h-[1.7rem] whitespace-nowrap rounded-[.5rem] xl:h-[2rem]"
       onClick={() => handleSaveUserAvailability(user)}
       variant="default"
       whileTap={{ scale: 0.94 }}
@@ -109,7 +109,7 @@ export default function AvailabilityGridHeader({
                 className={cn(
                   "ml-8 mr-3 text-sm lg:ml-6 lg:text-xs xl:ml-16 xl:text-sm",
                   {
-                    "lg:ml-16": availabilityType === AvailabilityType.DAYS_OF_WEEK
+                    "lg:ml-12": availabilityType === AvailabilityType.DAYS_OF_WEEK
                   },
                   isPaginationRequired() && "lg:mr-2 xl:mr-9"
                 )}

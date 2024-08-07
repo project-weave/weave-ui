@@ -53,11 +53,11 @@ export default function AvailabilityGridColumnHeader({
   return (
     <div
       className={cn(
-        "flex h-full flex-col items-center justify-center border-transparent bg-background pb-0.5 pr-0.5 pt-1",
+        "flex h-full flex-col items-center justify-center border-transparent bg-background pb-0.5 pr-0.5",
         borderXSizeStyles,
         {
           "pr-[7px]": hasDateGapRight,
-          "pt-2": availabilityType === AvailabilityType.SPECIFIC_DATES
+          "pt-2": availabilityType === AvailabilityType.DAYS_OF_WEEK
         }
       )}
       style={{ ...style, width: `calc(100% + ${hasDateGapRight ? "7px" : "2px"}` }}
@@ -73,7 +73,7 @@ export default function AvailabilityGridColumnHeader({
         {availabilityType === AvailabilityType.SPECIFIC_DATES && (
           <MotionButton
             className={cn(
-              "mt-1 h-6 w-[3.7rem] whitespace-nowrap rounded-sm border-2 border-transparent bg-accent-light text-xs font-semibold tracking-wide text-secondary transition-all hover:bg-accent xl:h-[1.7rem] xl:w-[4.2rem] xl:text-sm",
+              "h-6 w-[3.7rem] whitespace-nowrap rounded-sm border-2 border-transparent bg-accent-light text-xs font-semibold tracking-wide text-secondary transition-all hover:bg-accent xl:h-[1.7rem] xl:w-[4.2rem] xl:text-sm",
               {
                 "bg-primary text-white hover:bg-primary-hover": isAllTimeSlotForDateSelected,
                 "mt-0 cursor-default bg-background text-sm text-secondary hover:bg-background xl:text-base":

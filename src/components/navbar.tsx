@@ -25,7 +25,7 @@ export default function NavBar() {
   return (
     // adding padding and translating down to hide overflowed components on mobile
     <nav className="fixed top-0 z-50 mx-auto flex w-full max-w-[85rem] -translate-y-[18.25rem] bg-white pb-[0.75rem] pt-[19.25rem]">
-      <div className="mx-auto flex w-full items-end justify-between ">
+      <div className="mx-auto flex h-8 w-full items-end justify-between lg:h-10 ">
         <Image
           alt="weave-logo"
           className="ml-4 h-8 w-8 cursor-pointer sm:ml-6 md:ml-9 md:h-9 md:w-9"

@@ -69,19 +69,20 @@ export default function AvailabilityGridCell({
     hasDateGapRight
   );
 
-  let topValue = "";
+  let topValue = 0;
   switch (availabilityType) {
     case AvailabilityType.SPECIFIC_DATES:
-      topValue = "9.24rem";
-      if (screenSize === ScreenSize.LG) topValue = "7.5rem";
-      if (screenSize >= ScreenSize.XL) topValue = "7.9rem";
+      topValue = 9.5;
+      if (screenSize === ScreenSize.LG) topValue -= 1.74;
+      if (screenSize >= ScreenSize.XL) topValue -= 1.34;
       break;
     case AvailabilityType.DAYS_OF_WEEK:
-      topValue = "8.80rem";
-      if (screenSize === ScreenSize.LG) topValue = "7.60rem";
-      if (screenSize >= ScreenSize.XL) topValue = "7.8rem";
+      topValue = 8.64;
+      if (screenSize === ScreenSize.LG) topValue -= 1.2;
+      if (screenSize >= ScreenSize.XL) topValue -= 0.94;
       break;
   }
+  const topStyle = `${topValue}rem`;
 
   switch (node.getRenderType()) {
     case NodeType.COLUMN_HEADER_PLACEHOLDER:
@@ -90,7 +91,7 @@ export default function AvailabilityGridCell({
           className="m-0 h-full w-full bg-background"
           style={{
             position: "sticky",
-            top: `${topValue}`,
+            top: `${topStyle}`,
             zIndex: 100
           }}
         >
@@ -109,7 +110,7 @@ export default function AvailabilityGridCell({
           hasDateGapRight={hasDateGapRight}
           style={{
             position: "sticky",
-            top: `${topValue}`,
+            top: `${topStyle}`,
             zIndex: 100
           }}
         />
