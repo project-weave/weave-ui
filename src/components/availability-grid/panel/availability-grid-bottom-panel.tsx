@@ -99,6 +99,7 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
               totalResponseCount={totalResponseCount}
             />
           )}
+          <div className="h-1 border-b-[1px] border-accent pt-1 sm:border-b-2" />
           <div className="z-10 mx-auto grid w-full max-w-[56rem] grid-flow-col justify-between px-6 pt-4">
             <MotionButton
               className="h-[2rem] rounded-[.5rem] border-2 text-sm sm:h-[2.3rem] md:h-[2.6rem] md:px-6 md:text-[1.05rem]"
@@ -138,9 +139,8 @@ function ResponsesAccordion({
     <>
       <header
         className={cn(
-          "flex h-[3rem] w-full items-center justify-between rounded-t-2xl border-[1px] border-b-0 border-accent bg-background px-5 pt-1 text-center font-medium sm:h-[3.5rem] sm:border-2 sm:border-b-0 sm:pt-0 md:h-[3.6rem] md:px-7",
-          totalResponseCount !== 0 && "cursor-pointer",
-          !accordionOpen && "border-b-[1px] border-accent sm:border-2"
+          "flex h-[3rem] w-full items-center justify-between rounded-t-2xl border-[1px] border-b-0 border-accent bg-background px-5 pt-1 text-center font-medium sm:h-[3.5rem] sm:border-2 sm:pt-0 md:h-[3.6rem] md:px-7",
+          totalResponseCount !== 0 && "cursor-pointer"
         )}
         onClick={() => {
           if (totalResponseCount === 0) return;
@@ -170,45 +170,32 @@ function ResponsesAccordion({
 
       <AnimatePresence initial={false}>
         {accordionOpen && totalResponseCount !== 0 && (
-          <>
-            <motion.section
-              animate="accordionOpen"
-              className="flex h-full max-h-[14vh] w-full justify-center border-t-[1px] border-accent bg-background sm:border-t-2 md:max-h-[18vh]"
-              exit="collapsed"
-              initial="collapsed"
-              key="content"
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              variants={{
-                accordionOpen: { height: "auto", opacity: 1 },
-                collapsed: { height: 0, opacity: 0 }
-              }}
-            >
-              <ScrollArea className="mr-2 w-full md:mr-4">
-                <div className="mx-auto my-1 max-w-[48rem] flex-1 px-5 text-secondary sm:grid sm:grid-cols-4 sm:px-7 md:my-2 md:grid-cols-5 ">
-                  {allUsersForEvent.map((name) => (
-                    <AvailbilityGridResponseFilterButton
-                      className="m-1 p-[3px] text-[0.74rem] font-medium md:text-[0.84rem]"
-                      hoveredTimeSlotResponses={hoveredTimeSlotResponses}
-                      key={`${name}-filter-button-bottom-panel`}
-                      name={name}
-                      onFilterClicked={onFilterClicked}
-                    />
-                  ))}
-                </div>
-              </ScrollArea>
-            </motion.section>
-            <motion.div
-              animate="open"
-              className="h-1 border-b-[1px] border-accent pt-1 sm:border-b-2"
-              exit="collapsed"
-              initial="collapsed"
-              transition={{ duration: 0.24, ease: "easeOut" }}
-              variants={{
-                collapsed: { height: 0, opacity: 0 },
-                open: { height: "auto", opacity: 1 }
-              }}
-            />
-          </>
+          <motion.section
+            animate="accordionOpen"
+            className="flex h-full max-h-[14vh] w-full justify-center border-t-[1px] border-accent bg-background sm:border-t-2 md:max-h-[18vh]"
+            exit="collapsed"
+            initial="collapsed"
+            key="content"
+            transition={{ ease: "easeInOut" }}
+            variants={{
+              accordionOpen: { height: "auto", opacity: 1 },
+              collapsed: { height: 0, opacity: 0 }
+            }}
+          >
+            <ScrollArea className="mr-2 w-full md:mr-4">
+              <div className="mx-auto my-1 max-w-[48rem] flex-1 px-5 text-secondary sm:grid sm:grid-cols-4 sm:px-7 md:my-2 md:grid-cols-5">
+                {allUsersForEvent.map((name) => (
+                  <AvailbilityGridResponseFilterButton
+                    className="m-1 p-[3px] text-[0.74rem] font-medium md:text-[0.84rem]"
+                    hoveredTimeSlotResponses={hoveredTimeSlotResponses}
+                    key={`${name}-filter-button-bottom-panel`}
+                    name={name}
+                    onFilterClicked={onFilterClicked}
+                  />
+                ))}
+              </div>
+            </ScrollArea>
+          </motion.section>
         )}
       </AnimatePresence>
     </>

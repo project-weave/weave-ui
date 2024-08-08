@@ -63,7 +63,8 @@ const useAvailabilityGridStore = create<AvailabilityGridState>()(
         leftMostColumnInView: 0,
         selectedTimeSlots: [],
         user: "",
-        userFilter: []
+        userFilter: [],
+        mode: AvailabilityGridMode.VIEW
       });
     },
     setFocusedDate: (focusedDate: EventDate | null) => set({ focusedDate }),

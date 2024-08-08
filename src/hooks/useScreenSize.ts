@@ -1,6 +1,6 @@
 import tailwindTheme from "@/utils/tailwindTheme";
 import debounce from "lodash.debounce";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "react-responsive";
 import defaultTailwindTheme from "tailwindcss/defaultTheme";
 import { ScreensConfig } from "tailwindcss/types/config";
@@ -36,6 +36,7 @@ export const breakPoints: Record<ScreenSize, number> = {
 // Mobile first
 export default function useScreenSize() {
   const [screenSize, setScreenSize] = useState<ScreenSize>(ScreenSize.XXS);
+  const isInitialCall = useRef(true);
 
   const isScreenXXS = useMediaQuery({ minWidth: breakPoints[ScreenSize.XXS] });
   const isScreenXS = useMediaQuery({ minWidth: breakPoints[ScreenSize.XS] });
@@ -45,21 +46,26 @@ export default function useScreenSize() {
   const isScreenXL = useMediaQuery({ minWidth: breakPoints[ScreenSize.XL] });
   const isScreen2XL = useMediaQuery({ minWidth: breakPoints[ScreenSize.XXL] });
 
-  const debouncedResize = useCallback(
-    debounce((size: ScreenSize) => {
-      setScreenSize(size), 500;
-    }),
-    []
-  );
+  function updateScreenSize(size: ScreenSize) {
+    // ensuring that the initial call is not debounced so that components are rendered properly if they depend on screen size
+    if (isInitialCall.current) {
+      setScreenSize(size);
+      isInitialCall.current = false;
+    } else {
+      debounce((size: ScreenSize) => {
+        setScreenSize(size);
+      }, 300);
+    }
+  }
 
   useEffect(() => {
-    if (isScreen2XL) return debouncedResize(ScreenSize.XXL);
-    if (isScreenXL) return debouncedResize(ScreenSize.XL);
-    if (isScreenLG) return debouncedResize(ScreenSize.LG);
-    if (isScreenMD) return debouncedResize(ScreenSize.MD);
-    if (isScreenSM) return debouncedResize(ScreenSize.SM);
-    if (isScreenXS) return debouncedResize(ScreenSize.XS);
-    if (isScreenXXS) return debouncedResize(ScreenSize.XXS);
+    if (isScreen2XL) return updateScreenSize(ScreenSize.XXL);
+    if (isScreenXL) return updateScreenSize(ScreenSize.XL);
+    if (isScreenLG) return updateScreenSize(ScreenSize.LG);
+    if (isScreenMD) return updateScreenSize(ScreenSize.MD);
+    if (isScreenSM) return updateScreenSize(ScreenSize.SM);
+    if (isScreenXS) return updateScreenSize(ScreenSize.XS);
+    if (isScreenXXS) return updateScreenSize(ScreenSize.XXS);
   }, [isScreen2XL, isScreenXL, isScreenLG, isScreenMD, isScreenSM, isScreenXS, isScreenXXS]);
 
   return screenSize;
