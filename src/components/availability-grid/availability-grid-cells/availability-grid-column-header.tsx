@@ -1,12 +1,13 @@
-import useAvailabilityGridStore, { AvailabilityType, isEditMode, isViewMode } from "@/store/availabilityGridStore";
-import { EventDate, getDateFromTimeSlot, getTimeSlot } from "@/types/Event";
-import { cn } from "@/utils/cn";
 import { format, isValid, parseISO, startOfToday } from "date-fns";
 import { motion } from "framer-motion";
 import { CSSProperties } from "react";
 import { useShallow } from "zustand/react/shallow";
 
-import { Button } from "../../ui/button";
+import { Button } from "@/components/ui/button";
+import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
+import { AvailabilityType } from "@/types/Event";
+import { EventDate, getDateFromTimeSlot, getTimeSlot } from "@/types/Timeslot";
+import { cn } from "@/utils/cn";
 
 type AvailabilityGridColumnHeaderProps = {
   borderXSizeStyles: string;

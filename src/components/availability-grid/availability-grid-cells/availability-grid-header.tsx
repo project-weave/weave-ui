@@ -1,12 +1,14 @@
-import { MediaQueryLG } from "@/components/media-query";
-import { Button } from "@/components/ui/button";
-import { ScreenSize } from "@/hooks/useScreenSize";
-import useAvailabilityGridStore, { AvailabilityType, isEditMode, isViewMode } from "@/store/availabilityGridStore";
-import { cn } from "@/utils/cn";
 import { format, isEqual, parseISO } from "date-fns";
 import { AnimationScope, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
+
+import { MediaQueryLG } from "@/components/media-query";
+import { Button } from "@/components/ui/button";
+import { ScreenSize } from "@/hooks/useScreenSize";
+import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
+import { AvailabilityType } from "@/types/Event";
+import { cn } from "@/utils/cn";
 
 import BestTimesAvailableSwitch from "../best-times-available-switch";
 import EditAvailabilityDialog from "../dialog/edit-availability-dialog";

@@ -5,6 +5,7 @@
     "plugin:prettier/recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:perfectionist/recommended-alphabetical"
+    
   ],
   "rules": {
     "eqeqeq": "error",
@@ -32,7 +33,7 @@
     "perfectionist/sort-classes": "warn",
     "perfectionist/sort-enums": "warn",
     "perfectionist/sort-exports": "warn",
-    "perfectionist/sort-imports": "warn",
+    "perfectionist/sort-imports": "off",
     "perfectionist/sort-interfaces": "warn",
     "perfectionist/sort-jsx-props": "warn",
     "perfectionist/sort-intersection-types": "warn",

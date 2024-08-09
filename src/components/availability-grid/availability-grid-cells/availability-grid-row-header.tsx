@@ -1,7 +1,9 @@
-import useAvailabilityGridStore, { isViewMode } from "@/store/availabilityGridStore";
-import { EVENT_TIME_FORMAT, getTimeFromTimeSlot, getTimeSlot, TIME_SLOT_INTERVAL_MINUTES } from "@/types/Event";
-import { cn } from "@/utils/cn";
 import { addMinutes, format, parseISO } from "date-fns";
+
+import useAvailabilityGridStore, { isViewMode } from "@/store/availabilityGridStore";
+import { TIME_SLOT_INTERVAL_MINUTES } from "@/store/eventDataSlice";
+import { EVENT_TIME_FORMAT, getTimeFromTimeSlot, getTimeSlot } from "@/types/Timeslot";
+import { cn } from "@/utils/cn";
 
 type AvailabilityGridRowHeaderProps = {
   eventTime: string;

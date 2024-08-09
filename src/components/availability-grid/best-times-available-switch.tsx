@@ -1,9 +1,10 @@
+import { useShallow } from "zustand/react/shallow";
+
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import useAvailabilityGridStore, { isEditMode } from "@/store/availabilityGridStore";
-import { getDateFromTimeSlot } from "@/types/Event";
+import { getDateFromTimeSlot } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
-import { useShallow } from "zustand/react/shallow";
 
 const DEFAULT_LABEL = "Best Times";
 

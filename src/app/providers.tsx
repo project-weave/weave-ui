@@ -1,9 +1,10 @@
 "use client";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { isAxiosError } from "axios";
 import { useState } from "react";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const MAX_RETRIES = 3;
 const HTTP_STATUS_TO_NOT_RETRY = [400, 401, 403, 404];

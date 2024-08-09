@@ -1,3 +1,8 @@
+import { AnimationScope, motion } from "framer-motion";
+import { User } from "lucide-react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import InputWithError from "@/components/ui/input-with-error";
@@ -5,10 +10,6 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import useAvailabilityGridStore, { AvailabilityGridMode } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
-import { AnimationScope, motion } from "framer-motion";
-import { User } from "lucide-react";
-import Image from "next/image";
-import { useEffect, useState } from "react";
 
 const LOGIN_WITH_GOOGLE = "Login with Google";
 const CONTINUE_WITHOUT_LOGIN = "or continue without login";

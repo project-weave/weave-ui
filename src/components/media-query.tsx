@@ -1,7 +1,8 @@
-import { useHydration } from "@/hooks/useHydration";
-import { breakPoints, ScreenSize } from "@/hooks/useScreenSize";
 import { ReactNode, Suspense } from "react";
 import { useMediaQuery } from "react-responsive";
+
+import { useHydration } from "@/hooks/useHydration";
+import { breakPoints, ScreenSize } from "@/hooks/useScreenSize";
 
 type MediaQueryComponentProps = {
   children: ReactNode;

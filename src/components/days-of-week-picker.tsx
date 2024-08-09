@@ -1,12 +1,15 @@
+import { format, parseISO } from "date-fns";
+import { Dispatch, MouseEvent, SetStateAction, useRef } from "react";
+
 import { Button } from "@/components/ui/button";
 import useDragSelect, { extractDragSelectData } from "@/hooks/useDragSelect";
 import useRegisterNonPassiveTouchEvents from "@/hooks/useRegisterNonPassiveTouchEvents";
-import { DAYS_OF_WEEK_DATES, EventDate } from "@/types/Event";
+import { DAYS_OF_WEEK_DATES, EventDate } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
 import { isLeftClick } from "@/utils/mouseEvent";
-import { format, parseISO } from "date-fns";
-import { Dispatch, MouseEvent, SetStateAction, useRef } from "react";
+
 type DaysOfWeekPickerProps = {
+  error?: boolean;
   selectedDaysOfWeek: Set<EventDate>;
   setSelectedDaysOfWeek: Dispatch<SetStateAction<Set<EventDate>>>;
   size?: "large" | "small";
@@ -14,13 +17,19 @@ type DaysOfWeekPickerProps = {
 
 const DAYS_OF_WEEK_TITLE = "Days of the Week";
 
-export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOfWeek, size }: DaysOfWeekPickerProps) {
+export default function DaysOfWeekPicker({
+  error,
+  selectedDaysOfWeek,
+  setSelectedDaysOfWeek,
+  size
+}: DaysOfWeekPickerProps) {
   const { onMouseDragEnd, onMouseDragMove, onMouseDragStart, onTouchDragEnd, onTouchDragMove, onTouchDragStart } =
     useDragSelect<EventDate>(selectedDaysOfWeek, setSelectedDaysOfWeek);
 
   return (
     <div
       className={cn("card border-1 flex h-[15rem] flex-col px-5 pt-4 sm:h-[16.5rem]", {
+        "border-red-500": error,
         "w-full px-8 pb-8 sm:h-full": size === "large"
       })}
       onContextMenu={onMouseDragEnd}

@@ -1,9 +1,5 @@
 "use client";
-import useDragSelect, { extractDragSelectData } from "@/hooks/useDragSelect";
-import useRegisterNonPassiveTouchEvents from "@/hooks/useRegisterNonPassiveTouchEvents";
-import { EVENT_DATE_FORMAT, EventDate } from "@/types/Event";
-import { cn } from "@/utils/cn";
-import { isLeftClick } from "@/utils/mouseEvent";
+
 import {
   add,
   eachDayOfInterval,
@@ -23,12 +19,19 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import dynamic from "next/dynamic";
 import { Dispatch, MouseEvent, SetStateAction, useEffect, useRef, useState } from "react";
 
+import useDragSelect, { extractDragSelectData } from "@/hooks/useDragSelect";
+import useRegisterNonPassiveTouchEvents from "@/hooks/useRegisterNonPassiveTouchEvents";
+import { EVENT_DATE_FORMAT, EventDate } from "@/types/Timeslot";
+import { cn } from "@/utils/cn";
+import { isLeftClick } from "@/utils/mouseEvent";
+
 import { Button } from "./ui/button";
 import { Skeleton } from "./ui/skeleton";
 
 type EventDateCalendarViewModeProps = {
   currentMonthOverride?: string;
   earliestSelectedDate: EventDate;
+  error?: boolean;
   id: string;
   isViewMode: true;
   latestSelectedDate: EventDate;
@@ -43,6 +46,7 @@ type EventDateCalendarViewModeProps = {
 type EventDateCalendarEditModeProps = {
   currentMonthOverride?: string;
   earliestSelectedDate?: never;
+  error?: boolean;
   id: string;
   isViewMode: false;
   latestSelectedDate?: never;
@@ -61,6 +65,7 @@ export const MONTH_FORMAT = "yyyy-MM";
 const EventDateCalendar = ({
   currentMonthOverride,
   earliestSelectedDate,
+  error,
   id,
   isViewMode,
   latestSelectedDate,
@@ -137,6 +142,7 @@ const EventDateCalendar = ({
   return (
     <div
       className={cn("card h-fit select-none border-[1px] p-5 pt-3", {
+        "border-red-500": error,
         "h-full w-full px-12 pb-5 pt-8": size === "large"
       })}
       onContextMenu={handleMouseUp}

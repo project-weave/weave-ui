@@ -1,6 +1,7 @@
-import { cn } from "@/utils/cn";
 import { motion, useAnimation } from "framer-motion";
 import { useEffect } from "react";
+
+import { cn } from "@/utils/cn";
 
 type SpeechBubbleProps = {
   animationDelay?: number;

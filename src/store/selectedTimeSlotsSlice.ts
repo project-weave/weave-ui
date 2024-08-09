@@ -1,4 +1,4 @@
-import { TimeSlot } from "@/types/Event";
+import { TimeSlot } from "@/types/Timeslot";
 
 export type SelectedTimeSlotsSlice = {
   addSelectedTimeSlots: (toAdd: TimeSlot[]) => void;

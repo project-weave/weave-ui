@@ -1,11 +1,13 @@
-import useScreenSize, { ScreenSize } from "@/hooks/useScreenSize";
-import useAvailabilityGridStore, { AvailabilityType } from "@/store/availabilityGridStore";
 import debounce from "lodash.debounce";
 import { useEffect, useState } from "react";
 
+import useScreenSize, { ScreenSize } from "@/hooks/useScreenSize";
+import useAvailabilityGridStore from "@/store/availabilityGridStore";
+import { AvailabilityType } from "@/types/Event";
+
 // NOTE: this height is only applied to screen sizes that are less than ScreenSize.MD
 export default function useAvailabilityGridHeight() {
-  const { sortedEventTimes, availabilityType } = useAvailabilityGridStore((state) => state.eventData);
+  const { availabilityType, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);
   const [gridHeightStyle, setGridHeightStyle] = useState("fit-content");
 
   const screenSize = useScreenSize();

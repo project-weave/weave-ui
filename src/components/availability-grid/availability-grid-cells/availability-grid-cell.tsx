@@ -1,5 +1,6 @@
 import { ScreenSize } from "@/hooks/useScreenSize";
-import useAvailabilityGridStore, { AvailabilityType, isViewMode } from "@/store/availabilityGridStore";
+import useAvailabilityGridStore, { isViewMode } from "@/store/availabilityGridStore";
+import { AvailabilityType } from "@/types/Event";
 import { cn } from "@/utils/cn";
 
 import { AvailabilityGridNode, NodeType } from "../availability-grid-node";

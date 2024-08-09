@@ -1,8 +1,10 @@
 "use client";
-import NewEventForm from "@/components/new-event-form";
-import { Button } from "@/components/ui/button";
+
 import { motion } from "framer-motion";
 import { useRef } from "react";
+
+import NewEventForm from "@/components/new-event-form";
+import { Button } from "@/components/ui/button";
 
 const SUBTITLE =
   "The hardest part about getting together is finding time for it. With Weave, you'll be able to schedule group events with ease, and enjoy doing so.";
@@ -54,13 +56,13 @@ export default function LandingPage() {
       <Button
         className="mt-16 h-auto px-8 py-3 text-sm md:mt-20 md:px-10 md:py-4 md:text-base xl:px-12 "
         onClick={() => {
-          eventFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+          eventFormRef?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
         }}
       >
         {CREATE_A_WEAVE}
       </Button>
 
-      <div className="h-full min-h-screen w-full pb-10 sm:mt-10 xl:mt-20">
+      <div className="h-full min-h-screen w-full pb-10 sm:pb-0 sm:mt-10 xl:mt-20">
         <div className="pt-20" ref={eventFormRef}>
           <NewEventForm />
         </div>

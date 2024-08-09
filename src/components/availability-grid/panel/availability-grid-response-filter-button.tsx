@@ -1,8 +1,9 @@
-import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
-import { cn } from "@/utils/cn";
 import { motion } from "framer-motion";
 import { User } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
+
+import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
+import { cn } from "@/utils/cn";
 
 type AvailbilityGridResponseFilterButtonProps = {
   className?: string;

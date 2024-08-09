@@ -1,11 +1,13 @@
 "use client";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ScreenSize } from "@/hooks/useScreenSize";
-import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
+
 import { motion } from "framer-motion";
 import { Settings, User } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ScreenSize } from "@/hooks/useScreenSize";
+import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
 
 import BestTimesAvailableSwitch from "./availability-grid/best-times-available-switch";
 import { MediaQueryXXS } from "./media-query";
@@ -44,7 +46,7 @@ export default function NavBar() {
           <li>
             {isEventPage && isEditMode(mode) && (
               <div className="mr-4 flex w-full font-semibold text-secondary sm:mr-6 md:mr-9">
-                <User className="mr-2 h-6 w-6 " />
+                <User className="mr-2 h-6 w-6" />
                 <span className="max-w-[9rem] overflow-hidden text-ellipsis whitespace-nowrap sm:max-w-[14rem] md:max-w-[20rem] lg:max-w-[30rem] xl:max-w-[40rem]">
                   {user}
                 </span>

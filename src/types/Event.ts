@@ -1,40 +1,21 @@
-// EventDate is the date portion of a TimeSlot, ie. 2000-11-29
-export type EventDate = string;
-export const EVENT_DATE_FORMAT = "yyyy-MM-dd";
+import { isBefore, parse } from "date-fns";
+import { z } from "zod";
 
-// date representation of days of week from sunday to saturday
-export const DAYS_OF_WEEK_DATES: EventDate[] = [
-  "2023-01-01",
-  "2023-01-02",
-  "2023-01-03",
-  "2023-01-04",
-  "2023-01-05",
-  "2023-01-06",
-  "2023-01-07"
-];
+import {
+  EVENT_TIME_FORMAT,
+  EventDate,
+  EventDateSchema,
+  EventTime,
+  EventTimeSchema,
+  TimeSlot,
+  TimeSlotSchema
+} from "./Timeslot";
 
-// EventTime is the time portion of a TimeSlot in 24 hour format, ie. 12:00:00
-export type EventTime = string;
-export const EVENT_TIME_FORMAT = "HH:mm:ss";
-export const TIME_SLOT_INTERVAL_MINUTES = 30;
-
-// TimeSlot is an ISO formatted date string that represents a time slot for an event, ie. 2000-11-29T12:00:00
-export type TimeSlot = string;
-
-// assume that when only time is passed in as a parameter, we're only interested in time so we we can use an aribtrary date to parse
-export function getTimeSlot(time: EventTime, date: EventDate = "2000-11-29"): TimeSlot {
-  return date + " " + time;
+export enum AvailabilityType {
+  SPECIFIC_DATES,
+  DAYS_OF_WEEK
 }
-
-export function getTimeFromTimeSlot(timeSlot: null | TimeSlot): EventTime {
-  if (timeSlot === null || !timeSlot.includes(" ")) return "";
-  return timeSlot.split(" ")[1];
-}
-
-export function getDateFromTimeSlot(timeSlot: null | TimeSlot): EventDate {
-  if (timeSlot === null || !timeSlot.includes(" ")) return "";
-  return timeSlot.split(" ")[0];
-}
+const AvailbilityTypeSchema = z.nativeEnum(AvailabilityType);
 
 export interface Event {
   dates: EventDate[];
@@ -45,8 +26,72 @@ export interface Event {
   startTime: EventTime;
 }
 
+export interface EventForm {
+  availabilityType: AvailabilityType;
+  daysOfTheWeek: Set<EventDate>;
+  name: string;
+  specificDates: Set<EventDate>;
+  startTime: EventTime;
+  timeRange: {
+    endTime: EventTime;
+    startTime: EventTime;
+  };
+}
+
+export const EventFormSchema = z
+  .object({
+    availabilityType: AvailbilityTypeSchema,
+    daysOfTheWeek: z.set(EventDateSchema),
+    name: z
+      .string()
+      .transform((str) => str.trim())
+      .pipe(z.string().min(1, { message: "Event name must be at least 1 character long" })),
+    specificDates: z.set(EventDateSchema),
+    timeRange: z
+      .object({
+        endTime: z.string(EventTimeSchema),
+        startTime: z.string(EventTimeSchema)
+      })
+      .refine(
+        (data) => {
+          const parsedStartTime = parse(data.startTime, EVENT_TIME_FORMAT, new Date());
+          const parsedEndTime = parse(data.endTime, EVENT_TIME_FORMAT, new Date());
+          return data.endTime === "00:00:00" || isBefore(parsedStartTime, parsedEndTime);
+        },
+        {
+          message: "Start time must be before end time",
+          path: ["root"]
+        }
+      )
+  })
+  .superRefine((data, ctx) => {
+    if (data.availabilityType === AvailabilityType.SPECIFIC_DATES) {
+      if (data.specificDates.size === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "You must select at least one date",
+          path: ["specificDates"]
+        });
+      }
+    } else if (data.availabilityType === AvailabilityType.DAYS_OF_WEEK) {
+      if (data.daysOfTheWeek.size === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "You must select at least one day of the week",
+          path: ["daysOfTheWeek"]
+        });
+      }
+    }
+  });
+
 export interface EventResponse {
   alias: string;
   availabilities: TimeSlot[];
   userId: string;
 }
+
+export const EventResponseSchema = z.object({
+  alias: z.string(),
+  availabilities: z.array(TimeSlotSchema),
+  userId: z.string()
+});

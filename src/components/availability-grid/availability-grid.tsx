@@ -1,16 +1,19 @@
 "use client";
-import useGridDragSelect from "@/hooks/useGridDragSelect";
-import useScreenSize, { ScreenSize } from "@/hooks/useScreenSize";
-import useAvailabilityGridStore, { AvailabilityType } from "@/store/availabilityGridStore";
-import { EventDate, EventTime, getTimeSlot, TimeSlot } from "@/types/Event";
-import { cn } from "@/utils/cn";
-import { isConsecutiveDay } from "@/utils/date";
+
 import { parseISO } from "date-fns";
 import { useAnimate } from "framer-motion";
 import { useEffect, useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import useAvailabilityGridHeight from "@/hooks/useAvailabilityGridHeight";
+import useGridDragSelect from "@/hooks/useGridDragSelect";
+import useScreenSize, { ScreenSize } from "@/hooks/useScreenSize";
+import useAvailabilityGridStore from "@/store/availabilityGridStore";
+import { AvailabilityType } from "@/types/Event";
+import { EventDate, EventTime, getTimeSlot, TimeSlot } from "@/types/Timeslot";
+import { cn } from "@/utils/cn";
+import { isConsecutiveDay } from "@/utils/date";
+
 import AvailabilityGridCell from "./availability-grid-cells/availability-grid-cell";
 import AvailabilityGridHeader from "./availability-grid-cells/availability-grid-header";
 import { TimeSlotDragSelectionState } from "./availability-grid-cells/availability-grid-time-slot";

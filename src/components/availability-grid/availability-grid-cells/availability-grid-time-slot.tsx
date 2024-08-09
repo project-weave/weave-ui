@@ -1,3 +1,7 @@
+import { parseISO } from "date-fns";
+import { MouseEvent, useEffect, useRef, useState } from "react";
+import style from "styled-jsx/style";
+
 import { DragMode } from "@/hooks/useDragSelect";
 import {
   CellBorderCheck,
@@ -7,12 +11,9 @@ import {
 } from "@/hooks/useGridDragSelect";
 import useRegisterNonPassiveTouchEvents from "@/hooks/useRegisterNonPassiveTouchEvents";
 import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
-import { EventDate, EventTime, getTimeFromTimeSlot, getTimeSlot, TimeSlot } from "@/types/Event";
+import { EventDate, EventTime, getTimeFromTimeSlot, getTimeSlot, TimeSlot } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
 import { isLeftClick } from "@/utils/mouseEvent";
-import { parseISO } from "date-fns";
-import { MouseEvent, useEffect, useRef, useState } from "react";
-import style from "styled-jsx/style";
 
 export type TimeSlotDragSelectionState = {
   dragMode: DragMode;

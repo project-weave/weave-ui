@@ -1,9 +1,10 @@
-import tailwindTheme from "@/utils/tailwindTheme";
 import debounce from "lodash.debounce";
 import { useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "react-responsive";
 import defaultTailwindTheme from "tailwindcss/defaultTheme";
 import { ScreensConfig } from "tailwindcss/types/config";
+
+import tailwindTheme from "@/utils/tailwindTheme";
 
 export enum ScreenSize {
   XXS,

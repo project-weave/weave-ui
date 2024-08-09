@@ -1,14 +1,16 @@
-import EventDateCalendar, { MONTH_FORMAT } from "@/components/event-date-calendar";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-import useEventResponsesFilters from "@/hooks/useEventResponsesFilters";
-import useAvailabilityGridStore, { AvailabilityType } from "@/store/availabilityGridStore";
-import { EventDate } from "@/types/Event";
 import { format, parseISO } from "date-fns";
 import { motion } from "framer-motion";
 import { Copy } from "lucide-react";
 import { useCallback, useRef } from "react";
 import { useShallow } from "zustand/react/shallow";
+
+import EventDateCalendar, { MONTH_FORMAT } from "@/components/event-date-calendar";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
+import useEventResponsesFilters from "@/hooks/useEventResponsesFilters";
+import useAvailabilityGridStore from "@/store/availabilityGridStore";
+import { AvailabilityType } from "@/types/Event";
+import { EventDate } from "@/types/Timeslot";
 
 import AvailabilityGridResponseFilterButton from "./availability-grid-response-filter-button";
 
@@ -30,8 +32,8 @@ export default function AvailabilityGridLeftPanel() {
 
   const {
     allUsersForEvent,
-    hoveredTimeSlotResponsesCount,
     hoveredTimeSlotResponses,
+    hoveredTimeSlotResponsesCount,
     onFliterClicked,
     totalResponseCount
   } = useEventResponsesFilters();

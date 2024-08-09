@@ -1,16 +1,10 @@
-import { GetEventResponse } from "@/hooks/requests/useGetEvent";
-import {
-  EVENT_TIME_FORMAT,
-  EventDate,
-  EventResponse,
-  EventTime,
-  getTimeSlot,
-  TIME_SLOT_INTERVAL_MINUTES,
-  TimeSlot
-} from "@/types/Event";
 import { addDays, addMinutes, format, parseISO } from "date-fns";
 
-import { AvailabilityType } from "./availabilityGridStore";
+import { GetEventResponse } from "@/hooks/requests/useGetEvent";
+import { AvailabilityType, EventResponse } from "@/types/Event";
+import { EVENT_TIME_FORMAT, EventDate, EventTime, getTimeSlot, TimeSlot } from "@/types/Timeslot";
+
+export const TIME_SLOT_INTERVAL_MINUTES = 30;
 
 export type EventData = {
   allParticipants: string[];
@@ -79,8 +73,36 @@ export const createEventDataSlice = (set, get): EventDataSlice => ({
       });
     });
 
+    const uniqueStrings = [
+      "alpha123",
+      "beta456",
+      "gamma789",
+      "delta012",
+      "epsilon345",
+      "zeta678",
+      "eta901",
+      "theta234",
+      "iota567",
+      "kappa890",
+      "lambda123",
+      "mu456",
+      "nu789",
+      "xi012",
+      "omicron345",
+      "pi678",
+      "rho901",
+      "sigma234",
+      "tau567",
+      "upsilon890",
+      "phi123",
+      "chi456",
+      "psi789",
+      "omega012",
+      "alpha345"
+    ];
+
     const eventData = {
-      allParticipants,
+      allParticipants: [...allParticipants, ...uniqueStrings],
       availabilityType,
       eventId: event.id,
       eventName: event.name,

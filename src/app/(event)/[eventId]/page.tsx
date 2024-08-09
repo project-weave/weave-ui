@@ -1,4 +1,10 @@
 "use client";
+
+import { isAxiosError } from "axios";
+import { redirect, useParams } from "next/navigation";
+import { useEffect } from "react";
+import { useShallow } from "zustand/react/shallow";
+
 import AvailabilityGrid from "@/components/availability-grid/availability-grid";
 import AvailabilityGridBottomPanel from "@/components/availability-grid/panel/availability-grid-bottom-panel";
 import AvailabilityGridLeftPanel from "@/components/availability-grid/panel/availability-grid-left-panel";
@@ -9,10 +15,6 @@ import useGetEvent, { GetEventResponse } from "@/hooks/requests/useGetEvent";
 import useUpdateAvailability, { UpdateAvailabilityRequest } from "@/hooks/requests/useUpdateAvailability";
 import { ScreenSize } from "@/hooks/useScreenSize";
 import useAvailabilityGridStore, { AvailabilityGridMode } from "@/store/availabilityGridStore";
-import { isAxiosError } from "axios";
-import { redirect, useParams } from "next/navigation";
-import { useEffect } from "react";
-import { useShallow } from "zustand/react/shallow";
 
 export default function Event() {
   const params = useParams<{ eventId: string }>();
@@ -31,7 +33,7 @@ export default function Event() {
     resetGridState();
     window.scrollTo(0, 0);
     return resetGridState();
-  }, []);
+  }, [resetGridState]);
 
   useEffect(() => {
     setEventData(data as GetEventResponse);

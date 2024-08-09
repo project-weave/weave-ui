@@ -1,14 +1,15 @@
-import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/use-toast";
-import useEventResponsesFilters from "@/hooks/useEventResponsesFilters";
-import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
-import { cn } from "@/utils/cn";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Copy } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "@/components/ui/use-toast";
+import useEventResponsesFilters from "@/hooks/useEventResponsesFilters";
 import useScreenSize, { ScreenSize } from "@/hooks/useScreenSize";
+import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
+import { cn } from "@/utils/cn";
+
 import EditAvailabilityDialog from "../dialog/edit-availability-dialog";
 import AvailbilityGridResponseFilterButton from "./availability-grid-response-filter-button";
 
@@ -36,8 +37,8 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
 
   const {
     allUsersForEvent,
-    hoveredTimeSlotResponsesCount,
     hoveredTimeSlotResponses,
+    hoveredTimeSlotResponsesCount,
     onFliterClicked,
     totalResponseCount
   } = useEventResponsesFilters();
@@ -91,8 +92,8 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
             <ResponsesAccordion
               accordionOpen={accordionOpen}
               allUsersForEvent={allUsersForEvent}
-              hoveredTimeSlotResponsesCount={hoveredTimeSlotResponsesCount}
               hoveredTimeSlotResponses={hoveredTimeSlotResponses}
+              hoveredTimeSlotResponsesCount={hoveredTimeSlotResponsesCount}
               onFilterClicked={onFliterClicked}
               setAccordionExplicitlyClosed={setAccordionExplicitlyClosed}
               setAccordionOpen={setAccordionOpen}
@@ -128,8 +129,8 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
 function ResponsesAccordion({
   accordionOpen,
   allUsersForEvent,
-  hoveredTimeSlotResponsesCount,
   hoveredTimeSlotResponses,
+  hoveredTimeSlotResponsesCount,
   onFilterClicked,
   setAccordionExplicitlyClosed,
   setAccordionOpen,
