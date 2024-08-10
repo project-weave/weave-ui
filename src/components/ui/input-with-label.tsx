@@ -1,3 +1,5 @@
+import { forwardRef } from "react";
+
 import { cn } from "@/utils/cn";
 
 import { Input } from "./input";
@@ -9,9 +11,9 @@ export interface InputWithLabelProps extends React.InputHTMLAttributes<HTMLInput
   label: string;
 }
 
-export default function InputWithLabel({ error, id, label, type, ...props }: InputWithLabelProps) {
+const InputWithLabel = forwardRef<HTMLDivElement, InputWithLabelProps>(({ error, id, label, type, ...props }, ref) => {
   return (
-    <div className="relative w-full">
+    <div className="relative w-full scroll-m-24" ref={ref}>
       <Input
         className={cn(
           "peer flex h-11 w-full appearance-none border-2 border-primary border-opacity-40 bg-background px-4 pb-2.5 pt-3 hover:border-opacity-100 focus:border-[3px] focus:border-opacity-100 focus:outline-none",
@@ -30,4 +32,6 @@ export default function InputWithLabel({ error, id, label, type, ...props }: Inp
       </Label>
     </div>
   );
-}
+});
+
+export default InputWithLabel;

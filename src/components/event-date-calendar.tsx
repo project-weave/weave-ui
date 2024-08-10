@@ -16,8 +16,7 @@ import {
 } from "date-fns";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import dynamic from "next/dynamic";
-import { Dispatch, MouseEvent, SetStateAction, useEffect, useRef, useState } from "react";
+import { Dispatch, LegacyRef, MouseEvent, SetStateAction, useEffect, useRef, useState } from "react";
 
 import useDragSelect, { extractDragSelectData } from "@/hooks/useDragSelect";
 import useRegisterNonPassiveTouchEvents from "@/hooks/useRegisterNonPassiveTouchEvents";
@@ -26,7 +25,6 @@ import { cn } from "@/utils/cn";
 import { isLeftClick } from "@/utils/mouseEvent";
 
 import { Button } from "./ui/button";
-import { Skeleton } from "./ui/skeleton";
 
 type EventDateCalendarViewModeProps = {
   currentMonthOverride?: string;
@@ -41,6 +39,7 @@ type EventDateCalendarViewModeProps = {
   setSelectedDates?: never;
   size?: "large" | "small";
   visibleEventDates: EventDate[];
+  forwardedRef?: LegacyRef<HTMLDivElement>;
 };
 
 type EventDateCalendarEditModeProps = {
@@ -56,9 +55,10 @@ type EventDateCalendarEditModeProps = {
   setSelectedDates: Dispatch<SetStateAction<Set<EventDate>>>;
   size?: "large" | "small";
   visibleEventDates?: never;
+  forwardedRef?: LegacyRef<HTMLDivElement>;
 };
 
-type EventDateCalendarProps = EventDateCalendarEditModeProps | EventDateCalendarViewModeProps;
+export type EventDateCalendarProps = EventDateCalendarEditModeProps | EventDateCalendarViewModeProps;
 
 export const MONTH_FORMAT = "yyyy-MM";
 
@@ -74,7 +74,8 @@ const EventDateCalendar = ({
   setCurrentMonthOverride,
   setSelectedDates,
   size,
-  visibleEventDates
+  visibleEventDates,
+  forwardedRef
 }: EventDateCalendarProps) => {
   const defaultMonth =
     currentMonthOverride !== undefined
@@ -141,13 +142,14 @@ const EventDateCalendar = ({
 
   return (
     <div
-      className={cn("card h-fit select-none border-[1px] p-5 pt-3", {
+      className={cn("card h-fit scroll-m-24 select-none border-[1px] p-5 pt-3", {
         "border-red-500": error,
         "h-full w-full px-12 pb-5 pt-8": size === "large"
       })}
       onContextMenu={handleMouseUp}
       onMouseLeave={handleMouseUp}
       onMouseUp={handleMouseUp}
+      ref={forwardedRef}
     >
       <div className="mx-auto w-full">
         <div
@@ -245,10 +247,7 @@ const EventDateCalendar = ({
   );
 };
 
-export default dynamic(() => Promise.resolve(EventDateCalendar), {
-  loading: () => <Skeleton className="h-full min-h-[16rem] w-full rounded-md bg-primary-light/30" />,
-  ssr: false
-});
+export default EventDateCalendar;
 
 function DateButton({
   day,
@@ -324,7 +323,7 @@ function DateButton({
   return (
     <Button
       className={cn(
-        "my-[3px] flex h-[1.9rem] cursor-pointer touch-none items-center justify-center rounded-full border-2 border-primary-light/30 p-[1px] text-sm font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
+        "my-[3px] flex h-[2.1rem] cursor-pointer touch-none items-center justify-center rounded-full border-2 border-primary-light/30 p-[1px] text-sm font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
         !isDaySelected
           ? {
               "border-transparent bg-background": true,

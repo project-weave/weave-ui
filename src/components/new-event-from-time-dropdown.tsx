@@ -147,8 +147,10 @@ export default function NewEventFromTimeDropdown({
               "peer box-border cursor-pointer flex h-10 items-center rounded-2xl bg-background px-4 pb-2.5 pt-3 outline outline-2 outline-primary/40 focus-within:outline-primary hover:outline-primary",
               {
                 "outline-primary": open,
-                "outline-red-600": error && open,
-                "outline-red-600/40 focus-within:outline-red-600 hover:outline-red-600": error
+                "outline-red-500/40 focus-within:outline-red-500 hover:outline-red-500": error
+              },
+              {
+                "outline-red-500": error && open
               }
             )}
           >

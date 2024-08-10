@@ -4,7 +4,7 @@ import { format, startOfToday } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, FieldErrors, useForm } from "react-hook-form";
 
 import DaysOfWeekPicker from "@/components/days-of-week-picker";
 import EventDateCalendar, { MONTH_FORMAT } from "@/components/event-date-calendar";
@@ -37,8 +37,13 @@ export default function NewEventForm() {
   const [selectedDaysOfWeek, setSelectedDaysOfWeek] = useState(new Set<EventDate>());
 
   const isSubmitAttempted = useRef(false);
-  const shouldTriggerSpecificDates = useRef(false);
-  const shouldTriggerDaysOfTheWeek = useRef(false);
+  const isSpecificDatesTouched = useRef(false);
+  const isDaysOfTheWeekTouched = useRef(false);
+
+  const nameInputRef = useRef<HTMLDivElement>(null);
+  const timeRangeDropdownsRef = useRef<HTMLDivElement>(null);
+  const specificDatesPickerRef = useRef<HTMLDivElement>(null);
+  const daysOfWeekPickerRef = useRef<HTMLDivElement>(null);
 
   const { control, formState, getFieldState, handleSubmit, setValue, trigger, watch } = useForm<EventForm>({
     defaultValues: {
@@ -51,27 +56,37 @@ export default function NewEventForm() {
         startTime: "09:00:00"
       }
     },
-    mode: "onBlur",
+    mode: "onChange",
     resolver: zodResolver(EventFormSchema)
   });
 
+  // set value of "specificDates" when selectedDates changes
+  // only trigger validation of "specificDates" if it has been modified or submit as been attempted
   useEffect(() => {
     setValue("specificDates", selectedDates);
-    if (shouldTriggerSpecificDates.current) trigger("specificDates");
-    if (selectedDates.size > 0 && !shouldTriggerSpecificDates.current) shouldTriggerSpecificDates.current = true;
+    if (isSpecificDatesTouched.current || isSubmitAttempted.current) trigger("specificDates");
+    if (selectedDates.size > 0 && !isSpecificDatesTouched.current) isSpecificDatesTouched.current = true;
   }, [setValue, trigger, selectedDates]);
 
+  // set value of "daysOfTheWeek" when selectedDaysOfTheWeek changes
+  // only trigger validation of "daysOfTheWeek" if it has been modified or submit as been attempted
   useEffect(() => {
     setValue("daysOfTheWeek", selectedDaysOfWeek);
-    if (shouldTriggerDaysOfTheWeek.current) trigger("daysOfTheWeek");
-    if (selectedDaysOfWeek.size > 0 && !shouldTriggerDaysOfTheWeek.current) shouldTriggerDaysOfTheWeek.current = true;
+    if (isDaysOfTheWeekTouched.current || isSubmitAttempted.current) trigger("daysOfTheWeek");
+    if (selectedDaysOfWeek.size > 0 && !isDaysOfTheWeekTouched.current) isDaysOfTheWeekTouched.current = true;
   }, [setValue, trigger, selectedDaysOfWeek]);
 
-  const { toast } = useToast();
-  const { isPending, mutate } = useCreateEvent();
-
-  const formRef = useRef<HTMLFormElement>(null);
-  const [isFormInView, setIsFormInView] = useState(false);
+  // trigger validation of specificDates and daysOfTheWeek if submit is already attempted
+  useEffect(() => {
+    switch (watch("availabilityType")) {
+      case AvailabilityType.SPECIFIC_DATES:
+        if (isSubmitAttempted.current) trigger("specificDates");
+        break;
+      case AvailabilityType.DAYS_OF_WEEK:
+        if (isSubmitAttempted.current) trigger("daysOfTheWeek");
+        break;
+    }
+  }, [watch("availabilityType"), selectedDates, selectedDaysOfWeek, trigger]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -80,7 +95,7 @@ export default function NewEventForm() {
       },
       {
         root: null,
-        threshold: 0.75
+        threshold: 0.7
       }
     );
     const formElement = formRef.current;
@@ -93,6 +108,27 @@ export default function NewEventForm() {
       }
     };
   }, []);
+
+  const { toast } = useToast();
+  const { isPending, mutate } = useCreateEvent();
+
+  const formRef = useRef<HTMLFormElement>(null);
+  const [isFormInView, setIsFormInView] = useState(false);
+
+  function onInvalid(errors: FieldErrors) {
+    console.log(errors);
+    if (errors.name && nameInputRef.current)
+      return nameInputRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    if (errors.timeRange && timeRangeDropdownsRef.current)
+      return timeRangeDropdownsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    if (errors.specificDates && specificDatesPickerRef.current)
+      return specificDatesPickerRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    if (errors.daysOfTheWeek && daysOfWeekPickerRef.current)
+      return daysOfWeekPickerRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   async function onSubmit({
     availabilityType,
@@ -157,6 +193,7 @@ export default function NewEventForm() {
               label={EVENT_NAME_LABEL}
               onBlur={onBlur}
               onChange={onChange}
+              ref={nameInputRef}
               type="text"
               value={value}
             />
@@ -170,7 +207,7 @@ export default function NewEventForm() {
   const startAndEndTimeInput = (
     <>
       <p className="mb-3 text-xs font-medium text-secondary">{WHAT_TIMES}</p>
-      <div className="flex mb-0.5 w-full items-center justify-between">
+      <div className="flex mb-0.5 w-full items-center justify-between scroll-m-24" ref={timeRangeDropdownsRef}>
         <Controller
           control={control}
           name="timeRange.startTime"
@@ -268,6 +305,7 @@ export default function NewEventForm() {
           id="create-event-calendar-sm"
           isViewMode={false}
           key="create-event-calendar-sm"
+          forwardedRef={specificDatesPickerRef}
           selectedDates={selectedDates}
           setCurrentMonthOverride={setCurrentCalendarMonth}
           setSelectedDates={setSelectedDates}
@@ -279,6 +317,7 @@ export default function NewEventForm() {
       <>
         <DaysOfWeekPicker
           error={getFieldState("daysOfTheWeek").invalid}
+          ref={daysOfWeekPickerRef}
           selectedDaysOfWeek={selectedDaysOfWeek}
           setSelectedDaysOfWeek={setSelectedDaysOfWeek}
         />
@@ -333,9 +372,9 @@ export default function NewEventForm() {
           >
             <Button
               className="h-12 w-full max-w-[26rem] rounded-xl border-primary text-sm"
-              disabled={isSubmitAttempted.current && !formState.isValid}
               form="new-event-form"
               type="submit"
+              disabled={isSubmitAttempted.current && !formState.isValid}
             >
               {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin text-white" /> : CREATE_EVENT}
             </Button>
@@ -344,9 +383,9 @@ export default function NewEventForm() {
       </AnimatePresence>
       <Button
         className="hidden xs:block h-12 w-full rounded-xl border-[1px] border-primary align-bottom text-sm"
-        disabled={isSubmitAttempted.current && !formState.isValid}
         form="new-event-form"
         type="submit"
+        disabled={isSubmitAttempted.current && !formState.isValid}
       >
         {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin py-0 text-white" /> : CREATE_EVENT}
       </Button>
@@ -364,10 +403,8 @@ export default function NewEventForm() {
             e.preventDefault();
             e.stopPropagation();
             isSubmitAttempted.current = true;
-            shouldTriggerDaysOfTheWeek.current = true;
-            shouldTriggerSpecificDates.current = true;
             if (formState.isSubmitting || formState.isSubmitSuccessful) return;
-            handleSubmit(onSubmit)();
+            handleSubmit(onSubmit, onInvalid)();
           }}
           ref={formRef}
         >
@@ -377,7 +414,7 @@ export default function NewEventForm() {
           <div className="mb-4">{dateSelector}</div>
           {formSubmissionButton}
         </form>
-        <div className="hidden w-[47rem] lg:block">{largeDateSelector}</div>
+        <div className="hidden w-[47rem] xl:block">{largeDateSelector}</div>
       </div>
       {/* add spacing on the bottom when button is fixed to bottom of*/}
       <div className={cn(isFormInView && "h-16 xs:h-0")} />
