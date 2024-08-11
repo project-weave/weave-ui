@@ -11,8 +11,7 @@ const DynamicEventDateCalendar = dynamic(() => import("@/components/event-date-c
 });
 
 const ForwardedEventDateCalendar = forwardRef<HTMLDivElement, EventDateCalendarProps>((props, ref) => {
-  console.log(ref);
-  return <DynamicEventDateCalendar ref={ref} {...props} />;
+  return <DynamicEventDateCalendar forwardedRef={ref} {...props} />;
 });
 
 export default ForwardedEventDateCalendar;

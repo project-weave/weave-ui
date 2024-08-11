@@ -142,7 +142,7 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
         height: screenSize <= ScreenSize.MD ? gridHeightStyle : "100%"
       }}
     >
-      <div className={cn("sticky top-[3.3rem] z-[999] w-[101%] bg-background pb-1 pl-4 pt-4 xs:pl-10 xl:pl-14")}>
+      <div className={cn("sticky top-[3.3rem] z-[999] w-[101%] bg-background pb-1.5 pl-4 pt-4 xs:pl-10 xl:pl-14")}>
         <AvailabilityGridHeader
           editAvailabilityButtonAnimationScope={scope}
           handleSaveUserAvailability={handleSaveUserAvailability}
@@ -157,13 +157,7 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
           }}
         >
           {gridNodes.map((columnNodes, displayColIndex) => {
-            const columnHeaderHeight =
-              availabilityType === AvailabilityType.SPECIFIC_DATES
-                ? screenSize <= ScreenSize.LG
-                  ? "3.9rem"
-                  : "4.7rem"
-                : "3.3rem";
-
+            const columnHeaderHeight = availabilityType === AvailabilityType.SPECIFIC_DATES ? "3.9rem" : "3.3rem";
             const topBottomCellHeight = "0.7rem";
             const timeSlotCellHeight = screenSize <= ScreenSize.MD ? "1.5rem" : "1.45rem";
 

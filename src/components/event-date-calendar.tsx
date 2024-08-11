@@ -323,7 +323,7 @@ function DateButton({
   return (
     <Button
       className={cn(
-        "my-[3px] flex h-[2.1rem] cursor-pointer touch-none items-center justify-center rounded-full border-2 border-primary-light/30 p-[1px] text-sm font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
+        "my-[3px] flex h-[2.1rem] xl:h-[1.7rem] cursor-pointer touch-none items-center justify-center rounded-full border-2 border-primary-light/30 p-[1px] text-sm font-semibold outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
         !isDaySelected
           ? {
               "border-transparent bg-background": true,
@@ -360,7 +360,7 @@ function DateButton({
         {
           "font-bold text-primary": isToday(day) && !isDaySelected,
           "my-[3px] h-6 px-2": isViewMode,
-          "my-4 h-14 border-[1px] px-8 py-2 text-lg sm:text-lg": size === "large",
+          "my-4 xl:h-[3.1rem] border-[1px] px-8 py-2 text-lg sm:text-lg": size === "large",
           "text-gray-200 hover:bg-background hover:text-gray-200":
             !isViewMode && isBeforeToday(day) && !selectedDates.has(formattedDay)
         }

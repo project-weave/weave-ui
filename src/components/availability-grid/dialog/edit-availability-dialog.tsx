@@ -171,7 +171,7 @@ export default function EditAvailabilityDialog({
                 />
               </div>
             ) : (
-              <div className="scrollbar-primary mt-3 grid max-h-[7rem] w-full grid-cols-3 gap-x-3 gap-y-1 overflow-y-scroll scroll-smooth px-4 md:max-h-64">
+              <div className="scrollbar-primary mt-3 grid max-h-[7rem] w-full text-secondary grid-cols-3 gap-x-3 gap-y-1 overflow-y-scroll scroll-smooth px-4 md:max-h-64">
                 {allParticipants.map((paricipant) => (
                   <motion.button
                     className={cn(

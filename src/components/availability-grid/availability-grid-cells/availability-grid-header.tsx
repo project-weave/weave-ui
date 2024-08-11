@@ -97,7 +97,7 @@ export default function AvailabilityGridHeader({
               </div>
             )}
             {availabilityType === AvailabilityType.SPECIFIC_DATES && (
-              <h1 className="mb-[2px] whitespace-nowrap text-lg font-semibold tracking-wide text-secondary xl:mr-32 xl:text-xl">
+              <h1 className="mb-[2px] whitespace-nowrap text-lg font-semibold tracking-wide text-secondary xl:mr-20 xl:text-xl">
                 {heading}
               </h1>
             )}

@@ -1,5 +1,4 @@
-import debounce from "lodash.debounce";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useMediaQuery } from "react-responsive";
 import defaultTailwindTheme from "tailwindcss/defaultTheme";
 import { ScreensConfig } from "tailwindcss/types/config";
@@ -37,7 +36,6 @@ export const breakPoints: Record<ScreenSize, number> = {
 // Mobile first
 export default function useScreenSize() {
   const [screenSize, setScreenSize] = useState<ScreenSize>(ScreenSize.XXS);
-  const isInitialCall = useRef(true);
 
   const isScreenXXS = useMediaQuery({ minWidth: breakPoints[ScreenSize.XXS] });
   const isScreenXS = useMediaQuery({ minWidth: breakPoints[ScreenSize.XS] });
@@ -47,26 +45,14 @@ export default function useScreenSize() {
   const isScreenXL = useMediaQuery({ minWidth: breakPoints[ScreenSize.XL] });
   const isScreen2XL = useMediaQuery({ minWidth: breakPoints[ScreenSize.XXL] });
 
-  function updateScreenSize(size: ScreenSize) {
-    // ensuring that the initial call is not debounced so that components are rendered properly if they depend on screen size
-    if (isInitialCall.current) {
-      setScreenSize(size);
-      isInitialCall.current = false;
-    } else {
-      debounce((size: ScreenSize) => {
-        setScreenSize(size);
-      }, 300);
-    }
-  }
-
   useEffect(() => {
-    if (isScreen2XL) return updateScreenSize(ScreenSize.XXL);
-    if (isScreenXL) return updateScreenSize(ScreenSize.XL);
-    if (isScreenLG) return updateScreenSize(ScreenSize.LG);
-    if (isScreenMD) return updateScreenSize(ScreenSize.MD);
-    if (isScreenSM) return updateScreenSize(ScreenSize.SM);
-    if (isScreenXS) return updateScreenSize(ScreenSize.XS);
-    if (isScreenXXS) return updateScreenSize(ScreenSize.XXS);
+    if (isScreen2XL) return setScreenSize(ScreenSize.XXL);
+    if (isScreenXL) return setScreenSize(ScreenSize.XL);
+    if (isScreenLG) return setScreenSize(ScreenSize.LG);
+    if (isScreenMD) return setScreenSize(ScreenSize.MD);
+    if (isScreenSM) return setScreenSize(ScreenSize.SM);
+    if (isScreenXS) return setScreenSize(ScreenSize.XS);
+    if (isScreenXXS) return setScreenSize(ScreenSize.XXS);
   }, [isScreen2XL, isScreenXL, isScreenLG, isScreenMD, isScreenSM, isScreenXS, isScreenXXS]);
 
   return screenSize;

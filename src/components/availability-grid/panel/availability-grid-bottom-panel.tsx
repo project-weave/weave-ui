@@ -187,7 +187,7 @@ function ResponsesAccordion({
               <div className="mx-auto my-1 max-w-[48rem] flex-1 px-5 text-secondary sm:grid sm:grid-cols-4 sm:px-7 md:my-2 md:grid-cols-5">
                 {allUsersForEvent.map((name) => (
                   <AvailbilityGridResponseFilterButton
-                    className="m-1 p-[3px] text-[0.74rem] font-medium md:text-[0.84rem]"
+                    className="my-1.5 mx-1 p-[3px] text-[0.74rem] font-medium md:text-[0.84rem]"
                     hoveredTimeSlotResponses={hoveredTimeSlotResponses}
                     key={`${name}-filter-button-bottom-panel`}
                     name={name}
