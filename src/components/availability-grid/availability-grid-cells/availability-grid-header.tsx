@@ -17,13 +17,11 @@ const SAVE_AVAILABILITY_BUTTON_TEXT = "Save Availability";
 
 type AvailabilityGridHeaderProps = {
   editAvailabilityButtonAnimationScope: AnimationScope;
-  handleSaveUserAvailability: (user: string) => void;
   screenSize: ScreenSize;
 };
 
 export default function AvailabilityGridHeader({
   editAvailabilityButtonAnimationScope,
-  handleSaveUserAvailability,
   screenSize
 }: AvailabilityGridHeaderProps) {
   const { allParticipants, availabilityType, eventName, sortedEventDates } = useAvailabilityGridStore(
@@ -31,7 +29,6 @@ export default function AvailabilityGridHeader({
   );
 
   const mode = useAvailabilityGridStore((state) => state.mode);
-  const user = useAvailabilityGridStore((state) => state.user);
 
   const [availabilityGridNextPage, availabilityGridPreviousPage] = useAvailabilityGridStore(
     useShallow((state) => [state.nextPage, state.previousPage])
@@ -60,9 +57,10 @@ export default function AvailabilityGridHeader({
   const saveUserAvailabilityButton = (
     <MotionButton
       className="h-[1.7rem] whitespace-nowrap rounded-[.5rem] xl:h-[2rem]"
-      onClick={() => handleSaveUserAvailability(user)}
       variant="default"
       whileTap={{ scale: 0.94 }}
+      form="availability-grid"
+      type="submit"
     >
       {SAVE_AVAILABILITY_BUTTON_TEXT}
     </MotionButton>

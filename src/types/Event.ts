@@ -91,7 +91,7 @@ export interface EventResponse {
 }
 
 export const EventResponseSchema = z.object({
-  alias: z.string(),
-  availabilities: z.array(TimeSlotSchema),
-  userId: z.string()
+  alias: z.string().min(1, "user name must be at least 1 character long"),
+  availabilities: z.array(TimeSlotSchema)
+  // TODO: ass userId
 });

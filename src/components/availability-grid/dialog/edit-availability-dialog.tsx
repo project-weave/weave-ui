@@ -104,7 +104,7 @@ export default function EditAvailabilityDialog({
           <p className="mr-2 text-sm">{LOGIN_WITH_GOOGLE}</p>
           <Image alt="google-logo" className="h-4 w-4" height={40} key="google-logo" src="/google.png" width={40} />
         </MotionButton>
-        <form onSubmit={onSubmit}>
+        <form onSubmit={onSubmit} id="edit-availability-dialog">
           <div className="flex-column my-2 flex w-full items-center">
             <hr className="h-[2px] w-full bg-secondary" />
             <span className="mx-4 whitespace-nowrap text-xs text-secondary">{CONTINUE_WITHOUT_LOGIN}</span>
@@ -206,6 +206,7 @@ export default function EditAvailabilityDialog({
               className="w-full self-end text-sm md:w-[8rem] "
               disabled={!validUserName}
               type="submit"
+              form="edit-availability-dialog"
               whileTap={{ scale: 0.95 }}
             >
               {CONTINUE}

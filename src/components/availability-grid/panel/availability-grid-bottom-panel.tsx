@@ -17,11 +17,7 @@ const SAVE_AVAILABILITY_BUTTON_TEXT = "Save Availability";
 const RESPONSES_TITLE = "Responses";
 const COPY_LINK = "Copy Link";
 
-type AvailabilityGridBottomPanelProps = {
-  handleSaveUserAvailability: (user: string) => void;
-};
-
-export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability }: AvailabilityGridBottomPanelProps) {
+export default function AvailabilityGridBottomPanel() {
   const { allParticipants, eventId } = useAvailabilityGridStore((state) => state.eventData);
   const screenSize = useScreenSize();
 
@@ -51,8 +47,9 @@ export default function AvailabilityGridBottomPanel({ handleSaveUserAvailability
   const saveUserAvailabilityButton = (
     <MotionButton
       className="h-[2rem] whitespace-nowrap rounded-[.5rem] sm:h-[2.3rem] md:h-[2.6rem] md:px-6 md:text-[1.05rem]"
-      onClick={() => handleSaveUserAvailability(user)}
+      form="availability-grid"
       variant="default"
+      type="submit"
       whileTap={{ scale: 0.94 }}
     >
       {SAVE_AVAILABILITY_BUTTON_TEXT}
@@ -185,11 +182,11 @@ function ResponsesAccordion({
           >
             <ScrollArea className="mr-2 w-full md:mr-4">
               <div className="mx-auto my-1 max-w-[48rem] flex-1 px-5 text-secondary sm:grid sm:grid-cols-4 sm:px-7 md:my-2 md:grid-cols-5">
-                {allUsersForEvent.map((name) => (
+                {allUsersForEvent.map((name, i) => (
                   <AvailbilityGridResponseFilterButton
                     className="my-1.5 mx-1 p-[3px] text-[0.74rem] font-medium md:text-[0.84rem]"
                     hoveredTimeSlotResponses={hoveredTimeSlotResponses}
-                    key={`${name}-filter-button-bottom-panel`}
+                    key={`${name}-${i}-filter-button-bottom-panel`}
                     name={name}
                     onFilterClicked={onFilterClicked}
                   />

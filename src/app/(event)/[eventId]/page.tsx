@@ -12,21 +12,16 @@ import { MediaQueryLG, MediaQueryXXS } from "@/components/media-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import useGetEvent, { GetEventResponse } from "@/hooks/requests/useGetEvent";
-import useUpdateAvailability, { UpdateAvailabilityRequest } from "@/hooks/requests/useUpdateAvailability";
 import { ScreenSize } from "@/hooks/useScreenSize";
-import useAvailabilityGridStore, { AvailabilityGridMode } from "@/store/availabilityGridStore";
+import useAvailabilityGridStore from "@/store/availabilityGridStore";
 
 export default function Event() {
   const params = useParams<{ eventId: string }>();
   const { data, error, isError, isPending } = useGetEvent(params.eventId);
 
-  const { eventId } = useAvailabilityGridStore((state) => state.eventData);
   const setEventData = useAvailabilityGridStore((state) => state.setEventData);
   const resetGridState = useAvailabilityGridStore(useShallow((state) => state.resetGridState));
-  const setMode = useAvailabilityGridStore(useShallow((state) => state.setMode));
-  const selectedTimeSlots = useAvailabilityGridStore(useShallow((state) => state.selectedTimeSlots));
 
-  const { mutate } = useUpdateAvailability();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -74,34 +69,6 @@ export default function Event() {
     redirect("/");
   }
 
-  function handleSaveUserAvailability(user: string) {
-    const req: UpdateAvailabilityRequest = {
-      alias: user,
-      availabilities: Array.from(selectedTimeSlots),
-      eventId: eventId
-    };
-
-    mutate(req, {
-      onError: () => {
-        toast({
-          description: "An error occurred while saving your availability. Please try again later.",
-          title: "Oh no! Something went wrong",
-          variant: "failure"
-        });
-      },
-      onSuccess: () => {
-        toast({
-          description: "Your availability has been successfully recorded.",
-          title: "Congrats!",
-          variant: "success"
-        });
-      }
-    });
-
-    setMode(AvailabilityGridMode.VIEW);
-    resetGridState();
-  }
-
   return (
     <div className="flex flex-col">
       <div className="mt-4 grid w-full grid-flow-col justify-center gap-3 pb-4">
@@ -111,11 +78,11 @@ export default function Event() {
           </div>
         </MediaQueryLG>
         <div className="h-full w-[25rem] xs:w-[95vw] md:w-[45rem] lg:w-[44rem] xl:w-[56rem]">
-          <AvailabilityGrid handleSaveUserAvailability={handleSaveUserAvailability} />
+          <AvailabilityGrid />
         </div>
       </div>
       <MediaQueryXXS maxScreenSize={ScreenSize.LG}>
-        <AvailabilityGridBottomPanel handleSaveUserAvailability={handleSaveUserAvailability} />
+        <AvailabilityGridBottomPanel />
       </MediaQueryXXS>
     </div>
   );

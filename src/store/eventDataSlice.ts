@@ -73,36 +73,8 @@ export const createEventDataSlice = (set, get): EventDataSlice => ({
       });
     });
 
-    const uniqueStrings = [
-      "alpha123",
-      "beta456",
-      "gamma789",
-      "delta012",
-      "epsilon345",
-      "zeta678",
-      "eta901",
-      "theta234",
-      "iota567",
-      "kappa890",
-      "lambda123",
-      "mu456",
-      "nu789",
-      "xi012",
-      "omicron345",
-      "pi678",
-      "rho901",
-      "sigma234",
-      "tau567",
-      "upsilon890",
-      "phi123",
-      "chi456",
-      "psi789",
-      "omega012",
-      "alpha345"
-    ];
-
     const eventData = {
-      allParticipants: [...allParticipants, ...uniqueStrings],
+      allParticipants: allParticipants,
       availabilityType,
       eventId: event.id,
       eventName: event.name,

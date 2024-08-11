@@ -108,10 +108,10 @@ export default function AvailabilityGridLeftPanel() {
         className="scrollbar-primary m-3 box-border grid flex-1 gap-x-0.5 gap-y-1 overflow-y-scroll text-secondary"
         style={{ gridAutoRows: "min-content", gridTemplateColumns: `repeat(2, minmax(5rem, 1fr))` }}
       >
-        {allUsersForEvent.map((name) => (
+        {allUsersForEvent.map((name, i) => (
           <AvailabilityGridResponseFilterButton
             hoveredTimeSlotResponses={hoveredTimeSlotResponses}
-            key={`${name}-filter-button`}
+            key={`${name}-${i}-filter-button`}
             name={name}
             onFilterClicked={onFliterClicked}
           />
