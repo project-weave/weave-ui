@@ -1,3 +1,4 @@
+import EditAvailabilityDialog from "../dialog/edit-availability-dialog";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Copy } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -10,7 +11,6 @@ import useScreenSize, { ScreenSize } from "@/hooks/useScreenSize";
 import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
 
-import EditAvailabilityDialog from "../dialog/edit-availability-dialog";
 import AvailbilityGridResponseFilterButton from "./availability-grid-response-filter-button";
 
 const SAVE_AVAILABILITY_BUTTON_TEXT = "Save Availability";
@@ -21,7 +21,6 @@ export default function AvailabilityGridBottomPanel() {
   const { allParticipants, eventId } = useAvailabilityGridStore((state) => state.eventData);
   const screenSize = useScreenSize();
 
-  const user = useAvailabilityGridStore((state) => state.user);
   const mode = useAvailabilityGridStore((state) => state.mode);
 
   const [accordionOpen, setAccordionOpen] = useState(false);
@@ -48,8 +47,8 @@ export default function AvailabilityGridBottomPanel() {
     <MotionButton
       className="h-[2rem] whitespace-nowrap rounded-[.5rem] sm:h-[2.3rem] md:h-[2.6rem] md:px-6 md:text-[1.05rem]"
       form="availability-grid"
-      variant="default"
       type="submit"
+      variant="default"
       whileTap={{ scale: 0.94 }}
     >
       {SAVE_AVAILABILITY_BUTTON_TEXT}
@@ -57,10 +56,7 @@ export default function AvailabilityGridBottomPanel() {
   );
 
   const editUserAvailabilityButton = (
-    <EditAvailabilityDialog
-      allParticipants={allParticipants}
-      className="h-[2rem] whitespace-nowrap rounded-[.5rem] sm:h-[2.3rem] md:h-[2.6rem] md:px-6 md:text-[1.05rem]"
-    />
+    <EditAvailabilityDialog className="h-[2rem] whitespace-nowrap rounded-[.5rem] sm:h-[2.3rem] md:h-[2.6rem] md:px-6 md:text-[1.05rem]" />
   );
 
   let spacingHeightStyle = "";
@@ -97,7 +93,7 @@ export default function AvailabilityGridBottomPanel() {
               totalResponseCount={totalResponseCount}
             />
           )}
-          <div className="h-1 border-b-[1px] border-accent pt-1 sm:border-b-2" />
+          <div className="h-1 border-b-[1px] border-accent pt-1" />
           <div className="z-10 mx-auto grid w-full max-w-[56rem] grid-flow-col justify-between px-6 pt-4">
             <MotionButton
               className="h-[2rem] rounded-[.5rem] border-2 text-sm sm:h-[2.3rem] md:h-[2.6rem] md:px-6 md:text-[1.05rem]"
@@ -137,7 +133,7 @@ function ResponsesAccordion({
     <>
       <header
         className={cn(
-          "flex h-[3rem] w-full items-center justify-between rounded-t-2xl border-[1px] border-b-0 border-accent bg-background px-5 pt-1 text-center font-medium sm:h-[3.5rem] sm:border-2 sm:pt-0 md:h-[3.6rem] md:px-7",
+          "flex h-[3rem] w-full items-center justify-between rounded-t-2xl border-[1px] border-b-0 border-accent bg-background px-5 pt-1 text-center font-medium sm:h-[3.5rem] sm:pt-0 md:h-[3.6rem] md:px-7",
           totalResponseCount !== 0 && "cursor-pointer"
         )}
         onClick={() => {
