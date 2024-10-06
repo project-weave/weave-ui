@@ -1,5 +1,6 @@
 "use-client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { format, startOfToday } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
@@ -18,7 +19,6 @@ import useCreateEvent, { CreateEventRequest } from "@/hooks/requests/useCreateEv
 import { AvailabilityType, EventForm, EventFormSchema } from "@/types/Event";
 import { EventDate } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 const EVENT_NAME_LABEL = "Event Name";
 
@@ -60,6 +60,8 @@ export default function NewEventForm() {
     resolver: zodResolver(EventFormSchema)
   });
 
+  const availabilityType = watch("availabilityType");
+
   // set value of "specificDates" when selectedDates changes
   // only trigger validation of "specificDates" if it has been modified or submit as been attempted
   useEffect(() => {
@@ -78,7 +80,7 @@ export default function NewEventForm() {
 
   // trigger validation of specificDates and daysOfTheWeek if submit is already attempted
   useEffect(() => {
-    switch (watch("availabilityType")) {
+    switch (availabilityType) {
       case AvailabilityType.SPECIFIC_DATES:
         if (isSubmitAttempted.current) trigger("specificDates");
         break;
@@ -86,7 +88,7 @@ export default function NewEventForm() {
         if (isSubmitAttempted.current) trigger("daysOfTheWeek");
         break;
     }
-  }, [watch("availabilityType"), selectedDates, selectedDaysOfWeek, trigger]);
+  }, [availabilityType, selectedDates, selectedDaysOfWeek, trigger]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -116,7 +118,6 @@ export default function NewEventForm() {
   const [isFormInView, setIsFormInView] = useState(false);
 
   function onInvalid(errors: FieldErrors) {
-    console.log(errors);
     if (errors.name && nameInputRef.current)
       return nameInputRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
 
@@ -297,15 +298,15 @@ export default function NewEventForm() {
   );
 
   const dateSelector =
-    watch("availabilityType").toString() === AvailabilityType.SPECIFIC_DATES.toString() ? (
+    availabilityType.toString() === AvailabilityType.SPECIFIC_DATES.toString() ? (
       <>
         <EventDateCalendar
           currentMonthOverride={currentCalendarMonth}
           error={getFieldState("specificDates").invalid}
+          forwardedRef={specificDatesPickerRef}
           id="create-event-calendar-sm"
           isViewMode={false}
           key="create-event-calendar-sm"
-          forwardedRef={specificDatesPickerRef}
           selectedDates={selectedDates}
           setCurrentMonthOverride={setCurrentCalendarMonth}
           setSelectedDates={setSelectedDates}
@@ -326,7 +327,7 @@ export default function NewEventForm() {
     );
 
   const largeDateSelector =
-    watch("availabilityType").toString() === AvailabilityType.SPECIFIC_DATES.toString() ? (
+    availabilityType.toString() === AvailabilityType.SPECIFIC_DATES.toString() ? (
       <>
         <EventDateCalendar
           currentMonthOverride={currentCalendarMonth}
@@ -372,9 +373,9 @@ export default function NewEventForm() {
           >
             <Button
               className="h-12 w-full max-w-[26rem] rounded-xl border-primary text-sm"
+              disabled={isSubmitAttempted.current && !formState.isValid}
               form="new-event-form"
               type="submit"
-              disabled={isSubmitAttempted.current && !formState.isValid}
             >
               {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin text-white" /> : CREATE_EVENT}
             </Button>
@@ -383,9 +384,9 @@ export default function NewEventForm() {
       </AnimatePresence>
       <Button
         className="hidden xs:block h-12 w-full rounded-xl border-[1px] border-primary align-bottom text-sm"
+        disabled={isSubmitAttempted.current && !formState.isValid}
         form="new-event-form"
         type="submit"
-        disabled={isSubmitAttempted.current && !formState.isValid}
       >
         {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin py-0 text-white" /> : CREATE_EVENT}
       </Button>
@@ -412,6 +413,9 @@ export default function NewEventForm() {
           <div className="mb-4 flex w-full flex-col">{startAndEndTimeInput}</div>
           <div className="mb-5 flex flex-col">{availabilityTypeInput}</div>
           <div className="mb-4">{dateSelector}</div>
+          {/* {console.log(Intl.DateTimeFormat().resolvedOptions().timeZone)}
+          {console.log(Intl.supportedValuesOf("timeZone"))} 
+          <p className="mb-6 text-xs font-medium text-secondary sm:mb-4">{WHAT_TIMEZONE}</p> */}
           {formSubmissionButton}
         </form>
         <div className="hidden w-[47rem] xl:block">{largeDateSelector}</div>

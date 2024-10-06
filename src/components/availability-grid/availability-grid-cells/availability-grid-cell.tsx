@@ -1,9 +1,10 @@
+import { AvailabilityGridNode, NodeType } from "../availability-grid-node";
+
 import { ScreenSize } from "@/hooks/useScreenSize";
 import useAvailabilityGridStore, { isViewMode } from "@/store/availabilityGridStore";
 import { AvailabilityType } from "@/types/Event";
 import { cn } from "@/utils/cn";
 
-import { AvailabilityGridNode, NodeType } from "../availability-grid-node";
 import AvailabilityGridColumnHeader from "./availability-grid-column-header";
 import AvailabilityGridRowHeader from "./availability-grid-row-header";
 import AvailabilityGridTimeSlot, { TimeSlotDragSelectionState } from "./availability-grid-time-slot";

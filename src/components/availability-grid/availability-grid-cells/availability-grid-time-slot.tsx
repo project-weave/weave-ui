@@ -249,6 +249,7 @@ export default function AvailabilityGridTimeSlot({
         ...(isViewMode(mode) ? { backgroundColor: getViewModeCellColour() } : {}),
         ...style
       }}
+      type="button"
     />
   );
 }

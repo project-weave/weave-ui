@@ -30,6 +30,7 @@ type EventDateCalendarViewModeProps = {
   currentMonthOverride?: string;
   earliestSelectedDate: EventDate;
   error?: boolean;
+  forwardedRef?: LegacyRef<HTMLDivElement>;
   id: string;
   isViewMode: true;
   latestSelectedDate: EventDate;
@@ -39,13 +40,13 @@ type EventDateCalendarViewModeProps = {
   setSelectedDates?: never;
   size?: "large" | "small";
   visibleEventDates: EventDate[];
-  forwardedRef?: LegacyRef<HTMLDivElement>;
 };
 
 type EventDateCalendarEditModeProps = {
   currentMonthOverride?: string;
   earliestSelectedDate?: never;
   error?: boolean;
+  forwardedRef?: LegacyRef<HTMLDivElement>;
   id: string;
   isViewMode: false;
   latestSelectedDate?: never;
@@ -55,7 +56,6 @@ type EventDateCalendarEditModeProps = {
   setSelectedDates: Dispatch<SetStateAction<Set<EventDate>>>;
   size?: "large" | "small";
   visibleEventDates?: never;
-  forwardedRef?: LegacyRef<HTMLDivElement>;
 };
 
 export type EventDateCalendarProps = EventDateCalendarEditModeProps | EventDateCalendarViewModeProps;
@@ -66,6 +66,7 @@ const EventDateCalendar = ({
   currentMonthOverride,
   earliestSelectedDate,
   error,
+  forwardedRef,
   id,
   isViewMode,
   latestSelectedDate,
@@ -74,8 +75,7 @@ const EventDateCalendar = ({
   setCurrentMonthOverride,
   setSelectedDates,
   size,
-  visibleEventDates,
-  forwardedRef
+  visibleEventDates
 }: EventDateCalendarProps) => {
   const defaultMonth =
     currentMonthOverride !== undefined

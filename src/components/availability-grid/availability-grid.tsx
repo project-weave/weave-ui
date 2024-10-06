@@ -1,5 +1,7 @@
 "use client";
 
+import { toast } from "../ui/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { parseISO } from "date-fns";
 import { useAnimate } from "framer-motion";
 import { useEffect, useMemo } from "react";
@@ -15,16 +17,14 @@ import { AvailabilityType, EventResponse, EventResponseSchema } from "@/types/Ev
 import { EventDate, EventTime, getTimeSlot, TimeSlot } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
 import { isConsecutiveDay } from "@/utils/date";
-import { zodResolver } from "@hookform/resolvers/zod";
 
-import { toast } from "../ui/use-toast";
 import AvailabilityGridCell from "./availability-grid-cells/availability-grid-cell";
 import AvailabilityGridHeader from "./availability-grid-cells/availability-grid-header";
 import { TimeSlotDragSelectionState } from "./availability-grid-cells/availability-grid-time-slot";
 import { AvailabilityGridNode } from "./availability-grid-node";
 
 export default function AvailabilityGrid() {
-  const { availabilityType, sortedEventDates, sortedEventTimes, eventId } = useAvailabilityGridStore(
+  const { availabilityType, eventId, sortedEventDates, sortedEventTimes } = useAvailabilityGridStore(
     (state) => state.eventData
   );
   const setMode = useAvailabilityGridStore(useShallow((state) => state.setMode));
@@ -40,7 +40,7 @@ export default function AvailabilityGrid() {
 
   const { mutate } = useUpdateAvailability();
 
-  const { handleSubmit, setValue, formState } = useForm<EventResponse>({
+  const { formState, handleSubmit, setValue } = useForm<EventResponse>({
     defaultValues: {
       alias: "",
       availabilities: []
@@ -57,7 +57,6 @@ export default function AvailabilityGrid() {
   }, [selectedTimeSlots]);
 
   function onSubmit({ alias, availabilities }: EventResponse) {
-    console.log("herllo");
     const req: UpdateAvailabilityRequest = {
       alias,
       availabilities,
@@ -180,25 +179,22 @@ export default function AvailabilityGrid() {
 
   return (
     <form
-      id="availability-grid"
       className="card flex w-full select-none flex-col pl-0 pr-5 pt-1 sm:pr-8 xl:pl-2 xl:pr-10"
+      id="availability-grid"
       // mouseUp is cancelled when onContextMenu is triggered so we need to save the selection here as well
       onContextMenu={onMouseDragEnd}
       onMouseLeave={onMouseDragEnd}
       // putting saveDragSelection here to handle the case where the user lets go of the mouse outside of the grid cells
       onMouseUp={onMouseDragEnd}
-      onTouchEnd={onTouchDragEnd}
-      style={{
-        height: screenSize <= ScreenSize.MD ? gridHeightStyle : "100%"
-      }}
       onSubmit={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        e.stopPropagation();
         if (formState.isSubmitting) return;
-        handleSubmit(onSubmit, (e) => {
-          console.log(e);
-        })();
+        handleSubmit(onSubmit)();
+      }}
+      onTouchEnd={onTouchDragEnd}
+      style={{
+        height: screenSize <= ScreenSize.MD ? gridHeightStyle : "100%"
       }}
     >
       <div className={cn("sticky top-[3.3rem] z-[999] w-[101%] bg-background pb-1.5 pl-4 pt-4 xs:pl-10 xl:pl-14")}>

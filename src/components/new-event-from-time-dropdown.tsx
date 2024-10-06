@@ -1,3 +1,4 @@
+import { Label } from "@radix-ui/react-label";
 import { addMinutes, format, isValid, parse } from "date-fns";
 import { Check } from "lucide-react";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
@@ -7,7 +8,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { TIME_SLOT_INTERVAL_MINUTES } from "@/store/eventDataSlice";
 import { EVENT_TIME_FORMAT } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
-import { Label } from "@radix-ui/react-label";
 
 export const TIME_LABEL_FORMAT = "h:mm aa";
 export const NEXT_DAY_MIDNIGHT_OPTION = {
