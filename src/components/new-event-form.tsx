@@ -40,9 +40,6 @@ export default function NewEventForm() {
   const [selectedDaysOfWeek, setSelectedDaysOfWeek] = useState(new Set<EventDate>());
 
   const isSubmitAttempted = useRef(false);
-  const isSpecificDatesTouched = useRef(false);
-  const isDaysOfTheWeekTouched = useRef(false);
-
   const nameInputRef = useRef<HTMLDivElement>(null);
   const timeRangeDropdownsRef = useRef<HTMLDivElement>(null);
   const specificDatesPickerRef = useRef<HTMLDivElement>(null);
@@ -69,16 +66,14 @@ export default function NewEventForm() {
   // only trigger validation of "specificDates" if it has been modified or submit as been attempted
   useEffect(() => {
     form.setValue("specificDates", selectedDates);
-    if (isSpecificDatesTouched.current || isSubmitAttempted.current) form.trigger("specificDates");
-    if (selectedDates.size > 0 && !isSpecificDatesTouched.current) isSpecificDatesTouched.current = true;
+    if (isSubmitAttempted.current) form.trigger("specificDates");
   }, [selectedDates]);
 
   // set value of "daysOfTheWeek" when selectedDaysOfTheWeek changes
   // only trigger validation of "daysOfTheWeek" if it has been modified or submit as been attempted
   useEffect(() => {
     form.setValue("daysOfTheWeek", selectedDaysOfWeek);
-    if (isDaysOfTheWeekTouched.current || isSubmitAttempted.current) form.trigger("daysOfTheWeek");
-    if (selectedDaysOfWeek.size > 0 && !isDaysOfTheWeekTouched.current) isDaysOfTheWeekTouched.current = true;
+    if (isSubmitAttempted.current) form.trigger("daysOfTheWeek");
   }, [selectedDaysOfWeek]);
 
   // trigger validation of specificDates and daysOfTheWeek if submit is already attempted
