@@ -1,14 +1,17 @@
-import EventDateCalendar, { MONTH_FORMAT } from "@/components/event-date-calendar";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-import useEventResponsesFilters from "@/hooks/useEventResponsesFilters";
-import useAvailabilityGridStore, { AvailabilityType } from "@/store/availabilityGridStore";
-import { EventDate } from "@/types/Event";
 import { format, parseISO } from "date-fns";
 import { motion } from "framer-motion";
 import { Copy } from "lucide-react";
 import { useCallback, useRef } from "react";
 import { useShallow } from "zustand/react/shallow";
+
+import EventDateCalendar from "@/components/dynamic-event-date-calendar";
+import { MONTH_FORMAT } from "@/components/event-date-calendar";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
+import useEventResponsesFilters from "@/hooks/useEventResponsesFilters";
+import useAvailabilityGridStore from "@/store/availabilityGridStore";
+import { AvailabilityType } from "@/types/Event";
+import { EventDate } from "@/types/Timeslot";
 
 import AvailabilityGridResponseFilterButton from "./availability-grid-response-filter-button";
 
@@ -30,8 +33,8 @@ export default function AvailabilityGridLeftPanel() {
 
   const {
     allUsersForEvent,
-    hoveredTimeSlotResponsesCount,
     hoveredTimeSlotResponses,
+    hoveredTimeSlotResponsesCount,
     onFliterClicked,
     totalResponseCount
   } = useEventResponsesFilters();
@@ -105,10 +108,10 @@ export default function AvailabilityGridLeftPanel() {
         className="scrollbar-primary m-3 box-border grid flex-1 gap-x-0.5 gap-y-1 overflow-y-scroll text-secondary"
         style={{ gridAutoRows: "min-content", gridTemplateColumns: `repeat(2, minmax(5rem, 1fr))` }}
       >
-        {allUsersForEvent.map((name) => (
+        {allUsersForEvent.map((name, i) => (
           <AvailabilityGridResponseFilterButton
             hoveredTimeSlotResponses={hoveredTimeSlotResponses}
-            key={`${name}-filter-button`}
+            key={`${name}-${i}-filter-button`}
             name={name}
             onFilterClicked={onFliterClicked}
           />

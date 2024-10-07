@@ -94,8 +94,6 @@
   }
 }
 
-
-
 .selection-transparent::selection {
     background: transparent
 }

@@ -1,28 +1,35 @@
 "use client";
-import useGridDragSelect from "@/hooks/useGridDragSelect";
-import useScreenSize, { ScreenSize } from "@/hooks/useScreenSize";
-import useAvailabilityGridStore, { AvailabilityType } from "@/store/availabilityGridStore";
-import { EventDate, EventTime, getTimeSlot, TimeSlot } from "@/types/Event";
-import { cn } from "@/utils/cn";
-import { isConsecutiveDay } from "@/utils/date";
+
+import { toast } from "../ui/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { parseISO } from "date-fns";
 import { useAnimate } from "framer-motion";
 import { useEffect, useMemo } from "react";
+import { useForm } from "react-hook-form";
 import { useShallow } from "zustand/react/shallow";
 
+import useUpdateAvailability, { UpdateAvailabilityRequest } from "@/hooks/requests/useUpdateAvailability";
 import useAvailabilityGridHeight from "@/hooks/useAvailabilityGridHeight";
+import useGridDragSelect from "@/hooks/useGridDragSelect";
+import useScreenSize, { ScreenSize } from "@/hooks/useScreenSize";
+import useAvailabilityGridStore, { AvailabilityGridMode } from "@/store/availabilityGridStore";
+import { AvailabilityType, EventResponse, EventResponseSchema } from "@/types/Event";
+import { EventDate, EventTime, getTimeSlot, TimeSlot } from "@/types/Timeslot";
+import { cn } from "@/utils/cn";
+import { isConsecutiveDay } from "@/utils/date";
+
 import AvailabilityGridCell from "./availability-grid-cells/availability-grid-cell";
 import AvailabilityGridHeader from "./availability-grid-cells/availability-grid-header";
 import { TimeSlotDragSelectionState } from "./availability-grid-cells/availability-grid-time-slot";
 import { AvailabilityGridNode } from "./availability-grid-node";
 
-type AvailabilityGridProps = {
-  handleSaveUserAvailability: (user: string) => void;
-};
-
-export default function AvailabilityGrid({ handleSaveUserAvailability }: AvailabilityGridProps) {
-  const { availabilityType, sortedEventDates, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);
-
+export default function AvailabilityGrid() {
+  const { availabilityType, eventId, sortedEventDates, sortedEventTimes } = useAvailabilityGridStore(
+    (state) => state.eventData
+  );
+  const setMode = useAvailabilityGridStore(useShallow((state) => state.setMode));
+  const user = useAvailabilityGridStore((state) => state.user);
+  const resetGridState = useAvailabilityGridStore(useShallow((state) => state.resetGridState));
   const [availabilityGridViewWindowSize, setAvailabilityGridViewWindowSize] = useAvailabilityGridStore(
     useShallow((state) => [state.availabilityGridViewWindowSize, state.setAvailabilityGridViewWindowSize])
   );
@@ -30,6 +37,64 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
   const [selectedTimeSlots, addSelectedTimeSlots, removeSelectedTimeSlots] = useAvailabilityGridStore(
     useShallow((state) => [state.selectedTimeSlots, state.addSelectedTimeSlots, state.removeSelectedTimeSlots])
   );
+
+  const { mutate } = useUpdateAvailability();
+
+  const { formState, handleSubmit, setValue } = useForm<EventResponse>({
+    defaultValues: {
+      alias: "",
+      availabilities: []
+    },
+    resolver: zodResolver(EventResponseSchema)
+  });
+
+  useEffect(() => {
+    setValue("alias", user);
+  }, [user]);
+
+  useEffect(() => {
+    setValue("availabilities", selectedTimeSlots);
+  }, [selectedTimeSlots]);
+
+  function onSubmit({ alias, availabilities }: EventResponse) {
+    const req: UpdateAvailabilityRequest = {
+      alias,
+      availabilities,
+      eventId: eventId
+    };
+
+    mutate(req, {
+      onError: () => {
+        toast({
+          description: "An error occurred while saving your availability. Please try again later.",
+          title: "Oh no! Something went wrong",
+          variant: "failure"
+        });
+      },
+      onSuccess: () => {
+        toast({
+          description: (
+            <span>
+              Your availability has been successfully recorded. We&apos;d love to hear your feedback! Please{" "}
+              <a
+                className="text-primary underline"
+                href="https://forms.gle/m6vyA7ifEcgtA1vL6"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                fill out this form.
+              </a>
+            </span>
+          ),
+          title: "Congrats!",
+          variant: "success"
+        });
+      }
+    });
+
+    setMode(AvailabilityGridMode.VIEW);
+    resetGridState();
+  }
 
   // TODO: add timezone logic
   const screenSize = useScreenSize();
@@ -124,27 +189,28 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
 
   const gridHeightStyle = useAvailabilityGridHeight();
 
-  return sortedEventDates.length === 0 || sortedEventTimes.length === 0 ? (
-    <div />
-  ) : (
-    <div
+  return (
+    <form
       className="card flex w-full select-none flex-col pl-0 pr-5 pt-1 sm:pr-8 xl:pl-2 xl:pr-10"
+      id="availability-grid"
       // mouseUp is cancelled when onContextMenu is triggered so we need to save the selection here as well
       onContextMenu={onMouseDragEnd}
       onMouseLeave={onMouseDragEnd}
       // putting saveDragSelection here to handle the case where the user lets go of the mouse outside of the grid cells
       onMouseUp={onMouseDragEnd}
+      onSubmit={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (formState.isSubmitting) return;
+        handleSubmit(onSubmit)();
+      }}
       onTouchEnd={onTouchDragEnd}
       style={{
         height: screenSize <= ScreenSize.MD ? gridHeightStyle : "100%"
       }}
     >
-      <div className={cn("sticky top-[3.3rem] z-[999] w-[101%] bg-background pb-1 pl-4 pt-4 xs:pl-10 xl:pl-14")}>
-        <AvailabilityGridHeader
-          editAvailabilityButtonAnimationScope={scope}
-          handleSaveUserAvailability={handleSaveUserAvailability}
-          screenSize={screenSize}
-        />
+      <div className={cn("sticky top-[3.3rem] z-[999] w-[101%] bg-background pb-1.5 pl-4 pt-4 xs:pl-10 xl:pl-14")}>
+        <AvailabilityGridHeader editAvailabilityButtonAnimationScope={scope} screenSize={screenSize} />
       </div>
       <div className="flex h-full w-full">
         <div
@@ -154,13 +220,7 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
           }}
         >
           {gridNodes.map((columnNodes, displayColIndex) => {
-            const columnHeaderHeight =
-              availabilityType === AvailabilityType.SPECIFIC_DATES
-                ? screenSize <= ScreenSize.LG
-                  ? "3.9rem"
-                  : "4.7rem"
-                : "3.3rem";
-
+            const columnHeaderHeight = availabilityType === AvailabilityType.SPECIFIC_DATES ? "3.9rem" : "3.3rem";
             const topBottomCellHeight = "0.7rem";
             const timeSlotCellHeight = screenSize <= ScreenSize.MD ? "1.5rem" : "1.45rem";
 
@@ -206,6 +266,6 @@ export default function AvailabilityGrid({ handleSaveUserAvailability }: Availab
           })}
         </div>
       </div>
-    </div>
+    </form>
   );
 }

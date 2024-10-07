@@ -1,35 +1,31 @@
-import { MediaQueryLG } from "@/components/media-query";
-import { Button } from "@/components/ui/button";
-import { ScreenSize } from "@/hooks/useScreenSize";
-import useAvailabilityGridStore, { AvailabilityType, isEditMode, isViewMode } from "@/store/availabilityGridStore";
-import { cn } from "@/utils/cn";
+import BestTimesAvailableSwitch from "../best-times-available-switch";
+import EditAvailabilityDialog from "../dialog/edit-availability-dialog";
 import { format, isEqual, parseISO } from "date-fns";
 import { AnimationScope, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
-import BestTimesAvailableSwitch from "../best-times-available-switch";
-import EditAvailabilityDialog from "../dialog/edit-availability-dialog";
+import { MediaQueryLG } from "@/components/media-query";
+import { Button } from "@/components/ui/button";
+import { ScreenSize } from "@/hooks/useScreenSize";
+import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
+import { AvailabilityType } from "@/types/Event";
+import { cn } from "@/utils/cn";
 
 const SAVE_AVAILABILITY_BUTTON_TEXT = "Save Availability";
 
 type AvailabilityGridHeaderProps = {
   editAvailabilityButtonAnimationScope: AnimationScope;
-  handleSaveUserAvailability: (user: string) => void;
   screenSize: ScreenSize;
 };
 
 export default function AvailabilityGridHeader({
   editAvailabilityButtonAnimationScope,
-  handleSaveUserAvailability,
   screenSize
 }: AvailabilityGridHeaderProps) {
-  const { allParticipants, availabilityType, eventName, sortedEventDates } = useAvailabilityGridStore(
-    (state) => state.eventData
-  );
+  const { availabilityType, eventName, sortedEventDates } = useAvailabilityGridStore((state) => state.eventData);
 
   const mode = useAvailabilityGridStore((state) => state.mode);
-  const user = useAvailabilityGridStore((state) => state.user);
 
   const [availabilityGridNextPage, availabilityGridPreviousPage] = useAvailabilityGridStore(
     useShallow((state) => [state.nextPage, state.previousPage])
@@ -58,7 +54,8 @@ export default function AvailabilityGridHeader({
   const saveUserAvailabilityButton = (
     <MotionButton
       className="h-[1.7rem] whitespace-nowrap rounded-[.5rem] xl:h-[2rem]"
-      onClick={() => handleSaveUserAvailability(user)}
+      form="availability-grid"
+      type="submit"
       variant="default"
       whileTap={{ scale: 0.94 }}
     >
@@ -68,7 +65,6 @@ export default function AvailabilityGridHeader({
 
   const editUserAvailabilityButton = (
     <EditAvailabilityDialog
-      allParticipants={allParticipants}
       className="h-[1.7rem] whitespace-nowrap rounded-[.5rem] xl:h-[2rem]"
       editAvailabilityButtonAnimationScope={editAvailabilityButtonAnimationScope}
     />
@@ -95,7 +91,7 @@ export default function AvailabilityGridHeader({
               </div>
             )}
             {availabilityType === AvailabilityType.SPECIFIC_DATES && (
-              <h1 className="mb-[2px] whitespace-nowrap text-lg font-semibold tracking-wide text-secondary xl:mr-32 xl:text-xl">
+              <h1 className="mb-[2px] whitespace-nowrap text-lg font-semibold tracking-wide text-secondary xl:mr-20 xl:text-xl">
                 {heading}
               </h1>
             )}
@@ -124,6 +120,7 @@ export default function AvailabilityGridHeader({
             <MotionButton
               className="h-7 w-7 rounded-sm px-[2px] py-0 lg:h-6 lg:w-6 lg:rounded-[0.45rem] xl:h-7 xl:w-7 xl:rounded-sm"
               onClick={availabilityGridPreviousPage}
+              type="button"
               variant={isFirstColInView ? "default-disabled" : "default"}
               whileTap={!isFirstColInView ? { scale: 0.95 } : {}}
             >
@@ -133,6 +130,7 @@ export default function AvailabilityGridHeader({
             <MotionButton
               className="ml-[5px] h-7 w-7 rounded-sm px-[2px] py-0 lg:h-6 lg:w-6 lg:rounded-[0.45rem] xl:h-7 xl:w-7 xl:rounded-sm"
               onClick={availabilityGridNextPage}
+              type="button"
               variant={isLastColInView ? "default-disabled" : "default"}
               whileTap={!isLastColInView ? { scale: 0.95 } : {}}
             >

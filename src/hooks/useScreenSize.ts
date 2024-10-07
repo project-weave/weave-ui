@@ -1,9 +1,9 @@
-import tailwindTheme from "@/utils/tailwindTheme";
-import debounce from "lodash.debounce";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useMediaQuery } from "react-responsive";
 import defaultTailwindTheme from "tailwindcss/defaultTheme";
 import { ScreensConfig } from "tailwindcss/types/config";
+
+import tailwindTheme from "@/utils/tailwindTheme";
 
 export enum ScreenSize {
   XXS,
@@ -45,21 +45,14 @@ export default function useScreenSize() {
   const isScreenXL = useMediaQuery({ minWidth: breakPoints[ScreenSize.XL] });
   const isScreen2XL = useMediaQuery({ minWidth: breakPoints[ScreenSize.XXL] });
 
-  const debouncedResize = useCallback(
-    debounce((size: ScreenSize) => {
-      setScreenSize(size), 500;
-    }),
-    []
-  );
-
   useEffect(() => {
-    if (isScreen2XL) return debouncedResize(ScreenSize.XXL);
-    if (isScreenXL) return debouncedResize(ScreenSize.XL);
-    if (isScreenLG) return debouncedResize(ScreenSize.LG);
-    if (isScreenMD) return debouncedResize(ScreenSize.MD);
-    if (isScreenSM) return debouncedResize(ScreenSize.SM);
-    if (isScreenXS) return debouncedResize(ScreenSize.XS);
-    if (isScreenXXS) return debouncedResize(ScreenSize.XXS);
+    if (isScreen2XL) return setScreenSize(ScreenSize.XXL);
+    if (isScreenXL) return setScreenSize(ScreenSize.XL);
+    if (isScreenLG) return setScreenSize(ScreenSize.LG);
+    if (isScreenMD) return setScreenSize(ScreenSize.MD);
+    if (isScreenSM) return setScreenSize(ScreenSize.SM);
+    if (isScreenXS) return setScreenSize(ScreenSize.XS);
+    if (isScreenXXS) return setScreenSize(ScreenSize.XXS);
   }, [isScreen2XL, isScreenXL, isScreenLG, isScreenMD, isScreenSM, isScreenXS, isScreenXXS]);
 
   return screenSize;

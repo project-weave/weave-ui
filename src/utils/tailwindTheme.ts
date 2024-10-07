@@ -1,7 +1,6 @@
+import tailwindConfig from "../../tailwind.config";
 import resolveConfig from "tailwindcss/resolveConfig";
 import { ScreensConfig } from "tailwindcss/types/config";
-
-import tailwindConfig from "../../tailwind.config";
 
 const config = resolveConfig(tailwindConfig);
 const theme = config.theme;

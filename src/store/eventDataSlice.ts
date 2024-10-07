@@ -1,16 +1,10 @@
-import { GetEventResponse } from "@/hooks/requests/useGetEvent";
-import {
-  EVENT_TIME_FORMAT,
-  EventDate,
-  EventResponse,
-  EventTime,
-  getTimeSlot,
-  TIME_SLOT_INTERVAL_MINUTES,
-  TimeSlot
-} from "@/types/Event";
 import { addDays, addMinutes, format, parseISO } from "date-fns";
 
-import { AvailabilityType } from "./availabilityGridStore";
+import { GetEventResponse } from "@/hooks/requests/useGetEvent";
+import { AvailabilityType, EventResponse } from "@/types/Event";
+import { EVENT_TIME_FORMAT, EventDate, EventTime, getTimeSlot, TimeSlot } from "@/types/Timeslot";
+
+export const TIME_SLOT_INTERVAL_MINUTES = 30;
 
 export type EventData = {
   allParticipants: string[];
@@ -80,7 +74,7 @@ export const createEventDataSlice = (set, get): EventDataSlice => ({
     });
 
     const eventData = {
-      allParticipants,
+      allParticipants: allParticipants,
       availabilityType,
       eventId: event.id,
       eventName: event.name,

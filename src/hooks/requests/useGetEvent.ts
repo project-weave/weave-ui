@@ -1,7 +1,7 @@
-import axios from "@/utils/axios";
 import { useQuery } from "@tanstack/react-query";
 
-import { Event, EventResponse } from "../../types/Event";
+import { Event, EventResponse } from "@/types/Event";
+import axios from "@/utils/axios";
 
 export interface GetEventResponse {
   event: Event;

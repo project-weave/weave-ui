@@ -1,11 +1,12 @@
-import useAvailabilityGridStore, { isEditMode } from "@/store/availabilityGridStore";
 import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
+import useAvailabilityGridStore, { isEditMode } from "@/store/availabilityGridStore";
+
 type useEventResponsesFiltersReturn = {
   allUsersForEvent: string[];
-  hoveredTimeSlotResponsesCount: number;
   hoveredTimeSlotResponses: string[];
+  hoveredTimeSlotResponsesCount: number;
   onFliterClicked: (user: string) => void;
   totalResponseCount: number;
 };
@@ -54,8 +55,8 @@ export default function useEventResponsesFilters(): useEventResponsesFiltersRetu
 
   return {
     allUsersForEvent,
-    hoveredTimeSlotResponsesCount,
     hoveredTimeSlotResponses,
+    hoveredTimeSlotResponsesCount,
     onFliterClicked: onFliterClicked,
     totalResponseCount
   };

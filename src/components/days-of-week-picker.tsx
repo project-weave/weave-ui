@@ -1,12 +1,15 @@
+import { format, parseISO } from "date-fns";
+import { Dispatch, forwardRef, MouseEvent, SetStateAction, useRef } from "react";
+
 import { Button } from "@/components/ui/button";
 import useDragSelect, { extractDragSelectData } from "@/hooks/useDragSelect";
 import useRegisterNonPassiveTouchEvents from "@/hooks/useRegisterNonPassiveTouchEvents";
-import { DAYS_OF_WEEK_DATES, EventDate } from "@/types/Event";
+import { DAYS_OF_WEEK_DATES, EventDate } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
 import { isLeftClick } from "@/utils/mouseEvent";
-import { format, parseISO } from "date-fns";
-import { Dispatch, MouseEvent, SetStateAction, useRef } from "react";
+
 type DaysOfWeekPickerProps = {
+  error?: boolean;
   selectedDaysOfWeek: Set<EventDate>;
   setSelectedDaysOfWeek: Dispatch<SetStateAction<Set<EventDate>>>;
   size?: "large" | "small";
@@ -14,44 +17,50 @@ type DaysOfWeekPickerProps = {
 
 const DAYS_OF_WEEK_TITLE = "Days of the Week";
 
-export default function DaysOfWeekPicker({ selectedDaysOfWeek, setSelectedDaysOfWeek, size }: DaysOfWeekPickerProps) {
-  const { onMouseDragEnd, onMouseDragMove, onMouseDragStart, onTouchDragEnd, onTouchDragMove, onTouchDragStart } =
-    useDragSelect<EventDate>(selectedDaysOfWeek, setSelectedDaysOfWeek);
+const DaysOfWeekPicker = forwardRef<HTMLDivElement, DaysOfWeekPickerProps>(
+  ({ error, selectedDaysOfWeek, setSelectedDaysOfWeek, size }, ref) => {
+    const { onMouseDragEnd, onMouseDragMove, onMouseDragStart, onTouchDragEnd, onTouchDragMove, onTouchDragStart } =
+      useDragSelect<EventDate>(selectedDaysOfWeek, setSelectedDaysOfWeek);
 
-  return (
-    <div
-      className={cn("card border-1 flex h-[15rem] flex-col px-5 pt-4 sm:h-[16.5rem]", {
-        "w-full px-8 pb-8 sm:h-full": size === "large"
-      })}
-      onContextMenu={onMouseDragEnd}
-      onMouseLeave={onMouseDragEnd}
-      onMouseUp={onMouseDragEnd}
-    >
-      {size === "large" && (
-        <div className="mx-4 mb-6 mt-4">
-          <h1 className="text-left text-xl font-semibold tracking-wide text-secondary">{DAYS_OF_WEEK_TITLE}</h1>
-          <hr className="mt-4 h-[0.1rem] bg-primary" />
+    return (
+      <div
+        className={cn("card border-1 scroll-m-24 flex h-[15rem] flex-col px-5 pt-4 sm:h-[16.5rem]", {
+          "border-red-500": error,
+          "w-full px-8 pb-8 sm:h-full": size === "large"
+        })}
+        onContextMenu={onMouseDragEnd}
+        onMouseLeave={onMouseDragEnd}
+        onMouseUp={onMouseDragEnd}
+        ref={ref}
+      >
+        {size === "large" && (
+          <div className="mx-4 mb-6 mt-4">
+            <h1 className="text-left text-xl font-semibold tracking-wide text-secondary">{DAYS_OF_WEEK_TITLE}</h1>
+            <hr className="mt-4 h-[0.1rem] bg-primary" />
+          </div>
+        )}
+
+        <div className="flex flex-grow justify-between">
+          {DAYS_OF_WEEK_DATES.map((date) => (
+            <DayOfWeekButton
+              date={date}
+              key={`dow-button-${date}`}
+              onMouseDragMove={onMouseDragMove}
+              onMouseDragStart={onMouseDragStart}
+              onTouchDragEnd={onTouchDragEnd}
+              onTouchDragMove={onTouchDragMove}
+              onTouchDragStart={onTouchDragStart}
+              selected={selectedDaysOfWeek.has(date)}
+              size={size}
+            />
+          ))}
         </div>
-      )}
-
-      <div className="flex flex-grow justify-between">
-        {DAYS_OF_WEEK_DATES.map((date) => (
-          <DayOfWeekButton
-            date={date}
-            key={`dow-button-${date}`}
-            onMouseDragMove={onMouseDragMove}
-            onMouseDragStart={onMouseDragStart}
-            onTouchDragEnd={onTouchDragEnd}
-            onTouchDragMove={onTouchDragMove}
-            onTouchDragStart={onTouchDragStart}
-            selected={selectedDaysOfWeek.has(date)}
-            size={size}
-          />
-        ))}
       </div>
-    </div>
-  );
-}
+    );
+  }
+);
+
+export default DaysOfWeekPicker;
 
 function DayOfWeekButton({
   date,

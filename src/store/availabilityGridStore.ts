@@ -1,6 +1,7 @@
-import { EventDate, TimeSlot } from "@/types/Event";
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
+
+import { EventDate, TimeSlot } from "@/types/Timeslot";
 
 import { createEventDataSlice, EventDataSlice } from "./eventDataSlice";
 import { createSelectedTimeSlotsSlice, SelectedTimeSlotsSlice } from "./selectedTimeSlotsSlice";
@@ -9,11 +10,6 @@ import { createViewWindowSlice, ViewWindowSlice } from "./viewWindowSlice";
 export enum AvailabilityGridMode {
   VIEW,
   EDIT
-}
-
-export enum AvailabilityType {
-  SPECIFIC_DATES,
-  DAYS_OF_WEEK
 }
 
 export function isEditMode(mode: AvailabilityGridMode): boolean {
@@ -61,6 +57,7 @@ const useAvailabilityGridStore = create<AvailabilityGridState>()(
         hoveredTimeSlot: null,
         isBestTimesEnabled: false,
         leftMostColumnInView: 0,
+        mode: AvailabilityGridMode.VIEW,
         selectedTimeSlots: [],
         user: "",
         userFilter: []

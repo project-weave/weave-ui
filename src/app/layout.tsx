@@ -1,10 +1,10 @@
+import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 
 import MainNav from "@/components/navbar";
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from "@/utils/cn";
-import { Analytics } from "@vercel/analytics/react";
-import { Inter } from "next/font/google";
 
 import "./globals.css";
 import Providers from "./providers";
@@ -31,8 +31,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html className="scrollbar-primary" lang="en">
-      <body className={cn("relative flex items-center justify-center ", inter.className)}>
+    <html className="" lang="en">
+      <body className={cn("relative flex items-center justify-center ", inter.className)} suppressHydrationWarning>
         <Analytics />
         <Providers>
           <div className="mx-auto flex w-full max-w-[85rem]">

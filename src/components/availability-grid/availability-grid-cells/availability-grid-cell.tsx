@@ -1,8 +1,10 @@
+import { AvailabilityGridNode, NodeType } from "../availability-grid-node";
+
 import { ScreenSize } from "@/hooks/useScreenSize";
-import useAvailabilityGridStore, { AvailabilityType, isViewMode } from "@/store/availabilityGridStore";
+import useAvailabilityGridStore, { isViewMode } from "@/store/availabilityGridStore";
+import { AvailabilityType } from "@/types/Event";
 import { cn } from "@/utils/cn";
 
-import { AvailabilityGridNode, NodeType } from "../availability-grid-node";
 import AvailabilityGridColumnHeader from "./availability-grid-column-header";
 import AvailabilityGridRowHeader from "./availability-grid-row-header";
 import AvailabilityGridTimeSlot, { TimeSlotDragSelectionState } from "./availability-grid-time-slot";
@@ -72,7 +74,7 @@ export default function AvailabilityGridCell({
   let topValue = 0;
   switch (availabilityType) {
     case AvailabilityType.SPECIFIC_DATES:
-      topValue = 9.5;
+      topValue = 9.6;
       if (screenSize === ScreenSize.LG) topValue -= 1.74;
       if (screenSize >= ScreenSize.XL) topValue -= 1.34;
       break;
