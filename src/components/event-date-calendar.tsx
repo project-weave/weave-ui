@@ -14,7 +14,6 @@ import {
   startOfToday,
   sub
 } from "date-fns";
-import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Dispatch, LegacyRef, MouseEvent, SetStateAction, useEffect, useRef, useState } from "react";
 
@@ -138,7 +137,6 @@ const EventDateCalendar = ({
     start: getFirstDayOfCalendar(currentMonth)
   });
   const weekDays: string[] = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const MotionButton = motion(Button);
 
   return (
     <div
@@ -168,14 +166,13 @@ const EventDateCalendar = ({
 
           {isNextAndPrevButtonsVisible && (
             <>
-              <MotionButton
+              <Button
                 className={cn("mb-0.5 h-[1.6rem] w-[1.6rem] rounded-[0.45rem] border-none px-[1px]", {
                   "h-5 w-5": isViewMode,
                   "h-7 w-7": size === "large"
                 })}
                 onClick={setPrevMonth}
                 variant={isCurrentMonthEarliest ? "default-disabled" : "default"}
-                whileTap={!isCurrentMonthEarliest ? { scale: 0.95 } : {}}
               >
                 <span className="sr-only">Previous Columns</span>
                 <ChevronLeft
@@ -184,15 +181,14 @@ const EventDateCalendar = ({
                     "h-5 w-5": size === "large"
                   })}
                 />
-              </MotionButton>
-              <MotionButton
+              </Button>
+              <Button
                 className={cn("mb-0.5 ml-[5px] mr-1 h-[1.6rem] w-[1.6rem] rounded-[0.45rem] border-none px-[1px]", {
                   "h-5 w-5": isViewMode,
                   "ml-2 h-7 w-7": size === "large"
                 })}
                 onClick={setNextMonth}
                 variant={isCurrentMonthLatest ? "default-disabled" : "default"}
-                whileTap={!isCurrentMonthLatest ? { scale: 0.95 } : {}}
               >
                 <span className="sr-only">Next Columns</span>
                 <ChevronRight
@@ -201,7 +197,7 @@ const EventDateCalendar = ({
                     "h-5 w-5": size === "large"
                   })}
                 />
-              </MotionButton>
+              </Button>
             </>
           )}
         </div>

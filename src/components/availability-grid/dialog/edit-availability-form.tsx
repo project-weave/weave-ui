@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { User } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
@@ -99,7 +98,7 @@ export default function EditAvailabilityForm({ isDialogOpen }: { isDialogOpen: b
         <>
           <div className="grid scrollbar-primary text-secondary grid-cols-3 gap-x-3 gap-y-1 overflow-y-scroll scroll-smooth mb-1">
             {allUserNames.map((userName) => (
-              <motion.button
+              <button
                 {...field}
                 className={cn(
                   "my-[2px] inline-flex w-full flex-row items-center rounded-xl border-2 border-primary-light bg-background px-2 py-[5px] outline-none duration-100 hover:bg-accent-light",
@@ -114,13 +113,12 @@ export default function EditAvailabilityForm({ isDialogOpen }: { isDialogOpen: b
                   form.trigger("selectedUserName");
                 }}
                 type="button"
-                whileTap={{ scale: 0.92 }}
               >
                 <User className="h-4 w-4" />
                 <span className="mx-1 max-w-[6rem] overflow-hidden text-ellipsis whitespace-nowrap text-2xs">
                   {userName}
                 </span>
-              </motion.button>
+              </button>
             ))}
           </div>
           <div className="ml-3 h-2 text-2xs font-medium text-red-600 whitespace-nowrap">
@@ -182,8 +180,6 @@ export default function EditAvailabilityForm({ isDialogOpen }: { isDialogOpen: b
     </RadioGroup>
   );
 
-  const MotionButton = motion(Button);
-
   return (
     <FormProvider {...form}>
       <form
@@ -223,15 +219,14 @@ export default function EditAvailabilityForm({ isDialogOpen }: { isDialogOpen: b
         <div
           className={cn("mt-14 flex flex-col", !isEnterNewAvailability && "mt-8", allUserNames.length === 0 && "mt-10")}
         >
-          <MotionButton
+          <Button
             className="w-full self-end text-sm md:w-[8rem] "
             disabled={isSubmitAttempted.current && !form.formState.isValid}
             form="edit-availability-dialog"
             type="submit"
-            whileTap={{ scale: 0.95 }}
           >
             {CONTINUE}
-          </MotionButton>
+          </Button>
         </div>
       </form>
     </FormProvider>

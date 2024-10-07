@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { User } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
@@ -23,7 +22,7 @@ export default function AvailbilityGridResponseFilterButton({
   const user = useAvailabilityGridStore((state) => state.user);
 
   return (
-    <motion.button
+    <button
       className={cn(
         "box-border inline-flex w-min flex-row items-center rounded-md border-2 border-primary-light bg-accent-light px-1 py-[1.5px] text-2xs text-secondary outline-none duration-100 hover:bg-accent",
         isEditMode(mode) && {
@@ -45,12 +44,11 @@ export default function AvailbilityGridResponseFilterButton({
       )}
       onClick={() => onFilterClicked(name)}
       type="button"
-      whileTap={isViewMode(mode) ? { scale: 0.92 } : {}}
     >
       <User className="h-4 w-4" />
       <span className="mx-1 max-w-[5.8rem] overflow-hidden text-ellipsis whitespace-nowrap lg:max-w-[4.5rem] xl:max-w-[5.2rem]">
         {name}
       </span>
-    </motion.button>
+    </button>
   );
 }

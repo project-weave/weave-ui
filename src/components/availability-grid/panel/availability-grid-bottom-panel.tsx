@@ -18,7 +18,7 @@ const RESPONSES_TITLE = "Responses";
 const COPY_LINK = "Copy Link";
 
 export default function AvailabilityGridBottomPanel() {
-  const { allParticipants, eventId } = useAvailabilityGridStore((state) => state.eventData);
+  const { eventId } = useAvailabilityGridStore((state) => state.eventData);
   const screenSize = useScreenSize();
 
   const mode = useAvailabilityGridStore((state) => state.mode);
@@ -27,8 +27,6 @@ export default function AvailabilityGridBottomPanel() {
   const [accordionExplicitlyClosed, setAccordionExplicitlyClosed] = useState(false);
 
   const isAnyTimeSlotHovered = useAvailabilityGridStore((state) => state.hoveredTimeSlot !== null);
-
-  const MotionButton = motion(Button);
 
   const {
     allUsersForEvent,
@@ -44,15 +42,14 @@ export default function AvailabilityGridBottomPanel() {
   }, [isAnyTimeSlotHovered, accordionExplicitlyClosed, totalResponseCount]);
 
   const saveUserAvailabilityButton = (
-    <MotionButton
+    <Button
       className="h-[2rem] whitespace-nowrap rounded-[.5rem] sm:h-[2.3rem] md:h-[2.6rem] md:px-6 md:text-[1.05rem]"
       form="availability-grid"
       type="submit"
       variant="default"
-      whileTap={{ scale: 0.94 }}
     >
       {SAVE_AVAILABILITY_BUTTON_TEXT}
-    </MotionButton>
+    </Button>
   );
 
   const editUserAvailabilityButton = (
@@ -95,7 +92,7 @@ export default function AvailabilityGridBottomPanel() {
           )}
           <div className="h-1 border-b-[1px] border-accent pt-1" />
           <div className="z-10 mx-auto grid w-full max-w-[56rem] grid-flow-col justify-between px-6 pt-4">
-            <MotionButton
+            <button
               className="h-[2rem] rounded-[.5rem] border-2 text-sm sm:h-[2.3rem] md:h-[2.6rem] md:px-6 md:text-[1.05rem]"
               onClick={() => {
                 const url = `${window.location.origin}/${eventId}`;
@@ -107,10 +104,9 @@ export default function AvailabilityGridBottomPanel() {
                 });
               }}
               variant="outline"
-              whileTap={{ scaleX: 0.97 }}
             >
               {COPY_LINK} <Copy className="ml-2 h-4 w-4 md:ml-3 md:h-5 md:w-5" />
-            </MotionButton>
+            </button>
             <div className="text-sm">{isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}</div>
           </div>
         </div>

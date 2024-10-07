@@ -1,5 +1,4 @@
 import { format, isValid, parseISO, startOfToday } from "date-fns";
-import { motion } from "framer-motion";
 import { CSSProperties } from "react";
 import { useShallow } from "zustand/react/shallow";
 
@@ -49,8 +48,6 @@ export default function AvailabilityGridColumnHeader({
     }
   }
 
-  const MotionButton = motion(Button);
-
   return (
     <div
       className={cn(
@@ -72,7 +69,7 @@ export default function AvailabilityGridColumnHeader({
         })}
       >
         {availabilityType === AvailabilityType.SPECIFIC_DATES && (
-          <MotionButton
+          <Button
             className={cn(
               "h-6 w-[3.7rem] whitespace-nowrap rounded-sm border-2 border-transparent bg-accent-light text-xs font-semibold tracking-wide text-secondary transition-all hover:bg-accent xl:h-[1.7rem] xl:w-[4.2rem] xl:text-sm",
               {
@@ -83,13 +80,13 @@ export default function AvailabilityGridColumnHeader({
               }
             )}
             onClick={dateClickedHandler}
-            whileTap={isEditMode(mode) ? { scale: 0.9 } : {}}
+            type="button"
           >
             <time dateTime={eventDate}>{format(parsedDate, "MMM d")}</time>
-          </MotionButton>
+          </Button>
         )}
         {availabilityType === AvailabilityType.DAYS_OF_WEEK && (
-          <MotionButton
+          <Button
             className={cn(
               "mb-0.5 h-7 w-14 rounded-xl border-2 border-transparent bg-accent-light text-sm font-semibold tracking-wide text-secondary transition-all hover:bg-accent",
               {
@@ -100,10 +97,10 @@ export default function AvailabilityGridColumnHeader({
               }
             )}
             onClick={dateClickedHandler}
-            whileTap={isEditMode(mode) ? { scale: 0.9 } : {}}
+            type="button"
           >
             <time dateTime={eventDate}> {format(parsedDate, "EEE")}</time>
-          </MotionButton>
+          </Button>
         )}
       </div>
     </div>

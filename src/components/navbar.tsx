@@ -1,10 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Settings, User } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 
+import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScreenSize } from "@/hooks/useScreenSize";
 import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
@@ -72,12 +72,9 @@ function SettingsPopover() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <motion.button
-          className="border-none bg-transparent p-1 outline-none hover:bg-transparent"
-          whileTap={{ scale: 0.96 }}
-        >
+        <Button className="border-none bg-transparent p-1 outline-none hover:bg-transparent">
           <Settings className="h-6 w-6 translate-y-1 cursor-pointer text-secondary md:h-7 md:w-7" />
-        </motion.button>
+        </Button>
       </PopoverTrigger>
       <PopoverContent className="mr-2 mt-2 w-[12rem] bg-background px-4">
         <header className="text-sm font-medium text-secondary">View Settings</header>

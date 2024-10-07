@@ -1,5 +1,4 @@
 import { format, parseISO } from "date-fns";
-import { motion } from "framer-motion";
 import { Copy } from "lucide-react";
 import { useCallback, useRef } from "react";
 import { useShallow } from "zustand/react/shallow";
@@ -72,13 +71,11 @@ export default function AvailabilityGridLeftPanel() {
 
   const eventCalendarMonthOverride = format(parseISO(sortedEventDates[leftMostColumnInView]), MONTH_FORMAT);
 
-  const MotionButton = motion(Button);
-
   return (
     <div className="card flex h-full cursor-pointer flex-col px-4 pb-4">
       <div className="relative flex justify-between rounded-2xl border-2 border-primary px-3 py-2 text-sm font-medium text-secondary">
         <p className="max-w-[80%] overflow-hidden text-ellipsis">{eventName}</p>
-        <MotionButton
+        <Button
           className="absolute -end-1 -top-[1.5px] h-10 rounded-2xl hover:bg-primary-hover"
           onClick={() => {
             const url = `${window.location.origin}/${eventId}`;
@@ -89,10 +86,9 @@ export default function AvailabilityGridLeftPanel() {
             });
           }}
           variant="default"
-          whileTap={{ scaleX: 0.97 }}
         >
           <Copy className="h-4 w-4" />
-        </MotionButton>
+        </Button>
       </div>
 
       <div className="ml-2 mt-2 flex items-center justify-between">

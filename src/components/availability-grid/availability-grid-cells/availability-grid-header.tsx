@@ -1,7 +1,7 @@
 import BestTimesAvailableSwitch from "../best-times-available-switch";
 import EditAvailabilityDialog from "../dialog/edit-availability-dialog";
 import { format, isEqual, parseISO } from "date-fns";
-import { AnimationScope, motion } from "framer-motion";
+import { AnimationScope } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
@@ -49,18 +49,15 @@ export default function AvailabilityGridHeader({
     heading = `${format(earliestDate, "MMM d")} - ${format(latestDate, "MMM d yyyy")}`;
   }
 
-  const MotionButton = motion(Button);
-
   const saveUserAvailabilityButton = (
-    <MotionButton
+    <Button
       className="h-[1.7rem] whitespace-nowrap rounded-[.5rem] xl:h-[2rem]"
       form="availability-grid"
       type="submit"
       variant="default"
-      whileTap={{ scale: 0.94 }}
     >
       {SAVE_AVAILABILITY_BUTTON_TEXT}
-    </MotionButton>
+    </Button>
   );
 
   const editUserAvailabilityButton = (
@@ -117,26 +114,24 @@ export default function AvailabilityGridHeader({
         </div>
         {isPaginationRequired() && (
           <div className="ml-4 mr-1 flex h-7 items-center whitespace-nowrap xs:pr-2 xl:pr-0">
-            <MotionButton
+            <Button
               className="h-7 w-7 rounded-sm px-[2px] py-0 lg:h-6 lg:w-6 lg:rounded-[0.45rem] xl:h-7 xl:w-7 xl:rounded-sm"
               onClick={availabilityGridPreviousPage}
               type="button"
               variant={isFirstColInView ? "default-disabled" : "default"}
-              whileTap={!isFirstColInView ? { scale: 0.95 } : {}}
             >
               <span className="sr-only">Previous Columns</span>
               <ChevronLeft className="h-5 w-5 stroke-[3px] pr-[1px] lg:h-4 lg:w-4  xl:h-5 xl:w-5" />
-            </MotionButton>
-            <MotionButton
+            </Button>
+            <Button
               className="ml-[5px] h-7 w-7 rounded-sm px-[2px] py-0 lg:h-6 lg:w-6 lg:rounded-[0.45rem] xl:h-7 xl:w-7 xl:rounded-sm"
               onClick={availabilityGridNextPage}
               type="button"
               variant={isLastColInView ? "default-disabled" : "default"}
-              whileTap={!isLastColInView ? { scale: 0.95 } : {}}
             >
               <span className="sr-only">Next Columns</span>
               <ChevronRight className="h-5 w-5 stroke-[3px] pl-[1px] lg:h-4 lg:w-4 xl:h-5 xl:w-5" />
-            </MotionButton>
+            </Button>
           </div>
         )}
       </div>
