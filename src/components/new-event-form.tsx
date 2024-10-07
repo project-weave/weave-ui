@@ -173,15 +173,16 @@ export default function NewEventForm() {
       render={({ field, fieldState: { invalid } }) => (
         <FormItem>
           <FormLabel>{WHAT_EVENT_NAME}</FormLabel>
-          <InputWithLabel
-            {...field}
-            className="mt-1.5"
-            error={invalid}
-            id="name"
-            label={EVENT_NAME_LABEL}
-            ref={nameInputRef}
-            type="text"
-          />
+          <div className="mt-1.5">
+            <InputWithLabel
+              {...field}
+              error={invalid}
+              id="name"
+              label={EVENT_NAME_LABEL}
+              ref={nameInputRef}
+              type="text"
+            />
+          </div>
           <FormMessage />
         </FormItem>
       )}
