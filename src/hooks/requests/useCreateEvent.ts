@@ -1,8 +1,8 @@
+import { QueryClient, useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
 import { EventDate, EventTime } from "@/types/Timeslot";
 import axios from "@/utils/axios";
-import { QueryClient, useMutation } from "@tanstack/react-query";
 
 import { getEvent } from "./useGetEvent";
 

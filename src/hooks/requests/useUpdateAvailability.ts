@@ -1,8 +1,9 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { GetEventResponse } from "@/hooks/requests/useGetEvent";
 import { EventResponse } from "@/types/Event";
 import { TimeSlot } from "@/types/Timeslot";
 import axios from "@/utils/axios";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export interface UpdateAvailabilityRequest {
   alias: string;
