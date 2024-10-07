@@ -1,4 +1,5 @@
 import { User } from "lucide-react";
+import { memo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
@@ -6,28 +7,47 @@ import { cn } from "@/utils/cn";
 
 type AvailbilityGridResponseFilterButtonProps = {
   className?: string;
-  hoveredTimeSlotResponses: string[];
   name: string;
-  onFilterClicked: (name: string) => void;
 };
 
-export default function AvailbilityGridResponseFilterButton({
-  className,
-  hoveredTimeSlotResponses,
-  name,
-  onFilterClicked
-}: AvailbilityGridResponseFilterButtonProps) {
-  const userFilter = useAvailabilityGridStore(useShallow((state) => state.userFilter));
+const AvailbilityGridResponseFilterButton = ({ className, name }: AvailbilityGridResponseFilterButtonProps) => {
+  const [userFilter, setUserFilter] = useAvailabilityGridStore(
+    useShallow((state) => [state.userFilter, state.setUserFilter])
+  );
   const mode = useAvailabilityGridStore((state) => state.mode);
-  const user = useAvailabilityGridStore((state) => state.user);
+  const loggedInUser = useAvailabilityGridStore((state) => state.user);
+  const isUserHighlighted = useAvailabilityGridStore((state) => {
+    const { hoveredTimeSlot, userFilter, eventData } = state;
+
+    if (!hoveredTimeSlot) return true;
+    if (userFilter.length > 0 && !userFilter.includes(name)) return false;
+
+    const hoveredTimeSlotResponses = eventData.timeSlotsToParticipants[hoveredTimeSlot] ?? [];
+
+    return userFilter.length === 0
+      ? hoveredTimeSlotResponses.includes(name)
+      : hoveredTimeSlotResponses.some((user) => userFilter.includes(user));
+  });
+
+  function onFilterClicked(user: string) {
+    if (isEditMode(mode)) return;
+
+    const newUserFilter = [...userFilter];
+    if (newUserFilter.includes(user)) {
+      newUserFilter.splice(userFilter.indexOf(user), 1);
+    } else {
+      newUserFilter.push(user);
+    }
+    setUserFilter(newUserFilter);
+  }
 
   return (
     <button
       className={cn(
         "box-border inline-flex w-min flex-row items-center rounded-md border-2 border-primary-light bg-accent-light px-1 py-[1.5px] text-2xs text-secondary outline-none duration-100 hover:bg-accent",
         isEditMode(mode) && {
-          "border-transparent bg-transparent text-gray-500 line-through hover:bg-transparent": name !== user,
-          "border-transparent font-medium text-secondary no-underline hover:bg-accent-light": name === user
+          "border-transparent bg-transparent text-gray-500 line-through hover:bg-transparent": name !== loggedInUser,
+          "border-transparent font-medium text-secondary no-underline hover:bg-accent-light": name === loggedInUser
         },
         isViewMode(mode) &&
           userFilter.length !== 0 && {
@@ -36,7 +56,7 @@ export default function AvailbilityGridResponseFilterButton({
               !userFilter.includes(name)
           },
         isViewMode(mode) &&
-          !hoveredTimeSlotResponses.includes(name) && {
+          !isUserHighlighted && {
             "border-gray-300 bg-transparent text-gray-400": userFilter.length === 0,
             "border-gray-400 bg-transparent text-gray-500": userFilter.includes(name)
           },
@@ -51,4 +71,6 @@ export default function AvailbilityGridResponseFilterButton({
       </span>
     </button>
   );
-}
+};
+
+export default memo(AvailbilityGridResponseFilterButton);

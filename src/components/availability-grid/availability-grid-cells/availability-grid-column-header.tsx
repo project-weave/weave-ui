@@ -9,6 +9,7 @@ import { EventDate, getDateFromTimeSlot, getTimeSlot } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
 
 type AvailabilityGridColumnHeaderProps = {
+  onMouseEnter: () => void;
   borderXSizeStyles: string;
   eventDate: EventDate;
   hasDateGapRight: boolean;
@@ -19,6 +20,7 @@ export default function AvailabilityGridColumnHeader({
   borderXSizeStyles,
   eventDate,
   hasDateGapRight,
+  onMouseEnter,
   style
 }: AvailabilityGridColumnHeaderProps) {
   const { availabilityType, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);
@@ -50,6 +52,7 @@ export default function AvailabilityGridColumnHeader({
 
   return (
     <div
+      onMouseEnter={onMouseEnter}
       className={cn(
         "flex h-full flex-col items-center justify-center border-transparent bg-background pb-0.5 pr-0.5",
         borderXSizeStyles,

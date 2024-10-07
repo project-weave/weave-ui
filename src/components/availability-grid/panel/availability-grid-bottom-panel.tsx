@@ -6,15 +6,14 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "@/components/ui/use-toast";
-import useEventResponsesFilters from "@/hooks/useEventResponsesFilters";
 import useScreenSize, { ScreenSize } from "@/hooks/useScreenSize";
 import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
 
 import AvailbilityGridResponseFilterButton from "./availability-grid-response-filter-button";
+import AvailabilityResponsesCount from "./availability-responses-count";
 
 const SAVE_AVAILABILITY_BUTTON_TEXT = "Save Availability";
-const RESPONSES_TITLE = "Responses";
 const COPY_LINK = "Copy Link";
 
 export default function AvailabilityGridBottomPanel() {
@@ -22,24 +21,21 @@ export default function AvailabilityGridBottomPanel() {
   const screenSize = useScreenSize();
 
   const mode = useAvailabilityGridStore((state) => state.mode);
+  const getEventParticipants = useAvailabilityGridStore((state) => state.getEventParticipants);
+  const eventParticipants = getEventParticipants();
+  const userFilter = useAvailabilityGridStore((state) => state.userFilter);
 
   const [accordionOpen, setAccordionOpen] = useState(false);
   const [accordionExplicitlyClosed, setAccordionExplicitlyClosed] = useState(false);
 
   const isAnyTimeSlotHovered = useAvailabilityGridStore((state) => state.hoveredTimeSlot !== null);
 
-  const {
-    allUsersForEvent,
-    hoveredTimeSlotResponses,
-    hoveredTimeSlotResponsesCount,
-    onFliterClicked,
-    totalResponseCount
-  } = useEventResponsesFilters();
+  const totalResponseCount = userFilter.length === 0 ? eventParticipants.length : userFilter.length;
 
   useEffect(() => {
     if (accordionExplicitlyClosed || totalResponseCount === 0) return;
-    if (isAnyTimeSlotHovered) setAccordionOpen(true);
-  }, [isAnyTimeSlotHovered, accordionExplicitlyClosed, totalResponseCount]);
+    if (isAnyTimeSlotHovered && !accordionOpen) setAccordionOpen(true);
+  }, [accordionExplicitlyClosed, isAnyTimeSlotHovered, totalResponseCount]);
 
   const saveUserAvailabilityButton = (
     <Button
@@ -79,20 +75,19 @@ export default function AvailabilityGridBottomPanel() {
       >
         <div className="flex w-full flex-col">
           {isViewMode(mode) && (
-            <ResponsesAccordion
-              accordionOpen={accordionOpen}
-              allUsersForEvent={allUsersForEvent}
-              hoveredTimeSlotResponses={hoveredTimeSlotResponses}
-              hoveredTimeSlotResponsesCount={hoveredTimeSlotResponsesCount}
-              onFilterClicked={onFliterClicked}
-              setAccordionExplicitlyClosed={setAccordionExplicitlyClosed}
-              setAccordionOpen={setAccordionOpen}
-              totalResponseCount={totalResponseCount}
-            />
+            <>
+              <ResponsesAccordion
+                eventParticipants={eventParticipants}
+                accordionOpen={accordionOpen}
+                setAccordionExplicitlyClosed={setAccordionExplicitlyClosed}
+                setAccordionOpen={setAccordionOpen}
+                totalResponseCount={totalResponseCount}
+              />
+              <div className="h-1 border-b-[1px] border-accent pt-1" />
+            </>
           )}
-          <div className="h-1 border-b-[1px] border-accent pt-1" />
           <div className="z-10 mx-auto grid w-full max-w-[56rem] grid-flow-col justify-between px-6 pt-4">
-            <button
+            <Button
               className="h-[2rem] rounded-[.5rem] border-2 text-sm sm:h-[2.3rem] md:h-[2.6rem] md:px-6 md:text-[1.05rem]"
               onClick={() => {
                 const url = `${window.location.origin}/${eventId}`;
@@ -106,7 +101,7 @@ export default function AvailabilityGridBottomPanel() {
               variant="outline"
             >
               {COPY_LINK} <Copy className="ml-2 h-4 w-4 md:ml-3 md:h-5 md:w-5" />
-            </button>
+            </Button>
             <div className="text-sm">{isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}</div>
           </div>
         </div>
@@ -117,13 +112,10 @@ export default function AvailabilityGridBottomPanel() {
 
 function ResponsesAccordion({
   accordionOpen,
-  allUsersForEvent,
-  hoveredTimeSlotResponses,
-  hoveredTimeSlotResponsesCount,
-  onFilterClicked,
   setAccordionExplicitlyClosed,
   setAccordionOpen,
-  totalResponseCount
+  totalResponseCount,
+  eventParticipants
 }) {
   return (
     <>
@@ -140,11 +132,8 @@ function ResponsesAccordion({
           });
         }}
       >
-        <span className="ml-1 flex md:text-[1.1rem]">
-          <p className="text-secondary">{RESPONSES_TITLE}</p>
-          <p className="ml-4 text-secondary">
-            {hoveredTimeSlotResponsesCount}/{totalResponseCount}
-          </p>
+        <span className="ml-1 flex">
+          <AvailabilityResponsesCount className="md:text-[1.1rem" />
         </span>
         {totalResponseCount !== 0 && (
           <motion.div
@@ -174,13 +163,11 @@ function ResponsesAccordion({
           >
             <ScrollArea className="mr-2 w-full md:mr-4">
               <div className="mx-auto my-1 max-w-[48rem] flex-1 px-5 text-secondary sm:grid sm:grid-cols-4 sm:px-7 md:my-2 md:grid-cols-5">
-                {allUsersForEvent.map((name, i) => (
+                {eventParticipants.map((name, i) => (
                   <AvailbilityGridResponseFilterButton
                     className="my-1.5 mx-1 p-[3px] text-[0.74rem] font-medium md:text-[0.84rem]"
-                    hoveredTimeSlotResponses={hoveredTimeSlotResponses}
                     key={`${name}-${i}-filter-button-bottom-panel`}
                     name={name}
-                    onFilterClicked={onFilterClicked}
                   />
                 ))}
               </div>

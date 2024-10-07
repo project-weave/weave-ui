@@ -33,6 +33,7 @@ export default function AvailabilityGrid() {
   const [availabilityGridViewWindowSize, setAvailabilityGridViewWindowSize] = useAvailabilityGridStore(
     useShallow((state) => [state.availabilityGridViewWindowSize, state.setAvailabilityGridViewWindowSize])
   );
+  const setHoveredTimeSlot = useAvailabilityGridStore((state) => state.setHoveredTimeSlot);
   const leftMostColumnInView = useAvailabilityGridStore(useShallow((state) => state.leftMostColumnInView));
   const [selectedTimeSlots, addSelectedTimeSlots, removeSelectedTimeSlots] = useAvailabilityGridStore(
     useShallow((state) => [state.selectedTimeSlots, state.addSelectedTimeSlots, state.removeSelectedTimeSlots])
@@ -218,6 +219,8 @@ export default function AvailabilityGrid() {
           style={{
             gridTemplateColumns: `${screenSize <= ScreenSize.XS ? "4.3rem" : "4.7rem"} repeat(${timeSlotColumnsCount}, minmax(1.3rem, 1fr))`
           }}
+          onMouseLeave={() => setHoveredTimeSlot(null)}
+          onContextMenu={() => setHoveredTimeSlot(null)}
         >
           {gridNodes.map((columnNodes, displayColIndex) => {
             const columnHeaderHeight = availabilityType === AvailabilityType.SPECIFIC_DATES ? "3.9rem" : "3.3rem";

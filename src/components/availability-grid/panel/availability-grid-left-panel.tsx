@@ -7,36 +7,27 @@ import EventDateCalendar from "@/components/dynamic-event-date-calendar";
 import { MONTH_FORMAT } from "@/components/event-date-calendar";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import useEventResponsesFilters from "@/hooks/useEventResponsesFilters";
 import useAvailabilityGridStore from "@/store/availabilityGridStore";
 import { AvailabilityType } from "@/types/Event";
 import { EventDate } from "@/types/Timeslot";
 
 import AvailabilityGridResponseFilterButton from "./availability-grid-response-filter-button";
-
-const RESPONSES_TITLE = "Responses";
+import AvailabilityResponsesCount from "./availability-responses-count";
 
 export default function AvailabilityGridLeftPanel() {
   const { availabilityType, eventId, eventName, sortedEventDates } = useAvailabilityGridStore(
     (state) => state.eventData
   );
+  const getEventParticipants = useAvailabilityGridStore((state) => state.getEventParticipants);
+  const eventParticipants = getEventParticipants();
 
   const [leftMostColumnInView, setLeftMostColumnInView] = useAvailabilityGridStore(
     useShallow((state) => [state.leftMostColumnInView, state.setLeftMostColumnInView])
   );
   const availabilityGridViewWindowSize = useAvailabilityGridStore((state) => state.availabilityGridViewWindowSize);
-
   const setFocusedDate = useAvailabilityGridStore((state) => state.setFocusedDate);
 
   const { toast } = useToast();
-
-  const {
-    allUsersForEvent,
-    hoveredTimeSlotResponses,
-    hoveredTimeSlotResponsesCount,
-    onFliterClicked,
-    totalResponseCount
-  } = useEventResponsesFilters();
 
   const visibleEventDates = sortedEventDates.slice(
     leftMostColumnInView,
@@ -92,25 +83,15 @@ export default function AvailabilityGridLeftPanel() {
       </div>
 
       <div className="ml-2 mt-2 flex items-center justify-between">
-        <div className="flex font-medium">
-          <p className="text-sm text-secondary">{RESPONSES_TITLE}</p>
-          <p className="ml-4 text-sm text-secondary">
-            {hoveredTimeSlotResponsesCount}/{totalResponseCount}
-          </p>
-        </div>
+        <AvailabilityResponsesCount />
       </div>
 
       <div
         className="scrollbar-primary m-3 box-border grid flex-1 gap-x-0.5 gap-y-1 overflow-y-scroll text-secondary"
         style={{ gridAutoRows: "min-content", gridTemplateColumns: `repeat(2, minmax(5rem, 1fr))` }}
       >
-        {allUsersForEvent.map((name, i) => (
-          <AvailabilityGridResponseFilterButton
-            hoveredTimeSlotResponses={hoveredTimeSlotResponses}
-            key={`${name}-${i}-filter-button`}
-            name={name}
-            onFilterClicked={onFliterClicked}
-          />
+        {eventParticipants.map((name, i) => (
+          <AvailabilityGridResponseFilterButton key={`${name}-${i}-filter-button`} name={name} />
         ))}
       </div>
       {availabilityType === AvailabilityType.SPECIFIC_DATES && sortedEventDates.length !== 0 && (

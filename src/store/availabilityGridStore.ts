@@ -24,6 +24,7 @@ export function isViewMode(mode: AvailabilityGridMode): boolean {
 
 type AvailabilityGridState = {
   focusedDate: EventDate | null;
+  getEventParticipants: () => string[];
   hoveredTimeSlot: null | TimeSlot;
   isBestTimesEnabled: boolean;
   mode: AvailabilityGridMode;
@@ -48,6 +49,12 @@ const useAvailabilityGridStore = create<AvailabilityGridState>()(
     ...createEventDataSlice(set, get),
     ...createViewWindowSlice(set, get),
     focusedDate: null,
+    getEventParticipants: () => {
+      const { eventData, user } = get();
+      const allParticipants = eventData.allParticipants;
+      if (allParticipants.includes(user) || user === "") return allParticipants;
+      return [user, ...allParticipants];
+    },
     hoveredTimeSlot: null,
     isBestTimesEnabled: false,
     mode: AvailabilityGridMode.VIEW,

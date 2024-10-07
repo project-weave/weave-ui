@@ -128,10 +128,6 @@ export default function AvailabilityGridTimeSlot({
     setHoveredTimeSlot(getTimeSlot(sortedEventTimes[timeSlotsRow], sortedEventDates[timeSlotsCol]));
   }
 
-  function handleMouseLeave() {
-    setHoveredTimeSlot(null);
-  }
-
   function extractRowCol(e: TouchEvent) {
     const data = extractGridDragSelectData(e);
     if (!data) return [-1, -1];
@@ -241,7 +237,6 @@ export default function AvailabilityGridTimeSlot({
       grid-drag-select-attr={`${timeSlotsRow}_${timeSlotsCol}`}
       onMouseDown={handleMouseDown}
       onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
       onTouchEnd={handleTouchEnd}
       ref={timeSlotCellRef}
       style={{

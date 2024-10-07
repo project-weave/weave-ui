@@ -27,6 +27,7 @@ export default function AvailabilityGridCell({
 }: AvailabilityGridCellProps) {
   const { availabilityType, sortedEventDates, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);
   const mode = useAvailabilityGridStore((state) => state.mode);
+  const setHoveredTimeSlot = useAvailabilityGridStore((state) => state.setHoveredTimeSlot);
 
   const timeSlotsCol = node.getSortedEventDatesIndex();
   const timeSlotsRow = node.getSortedEventTimesIndex();
@@ -101,12 +102,17 @@ export default function AvailabilityGridCell({
         </div>
       );
     case NodeType.PLACEHOLDER:
-      return <div className="h-full w-full">&nbsp;</div>;
+      return (
+        <div onMouseEnter={() => setHoveredTimeSlot(null)} className="h-full w-full">
+          &nbsp;
+        </div>
+      );
     case NodeType.ROW_HEADER:
-      return <AvailabilityGridRowHeader eventTime={eventTime} />;
+      return <AvailabilityGridRowHeader onMouseEnter={() => setHoveredTimeSlot(null)} eventTime={eventTime} />;
     case NodeType.COLUMN_HEADER:
       return (
         <AvailabilityGridColumnHeader
+          onMouseEnter={() => setHoveredTimeSlot(null)}
           borderXSizeStyles={borderXSizeStyles}
           eventDate={eventDate}
           hasDateGapRight={hasDateGapRight}
@@ -121,6 +127,7 @@ export default function AvailabilityGridCell({
     case NodeType.FIRST_CELL_IN_COLUMN:
       return (
         <div
+          onMouseEnter={() => setHoveredTimeSlot(null)}
           className={cn("h-full w-full border-t-0 border-primary-light", borderXSizeStyles, {
             "border-l-primary": hasDateGapLeft,
             "border-r-primary": hasDateGapRight
@@ -131,6 +138,7 @@ export default function AvailabilityGridCell({
     case NodeType.LAST_CELL_IN_COLUMN:
       return (
         <div
+          onMouseEnter={() => setHoveredTimeSlot(null)}
           className={cn("h-full w-full border-b-0 border-t-2 border-primary-light", borderXSizeStyles, {
             "border-l-primary": hasDateGapLeft,
             "border-r-primary": hasDateGapRight
