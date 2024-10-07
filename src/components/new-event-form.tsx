@@ -5,7 +5,7 @@ import { format, startOfToday } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Controller, FieldErrors, useForm } from "react-hook-form";
+import { FieldErrors, FormProvider, useForm } from "react-hook-form";
 
 import DaysOfWeekPicker from "@/components/days-of-week-picker";
 import EventDateCalendar, { MONTH_FORMAT } from "@/components/event-date-calendar";
@@ -16,9 +16,12 @@ import InputWithLabel from "@/components/ui/input-with-label";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import useCreateEvent, { CreateEventRequest } from "@/hooks/requests/useCreateEvent";
+import useElementInView from "@/hooks/useElementInView";
 import { AvailabilityType, EventForm, EventFormSchema } from "@/types/Event";
 import { EventDate } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
+
+import { FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
 
 const EVENT_NAME_LABEL = "Event Name";
 
@@ -45,7 +48,7 @@ export default function NewEventForm() {
   const specificDatesPickerRef = useRef<HTMLDivElement>(null);
   const daysOfWeekPickerRef = useRef<HTMLDivElement>(null);
 
-  const { control, formState, getFieldState, handleSubmit, setValue, trigger, watch } = useForm<EventForm>({
+  const form = useForm<EventForm>({
     defaultValues: {
       availabilityType: AvailabilityType.SPECIFIC_DATES,
       daysOfTheWeek: new Set<EventDate>(),
@@ -56,66 +59,45 @@ export default function NewEventForm() {
         startTime: "09:00:00"
       }
     },
-    mode: "onChange",
+    mode: "onSubmit",
     resolver: zodResolver(EventFormSchema)
   });
 
-  const availabilityType = watch("availabilityType");
+  const availabilityType = form.watch("availabilityType");
 
   // set value of "specificDates" when selectedDates changes
   // only trigger validation of "specificDates" if it has been modified or submit as been attempted
   useEffect(() => {
-    setValue("specificDates", selectedDates);
-    if (isSpecificDatesTouched.current || isSubmitAttempted.current) trigger("specificDates");
+    form.setValue("specificDates", selectedDates);
+    if (isSpecificDatesTouched.current || isSubmitAttempted.current) form.trigger("specificDates");
     if (selectedDates.size > 0 && !isSpecificDatesTouched.current) isSpecificDatesTouched.current = true;
-  }, [setValue, trigger, selectedDates]);
+  }, [selectedDates]);
 
   // set value of "daysOfTheWeek" when selectedDaysOfTheWeek changes
   // only trigger validation of "daysOfTheWeek" if it has been modified or submit as been attempted
   useEffect(() => {
-    setValue("daysOfTheWeek", selectedDaysOfWeek);
-    if (isDaysOfTheWeekTouched.current || isSubmitAttempted.current) trigger("daysOfTheWeek");
+    form.setValue("daysOfTheWeek", selectedDaysOfWeek);
+    if (isDaysOfTheWeekTouched.current || isSubmitAttempted.current) form.trigger("daysOfTheWeek");
     if (selectedDaysOfWeek.size > 0 && !isDaysOfTheWeekTouched.current) isDaysOfTheWeekTouched.current = true;
-  }, [setValue, trigger, selectedDaysOfWeek]);
+  }, [selectedDaysOfWeek]);
 
   // trigger validation of specificDates and daysOfTheWeek if submit is already attempted
   useEffect(() => {
     switch (availabilityType) {
       case AvailabilityType.SPECIFIC_DATES:
-        if (isSubmitAttempted.current) trigger("specificDates");
+        if (isSubmitAttempted.current) form.trigger("specificDates");
         break;
       case AvailabilityType.DAYS_OF_WEEK:
-        if (isSubmitAttempted.current) trigger("daysOfTheWeek");
+        if (isSubmitAttempted.current) form.trigger("daysOfTheWeek");
         break;
     }
-  }, [availabilityType, selectedDates, selectedDaysOfWeek, trigger]);
+  }, [availabilityType]);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([form]) => {
-        setIsFormInView(form.isIntersecting);
-      },
-      {
-        root: null,
-        threshold: 0.7
-      }
-    );
-    const formElement = formRef.current;
-    if (formElement) {
-      observer.observe(formElement);
-    }
-    return () => {
-      if (formElement) {
-        observer.unobserve(formElement);
-      }
-    };
-  }, []);
+  const formRef = useRef<HTMLFormElement>(null);
+  const isFormInView = useElementInView(formRef);
 
   const { toast } = useToast();
   const { isPending, mutate } = useCreateEvent();
-
-  const formRef = useRef<HTMLFormElement>(null);
-  const [isFormInView, setIsFormInView] = useState(false);
 
   function onInvalid(errors: FieldErrors) {
     if (errors.name && nameInputRef.current)
@@ -176,77 +158,81 @@ export default function NewEventForm() {
     });
   }
 
-  function FormInfo({ errorMessage }: { errorMessage: string | undefined }) {
-    return <div className="ml-3 h-2 text-2xs text-red-600 whitespace-nowrap">{errorMessage}</div>;
-  }
-
   const eventNameInput = (
-    <>
-      <p className="mb-2 text-xs font-medium text-secondary">{WHAT_EVENT_NAME}</p>
-      <Controller
-        control={control}
-        name="name"
-        render={({ field: { onBlur, onChange, value }, fieldState: { error, invalid } }) => (
-          <>
-            <InputWithLabel
-              error={invalid}
-              id="name"
-              label={EVENT_NAME_LABEL}
-              onBlur={onBlur}
-              onChange={onChange}
-              ref={nameInputRef}
-              type="text"
-              value={value}
-            />
-            <FormInfo errorMessage={error?.message} />
-          </>
-        )}
-      />
-    </>
+    <FormField
+      control={form.control}
+      name="name"
+      render={({ field, fieldState: { invalid } }) => (
+        <FormItem>
+          <FormLabel>{WHAT_EVENT_NAME}</FormLabel>
+          <InputWithLabel
+            {...field}
+            className="mt-1.5"
+            error={invalid}
+            id="name"
+            label={EVENT_NAME_LABEL}
+            ref={nameInputRef}
+            type="text"
+          />
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 
   const startAndEndTimeInput = (
-    <>
-      <p className="mb-3 text-xs font-medium text-secondary">{WHAT_TIMES}</p>
-      <div className="flex mb-0.5 w-full items-center justify-between scroll-m-24" ref={timeRangeDropdownsRef}>
-        <Controller
-          control={control}
-          name="timeRange.startTime"
-          render={({ field: { onBlur, onChange, value } }) => (
-            <>
-              <TimeDropdown
-                error={getFieldState("timeRange").invalid}
-                isStartTime={true}
-                onBlur={onBlur}
-                onChange={(e) => {
-                  onChange(e);
-                  trigger("timeRange");
-                }}
-                selected={value}
-              />
-            </>
-          )}
-        />
-        <p className="mx-6 text-2xs text-secondary"> {TO} </p>
-        <Controller
-          control={control}
-          name="timeRange.endTime"
-          render={({ field: { onBlur, onChange, value } }) => (
-            <TimeDropdown
-              error={getFieldState("timeRange").invalid}
-              isStartTime={false}
-              onBlur={onBlur}
-              onChange={(e) => {
-                onChange(e);
-                trigger("timeRange");
-              }}
-              selected={value}
+    <FormField
+      control={form.control}
+      name="timeRange"
+      render={() => (
+        <FormItem>
+          <FormLabel>{WHAT_TIMES}</FormLabel>
+          <div
+            className="flex mb-0.5 w-full mt-2 items-center justify-between scroll-m-24 space-y-1"
+            ref={timeRangeDropdownsRef}
+          >
+            <FormField
+              control={form.control}
+              name="timeRange.startTime"
+              render={({ field: { onBlur, onChange, value } }) => (
+                <FormItem className="w-full">
+                  <TimeDropdown
+                    error={form.getFieldState("timeRange").invalid}
+                    isStartTime={true}
+                    onBlur={onBlur}
+                    onChange={(e) => {
+                      onChange(e);
+                      form.trigger("timeRange");
+                    }}
+                    selected={value}
+                  />
+                </FormItem>
+              )}
             />
-          )}
-        />
-      </div>
-      <FormInfo errorMessage={getFieldState("timeRange").error?.root?.message} />
-    </>
+            <p className="mx-6 text-2xs text-secondary"> {TO} </p>
+            <FormField
+              control={form.control}
+              name="timeRange.endTime"
+              render={({ field: { onBlur, onChange, value } }) => (
+                <FormItem className="w-full">
+                  <TimeDropdown
+                    error={form.getFieldState("timeRange").invalid}
+                    isStartTime={false}
+                    onBlur={onBlur}
+                    onChange={(e) => {
+                      onChange(e);
+                      form.trigger("timeRange");
+                    }}
+                    selected={value}
+                  />
+                </FormItem>
+              )}
+            />
+          </div>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 
   const availabilityTypeInput = (
@@ -259,7 +245,7 @@ export default function NewEventForm() {
             defaultChecked={true}
             id="specific-dates"
             name="availabilityType"
-            onChange={() => setValue("availabilityType", AvailabilityType.SPECIFIC_DATES)}
+            onChange={() => form.setValue("availabilityType", AvailabilityType.SPECIFIC_DATES)}
             type="radio"
             value={AvailabilityType.SPECIFIC_DATES}
           />
@@ -279,7 +265,9 @@ export default function NewEventForm() {
             className="peer hidden"
             id="dow"
             name="availabilityType"
-            onChange={() => setValue("availabilityType", AvailabilityType.DAYS_OF_WEEK)}
+            onChange={() => {
+              form.setValue("availabilityType", AvailabilityType.DAYS_OF_WEEK);
+            }}
             type="radio"
             value={AvailabilityType.DAYS_OF_WEEK}
           />
@@ -299,31 +287,43 @@ export default function NewEventForm() {
 
   const dateSelector =
     availabilityType.toString() === AvailabilityType.SPECIFIC_DATES.toString() ? (
-      <>
-        <EventDateCalendar
-          currentMonthOverride={currentCalendarMonth}
-          error={getFieldState("specificDates").invalid}
-          forwardedRef={specificDatesPickerRef}
-          id="create-event-calendar-sm"
-          isViewMode={false}
-          key="create-event-calendar-sm"
-          selectedDates={selectedDates}
-          setCurrentMonthOverride={setCurrentCalendarMonth}
-          setSelectedDates={setSelectedDates}
-          size="small"
-        />
-        <FormInfo errorMessage={formState.errors.specificDates?.message} />
-      </>
+      <FormField
+        control={form.control}
+        name="specificDates"
+        render={({ fieldState: { invalid } }) => (
+          <FormItem>
+            <EventDateCalendar
+              currentMonthOverride={currentCalendarMonth}
+              error={invalid}
+              forwardedRef={specificDatesPickerRef}
+              id="create-event-calendar-sm"
+              isViewMode={false}
+              key="create-event-calendar-sm"
+              selectedDates={selectedDates}
+              setCurrentMonthOverride={setCurrentCalendarMonth}
+              setSelectedDates={setSelectedDates}
+              size="small"
+            />
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     ) : (
-      <>
-        <DaysOfWeekPicker
-          error={getFieldState("daysOfTheWeek").invalid}
-          ref={daysOfWeekPickerRef}
-          selectedDaysOfWeek={selectedDaysOfWeek}
-          setSelectedDaysOfWeek={setSelectedDaysOfWeek}
-        />
-        <FormInfo errorMessage={formState.errors.daysOfTheWeek?.message} />
-      </>
+      <FormField
+        control={form.control}
+        name="daysOfTheWeek"
+        render={({ fieldState: { invalid } }) => (
+          <FormItem>
+            <DaysOfWeekPicker
+              error={invalid}
+              ref={daysOfWeekPickerRef}
+              selectedDaysOfWeek={selectedDaysOfWeek}
+              setSelectedDaysOfWeek={setSelectedDaysOfWeek}
+            />
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     );
 
   const largeDateSelector =
@@ -331,7 +331,7 @@ export default function NewEventForm() {
       <>
         <EventDateCalendar
           currentMonthOverride={currentCalendarMonth}
-          error={getFieldState("specificDates").invalid}
+          error={form.getFieldState("specificDates").invalid}
           id="create-event-calendar-lg"
           isViewMode={false}
           key="create-event-calendar-lg"
@@ -340,17 +340,21 @@ export default function NewEventForm() {
           setSelectedDates={setSelectedDates}
           size="large"
         />
-        <FormInfo errorMessage={formState.errors.specificDates?.message} />
+        <div className="ml-3 h-2 text-2xs font-medium text-red-600 whitespace-nowrap">
+          {form.formState.errors.specificDates?.message}
+        </div>
       </>
     ) : (
       <>
         <DaysOfWeekPicker
-          error={getFieldState("daysOfTheWeek").invalid}
+          error={form.getFieldState("daysOfTheWeek").invalid}
           selectedDaysOfWeek={selectedDaysOfWeek}
           setSelectedDaysOfWeek={setSelectedDaysOfWeek}
           size="large"
         />
-        <FormInfo errorMessage={formState.errors.daysOfTheWeek?.message} />
+        <div className="ml-3 h-2 text-2xs font-medium text-red-600 whitespace-nowrap">
+          {form.formState.errors.specificDates?.message}
+        </div>
       </>
     );
 
@@ -373,7 +377,7 @@ export default function NewEventForm() {
           >
             <Button
               className="h-12 w-full max-w-[26rem] rounded-xl border-primary text-sm"
-              disabled={isSubmitAttempted.current && !formState.isValid}
+              disabled={isSubmitAttempted.current && !form.formState.isValid}
               form="new-event-form"
               type="submit"
             >
@@ -384,7 +388,7 @@ export default function NewEventForm() {
       </AnimatePresence>
       <Button
         className="hidden xs:block h-12 w-full rounded-xl border-[1px] border-primary align-bottom text-sm"
-        disabled={isSubmitAttempted.current && !formState.isValid}
+        disabled={isSubmitAttempted.current && !form.formState.isValid}
         form="new-event-form"
         type="submit"
       >
@@ -396,28 +400,30 @@ export default function NewEventForm() {
   return (
     <>
       <div className="flex select-none flex-row justify-center">
-        <form
-          autoComplete="off"
-          className="card mx-auto flex h-full w-full min-w-[22rem] max-w-[26rem] flex-col sm:min-h-[36rem] sm:max-w-[30rem] md:mx-[1rem] xl:max-w-[26rem]"
-          id="new-event-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            isSubmitAttempted.current = true;
-            if (formState.isSubmitting || formState.isSubmitSuccessful) return;
-            handleSubmit(onSubmit, onInvalid)();
-          }}
-          ref={formRef}
-        >
-          <div className="mb-4 flex flex-col">{eventNameInput}</div>
-          <div className="mb-4 flex w-full flex-col">{startAndEndTimeInput}</div>
-          <div className="mb-5 flex flex-col">{availabilityTypeInput}</div>
-          <div className="mb-4">{dateSelector}</div>
-          {/* {console.log(Intl.DateTimeFormat().resolvedOptions().timeZone)}
+        <FormProvider {...form}>
+          <form
+            autoComplete="off"
+            className="card mx-auto flex h-full w-full min-w-[22rem] max-w-[26rem] flex-col sm:min-h-[36rem] sm:max-w-[30rem] md:mx-[1rem] xl:max-w-[26rem]"
+            id="new-event-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              isSubmitAttempted.current = true;
+              if (form.formState.isSubmitting || form.formState.isSubmitSuccessful) return;
+              form.handleSubmit(onSubmit, onInvalid)();
+            }}
+            ref={formRef}
+          >
+            <div className="mb-5 flex flex-col">{eventNameInput}</div>
+            <div className="mb-6 flex w-full flex-col">{startAndEndTimeInput}</div>
+            <div className="mb-5 flex flex-col">{availabilityTypeInput}</div>
+            <div className="mb-7">{dateSelector}</div>
+            {/* {console.log(Intl.DateTimeFormat().resolvedOptions().timeZone)}
           {console.log(Intl.supportedValuesOf("timeZone"))} 
           <p className="mb-6 text-xs font-medium text-secondary sm:mb-4">{WHAT_TIMEZONE}</p> */}
-          {formSubmissionButton}
-        </form>
+            {formSubmissionButton}
+          </form>
+        </FormProvider>
         <div className="hidden w-[47rem] xl:block">{largeDateSelector}</div>
       </div>
       {/* add spacing on the bottom when button is fixed to bottom of*/}

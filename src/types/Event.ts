@@ -45,7 +45,7 @@ export const EventFormSchema = z
     name: z
       .string()
       .transform((str) => str.trim())
-      .pipe(z.string().min(1, { message: "Event name must be at least 1 character long" })),
+      .pipe(z.string().min(1, { message: "Event name must be at least 1 character long." })),
     specificDates: z.set(EventDateSchema),
     timeRange: z
       .object({
@@ -59,7 +59,7 @@ export const EventFormSchema = z
           return data.endTime === "00:00:00" || isBefore(parsedStartTime, parsedEndTime);
         },
         {
-          message: "Start time must be before end time",
+          message: "Start time must be before end time.",
           path: ["root"]
         }
       )
@@ -69,7 +69,7 @@ export const EventFormSchema = z
       if (data.specificDates.size === 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "You must select at least one date",
+          message: "You must select at least one date.",
           path: ["specificDates"]
         });
       }
@@ -77,7 +77,7 @@ export const EventFormSchema = z
       if (data.daysOfTheWeek.size === 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "You must select at least one day of the week",
+          message: "You must select at least one day of the week.",
           path: ["daysOfTheWeek"]
         });
       }
@@ -91,7 +91,7 @@ export interface EventResponse {
 }
 
 export const EventResponseSchema = z.object({
-  alias: z.string().min(1, "user name must be at least 1 character long"),
+  alias: z.string().min(1, "User name must be at least 1 character long."),
   availabilities: z.array(TimeSlotSchema)
   // TODO: add userId
   // TODO: add flag to determine if it's new entry or edit to prevent overriding

@@ -23,9 +23,7 @@ export default function AvailabilityGridHeader({
   editAvailabilityButtonAnimationScope,
   screenSize
 }: AvailabilityGridHeaderProps) {
-  const { allParticipants, availabilityType, eventName, sortedEventDates } = useAvailabilityGridStore(
-    (state) => state.eventData
-  );
+  const { availabilityType, eventName, sortedEventDates } = useAvailabilityGridStore((state) => state.eventData);
 
   const mode = useAvailabilityGridStore((state) => state.mode);
 

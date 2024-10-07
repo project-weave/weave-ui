@@ -3,9 +3,8 @@
 import { AnimationScope, motion } from "framer-motion";
 import { User } from "lucide-react";
 import Image from "next/image";
-import { memo, useRef } from "react";
-import { FormProvider, useForm } from "react-hook-form";
-import { data } from "tailwindcss/defaultTheme";
+import { memo, useEffect, useRef } from "react";
+import { Controller, FormProvider, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -32,9 +31,9 @@ type EditAvailabilityDialogProps = {
 };
 
 type EditAvailabiltyDialogType = {
-  isEnterNewAvailability: boolean;
   enteredUserName: string;
-  selectedUserName: string | null;
+  isEnterNewAvailability: boolean;
+  selectedUserName: string;
 };
 
 const EditAvailabilityDialog = ({ className, editAvailabilityButtonAnimationScope }: EditAvailabilityDialogProps) => {
@@ -42,9 +41,10 @@ const EditAvailabilityDialog = ({ className, editAvailabilityButtonAnimationScop
     defaultValues: {
       enteredUserName: "",
       isEnterNewAvailability: true,
-      selectedUserName: null
+      selectedUserName: ""
     },
-    mode: "onSubmit"
+    mode: "onSubmit",
+    reValidateMode: "onChange"
   });
   const isSubmitAttempted = useRef(false);
   const allUserNames = useAvailabilityGridStore((state) => state.eventData.allParticipants);
@@ -52,6 +52,14 @@ const EditAvailabilityDialog = ({ className, editAvailabilityButtonAnimationScop
   const setUserGridState = useAvailabilityGridStore((state) => state.setUserGridState);
 
   const isEnterNewAvailability = form.watch("isEnterNewAvailability");
+
+  useEffect(() => {
+    if (isEnterNewAvailability) {
+      if (isSubmitAttempted.current) form.trigger("enteredUserName");
+    } else {
+      if (isSubmitAttempted.current) form.trigger("selectedUserName");
+    }
+  }, [isEnterNewAvailability]);
 
   function resetFormState() {
     // delay reset until after dialog is closed
@@ -67,16 +75,15 @@ const EditAvailabilityDialog = ({ className, editAvailabilityButtonAnimationScop
     <FormField
       control={form.control}
       name="enteredUserName"
-      render={({ field, fieldState: { invalid, error } }) => (
+      render={({ field, fieldState: { invalid } }) => (
         <FormItem>
           <FormControl>
             <Input
+              {...field}
               className="placeholder:text-sm"
               error={invalid}
               placeholder={WHAT_IS_YOUR_NAME}
               type="text"
-              id="enteredUserName"
-              {...field}
             />
           </FormControl>
           <FormMessage className="ml-3" />
@@ -84,11 +91,9 @@ const EditAvailabilityDialog = ({ className, editAvailabilityButtonAnimationScop
       )}
       rules={{
         validate: (value, formValues) => {
-          if (formValues.isEnterNewAvailability && value.trim().length === 0) {
-            return "Name must be at least 1 character long";
-          }
-          if (allUserNames.includes(value.trim())) {
-            return "This name is already taken.";
+          if (formValues.isEnterNewAvailability) {
+            if (value.trim().length === 0) return "Name must be at least 1 character long";
+            if (allUserNames.includes(value.trim())) return "This name is already taken.";
           }
         }
       }}
@@ -96,21 +101,17 @@ const EditAvailabilityDialog = ({ className, editAvailabilityButtonAnimationScop
   );
 
   const existingUserSelection = (
-    <FormField
+    // using Controller rather than FormField beacause for some reason FormField causing a bug
+    // where it updates the value of "enteredUserName"" as well
+    <Controller
       control={form.control}
       name="selectedUserName"
-      rules={{
-        validate: (value, formValues) => {
-          if (!formValues.isEnterNewAvailability && !value) {
-            return "You must select a user.";
-          }
-        }
-      }}
-      render={() => (
+      render={({ field }) => (
         <>
           <div className="grid scrollbar-primary text-secondary grid-cols-3 gap-x-3 gap-y-1 overflow-y-scroll scroll-smooth mb-1">
             {allUserNames.map((userName) => (
               <motion.button
+                {...field}
                 className={cn(
                   "my-[2px] inline-flex w-full flex-row items-center rounded-xl border-2 border-primary-light bg-background px-2 py-[5px] outline-none duration-100 hover:bg-accent-light",
                   {
@@ -120,7 +121,7 @@ const EditAvailabilityDialog = ({ className, editAvailabilityButtonAnimationScop
                 )}
                 key={`edit-availability-button-${userName}`}
                 onClick={() => {
-                  form.setValue("selectedUserName", userName);
+                  field.onChange(userName);
                   form.trigger("selectedUserName");
                 }}
                 type="button"
@@ -133,9 +134,18 @@ const EditAvailabilityDialog = ({ className, editAvailabilityButtonAnimationScop
               </motion.button>
             ))}
           </div>
-          <FormMessage />
+          <div className="ml-3 h-2 text-2xs font-medium text-red-600 whitespace-nowrap">
+            {form.formState.errors.selectedUserName?.message}
+          </div>
         </>
       )}
+      rules={{
+        validate: (value, formValues) => {
+          if (!formValues.isEnterNewAvailability && value === "") {
+            return "You must select a user.";
+          }
+        }
+      }}
     />
   );
 
@@ -190,8 +200,9 @@ const EditAvailabilityDialog = ({ className, editAvailabilityButtonAnimationScop
         onSubmit={(e) => {
           e.preventDefault();
           e.stopPropagation();
+          isSubmitAttempted.current = true;
           form.handleSubmit((data) => {
-            setUserGridState(data.isEnterNewAvailability ? data.enteredUserName : data.selectedUserName!);
+            setUserGridState(data.isEnterNewAvailability ? data.enteredUserName : data.selectedUserName);
             setMode(AvailabilityGridMode.EDIT);
           })();
         }}
@@ -223,6 +234,7 @@ const EditAvailabilityDialog = ({ className, editAvailabilityButtonAnimationScop
         >
           <MotionButton
             className="w-full self-end text-sm md:w-[8rem] "
+            disabled={isSubmitAttempted.current && !form.formState.isValid}
             form="edit-availability-dialog"
             type="submit"
             whileTap={{ scale: 0.95 }}
@@ -251,7 +263,7 @@ const EditAvailabilityDialog = ({ className, editAvailabilityButtonAnimationScop
         <DialogHeader>
           <DialogTitle className="mb-1 px-1 text-secondary">Edit Availability</DialogTitle>
         </DialogHeader>
-        <MotionButton className="mx-8 mt-2" disabled variant="outline" whileTap={{ scale: 0.95 }}>
+        <MotionButton className="mx-8 mt-2" variant="outline" whileTap={{ scale: 0.95 }}>
           <p className="mr-2 text-sm">{LOGIN_WITH_GOOGLE}</p>
           <Image alt="google-logo" className="h-4 w-4" height={40} key="google-logo" src="/google.png" width={40} />
         </MotionButton>
