@@ -149,7 +149,20 @@ export default function NewEventForm() {
       onSuccess: () => {
         setTimeout(() => {
           toast({
-            description: "Your event has been successfully created.",
+            description: (
+              <span>
+                Your event has been successfully created. We&apos;d love to hear your feedback! Please{" "}
+                <a
+                  href="https://forms.gle/m6vyA7ifEcgtA1vL6"
+                  rel="noopener noreferrer"
+                  style={{ color: "#9747ff", textDecoration: "underline" }}
+                  target="_blank"
+                >
+                  fill out this form
+                </a>
+                .
+              </span>
+            ),
             title: "Congrats!",
             variant: "success"
           });
