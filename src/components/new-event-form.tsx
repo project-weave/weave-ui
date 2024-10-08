@@ -211,7 +211,7 @@ export default function NewEventForm() {
                     onBlur={onBlur}
                     onChange={(e) => {
                       onChange(e);
-                      form.trigger("timeRange");
+                      if (isSubmitAttempted.current) form.trigger("timeRange");
                     }}
                     selected={value}
                   />
@@ -230,7 +230,7 @@ export default function NewEventForm() {
                     onBlur={onBlur}
                     onChange={(e) => {
                       onChange(e);
-                      form.trigger("timeRange");
+                      if (isSubmitAttempted.current) form.trigger("timeRange");
                     }}
                     selected={value}
                   />
