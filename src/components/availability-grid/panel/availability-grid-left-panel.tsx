@@ -3,8 +3,8 @@ import { Copy } from "lucide-react";
 import { useCallback, useRef } from "react";
 import { useShallow } from "zustand/react/shallow";
 
-import EventDateCalendar from "@/components/dynamic-event-date-calendar";
 import { MONTH_FORMAT } from "@/components/event-date-calendar";
+import EventDateCalendar from "@/components/no-ssr-event-date-calendar";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import useAvailabilityGridStore from "@/store/availabilityGridStore";
