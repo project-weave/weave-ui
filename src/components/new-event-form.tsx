@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { FieldErrors, FormProvider, useForm } from "react-hook-form";
 
 import DaysOfWeekPicker from "@/components/days-of-week-picker";
-import EventDateCalendar, { MONTH_FORMAT } from "@/components/event-date-calendar";
+import { MONTH_FORMAT } from "@/components/event-date-calendar";
 import TimeDropdown from "@/components/new-event-from-time-dropdown";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,7 @@ import { AvailabilityType, EventForm, EventFormSchema } from "@/types/Event";
 import { EventDate } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
 
+import EventDateCalendar from "./no-ssr-event-date-calendar";
 import { FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
 
 const EVENT_NAME_LABEL = "Event Name";
