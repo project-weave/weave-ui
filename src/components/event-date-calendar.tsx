@@ -172,6 +172,7 @@ const EventDateCalendar = ({
                   "h-7 w-7": size === "large"
                 })}
                 onClick={setPrevMonth}
+                type="button"
                 variant={isCurrentMonthEarliest ? "default-disabled" : "default"}
               >
                 <span className="sr-only">Previous Columns</span>
@@ -188,6 +189,7 @@ const EventDateCalendar = ({
                   "ml-2 h-7 w-7": size === "large"
                 })}
                 onClick={setNextMonth}
+                type="button"
                 variant={isCurrentMonthLatest ? "default-disabled" : "default"}
               >
                 <span className="sr-only">Next Columns</span>
