@@ -32,9 +32,10 @@ const EditAvailabilityDialog = ({ className, editAvailabilityButtonAnimationScop
         <DialogHeader>
           <DialogTitle className="mb-1 px-1 text-secondary">Edit Availability</DialogTitle>
         </DialogHeader>
-        <Button disabled className="mx-8 mt-2" variant="outline">
+        <Button className="mx-8 mt-2" disabled variant="outline">
           <p className="mr-2 text-sm">{LOGIN_WITH_GOOGLE}</p>
           <Image alt="google-logo" className="h-4 w-4" height={40} key="google-logo" src="/google.png" width={40} />
+          <p className="ml-2 text-sm">{"(Coming Soon)"}</p>
         </Button>
         <EditAvailabilityForm isDialogOpen={isOpen} />
       </DialogContent>
