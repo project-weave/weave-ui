@@ -65,7 +65,7 @@ export default function AvailabilityGridLeftPanel() {
   return (
     <div className="card flex h-full cursor-pointer flex-col px-4 pb-4">
       <div className="relative flex justify-between rounded-2xl border-2 border-primary px-3 py-2 text-sm font-medium text-secondary">
-        <p className="max-w-[80%] overflow-hidden text-ellipsis">{eventName}</p>
+        <p className="max-w-[80%] overflow-hidden whitespace-nowrap text-ellipsis">{eventName}</p>
         <Button
           className="absolute -end-1 -top-[1.5px] h-10 rounded-2xl hover:bg-primary-hover"
           onClick={() => {
