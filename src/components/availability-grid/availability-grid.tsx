@@ -19,8 +19,8 @@ import { cn } from "@/utils/cn";
 import { isConsecutiveDay } from "@/utils/date";
 
 import AvailabilityGridCell from "./availability-grid-cells/availability-grid-cell";
-import AvailabilityGridHeader from "./availability-grid-cells/availability-grid-header";
 import { TimeSlotDragSelectionState } from "./availability-grid-cells/availability-grid-time-slot";
+import AvailabilityGridHeader from "./availability-grid-header";
 import { AvailabilityGridNode } from "./availability-grid-node";
 
 export default function AvailabilityGrid() {
@@ -216,11 +216,11 @@ export default function AvailabilityGrid() {
       <div className="flex h-full w-full">
         <div
           className="grid h-full w-full"
+          onContextMenu={() => setHoveredTimeSlot(null)}
+          onMouseLeave={() => setHoveredTimeSlot(null)}
           style={{
             gridTemplateColumns: `${screenSize <= ScreenSize.XS ? "4.3rem" : "4.7rem"} repeat(${timeSlotColumnsCount}, minmax(1.3rem, 1fr))`
           }}
-          onMouseLeave={() => setHoveredTimeSlot(null)}
-          onContextMenu={() => setHoveredTimeSlot(null)}
         >
           {gridNodes.map((columnNodes, displayColIndex) => {
             const columnHeaderHeight = availabilityType === AvailabilityType.SPECIFIC_DATES ? "3.9rem" : "3.3rem";

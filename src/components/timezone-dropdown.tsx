@@ -2,7 +2,7 @@
 
 import { Label } from "@radix-ui/react-label";
 import { format, utcToZonedTime } from "date-fns-tz";
-import { Check } from "lucide-react";
+import { Check, ChevronUp } from "lucide-react";
 import { Dispatch, ReactNode, SetStateAction, useEffect, useMemo, useRef, useState } from "react";
 
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -24,9 +24,10 @@ export interface TimeZoneDropdownProps {
   error: boolean;
   onChange: Dispatch<SetStateAction<string>>;
   selected: string;
+  gridDropdown?: boolean;
 }
 
-export default function TimeZoneDropdown({ error, onChange, selected }: TimeZoneDropdownProps) {
+export default function TimeZoneDropdown({ error, onChange, selected, gridDropdown }: TimeZoneDropdownProps) {
   const commandGroupRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [selectedTimeZone, setSelectedTimeZone] = useState<TimeZone>(toTimeZoneObject(selected));
@@ -99,7 +100,7 @@ export default function TimeZoneDropdown({ error, onChange, selected }: TimeZone
       <span className="flex items-center">
         <span>{`${timeZone.abbreviation} - ${timeZone.value.replaceAll("_", " ").split("/").pop() ?? ""}`}</span>
 
-        <span className="text-[0.85rem] ml-2 text-gray-400">({timeZone.offset})</span>
+        {!gridDropdown && <span className="text-[0.85rem] ml-2 text-gray-400">({timeZone.offset})</span>}
       </span>
     );
   }
@@ -108,54 +109,81 @@ export default function TimeZoneDropdown({ error, onChange, selected }: TimeZone
     return toTimeZoneObject(value).queryLabel.toLocaleLowerCase().includes(search.toLocaleLowerCase()) ? 1 : 0;
   }
 
+  const popoverDisplay = (
+    <div className="relative w-full">
+      {gridDropdown ? (
+        <span className="flex w-full space-between items-center">
+          <span className="text-xs text-secondary">{getTimeZoneJSX(selectedTimeZone)}</span>
+          <ChevronUp
+            height={15}
+            width={15}
+            className={cn("text-secondary align-right ml-2", open && "duration-200 rotate-180")}
+          />
+        </span>
+      ) : (
+        <div
+          className={cn(
+            "peer text-sm transform-none box-border cursor-pointer flex h-10 items-center rounded-2xl bg-background px-4 pb-2.5 pt-3 outline outline-2 outline-primary/40 focus-within:outline-primary hover:outline-primary",
+            {
+              "outline-primary": open,
+              "outline-red-500/40 focus-within:outline-red-500 hover:outline-red-500": error
+            },
+            {
+              "outline-red-500": error && open
+            }
+          )}
+        >
+          {getTimeZoneJSX(selectedTimeZone)}
+        </div>
+      )}
+      {!gridDropdown && (
+        <Label
+          className={cn(
+            "absolute font-medium left-1 top-1 z-10 origin-[0] -translate-y-4 scale-75 transform rounded-sm bg-background px-3 text-[.9rem] duration-300 sm:top-1 ",
+            {
+              "border-primary px-2": open
+            }
+          )}
+        >
+          {TIME_ZONE_LABEL}
+        </Label>
+      )}
+    </div>
+  );
+
   return (
     <Popover onOpenChange={setOpen} open={open}>
-      <PopoverTrigger asChild>
-        <div className="relative w-full">
-          <div
-            className={cn(
-              "peer text-sm transform-none box-border cursor-pointer flex h-10 items-center rounded-2xl bg-background px-4 pb-2.5 pt-3 outline outline-2 outline-primary/40 focus-within:outline-primary hover:outline-primary",
-              {
-                "outline-primary": open,
-                "outline-red-500/40 focus-within:outline-red-500 hover:outline-red-500": error
-              },
-              {
-                "outline-red-500": error && open
-              }
-            )}
-          >
-            {getTimeZoneJSX(selectedTimeZone)}
-            {/* {isNextDayMidnight(selected) ? nextDayMidnight : <span>{convertValueToLabel(selected)}</span>} */}
-          </div>
-          <Label
-            className={cn(
-              "absolute font-medium left-1 top-1 z-10 origin-[0] -translate-y-4 scale-75 transform rounded-sm bg-background px-3 text-[.9rem] duration-300 sm:top-1 ",
-              {
-                "border-primary px-2": open
-              }
-            )}
-          >
-            {TIME_ZONE_LABEL}
-          </Label>
-          {/* <Button aria-expanded={open} className="justify-between w-full" role="combobox" variant="outline">
-            {value ? frameworks.find((framework) => framework.value === value)?.label : "Select framework..."}
-          </Button> */}
-        </div>
-      </PopoverTrigger>
-      <PopoverContent className="min-w-[20rem] sm:min-w-[22rem] border-2 border-primary p-0 mb-2">
+      <PopoverTrigger asChild>{popoverDisplay}</PopoverTrigger>
+      <PopoverContent
+        align={gridDropdown ? "start" : "center"}
+        className={cn(
+          "min-w-[20rem] sm:min-w-[22rem] border-2 border-primary p-0 mb-2",
+          gridDropdown && "min-w-[12rem] sm:min-w-[12rem] w-[12rem] border-[1px] border-primary mb-1"
+        )}
+      >
         <Command className="bg-background" filter={(value, search) => timeZoneFilter(value, search)}>
-          <CommandInput className="border-primary py-5 text-sm" />
-          <CommandList className="scrollbar-primary my-1 overflow-y-scroll max-h-[11rem] sm:max-h-[14rem] ">
-            <CommandEmpty className="m-2 rounded-sm bg-gray-200 py-1.5 text-center text-xs">
+          <CommandInput className={cn("py-5 text-sm", gridDropdown && "text-2xs h-7 py-0")} />
+          <CommandList
+            className={cn(
+              "scrollbar-primary my-1 overflow-y-scroll max-h-[11rem] sm:max-h-[14rem]",
+              gridDropdown && "max-h-[10rem] sm:max-h-[10rem]"
+            )}
+          >
+            <CommandEmpty
+              className={cn("my-1 mx-2 rounded-sm bg-gray-200 py-1.5 text-center text-xs", gridDropdown && "text-2xs")}
+            >
               {NO_TIME_ZONES_FOUND}
             </CommandEmpty>
             <CommandGroup ref={commandGroupRef}>
               {allTimeZones.map((timeZone) => (
                 <CommandItem
                   className={cn(
-                    "my-[1px] cursor-pointer mb-1 mr-2 flex items-center justify-between border-[1px] border-transparent text-xs sm:text-sm hover:bg-primary/20 md:border-[1.5px] ",
+                    "my-[1px] cursor-pointer mb-1 mr-2 flex items-center justify-between border-[1px] border-transparent text-xs sm:text-sm hover:bg-primary/20 md:border-[1.5px]",
                     {
-                      "border-primary ": selectedTimeZone.value === timeZone.value
+                      "border-primary": selectedTimeZone.value === timeZone.value
+                    },
+                    {
+                      "text-2xs sm:text-2xs py-[2px] md:border-[1px]": gridDropdown
                     }
                   )}
                   data-value={timeZone.value}
@@ -169,7 +197,11 @@ export default function TimeZoneDropdown({ error, onChange, selected }: TimeZone
                 >
                   {getTimeZoneJSX(timeZone)}
                   <Check
-                    className={cn("h-5 w-5", selectedTimeZone.value === timeZone.value ? "opacity-100" : "opacity-0")}
+                    className={cn(
+                      "h-5 w-5",
+                      selectedTimeZone.value === timeZone.value ? "opacity-100" : "opacity-0",
+                      gridDropdown && "h-3 w-3"
+                    )}
                   />
                 </CommandItem>
               ))}
