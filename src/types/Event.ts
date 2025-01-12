@@ -36,6 +36,7 @@ export interface EventForm {
     endTime: EventTime;
     startTime: EventTime;
   };
+  timeZone: string;
 }
 
 export const EventFormSchema = z
@@ -62,7 +63,10 @@ export const EventFormSchema = z
           message: "Start time must be before end time.",
           path: ["root"]
         }
-      )
+      ),
+    timeZone: z.string().refine((data) => {
+      return Intl.supportedValuesOf("timeZone").includes(data);
+    })
   })
   .superRefine((data, ctx) => {
     if (data.availabilityType === AvailabilityType.SPECIFIC_DATES) {

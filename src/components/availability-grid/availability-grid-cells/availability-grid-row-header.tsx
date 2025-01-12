@@ -24,7 +24,6 @@ export default function AvailabilityGridRowHeader({ eventTime, onMouseEnter }: A
 
   return (
     <time
-      onMouseEnter={onMouseEnter}
       className={cn(
         "-translate-y-1.5 pr-2 text-right text-2xs font-medium text-primary duration-300 sm:-translate-y-2 sm:text-[0.75rem] xl:text-xs",
         { "opacity-0": parsedDateTime.getMinutes() !== 0 },
@@ -33,6 +32,7 @@ export default function AvailabilityGridRowHeader({ eventTime, onMouseEnter }: A
           "text-secondary": isViewMode(mode) && (isHoveredTimeSlot || isPrevTimeSlotHovered)
         }
       )}
+      onMouseEnter={onMouseEnter}
     >
       {format(parsedDateTime, parsedDateTime.getMinutes() === 0 ? "h:mm a" : "h:mm a")}
     </time>

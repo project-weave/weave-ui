@@ -43,7 +43,7 @@ export default function NewEventFromTimeDropdown({
   const commandGroupRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // neeed setTimeout here to allow for the DOM to render CommandGroup
+    // need setTimeout here to allow for the DOM to render CommandGroup
     setTimeout(() => {
       if (commandGroupRef.current && open) {
         const selectedItem = commandGroupRef.current.querySelector(`[data-value="${selected}"]`);
@@ -168,8 +168,8 @@ export default function NewEventFromTimeDropdown({
           </Label>
         </div>
       </PopoverTrigger>
-      <PopoverContent className="w-[140px] border-2 border-primary p-0 sm:w-[154px]">
-        <Command className="bg-background" filter={(value, search) => timeFilter(value, search)}>
+      <PopoverContent className="w-[140px] border-2 border-primary p-0 mb-2 bg-background sm:w-[154px]">
+        <Command filter={(value, search) => timeFilter(value, search)}>
           <CommandInput className="border-primary py-5 text-sm" onBlur={onBlur} />
           <CommandEmpty className="m-2 rounded-sm bg-gray-200 py-1.5 text-center text-xs">{INVALID_TIME} </CommandEmpty>
           <CommandGroup
