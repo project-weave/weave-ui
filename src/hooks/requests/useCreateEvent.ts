@@ -16,6 +16,7 @@ export interface CreateEventRequest {
   isSpecificDates: boolean;
   name: string;
   startTime: EventTime;
+  timeZone: string;
 }
 
 async function createEvent(request: CreateEventRequest): Promise<CreateEventResponse> {

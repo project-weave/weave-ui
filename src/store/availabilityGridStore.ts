@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { subscribeWithSelector } from "zustand/middleware";
+import { persist, subscribeWithSelector } from "zustand/middleware";
 
 import { EventDate, TimeSlot } from "@/types/Timeslot";
 
@@ -29,10 +29,12 @@ type AvailabilityGridState = {
   isBestTimesEnabled: boolean;
   mode: AvailabilityGridMode;
   resetGridState: () => void;
+  selectedTimeZone: string;
   setFocusedDate: (focusedDate: EventDate | null) => void;
   setHoveredTimeSlot: (hoveredTimeSlot: null | TimeSlot) => void;
   setIsBestTimesEnabled: (isBestTimesEnabled: boolean) => void;
   setMode: (mode: AvailabilityGridMode) => void;
+  setSelectedTimeZone: (timeZone: string) => void;
   setUser: (user: string) => void;
   setUserFilter: (filteredUsers: string[]) => void;
   setUserGridState: (user: string) => void;
@@ -44,55 +46,76 @@ type AvailabilityGridState = {
   ViewWindowSlice;
 
 const useAvailabilityGridStore = create<AvailabilityGridState>()(
-  subscribeWithSelector((set, get) => ({
-    ...createSelectedTimeSlotsSlice(set, get),
-    ...createEventDataSlice(set, get),
-    ...createViewWindowSlice(set, get),
-    focusedDate: null,
-    getEventParticipants: () => {
-      const { eventData, user } = get();
-      const allParticipants = eventData.allParticipants;
-      if (allParticipants.includes(user) || user === "") return allParticipants;
-      return [user, ...allParticipants];
-    },
-    hoveredTimeSlot: null,
-    isBestTimesEnabled: false,
-    mode: AvailabilityGridMode.VIEW,
-    resetGridState: () => {
-      set({
+  subscribeWithSelector(
+    persist(
+      (set, get) => ({
+        ...createSelectedTimeSlotsSlice(set, get),
+        ...createEventDataSlice(set, get),
+        ...createViewWindowSlice(set, get),
         focusedDate: null,
+        getEventParticipants: () => {
+          const { eventData, user } = get();
+          const allParticipants = eventData.allParticipants;
+          if (allParticipants.includes(user) || user === "") return allParticipants;
+          return [user, ...allParticipants];
+        },
         hoveredTimeSlot: null,
         isBestTimesEnabled: false,
-        leftMostColumnInView: 0,
         mode: AvailabilityGridMode.VIEW,
-        selectedTimeSlots: [],
+        resetGridState: () => {
+          set({
+            focusedDate: null,
+            hoveredTimeSlot: null,
+            isBestTimesEnabled: false,
+            leftMostColumnInView: 0,
+            mode: AvailabilityGridMode.VIEW,
+            selectedTimeSlots: [],
+            user: "",
+            userFilter: []
+          });
+        },
+        selectedTimeZone: "",
+        setFocusedDate: (focusedDate: EventDate | null) => set({ focusedDate }),
+        setHoveredTimeSlot: (hoveredTimeSlot: null | TimeSlot) => set({ hoveredTimeSlot }),
+        setIsBestTimesEnabled: (isBestTimesEnabled: boolean) => set({ isBestTimesEnabled }),
+        setMode: (mode: AvailabilityGridMode) => set({ mode }),
+        setSelectedTimeZone: (timeZone: string) => set({ selectedTimeZone: timeZone }),
+        setUser: (user: string) => set({ user }),
+        setUserFilter: (userFilter: string[]) => set({ userFilter }),
+        setUserGridState: (user: string) => {
+          const userResponse = (get().eventData.eventResponses || []).find(({ alias }) => {
+            // TODO: use user_id as well when logged in users functionality is implemented
+            return user === alias;
+          });
+          set({
+            selectedTimeSlots: userResponse?.availabilities || [],
+            user
+          });
+        },
+        toggleIsBestTimesEnabled: () =>
+          set((prev) => {
+            return { ...prev, hoveredTimeSlot: null, isBestTimesEnabled: !prev.isBestTimesEnabled };
+          }),
         user: "",
         userFilter: []
-      });
-    },
-    setFocusedDate: (focusedDate: EventDate | null) => set({ focusedDate }),
-    setHoveredTimeSlot: (hoveredTimeSlot: null | TimeSlot) => set({ hoveredTimeSlot }),
-    setIsBestTimesEnabled: (isBestTimesEnabled: boolean) => set({ isBestTimesEnabled }),
-    setMode: (mode: AvailabilityGridMode) => set({ mode }),
-    setUser: (user: string) => set({ user }),
-    setUserFilter: (userFilter: string[]) => set({ userFilter }),
-    setUserGridState: (user: string) => {
-      const userResponse = (get().eventData.eventResponses || []).find(({ alias }) => {
-        // TODO: use user_id as well when logged in users functionality is implemented
-        return user === alias;
-      });
-      set({
-        selectedTimeSlots: userResponse?.availabilities || [],
-        user
-      });
-    },
-    toggleIsBestTimesEnabled: () =>
-      set((prev) => {
-        return { ...prev, hoveredTimeSlot: null, isBestTimesEnabled: !prev.isBestTimesEnabled };
       }),
-    user: "",
-    userFilter: []
-  }))
+      {
+        name: "timeZone",
+        partialize: ({ selectedTimeZone }: AvailabilityGridState) => ({ timeZone: selectedTimeZone }),
+        onRehydrateStorage: () => (state) => {
+          const storedTimeZone = localStorage.getItem("timeZone");
+          if (storedTimeZone) {
+            try {
+              const parsed = JSON.parse(storedTimeZone);
+              if (parsed?.state?.timeZone) {
+                state?.setSelectedTimeZone(parsed?.state?.timeZone);
+              }
+            } catch {}
+          }
+        }
+      }
+    )
+  )
 );
 
 export default useAvailabilityGridStore;

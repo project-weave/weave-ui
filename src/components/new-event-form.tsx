@@ -11,6 +11,7 @@ import DaysOfWeekPicker from "@/components/days-of-week-picker";
 import { MONTH_FORMAT } from "@/components/event-date-calendar";
 import TimeDropdown from "@/components/new-event-from-time-dropdown";
 import { Button } from "@/components/ui/button";
+import { FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import InputWithLabel from "@/components/ui/input-with-label";
 import { Label } from "@/components/ui/label";
@@ -22,14 +23,14 @@ import { EventDate } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
 
 import EventDateCalendar from "./no-ssr-event-date-calendar";
-import { FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
+import TimeZoneDropdown from "./timezone-dropdown";
 
 const EVENT_NAME_LABEL = "Event Name";
 
 const WHAT_EVENT_NAME = "What is the name of your event?";
 const WHAT_TIMES = "What times are you checking availability for?";
 const WHAT_AVAILABILITY = "What availability do you want to know?";
-const WHAT_TIMEZONE = "What is the timezone of your event?";
+const WHAT_TIME_ZONE = "What time zone is your event in?";
 const I_WANT_TO_BE_NOTIFIED = "I want to be notified when there is a new availability inputted.";
 const CREATE_EVENT = "Create Event";
 const TO = "to";
@@ -55,7 +56,8 @@ export default function NewEventForm() {
       timeRange: {
         endTime: "21:00:00",
         startTime: "09:00:00"
-      }
+      },
+      timeZone: "America/Vancouver"
     },
     mode: "onSubmit",
     resolver: zodResolver(EventFormSchema)
@@ -114,7 +116,8 @@ export default function NewEventForm() {
     daysOfTheWeek,
     name,
     specificDates,
-    timeRange: { endTime, startTime }
+    timeRange: { endTime, startTime },
+    timeZone
   }: EventForm) {
     let dates: EventDate[] = [];
     switch (availabilityType) {
@@ -131,7 +134,8 @@ export default function NewEventForm() {
       endTime,
       isSpecificDates: availabilityType === AvailabilityType.SPECIFIC_DATES,
       name,
-      startTime
+      startTime,
+      timeZone
     };
 
     mutate(req, {
@@ -368,6 +372,22 @@ export default function NewEventForm() {
       </>
     );
 
+  const timeZoneDropdown = (
+    <FormField
+      control={form.control}
+      name="timeZone"
+      render={({ field: { onChange, value } }) => (
+        <FormItem>
+          <FormLabel>{WHAT_TIME_ZONE}</FormLabel>
+          <div className="mt-2">
+            <TimeZoneDropdown error={form.getFieldState("timeZone").invalid} onChange={onChange} selected={value} />
+          </div>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+
   const formSubmissionButton = (
     <>
       <AnimatePresence>
@@ -375,7 +395,7 @@ export default function NewEventForm() {
           <motion.div
             animate="shiftUp"
             className={cn(
-              "xs:hidden fixed bottom-0 left-0 flex w-full justify-center rounded-t-sm bg-white px-9 pb-6 pt-4 shadow-[0px_2px_2px_4px] shadow-gray-200"
+              "xs:hidden z-[999] fixed bottom-0 left-0 flex w-full justify-center rounded-t-sm bg-white px-9 pb-6 pt-4 shadow-[0px_2px_2px_4px] shadow-gray-200"
             )}
             exit="shiftDown"
             initial="shiftDown"
@@ -397,7 +417,7 @@ export default function NewEventForm() {
         )}
       </AnimatePresence>
       <Button
-        className="hidden xs:block h-12 w-full rounded-xl border-[1px] border-primary align-bottom text-sm"
+        className="hidden z-[999] xs:block h-12 w-full rounded-xl border-[1px] border-primary align-bottom text-sm"
         disabled={isSubmitAttempted.current && !form.formState.isValid}
         form="new-event-form"
         type="submit"
@@ -427,10 +447,8 @@ export default function NewEventForm() {
             <div className="mb-5 flex flex-col">{eventNameInput}</div>
             <div className="mb-6 flex w-full flex-col">{startAndEndTimeInput}</div>
             <div className="mb-5 flex flex-col">{availabilityTypeInput}</div>
-            <div className="mb-7">{dateSelector}</div>
-            {/* {console.log(Intl.DateTimeFormat().resolvedOptions().timeZone)}
-          {console.log(Intl.supportedValuesOf("timeZone"))} 
-          <p className="mb-6 text-xs font-medium text-secondary sm:mb-4">{WHAT_TIMEZONE}</p> */}
+            <div className="mb-6">{dateSelector}</div>
+            <div className="mb-6"> {timeZoneDropdown}</div>
             {formSubmissionButton}
           </form>
         </FormProvider>

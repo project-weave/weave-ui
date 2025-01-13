@@ -19,8 +19,8 @@ import { cn } from "@/utils/cn";
 import { isConsecutiveDay } from "@/utils/date";
 
 import AvailabilityGridCell from "./availability-grid-cells/availability-grid-cell";
-import AvailabilityGridHeader from "./availability-grid-cells/availability-grid-header";
 import { TimeSlotDragSelectionState } from "./availability-grid-cells/availability-grid-time-slot";
+import AvailabilityGridHeader from "./availability-grid-header";
 import { AvailabilityGridNode } from "./availability-grid-node";
 
 export default function AvailabilityGrid() {
@@ -210,20 +210,25 @@ export default function AvailabilityGrid() {
         height: screenSize <= ScreenSize.MD ? gridHeightStyle : "100%"
       }}
     >
-      <div className={cn("sticky top-[3.3rem] z-[999] w-[101%] bg-background pb-1.5 pl-4 pt-4 xs:pl-10 xl:pl-14")}>
+      <div
+        className={cn(
+          "sticky top-[3.4rem] z-[999] w-[101%] bg-background pb-[7px] pl-4 pt-4 xs:pl-10 xl:pl-14",
+          availabilityType === AvailabilityType.DAYS_OF_WEEK && "top-[3rem] pb-2"
+        )}
+      >
         <AvailabilityGridHeader editAvailabilityButtonAnimationScope={scope} screenSize={screenSize} />
       </div>
       <div className="flex h-full w-full">
         <div
           className="grid h-full w-full"
-          style={{
-            gridTemplateColumns: `${screenSize <= ScreenSize.XS ? "4.3rem" : "4.7rem"} repeat(${timeSlotColumnsCount}, minmax(1.3rem, 1fr))`
-          }}
-          onMouseLeave={() => setHoveredTimeSlot(null)}
           onContextMenu={() => setHoveredTimeSlot(null)}
+          onMouseLeave={() => setHoveredTimeSlot(null)}
+          style={{
+            gridTemplateColumns: `${screenSize <= ScreenSize.XS ? "4.9rem" : "5.1rem"} repeat(${timeSlotColumnsCount}, minmax(1.3rem, 1fr))`
+          }}
         >
           {gridNodes.map((columnNodes, displayColIndex) => {
-            const columnHeaderHeight = availabilityType === AvailabilityType.SPECIFIC_DATES ? "3.9rem" : "3.3rem";
+            const columnHeaderHeight = availabilityType === AvailabilityType.SPECIFIC_DATES ? "4.3rem" : "3rem";
             const topBottomCellHeight = "0.7rem";
             const timeSlotCellHeight = screenSize <= ScreenSize.MD ? "1.5rem" : "1.45rem";
 

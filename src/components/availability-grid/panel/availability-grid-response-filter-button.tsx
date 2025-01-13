@@ -17,7 +17,7 @@ const AvailbilityGridResponseFilterButton = ({ className, name }: AvailbilityGri
   const mode = useAvailabilityGridStore((state) => state.mode);
   const loggedInUser = useAvailabilityGridStore((state) => state.user);
   const isUserHighlighted = useAvailabilityGridStore((state) => {
-    const { hoveredTimeSlot, userFilter, eventData } = state;
+    const { eventData, hoveredTimeSlot, userFilter } = state;
 
     if (!hoveredTimeSlot) return true;
     if (userFilter.length > 0 && !userFilter.includes(name)) return false;

@@ -9,10 +9,10 @@ import { EventDate, getDateFromTimeSlot, getTimeSlot } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
 
 type AvailabilityGridColumnHeaderProps = {
-  onMouseEnter: () => void;
   borderXSizeStyles: string;
   eventDate: EventDate;
   hasDateGapRight: boolean;
+  onMouseEnter: () => void;
   style: CSSProperties;
 };
 
@@ -52,7 +52,6 @@ export default function AvailabilityGridColumnHeader({
 
   return (
     <div
-      onMouseEnter={onMouseEnter}
       className={cn(
         "flex h-full flex-col items-center justify-center border-transparent bg-background pb-0.5 pr-0.5",
         borderXSizeStyles,
@@ -61,6 +60,7 @@ export default function AvailabilityGridColumnHeader({
           "pt-2": availabilityType === AvailabilityType.DAYS_OF_WEEK
         }
       )}
+      onMouseEnter={onMouseEnter}
       style={{ ...style, width: `calc(100% + ${hasDateGapRight ? "7px" : "2px"}` }}
     >
       {availabilityType === AvailabilityType.SPECIFIC_DATES && (
