@@ -122,7 +122,7 @@ export default function NewEventFromTimeDropdown({
 
   const nextDayMidnight = (
     <span>
-      12:00 am <sup>+1</sup>
+      12:00 am <sup className="text-3xs">+1</sup>
     </span>
   );
 

@@ -10,6 +10,7 @@ import { ScreenSize } from "@/hooks/useScreenSize";
 import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
 import { AvailabilityType } from "@/types/Event";
 import { cn } from "@/utils/cn";
+import { isSupportedTimeZone } from "@/utils/timeZone";
 
 import BestTimesAvailableSwitch from "./best-times-available-switch";
 import EditAvailabilityDialog from "./dialog/edit-availability-dialog";
@@ -25,7 +26,16 @@ export default function AvailabilityGridHeader({
   editAvailabilityButtonAnimationScope,
   screenSize
 }: AvailabilityGridHeaderProps) {
-  const { availabilityType, eventName, sortedEventDates } = useAvailabilityGridStore((state) => state.eventData);
+  const {
+    availabilityType,
+    eventName,
+    sortedEventDates,
+    timeZone: eventTimeZone
+  } = useAvailabilityGridStore((state) => state.eventData);
+
+  const [selectedTimeZone, setSelectedTimeZone] = useAvailabilityGridStore(
+    useShallow((state) => [state.selectedTimeZone, state.setSelectedTimeZone])
+  );
 
   const mode = useAvailabilityGridStore((state) => state.mode);
 
@@ -71,7 +81,12 @@ export default function AvailabilityGridHeader({
 
   const headerTitle = (
     <span>
-      <h4 className="whitespace-nowrap text-xs text-secondary xl:text-sm">
+      <h4
+        className={cn(
+          "whitespace-nowrap text-xs text-secondary xl:text-sm",
+          availabilityType === AvailabilityType.DAYS_OF_WEEK && screenSize >= ScreenSize.LG && "mb-1"
+        )}
+      >
         {"You're now "}
         <span className="font-bold">{isEditMode(mode) ? "editing" : "viewing"} </span>
         {`${isEditMode(mode) ? "your availability" : "all availability"}`}
@@ -87,7 +102,13 @@ export default function AvailabilityGridHeader({
           {heading}
         </h1>
       )}
-      <TimeZoneDropdown error={false} onChange={() => {}} selected="America/Vancouver" gridDropdown={true} />
+      <TimeZoneDropdown
+        error={false}
+        onChange={setSelectedTimeZone}
+        selected={isSupportedTimeZone(selectedTimeZone) ? selectedTimeZone : eventTimeZone}
+        gridDropdown={true}
+        originalTimeZone={eventTimeZone}
+      />
     </span>
   );
 

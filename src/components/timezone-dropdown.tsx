@@ -3,7 +3,7 @@
 import { Label } from "@radix-ui/react-label";
 import { format, utcToZonedTime } from "date-fns-tz";
 import { Check, ChevronUp } from "lucide-react";
-import { Dispatch, ReactNode, SetStateAction, useEffect, useMemo, useRef, useState } from "react";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -22,12 +22,19 @@ interface TimeZone {
 
 export interface TimeZoneDropdownProps {
   error: boolean;
-  onChange: Dispatch<SetStateAction<string>>;
+  onChange: (timeZone: string) => void;
   selected: string;
   gridDropdown?: boolean;
+  originalTimeZone?: string;
 }
 
-export default function TimeZoneDropdown({ error, onChange, selected, gridDropdown }: TimeZoneDropdownProps) {
+export default function TimeZoneDropdown({
+  error,
+  onChange,
+  selected,
+  gridDropdown,
+  originalTimeZone
+}: TimeZoneDropdownProps) {
   const commandGroupRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [selectedTimeZone, setSelectedTimeZone] = useState<TimeZone>(toTimeZoneObject(selected));
@@ -43,6 +50,10 @@ export default function TimeZoneDropdown({ error, onChange, selected, gridDropdo
       setSelectedTimeZone(toTimeZoneObject(detectedTimeZone));
     }
   }, [allTimeZones]);
+
+  useEffect(() => {
+    setSelectedTimeZone(toTimeZoneObject(selected));
+  }, [selected]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -83,7 +94,16 @@ export default function TimeZoneDropdown({ error, onChange, selected, gridDropdo
     }
 
     function getTimeZoneLabel(timeZone: string): string {
-      return `${getTimeZoneAbbreviation(timeZone)} - ${timeZone.replaceAll("_", " ").split("/").pop() ?? ""} (${getGMTOffset(timeZone)})`;
+      let info = "";
+      if (gridDropdown) {
+        if (timeZone === originalTimeZone) {
+          info = "(Event Default)";
+        }
+      } else {
+        info = `(${getGMTOffset(timeZone)})`;
+      }
+
+      return `${getTimeZoneAbbreviation(timeZone)} - ${timeZone.replaceAll("_", " ").split("/").pop() ?? ""} ${info}`;
     }
 
     return {
@@ -96,11 +116,19 @@ export default function TimeZoneDropdown({ error, onChange, selected, gridDropdo
   }
 
   function getTimeZoneJSX(timeZone: TimeZone): ReactNode {
+    let info: ReactNode = null;
+    if (gridDropdown) {
+      if (timeZone.value === originalTimeZone) {
+        info = <span className="text-[0.6rem] ml-2 text-gray-400">(Event Default)</span>;
+      }
+    } else {
+      info = <span className="text-[0.85rem] ml-2 text-gray-400">({timeZone.offset})</span>;
+    }
+
     return (
       <span className="flex items-center">
         <span>{`${timeZone.abbreviation} - ${timeZone.value.replaceAll("_", " ").split("/").pop() ?? ""}`}</span>
-
-        {!gridDropdown && <span className="text-[0.85rem] ml-2 text-gray-400">({timeZone.offset})</span>}
+        {info}
       </span>
     );
   }
@@ -158,7 +186,7 @@ export default function TimeZoneDropdown({ error, onChange, selected, gridDropdo
         align={gridDropdown ? "start" : "center"}
         className={cn(
           "min-w-[20rem] sm:min-w-[22rem] border-2 border-primary p-0 mb-2",
-          gridDropdown && "min-w-[12rem] sm:min-w-[12rem] w-[12rem] border-[1px] border-primary mb-1"
+          gridDropdown && "min-w-[16rem] sm:min-w-[16rem] w-[16rem] border-[1px] border-primary mb-1"
         )}
       >
         <Command className="bg-background" filter={(value, search) => timeZoneFilter(value, search)}>
@@ -166,7 +194,7 @@ export default function TimeZoneDropdown({ error, onChange, selected, gridDropdo
           <CommandList
             className={cn(
               "scrollbar-primary my-1 overflow-y-scroll max-h-[11rem] sm:max-h-[14rem]",
-              gridDropdown && "max-h-[10rem] sm:max-h-[10rem]"
+              gridDropdown && "max-h-[7rem] sm:max-h-[10rem]"
             )}
           >
             <CommandEmpty
@@ -183,7 +211,7 @@ export default function TimeZoneDropdown({ error, onChange, selected, gridDropdo
                       "border-primary": selectedTimeZone.value === timeZone.value
                     },
                     {
-                      "text-2xs sm:text-2xs py-[2px] md:border-[1px]": gridDropdown
+                      "text-2xs sm:text-2xs py-[2px] ml-[1px] md:border-[1px]": gridDropdown
                     }
                   )}
                   data-value={timeZone.value}

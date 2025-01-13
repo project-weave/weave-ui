@@ -24,6 +24,7 @@ export interface Event {
   isSpecificDates: boolean;
   name: string;
   startTime: EventTime;
+  timeZone: string;
 }
 
 export interface EventForm {

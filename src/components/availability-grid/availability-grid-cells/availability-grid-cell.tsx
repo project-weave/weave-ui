@@ -37,6 +37,8 @@ export default function AvailabilityGridCell({
   const eventDate = sortedEventDates[timeSlotsCol];
   const eventTime = sortedEventTimes[timeSlotsRow];
 
+  const isLastEventTime = timeSlotsRow === sortedEventTimes.length - 1;
+
   function getBorderXSizeStyles(
     isCellInFirstDisplayedCol: boolean,
     isCellInFirstActualCol: boolean,
@@ -74,15 +76,16 @@ export default function AvailabilityGridCell({
 
   let topValue = 0;
   switch (availabilityType) {
+    // Values for adjusting sticky headers
     case AvailabilityType.SPECIFIC_DATES:
-      topValue = 9.6;
+      topValue = 10.9;
       if (screenSize === ScreenSize.LG) topValue -= 1.74;
       if (screenSize >= ScreenSize.XL) topValue -= 1.34;
       break;
     case AvailabilityType.DAYS_OF_WEEK:
-      topValue = 8.64;
-      if (screenSize === ScreenSize.LG) topValue -= 1.2;
-      if (screenSize >= ScreenSize.XL) topValue -= 0.94;
+      topValue = 9.7;
+      if (screenSize === ScreenSize.LG) topValue -= 1.5;
+      if (screenSize >= ScreenSize.XL) topValue -= 1.4;
       break;
   }
   const topStyle = `${topValue}rem`;
@@ -108,7 +111,13 @@ export default function AvailabilityGridCell({
         </div>
       );
     case NodeType.ROW_HEADER:
-      return <AvailabilityGridRowHeader eventTime={eventTime} onMouseEnter={() => setHoveredTimeSlot(null)} />;
+      return (
+        <AvailabilityGridRowHeader
+          isLastEventTime={isLastEventTime}
+          eventTime={eventTime}
+          onMouseEnter={() => setHoveredTimeSlot(null)}
+        />
+      );
     case NodeType.COLUMN_HEADER:
       return (
         <AvailabilityGridColumnHeader

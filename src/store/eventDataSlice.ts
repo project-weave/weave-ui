@@ -15,6 +15,7 @@ export type EventData = {
   sortedEventDates: EventDate[];
   sortedEventTimes: EventTime[];
   timeSlotsToParticipants: Record<TimeSlot, string[]>;
+  timeZone: string;
 };
 
 export type EventDataSlice = {
@@ -31,7 +32,8 @@ export const createEventDataSlice = (set, get): EventDataSlice => ({
     eventResponses: [],
     sortedEventDates: ["2023-01-01"],
     sortedEventTimes: ["00:00:00"],
-    timeSlotsToParticipants: {}
+    timeSlotsToParticipants: {},
+    timeZone: "America/Vancouver"
   },
   setEventData: (data: GetEventResponse) => {
     if (!data) return;
@@ -81,7 +83,8 @@ export const createEventDataSlice = (set, get): EventDataSlice => ({
       eventResponses: responses,
       sortedEventDates,
       sortedEventTimes,
-      timeSlotsToParticipants
+      timeSlotsToParticipants,
+      timeZone: event.timeZone
     } as EventData;
 
     return set({
