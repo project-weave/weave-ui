@@ -104,10 +104,10 @@ export default function AvailabilityGridHeader({
       )}
       <TimeZoneDropdown
         error={false}
-        onChange={setSelectedTimeZone}
-        selected={isSupportedTimeZone(selectedTimeZone) ? selectedTimeZone : eventTimeZone}
         gridDropdown={true}
+        onChange={setSelectedTimeZone}
         originalTimeZone={eventTimeZone}
+        selected={isSupportedTimeZone(selectedTimeZone) ? selectedTimeZone : eventTimeZone}
       />
     </span>
   );

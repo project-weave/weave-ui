@@ -22,18 +22,18 @@ interface TimeZone {
 
 export interface TimeZoneDropdownProps {
   error: boolean;
-  onChange: (timeZone: string) => void;
-  selected: string;
   gridDropdown?: boolean;
+  onChange: (timeZone: string) => void;
   originalTimeZone?: string;
+  selected: string;
 }
 
 export default function TimeZoneDropdown({
   error,
-  onChange,
-  selected,
   gridDropdown,
-  originalTimeZone
+  onChange,
+  originalTimeZone,
+  selected
 }: TimeZoneDropdownProps) {
   const commandGroupRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -154,9 +154,9 @@ export default function TimeZoneDropdown({
         <span className="flex w-full space-between items-center">
           <span className="text-xs text-secondary">{getTimeZoneJSX(selectedTimeZone)}</span>
           <ChevronUp
+            className={cn("text-secondary align-right ml-2", open && "duration-200 rotate-180")}
             height={15}
             width={15}
-            className={cn("text-secondary align-right ml-2", open && "duration-200 rotate-180")}
           />
         </span>
       ) : (

@@ -113,8 +113,8 @@ export default function AvailabilityGridCell({
     case NodeType.ROW_HEADER:
       return (
         <AvailabilityGridRowHeader
-          isLastEventTime={isLastEventTime}
           eventTime={eventTime}
+          isLastEventTime={isLastEventTime}
           onMouseEnter={() => setHoveredTimeSlot(null)}
         />
       );

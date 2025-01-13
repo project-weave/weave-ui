@@ -7,7 +7,7 @@ export default function AvailabilityResponsesCount({ className }: { className?: 
   const [hoveredTimeSlotResponsesCount, totalResponseCount] = useAvailabilityGridStore((state) => {
     if (isEditMode(state.mode)) return [1, 1];
 
-    const { hoveredTimeSlot, userFilter, eventData } = state;
+    const { eventData, hoveredTimeSlot, userFilter } = state;
     const eventParticipants = state.getEventParticipants();
 
     const totalResponseCount = userFilter.length === 0 ? eventParticipants.length : userFilter.length;

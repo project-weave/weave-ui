@@ -46,7 +46,7 @@ export default function AvailabilityGridRowHeader({
     const isNextDayMidnight = isLastEventTime && eventTime === "00:00:00";
 
     const formattedEventTime = format(parsedDateTime, "h:mm a");
-    let originalDateTime = parse(formattedEventTime, "h:mm a", new Date());
+    const originalDateTime = parse(formattedEventTime, "h:mm a", new Date());
 
     let originalDateWithMinuteOffset = new Date();
     const minutesOffset = getMinutesOffset(eventTimeZone, selectedTimeZone);

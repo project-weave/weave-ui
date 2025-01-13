@@ -77,8 +77,8 @@ export default function AvailabilityGridBottomPanel() {
           {isViewMode(mode) && (
             <>
               <ResponsesAccordion
-                eventParticipants={eventParticipants}
                 accordionOpen={accordionOpen}
+                eventParticipants={eventParticipants}
                 setAccordionExplicitlyClosed={setAccordionExplicitlyClosed}
                 setAccordionOpen={setAccordionOpen}
                 totalResponseCount={totalResponseCount}
@@ -112,10 +112,10 @@ export default function AvailabilityGridBottomPanel() {
 
 function ResponsesAccordion({
   accordionOpen,
+  eventParticipants,
   setAccordionExplicitlyClosed,
   setAccordionOpen,
-  totalResponseCount,
-  eventParticipants
+  totalResponseCount
 }) {
   return (
     <>
