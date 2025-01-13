@@ -1,5 +1,3 @@
-"use client";
-
 import { create } from "zustand";
 import { persist, subscribeWithSelector } from "zustand/middleware";
 
@@ -47,19 +45,6 @@ type AvailabilityGridState = {
   SelectedTimeSlotsSlice &
   ViewWindowSlice;
 
-function getLocalStorageTimeZone() {
-  const storedTimeZone = localStorage.getItem("timeZone");
-  if (storedTimeZone) {
-    try {
-      const parsed = JSON.parse(storedTimeZone);
-      return parsed?.state?.timeZone || "";
-    } catch {
-      return "";
-    }
-  }
-  return "";
-}
-
 const useAvailabilityGridStore = create<AvailabilityGridState>()(
   subscribeWithSelector(
     persist(
@@ -89,7 +74,7 @@ const useAvailabilityGridStore = create<AvailabilityGridState>()(
             userFilter: []
           });
         },
-        selectedTimeZone: getLocalStorageTimeZone(),
+        selectedTimeZone: "",
         setFocusedDate: (focusedDate: EventDate | null) => set({ focusedDate }),
         setHoveredTimeSlot: (hoveredTimeSlot: null | TimeSlot) => set({ hoveredTimeSlot }),
         setIsBestTimesEnabled: (isBestTimesEnabled: boolean) => set({ isBestTimesEnabled }),
@@ -115,8 +100,19 @@ const useAvailabilityGridStore = create<AvailabilityGridState>()(
         userFilter: []
       }),
       {
-        name: "timeZone", // Key in localStorage
-        partialize: ({ selectedTimeZone }: AvailabilityGridState) => ({ timeZone: selectedTimeZone }) // Persist only part of the state
+        name: "timeZone",
+        partialize: ({ selectedTimeZone }: AvailabilityGridState) => ({ timeZone: selectedTimeZone }),
+        onRehydrateStorage: () => (state) => {
+          const storedTimeZone = localStorage.getItem("timeZone");
+          if (storedTimeZone) {
+            try {
+              const parsed = JSON.parse(storedTimeZone);
+              if (parsed?.state?.timeZone) {
+                state?.setSelectedTimeZone(parsed?.state?.timeZone);
+              }
+            } catch {}
+          }
+        }
       }
     )
   )
