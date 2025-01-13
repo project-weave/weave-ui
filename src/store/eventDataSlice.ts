@@ -33,7 +33,7 @@ export const createEventDataSlice = (set, get): EventDataSlice => ({
     sortedEventDates: ["2023-01-01"],
     sortedEventTimes: ["00:00:00"],
     timeSlotsToParticipants: {},
-    timeZone: "America/Vancouver"
+    timeZone: ""
   },
   setEventData: (data: GetEventResponse) => {
     if (!data) return;

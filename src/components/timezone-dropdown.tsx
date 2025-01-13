@@ -45,11 +45,12 @@ export default function TimeZoneDropdown({
   }, []);
 
   useEffect(() => {
+    if (gridDropdown) return;
     const detectedTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     if (allTimeZones.find((timeZone) => timeZone.value === detectedTimeZone)) {
       setSelectedTimeZone(toTimeZoneObject(detectedTimeZone));
     }
-  }, [allTimeZones]);
+  }, [allTimeZones, gridDropdown]);
 
   useEffect(() => {
     setSelectedTimeZone(toTimeZoneObject(selected));
@@ -69,6 +70,16 @@ export default function TimeZoneDropdown({
   }, [open]);
 
   function toTimeZoneObject(timeZone: string): TimeZone {
+    if (timeZone === "") {
+      return {
+        abbreviation: "",
+        city: "",
+        offset: "",
+        queryLabel: "",
+        value: ""
+      };
+    }
+
     const now = new Date();
 
     function getGMTOffset(timezone: string): string {
@@ -134,7 +145,7 @@ export default function TimeZoneDropdown({
   }
 
   function timeZoneFilter(value: string, search: string): number {
-    return toTimeZoneObject(value).queryLabel.toLocaleLowerCase().includes(search.toLocaleLowerCase()) ? 1 : 0;
+    return toTimeZoneObject(value).queryLabel.toLowerCase().includes(search.toLowerCase()) ? 1 : 0;
   }
 
   const popoverDisplay = (

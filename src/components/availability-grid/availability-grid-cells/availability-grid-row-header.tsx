@@ -39,7 +39,7 @@ export default function AvailabilityGridRowHeader({
     const originalTime = zonedTimeToUtc(now, originalTZ);
     const targetTime = zonedTimeToUtc(now, targetTZ);
 
-    return originalTime.getTime() - targetTime.getTime() / (1000 * 60);
+    return (originalTime.getTime() - targetTime.getTime()) / (1000 * 60);
   }
 
   function getDayDifferenceWithTimeZoneConversion(): number {
