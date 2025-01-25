@@ -113,9 +113,9 @@ export default function TimeZoneDropdown({
     }
 
     return (
-      <span className="flex items-center">
+      <span className="flex h-full items-center mb-1 lg:mb-0">
         <span>{`${timeZone.abbreviation} - ${timeZone.value.replaceAll("_", " ").split("/").pop() ?? ""}`}</span>
-        {info}
+        <span>{info}</span>
       </span>
     );
   }
