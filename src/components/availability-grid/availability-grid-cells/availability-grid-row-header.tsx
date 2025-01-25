@@ -10,15 +10,16 @@ import { isSupportedTimeZone } from "@/utils/timeZone";
 
 type AvailabilityGridRowHeaderProps = {
   eventTime: string;
-  onMouseEnter: () => void;
   isLastEventTime: boolean;
+  onMouseEnter: () => void;
 };
 
 export default function AvailabilityGridRowHeader({
   eventTime,
-  onMouseEnter,
-  isLastEventTime
+  isLastEventTime,
+  onMouseEnter
 }: AvailabilityGridRowHeaderProps) {
+  const firstEventDate = useAvailabilityGridStore((state) => state.eventData.sortedEventDates[0] ?? "");
   const eventTimeZone = useAvailabilityGridStore((state) => state.eventData.timeZone);
   const selectedTimeZone = useAvailabilityGridStore((state) =>
     isSupportedTimeZone(state.selectedTimeZone) ? state.selectedTimeZone : state.eventData.timeZone
@@ -27,54 +28,48 @@ export default function AvailabilityGridRowHeader({
   const mode = useAvailabilityGridStore((state) => state.mode);
   const isHoveredTimeSlot = eventTime === getTimeFromTimeSlot(hoveredTimeSlot);
 
-  // parsing time with arbitrary date as we're only interested in the time
-  const parsedDateTime = parseISO(getTimeSlot(eventTime));
+  const originalDateTime = parseISO(getTimeSlot(eventTime, firstEventDate));
 
   const isPrevTimeSlotHovered =
     hoveredTimeSlot &&
     eventTime === format(addMinutes(parseISO(hoveredTimeSlot), TIME_SLOT_INTERVAL_MINUTES), EVENT_TIME_FORMAT);
 
-  function getMinutesOffset(originalTZ: string, targetTZ: string): number {
+  const isNextDayMidnight = isLastEventTime && eventTime === "00:00:00";
+
+  function getTimezoneConveredTimeAndDayDifference(): [string, number] {
+    const originalDateTimeInUTC = zonedTimeToUtc(originalDateTime, eventTimeZone);
+
+    const originalZonedDateTime = utcToZonedTime(originalDateTimeInUTC, eventTimeZone);
+    const targetZoneDateTime = utcToZonedTime(originalDateTimeInUTC, selectedTimeZone);
+
+    const DATE_FORMAT = "dd-MM-yyyy";
     const now = new Date();
-    const originalTime = zonedTimeToUtc(now, originalTZ);
-    const targetTime = zonedTimeToUtc(now, targetTZ);
 
-    return (originalTime.getTime() - targetTime.getTime()) / (1000 * 60);
-  }
+    const originalFormattedDate = format(originalZonedDateTime, DATE_FORMAT);
+    const targetFormattedDate = format(targetZoneDateTime, DATE_FORMAT);
 
-  function getDayDifferenceWithTimeZoneConversion(): number {
-    const isNextDayMidnight = isLastEventTime && eventTime === "00:00:00";
-
-    const formattedEventTime = format(parsedDateTime, "h:mm a");
-    const originalDateTime = parse(formattedEventTime, "h:mm a", new Date());
-
-    let originalDateWithMinuteOffset = new Date();
-    const minutesOffset = getMinutesOffset(eventTimeZone, selectedTimeZone);
-    originalDateWithMinuteOffset = addMinutes(originalDateTime, minutesOffset);
+    const originalParsedDate = parse(originalFormattedDate, DATE_FORMAT, now);
+    const targetParsedDate = parse(targetFormattedDate, DATE_FORMAT, now);
 
     let dayDifference = isNextDayMidnight ? 1 : 0;
-    return (dayDifference += differenceInCalendarDays(originalDateWithMinuteOffset, originalDateTime));
-  }
+    dayDifference += differenceInCalendarDays(targetParsedDate, originalParsedDate);
 
-  function getTimeZoneConvertedTime(): string {
-    const utcDateTime = zonedTimeToUtc(parsedDateTime, eventTimeZone);
-    const targetDateTime = utcToZonedTime(utcDateTime, selectedTimeZone);
-    return format(targetDateTime, "h:mm a");
+    return [format(targetZoneDateTime, "h:mm a"), dayDifference];
   }
 
   function getTranslatedTimeJSX(): ReactNode {
-    const dayDifference = getDayDifferenceWithTimeZoneConversion();
-    let dayOffset: ReactNode = null;
+    const [convertedFormattedTime, dayDifference] = getTimezoneConveredTimeAndDayDifference();
+    let dayOffsetJSX: ReactNode = null;
     if (dayDifference > 0) {
-      dayOffset = <sup className="text-3xs ml-[0.5px]">+1</sup>;
+      dayOffsetJSX = <sup className="text-3xs ml-[0.5px]">+1</sup>;
     } else if (dayDifference < 0) {
-      dayOffset = <sup className="text-3xs ml-[0.5px]">-1</sup>;
+      dayOffsetJSX = <sup className="text-3xs ml-[0.5px]">-1</sup>;
     }
 
     return (
       <>
-        {getTimeZoneConvertedTime()}
-        {dayOffset}
+        {convertedFormattedTime}
+        {dayOffsetJSX}
       </>
     );
   }
@@ -83,7 +78,7 @@ export default function AvailabilityGridRowHeader({
     <span
       className={cn(
         "-translate-y-1.5 pr-2 text-right text-2xs font-medium text-primary duration-300 sm:-translate-y-2 sm:text-[0.75rem] xl:text-xs",
-        { "opacity-0": parsedDateTime.getMinutes() !== 0 },
+        { "opacity-0": originalDateTime.getMinutes() !== 0 },
         {
           "font-bold opacity-100": isHoveredTimeSlot || isPrevTimeSlotHovered,
           "text-secondary": isViewMode(mode) && (isHoveredTimeSlot || isPrevTimeSlotHovered)

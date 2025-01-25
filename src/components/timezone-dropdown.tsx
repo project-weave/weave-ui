@@ -1,13 +1,13 @@
 "use client";
 
 import { Label } from "@radix-ui/react-label";
-import { format, utcToZonedTime } from "date-fns-tz";
 import { Check, ChevronUp } from "lucide-react";
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/utils/cn";
+import { getGMTOffset, getTimeZoneAbbreviation, getTimeZoneCity } from "@/utils/timeZone";
 
 const TIME_ZONE_LABEL = "Time Zone";
 const NO_TIME_ZONES_FOUND = "No Time Zones Found";
@@ -78,30 +78,6 @@ export default function TimeZoneDropdown({
         queryLabel: "",
         value: ""
       };
-    }
-
-    const now = new Date();
-
-    function getGMTOffset(timezone: string): string {
-      const now = new Date();
-      const zonedTime = utcToZonedTime(now, timezone);
-      const offset = format(zonedTime, "xxx", { timeZone: timezone }); // 'xxx' gives the offset in ±HH:mm format
-      return `GMT ${offset}`;
-    }
-
-    function getTimeZoneAbbreviation(timeZone: string): string {
-      const timeZoneFormatter = new Intl.DateTimeFormat("en-US", {
-        hour12: false,
-        timeZone,
-        timeZoneName: "short"
-      });
-      const timeZoneParts = timeZoneFormatter.formatToParts(now);
-
-      return timeZoneParts.find((part) => part.type === "timeZoneName")?.value || timeZone;
-    }
-
-    function getTimeZoneCity(timeZone: string): string {
-      return timeZone.replaceAll("_", " ").split("/").pop() ?? "";
     }
 
     function getTimeZoneLabel(timeZone: string): string {
