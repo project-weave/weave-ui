@@ -48,10 +48,10 @@ export default function LandingPage() {
           </div>
         </h1>
       </div>
-
+      {/* 
       <p className="mt-10 hidden w-9/12 text-center font-medium sm:mt-8 sm:block sm:w-8/12 md:mt-10 md:text-lg xl:w-9/12 xl:px-10 xl:text-xl 2xl:w-3/4">
         {SUBTITLE}
-      </p>
+      </p> */}
 
       <Button
         className="mt-16 h-auto px-8 py-3 text-sm md:mt-20 md:px-10 md:py-4 md:text-base xl:px-12 "
