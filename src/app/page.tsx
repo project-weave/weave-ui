@@ -17,7 +17,7 @@ export default function LandingPage() {
   const wordHeight = 77;
 
   return (
-    <div className="mt-10 flex flex-col items-center">
+    <div className="mt-48 flex flex-col items-center">
       <div className="grid h-full w-full">
         <h1 className="flex flex-col text-center text-[2.6rem] font-semibold leading-[3.2rem] sm:mt-8 sm:leading-[3rem] md:text-[3.7rem] md:leading-[4rem] xl:text-[4.3rem] xl:leading-[4.3rem]">
           <div>find time for</div>
@@ -54,7 +54,7 @@ export default function LandingPage() {
       </p> */}
 
       <Button
-        className="mt-16 h-auto px-8 py-3 text-sm md:mt-8 md:px-10 md:py-4 md:text-base xl:px-12 "
+        className="mt-8 h-auto px-8 py-3 text-sm md:mt-8 md:px-10 md:py-4 md:text-base xl:px-12 "
         onClick={() => {
           eventFormRef?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
         }}
@@ -62,7 +62,7 @@ export default function LandingPage() {
         {CREATE_A_WEAVE}
       </Button>
 
-      <div className="h-full min-h-screen w-full pb-10 sm:pb-0 sm:mt-10 xl:mt-20">
+      <div className="h-full min-h-screen w-full pb-10 mt-28 sm:pb-0">
         <div className="pt-20" ref={eventFormRef}>
           <NewEventForm />
         </div>
