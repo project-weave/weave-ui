@@ -54,7 +54,7 @@ export default function LandingPage() {
       </p> */}
 
       <Button
-        className="mt-16 h-auto px-8 py-3 text-sm md:mt-20 md:px-10 md:py-4 md:text-base xl:px-12 "
+        className="mt-16 h-auto px-8 py-3 text-sm md:mt-8 md:px-10 md:py-4 md:text-base xl:px-12 "
         onClick={() => {
           eventFormRef?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
         }}
