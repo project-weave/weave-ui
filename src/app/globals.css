@@ -38,10 +38,13 @@
     --success-foreground: 13, 14, 15;;
 
     --border: 234, 236, 238;
-    --input: 234, 236, 238;
+    --input: 247, 247, 247;
     --ring: 159, 110, 249;
 
     --radius: 0.8rem;
+    
+    --primary-text: 16, 16, 16;
+    --secondary-text: 157, 157, 157;
   }
 
   .dark {
@@ -72,6 +75,7 @@
     --border: 44, 45, 46;
     --input: 44, 45, 46;
     --ring: 209, 211, 214;
+
   }
 }
 
@@ -86,7 +90,7 @@
 
 @layer components {
   .card {
-    @apply h-full w-full rounded-xl border-[1px] border-primary bg-background px-8 py-5;
+    @apply h-full shadow-[0px_0px_50px_10px_rgba(0,0,0,0.05)] w-full rounded-xl border-[1px] border-[#E5E5E5] bg-[#FCFCFC] px-8 py-5;
   }
   
   .scrollbar-primary {

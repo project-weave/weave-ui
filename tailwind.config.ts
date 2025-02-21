@@ -57,8 +57,8 @@ export default {
           light: "rgb(var(--success-light), <alpha-value>)"
         },
         text: {
-          DEFAULT: "rgb(var(--text), <alpha-value>)",
-          light: "rgb(var(--text-light), <alpha-value>)"
+          DEFAULT: "rgb(var(--primary-text), <alpha-value>)",
+          light: "rgb(var(--secondary-text), <alpha-value>)"
         }
       },
       fontSize: {
