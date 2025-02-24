@@ -1,11 +1,13 @@
 import TimeZoneDropdown from "../timezone-dropdown";
+import { Label } from "../ui/label";
 import { format, isEqual, parseISO } from "date-fns";
 import { AnimationScope } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Copy, Eye, Link, Pencil } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
 import { MediaQueryLG } from "@/components/media-query";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
 import { ScreenSize } from "@/hooks/useScreenSize";
 import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
 import { AvailabilityType } from "@/types/Event";
@@ -16,6 +18,8 @@ import BestTimesAvailableSwitch from "./best-times-available-switch";
 import EditAvailabilityDialog from "./dialog/edit-availability-dialog";
 
 const SAVE_AVAILABILITY_BUTTON_TEXT = "Save Availability";
+const EDITING_TEXT = "Editing availability";
+const VIEWING_TEXT = "Viewing availability";
 
 type AvailabilityGridHeaderProps = {
   editAvailabilityButtonAnimationScope: AnimationScope;
@@ -30,6 +34,7 @@ export default function AvailabilityGridHeader({
     availabilityType,
     eventName,
     sortedEventDates,
+    eventId,
     timeZone: eventTimeZone
   } = useAvailabilityGridStore((state) => state.eventData);
 
@@ -79,9 +84,56 @@ export default function AvailabilityGridHeader({
     />
   );
 
+  const eventTitle = (
+    <span className="flex justify-between items-center">
+      {screenSize <= ScreenSize.MD && (
+        <div className="max-w-[16rem] overflow-hidden text-ellipsis text-lg font-semibold text-text sm:max-w-[24rem] md:max-w-[30rem]">
+          {eventName}
+        </div>
+      )}
+      <Button
+        className="p-0 bg-primary w-[2.5rem] h-[2.5rem] rounded-sm sm:h-[2.3rem] md:h-[2.6rem] md:text-[1.05rem]"
+        onClick={() => {
+          const url = `${window.location.origin}/${eventId}`;
+          navigator.clipboard.writeText(url);
+          toast({
+            className: "w-fit ml-auto py-4 text-sm md:w-full md:py-6",
+            description: "Copied link to clipboard.",
+            variant: "success"
+          });
+        }}
+      >
+        <Link className="h-4 w-4 md:h-5 md:w-5 text-white" />
+      </Button>
+    </span>
+  );
+
+  const editStatus = (
+    <div className="flex items-center space-x-2">
+      <Label
+        className={cn(
+          "bg-red-200 px-4 py-1 rounded-sm whitespace-nowrap text-sm text-text-primary lg:text-xs xl:text-sm",
+          isEditMode(mode) && "bg-yellow-200"
+        )}
+        htmlFor="edit-status"
+      >
+        {isEditMode(mode) ? (
+          <span className="flex items-center gap-2">
+            <Pencil className="h-4 w-4 md:h-5 md:w-5" /> {EDITING_TEXT}
+          </span>
+        ) : (
+          <span className="flex items-center gap-2">
+            <Eye className="h-4 w-4 md:h-5 md:w-5" /> {VIEWING_TEXT}
+          </span>
+        )}
+      </Label>
+    </div>
+  );
+
   const headerTitle = (
     <span>
-      <h4
+      <div className="mb-2">{editStatus}</div>
+      {/* <h4
         className={cn(
           "whitespace-nowrap text-xs text-secondary xl:text-sm",
           availabilityType === AvailabilityType.DAYS_OF_WEEK && screenSize >= ScreenSize.LG && "mb-1"
@@ -91,14 +143,10 @@ export default function AvailabilityGridHeader({
         <span className="font-bold">{isEditMode(mode) ? "editing" : "viewing"} </span>
         {`${isEditMode(mode) ? "your availability" : "all availability"}`}
         {screenSize <= ScreenSize.MD && " for..."}
-      </h4>
-      {screenSize <= ScreenSize.MD && (
-        <div className="max-w-[16rem] overflow-hidden text-ellipsis text-lg font-semibold text-primary sm:max-w-[24rem] md:max-w-[30rem]">
-          {eventName}
-        </div>
-      )}
+      </h4> */}
+
       {availabilityType === AvailabilityType.SPECIFIC_DATES && (
-        <h1 className="mb-[2px] whitespace-nowrap text-lg font-semibold tracking-wide text-secondary xl:mr-20 xl:text-xl">
+        <h1 className="mb-[2px] whitespace-nowrap text-lg font-semibold tracking-wide text-text-primary xl:mr-20 xl:text-xl">
           {heading}
         </h1>
       )}
@@ -139,7 +187,7 @@ export default function AvailabilityGridHeader({
         className="h-7 w-7 rounded-sm px-[2px] py-0 lg:h-6 lg:w-6 lg:rounded-[0.45rem] xl:h-7 xl:w-7 xl:rounded-sm"
         onClick={availabilityGridPreviousPage}
         type="button"
-        variant={isFirstColInView ? "default-disabled" : "default"}
+        variant={isFirstColInView ? "default-disabled-white" : "default"}
       >
         <span className="sr-only">Previous Columns</span>
         <ChevronLeft className="h-5 w-5 stroke-[3px] pr-[1px] lg:h-4 lg:w-4  xl:h-5 xl:w-5" />
@@ -148,7 +196,7 @@ export default function AvailabilityGridHeader({
         className="ml-[5px] h-7 w-7 rounded-sm px-[2px] py-0 lg:h-6 lg:w-6 lg:rounded-[0.45rem] xl:h-7 xl:w-7 xl:rounded-sm"
         onClick={availabilityGridNextPage}
         type="button"
-        variant={isLastColInView ? "default-disabled" : "default"}
+        variant={isLastColInView ? "default-disabled-white" : "default"}
       >
         <span className="sr-only">Next Columns</span>
         <ChevronRight className="h-5 w-5 stroke-[3px] pl-[1px] lg:h-4 lg:w-4 xl:h-5 xl:w-5" />
@@ -158,6 +206,7 @@ export default function AvailabilityGridHeader({
 
   return (
     <>
+      <div className="mb-2">{eventTitle}</div>
       <div
         className={cn("flex items-center xl:mb-1", {
           "mb-2 mt-2 xl:mb-2": availabilityType === AvailabilityType.DAYS_OF_WEEK
@@ -169,7 +218,6 @@ export default function AvailabilityGridHeader({
         </div>
         {paginationButtons}
       </div>
-      <hr className="h-[2px] bg-secondary" />
     </>
   );
 }
