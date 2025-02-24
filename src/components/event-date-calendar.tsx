@@ -141,7 +141,6 @@ const EventDateCalendar = ({
   return (
     <div
       className={cn("bg-input h-fit scroll-m-24 select-none border-[1px] p-5 pt-3", {
-        "border-red-500": error,
         "h-full w-full px-12 pb-5 pt-8": size === "large"
       })}
       onContextMenu={handleMouseUp}
