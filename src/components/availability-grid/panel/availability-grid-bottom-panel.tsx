@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Copy } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import BestTimesAvailableSwitch from "@/components/availability-grid/best-times-available-switch";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "@/components/ui/use-toast";
@@ -87,7 +88,7 @@ export default function AvailabilityGridBottomPanel() {
             </>
           )}
           <div className="z-10 mx-auto grid w-full max-w-[56rem] grid-flow-col justify-between px-6 pt-4">
-            <Button
+            {/* <Button
               className="h-[2rem] rounded-[.5rem] border-2 text-sm sm:h-[2.3rem] md:h-[2.6rem] md:px-6 md:text-[1.05rem]"
               onClick={() => {
                 const url = `${window.location.origin}/${eventId}`;
@@ -101,7 +102,8 @@ export default function AvailabilityGridBottomPanel() {
               variant="outline"
             >
               {COPY_LINK} <Copy className="ml-2 h-4 w-4 md:ml-3 md:h-5 md:w-5" />
-            </Button>
+            </Button> */}
+            <BestTimesAvailableSwitch />
             <div className="text-sm">{isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}</div>
           </div>
         </div>
