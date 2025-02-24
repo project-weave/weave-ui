@@ -148,7 +148,10 @@ export default function TimeZoneDropdown({
             }
           )}
         >
-          {getTimeZoneJSX(selectedTimeZone)}
+          <span className="flex w-full justify-between items-center">
+            {getTimeZoneJSX(selectedTimeZone)}
+            <ChevronUp className={cn("text-text-primary rotate-180")} height={15} width={15} />
+          </span>
         </div>
       )}
       {/* {!gridDropdown && (

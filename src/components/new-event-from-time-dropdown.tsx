@@ -1,6 +1,6 @@
 import { Label } from "@radix-ui/react-label";
 import { addMinutes, format, isValid, parse } from "date-fns";
-import { Check } from "lucide-react";
+import { Check, ChevronUp } from "lucide-react";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
@@ -154,7 +154,14 @@ export default function NewEventFromTimeDropdown({
               }
             )}
           >
-            {isNextDayMidnight(selected) ? nextDayMidnight : <span>{convertValueToLabel(selected)}</span>}
+            {isNextDayMidnight(selected) ? (
+              nextDayMidnight
+            ) : (
+              <span className="flex w-full justify-between items-center">
+                {convertValueToLabel(selected)}{" "}
+                <ChevronUp className={cn("text-text-primary rotate-180")} height={15} width={15} />
+              </span>
+            )}
           </div>
           {/* <Label
             className={cn(
