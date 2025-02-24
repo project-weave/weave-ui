@@ -24,7 +24,7 @@ const DaysOfWeekPicker = forwardRef<HTMLDivElement, DaysOfWeekPickerProps>(
 
     return (
       <div
-        className={cn("card border-1 scroll-m-24 flex h-[15rem] flex-col px-5 pt-4 sm:h-[16.5rem]", {
+        className={cn("bg-input rounded-xl scroll-m-24 flex h-[15rem] flex-col px-5 pt-4 sm:h-[16.5rem]", {
           "border-red-500": error,
           "w-full px-8 pb-8 sm:h-full": size === "large"
         })}
@@ -97,21 +97,21 @@ function DayOfWeekButton({
   const formattedDateOfWeek = format(parseISO(date), "E");
 
   return (
-    <div className="flex flex-col items-center text-secondary" key={`days-of-weeks-picker-${date}`}>
+    <div className="flex flex-col items-center text-text-light" key={`days-of-weeks-picker-${date}`}>
       <label
         className={cn("mb-2 text-sm font-medium", {
           "font-semibold md:mb-5 md:text-lg": size === "large"
         })}
         htmlFor={`days-of-weeks-picker-${date}`}
       >
-        {size === "large" ? formattedDateOfWeek : formattedDateOfWeek[0]}
+        {formattedDateOfWeek}
       </label>
       <div className="flex h-full flex-grow touch-none">
         <Button
           className={cn(
             "h-full w-[2.16rem] touch-none rounded-sm bg-primary px-[.9rem] xs:px-4 sm:w-[2.4rem] sm:px-[1.2rem]",
             {
-              "bg-primary/30 hover:scale-[1.02]": !selected,
+              "bg-[#E7E7E7] hover:scale-[1.02]": !selected,
               "text-md mx-2 w-[5rem] rounded-xl sm:w-[5rem]": size === "large"
             }
           )}
