@@ -138,7 +138,7 @@ export default function TimeZoneDropdown({
       ) : (
         <div
           className={cn(
-            "peer text-sm transform-none box-border cursor-pointer flex h-10 items-center rounded-2xl bg-background px-4 pb-2.5 pt-3 outline outline-2 outline-primary/40 focus-within:outline-primary hover:outline-primary",
+            "peer text-sm transform-none box-border cursor-pointer flex h-10 items-center rounded-xl bg-input px-4 pb-2.5 pt-3",
             {
               "outline-primary": open,
               "outline-red-500/40 focus-within:outline-red-500 hover:outline-red-500": error
@@ -151,7 +151,7 @@ export default function TimeZoneDropdown({
           {getTimeZoneJSX(selectedTimeZone)}
         </div>
       )}
-      {!gridDropdown && (
+      {/* {!gridDropdown && (
         <Label
           className={cn(
             "absolute font-medium left-1 top-1 z-10 origin-[0] -translate-y-4 scale-75 transform rounded-sm bg-background px-3 text-[.9rem] duration-300 sm:top-1 ",
@@ -162,7 +162,7 @@ export default function TimeZoneDropdown({
         >
           {TIME_ZONE_LABEL}
         </Label>
-      )}
+      )} */}
     </div>
   );
 
@@ -172,7 +172,7 @@ export default function TimeZoneDropdown({
       <PopoverContent
         align={gridDropdown ? "start" : "center"}
         className={cn(
-          "min-w-[20rem] sm:min-w-[22rem] border-2 border-primary p-0 mb-2",
+          "min-w-[20rem] sm:min-w-[22rem] p-0 mb-2",
           gridDropdown && "min-w-[16rem] sm:min-w-[16rem] w-[16rem] border-[1px] border-primary mb-1"
         )}
       >
