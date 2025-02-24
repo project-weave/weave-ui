@@ -128,9 +128,9 @@ export default function TimeZoneDropdown({
     <div className="relative w-full">
       {gridDropdown ? (
         <span className="flex w-full space-between items-center">
-          <span className="text-xs text-secondary">{getTimeZoneJSX(selectedTimeZone)}</span>
+          <span className="text-xs text-text-light">{getTimeZoneJSX(selectedTimeZone)}</span>
           <ChevronUp
-            className={cn("text-secondary align-right ml-2", open && "duration-200 rotate-180")}
+            className={cn("text-text-primary align-right ml-2", open && "duration-200 rotate-180")}
             height={15}
             width={15}
           />

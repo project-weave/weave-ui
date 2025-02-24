@@ -77,7 +77,7 @@ export default function BestTimesAvailableSwitch({
     <div className={cn("flex items-center space-x-2", { invisible: isEditMode(mode) })}>
       <Label
         className={cn(
-          "cursor-pointer whitespace-nowrap text-sm font-semibold text-secondary lg:text-xs xl:text-sm",
+          "cursor-pointer whitespace-nowrap text-sm font-semibold text-text-primary lg:text-xs xl:text-sm",
           labelStyles
         )}
         htmlFor="best-times"

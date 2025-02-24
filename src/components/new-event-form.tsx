@@ -412,7 +412,7 @@ export default function NewEventForm() {
             }}
           >
             <Button
-              className="h-12 w-full max-w-[26rem] rounded-xl border-primary text-sm"
+              className="h-12 w-full max-w-[26rem] rounded-xl text-sm"
               disabled={!isFormValid}
               form="new-event-form"
               type="submit"
@@ -423,7 +423,7 @@ export default function NewEventForm() {
         )}
       </AnimatePresence>
       <Button
-        className="hidden z-[999] xs:block h-12 w-full rounded-xl border-[1px] border-primary align-bottom text-sm"
+        className="hidden z-[999] xs:block h-12 w-full rounded-xl border-[1px] align-bottom text-sm"
         disabled={!isFormValid}
         form="new-event-form"
         type="submit"
