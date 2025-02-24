@@ -144,7 +144,7 @@ export default function NewEventFromTimeDropdown({
         <div className="relative w-full">
           <div
             className={cn(
-              "peer box-border cursor-pointer flex h-10 items-center rounded-2xl bg-background px-4 pb-2.5 pt-3 outline outline-2 outline-primary/40 focus-within:outline-primary hover:outline-primary",
+              "peer box-border cursor-pointer flex h-10 items-center rounded-xl bg-input px-4 pb-2.5 pt-3",
               {
                 "outline-primary": open,
                 "outline-red-500/40 focus-within:outline-red-500 hover:outline-red-500": error
@@ -156,7 +156,7 @@ export default function NewEventFromTimeDropdown({
           >
             {isNextDayMidnight(selected) ? nextDayMidnight : <span>{convertValueToLabel(selected)}</span>}
           </div>
-          <Label
+          {/* <Label
             className={cn(
               "absolute font-medium left-1 top-1 z-10 origin-[0] -translate-y-4 scale-75 transform rounded-sm bg-background px-3 text-[.9rem] duration-300 sm:top-1 ",
               {
@@ -165,10 +165,10 @@ export default function NewEventFromTimeDropdown({
             )}
           >
             {isStartTime ? START_TIME_LABEL : END_TIME_LABEL}
-          </Label>
+          </Label> */}
         </div>
       </PopoverTrigger>
-      <PopoverContent className="w-[140px] border-2 border-primary p-0 mb-2 bg-background sm:w-[154px]">
+      <PopoverContent className="w-[140px] p-0 mb-2 bg-background sm:w-[154px]">
         <Command filter={(value, search) => timeFilter(value, search)}>
           <CommandInput className="border-primary py-5 text-sm" onBlur={onBlur} />
           <CommandEmpty className="m-2 rounded-sm bg-gray-200 py-1.5 text-center text-xs">{INVALID_TIME} </CommandEmpty>

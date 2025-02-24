@@ -22,7 +22,7 @@ const buttonVariants = cva(
         dark: "bg-primary-dark text-primary-foreground hover:bg-primary-dark-hover",
         "dark-disabled": "text-primary-dark bg-primary-foreground",
         default: "bg-primary text-primary-foreground hover:bg-primary-hover",
-        "default-disabled": "text-primary bg-primary-foreground",
+        "default-disabled": "text--text-primary bg-input",
         failure: "bg-failure text-failure-foreground hover:bg-failure/90",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
