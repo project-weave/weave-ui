@@ -360,8 +360,7 @@ function DateButton({
           "text-text-primary": isToday(day) && !isDaySelected,
           "my-[3px] h-6 px-2": isViewMode,
           "my-4 xl:h-[3.1rem] border-[1px] px-8 py-2 text-lg sm:text-lg": size === "large",
-          "text-text-light pointer-events-none":
-            !isViewMode && isBeforeToday(day) && !selectedDates.has(formattedDay)
+          "text-text-light pointer-events-none": !isViewMode && isBeforeToday(day) && !selectedDates.has(formattedDay)
         }
       )}
       drag-select-attr={formattedDay}

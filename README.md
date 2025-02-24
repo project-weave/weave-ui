@@ -1,18 +1,24 @@
-# Weave UI  
+# Weave UI
 
-## Vscode Setup 
+## Vscode Setup
+
 1. Prettier
-  - download Prettier extension on VSCode 
-  - set `"editor.formatOnSave": true` in settings.json
+
+- download Prettier extension on VSCode
+- set `"editor.formatOnSave": true` in settings.json
+
 2. TailwindCSS
-  - download Tailwind CSS Intellisense on VSCode
+
+- download Tailwind CSS Intellisense on VSCode
 
 ## Getting Started
 
 Install depenencies:
+
 ```bash
-npm install 
+npm install
 ```
+
 Run the development server:
 
 ```bash
@@ -20,7 +26,6 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
 
 ## Deploy on Vercel
 

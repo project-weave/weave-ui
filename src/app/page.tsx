@@ -6,8 +6,8 @@ import { useRef } from "react";
 import NewEventForm from "@/components/new-event-form";
 import { Button } from "@/components/ui/button";
 
-const SUBTITLE =
-  "The hardest part about getting together is finding time for it. With Weave, you'll be able to schedule group events with ease, and enjoy doing so.";
+// const SUBTITLE =
+//   "The hardest part about getting together is finding time for it. With Weave, you'll be able to schedule group events with ease, and enjoy doing so.";
 const CREATE_A_WEAVE = "Create a Weave";
 
 export default function LandingPage() {
