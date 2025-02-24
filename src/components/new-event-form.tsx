@@ -63,6 +63,14 @@ export default function NewEventForm() {
     resolver: zodResolver(EventFormSchema)
   });
 
+  // custom validation for form
+  const isFormValid =
+    !!form.watch("name") &&
+    !(
+      (form.watch("availabilityType") === AvailabilityType.SPECIFIC_DATES && selectedDates.size === 0) ||
+      (form.watch("availabilityType") === AvailabilityType.DAYS_OF_WEEK && selectedDaysOfWeek.size === 0)
+    );
+
   const availabilityType = form.watch("availabilityType");
 
   // set value of "specificDates" when selectedDates changes
@@ -405,7 +413,7 @@ export default function NewEventForm() {
           >
             <Button
               className="h-12 w-full max-w-[26rem] rounded-xl border-primary text-sm"
-              disabled={isSubmitAttempted.current && !form.formState.isValid}
+              disabled={!isFormValid}
               form="new-event-form"
               type="submit"
             >
@@ -416,7 +424,7 @@ export default function NewEventForm() {
       </AnimatePresence>
       <Button
         className="hidden z-[999] xs:block h-12 w-full rounded-xl border-[1px] border-primary align-bottom text-sm"
-        disabled={isSubmitAttempted.current && !form.formState.isValid}
+        disabled={!isFormValid}
         form="new-event-form"
         type="submit"
       >
