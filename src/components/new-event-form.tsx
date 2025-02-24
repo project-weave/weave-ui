@@ -27,10 +27,10 @@ import TimeZoneDropdown from "./timezone-dropdown";
 
 const EVENT_NAME_LABEL = "Event Name";
 
-const WHAT_EVENT_NAME = "What is the name of your event?";
-const WHAT_TIMES = "What times are you checking availability for?";
+const EVENT_NAME = "What is the name of your event?";
+const WHAT_TIMES = "What times work for you?";
 const WHAT_AVAILABILITY = "What availability do you want to know?";
-const WHAT_TIME_ZONE = "What time zone is your event in?";
+const WHAT_TIME_ZONE = "What time zone works for you?";
 const I_WANT_TO_BE_NOTIFIED = "I want to be notified when there is a new availability inputted.";
 const CREATE_EVENT = "Create Event";
 const TO = "to";
@@ -177,7 +177,7 @@ export default function NewEventForm() {
       name="name"
       render={({ field, fieldState: { invalid } }) => (
         <FormItem>
-          <FormLabel>{WHAT_EVENT_NAME}</FormLabel>
+          <FormLabel>{EVENT_NAME}</FormLabel>
           <div className="mt-1.5">
             <InputWithLabel
               {...field}
@@ -251,8 +251,8 @@ export default function NewEventForm() {
 
   const availabilityTypeInput = (
     <>
-      <p className="mb-3 text-xs font-medium text-secondary">{WHAT_AVAILABILITY}</p>
-      <fieldset className="flex w-full items-center justify-between">
+      <p className="mb-3 text-xs font-medium text-text-light">{WHAT_AVAILABILITY}</p>
+      <fieldset className="flex p-1 rounded-xl w-full items-center justify-between bg-input">
         <div className="h-full w-full">
           <Input
             className="peer hidden"
@@ -264,16 +264,15 @@ export default function NewEventForm() {
             value={AvailabilityType.SPECIFIC_DATES}
           />
           <Label
-            className="text-secondary cursor-pointer font-medium rounded-md flex items-center py-1.5 justify-center w-full border-[1px] border-primary text-sm peer-checked:bg-primary peer-checked:text-white peer-checked:hover:bg-primary"
+            className="text-text-light cursor-pointer font-medium rounded-sm flex items-center py-1.5 justify-center w-full text-sm peer-checked:bg-primary peer-checked:text-white peer-checked:hover:bg-primary"
             htmlFor="specific-dates"
           >
             <span className="flex flex-col items-center">
-              <div>Specific</div>
-              <div>Dates</div>
+              <div>Specific dates</div>
             </span>
           </Label>
         </div>
-        <p className="mx-6 text-xs text-secondary"> {OR} </p>
+        {/* <p className="mx-6 text-xs text-secondary"> {OR} </p> */}
         <div className="h-full w-full">
           <Input
             className="peer hidden"
@@ -286,12 +285,11 @@ export default function NewEventForm() {
             value={AvailabilityType.DAYS_OF_WEEK}
           />
           <Label
-            className="text-secondary cursor-pointer font-medium rounded-md flex items-center py-1.5 justify-center w-full border-[1px] border-primary text-sm peer-checked:bg-primary peer-checked:text-white peer-checked:hover:bg-primary"
+            className="text-text-light cursor-pointer font-medium rounded-sm flex items-center py-1.5 justify-center w-full text-sm peer-checked:bg-primary peer-checked:text-white peer-checked:hover:bg-primary"
             htmlFor="dow"
           >
             <span className="flex flex-col items-center">
-              <div>Days Of</div>
-              <div>The Week</div>
+              <div>Days of the week</div>
             </span>
           </Label>
         </div>
@@ -446,9 +444,9 @@ export default function NewEventForm() {
           >
             <div className="mb-5 flex flex-col">{eventNameInput}</div>
             <div className="mb-6 flex w-full flex-col">{startAndEndTimeInput}</div>
+            <div className="mb-6"> {timeZoneDropdown}</div>
             <div className="mb-5 flex flex-col">{availabilityTypeInput}</div>
             <div className="mb-6">{dateSelector}</div>
-            <div className="mb-6"> {timeZoneDropdown}</div>
             {formSubmissionButton}
           </form>
         </FormProvider>
