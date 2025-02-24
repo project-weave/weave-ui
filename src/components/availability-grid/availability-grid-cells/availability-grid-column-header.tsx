@@ -64,7 +64,7 @@ export default function AvailabilityGridColumnHeader({
       style={{ ...style, width: `calc(100% + ${hasDateGapRight ? "7px" : "2px"}` }}
     >
       {availabilityType === AvailabilityType.SPECIFIC_DATES && (
-        <h3 className="text-sm font-semibold text-primary xl:text-base">{format(parsedDate, "EEE")}</h3>
+        <h3 className="text-xl text-text-light xl:text-xl">{format(parsedDate, "EEE")}</h3>
       )}
       <div
         className={cn("border-b-2 border-transparent pb-0.5 text-center xl:w-16", {
@@ -74,10 +74,10 @@ export default function AvailabilityGridColumnHeader({
         {availabilityType === AvailabilityType.SPECIFIC_DATES && (
           <Button
             className={cn(
-              "h-6 w-[3.7rem] whitespace-nowrap rounded-sm border-2 border-transparent bg-accent-light text-xs font-semibold tracking-wide text-secondary transition-all hover:bg-accent xl:h-[1.7rem] xl:w-[4.2rem] xl:text-sm",
+              "h-6 w-[3.7rem] whitespace-nowrap rounded-sm border-2 border-transparent bg-accent-light text-xs tracking-wide text-text-light transition-all hover:bg-accent xl:h-[1.7rem] xl:w-[4.2rem] xl:text-sm",
               {
                 "bg-primary text-white hover:bg-primary-hover": isAllTimeSlotForDateSelected,
-                "mt-0 cursor-default bg-background text-sm text-secondary hover:bg-background xl:text-base":
+                "mt-0 cursor-default bg-background text-xs text-text-light hover:bg-background xl:text-sm":
                   isViewMode(mode),
                 "ring-[1.5px] ring-primary ring-offset-1": (isDateHovered || isDateFocused) && isEditMode(mode)
               }
@@ -91,7 +91,7 @@ export default function AvailabilityGridColumnHeader({
         {availabilityType === AvailabilityType.DAYS_OF_WEEK && (
           <Button
             className={cn(
-              "mb-0.5 h-7 w-14 rounded-xl border-2 border-transparent bg-accent-light text-sm font-semibold tracking-wide text-secondary transition-all hover:bg-accent",
+              "mb-0.5 h-7 w-14 rounded-xl border-2 border-transparent bg-accent-light text-sm font-semibold tracking-wide text-text-light transition-all hover:bg-accent",
               {
                 "bg-primary text-white hover:bg-primary-hover": isAllTimeSlotForDateSelected,
                 "cursor-default bg-background text-sm text-secondary hover:bg-background lg:text-base":

@@ -210,13 +210,13 @@ export default function AvailabilityGridTimeSlot({
   return (
     <button
       className={cn(
-        "h-full w-full cursor-pointer touch-none appearance-none border-b-0 border-t-2 border-primary-light outline-none",
+        "h-full w-full cursor-pointer touch-none appearance-none border-b-0 border-t-[1px] border-text-light outline-none",
         borderXSizeStyles,
         {
           "bg-primary hover:bg-primary/60": (isSelected || isBeingAdded) && !isBeingRemoved,
           "border-l-primary": hasDateGapLeft,
           "border-r-primary": hasDateGapRight,
-          "border-t-[3px]": isTimeHovered,
+          "border-t-[2px]": isTimeHovered,
           "border-t-0": !shouldDisplayBorder && !isTimeHovered
         },
         isViewMode(mode) && isTimeHovered && "border-t-secondary",

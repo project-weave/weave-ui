@@ -49,9 +49,9 @@ export default function AvailabilityGridCell({
   ): string {
     const classNames: string[] = ["border-l-[1px] border-r-[1px]"];
     if (isCellInFirstDisplayedCol) classNames.push("border-l-0");
-    if (hasDateGapLeft || (isCellInFirstDisplayedCol && !isCellInFirstActualCol)) classNames.push("border-l-2");
+    if (hasDateGapLeft || (isCellInFirstDisplayedCol && !isCellInFirstActualCol)) classNames.push("border-l-[1px]");
     if (isCellInLastActualCol) classNames.push("border-r-0");
-    if (hasDateGapRight || (isCellInLastDisplayedCol && !isCellInLastActualCol)) classNames.push("border-r-2");
+    if (hasDateGapRight || (isCellInLastDisplayedCol && !isCellInLastActualCol)) classNames.push("border-r-[1px]");
 
     return classNames.join(" ");
   }
@@ -136,7 +136,7 @@ export default function AvailabilityGridCell({
     case NodeType.FIRST_CELL_IN_COLUMN:
       return (
         <div
-          className={cn("h-full w-full border-t-0 border-primary-light", borderXSizeStyles, {
+          className={cn("h-full w-full border-t-0 border-text-light", {
             "border-l-primary": hasDateGapLeft,
             "border-r-primary": hasDateGapRight
           })}
@@ -147,7 +147,7 @@ export default function AvailabilityGridCell({
     case NodeType.LAST_CELL_IN_COLUMN:
       return (
         <div
-          className={cn("h-full w-full border-b-0 border-t-2 border-primary-light", borderXSizeStyles, {
+          className={cn("h-full w-full border-b-0 border-t-[1px] border-text-light", {
             "border-l-primary": hasDateGapLeft,
             "border-r-primary": hasDateGapRight
           })}

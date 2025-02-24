@@ -104,11 +104,11 @@ export default function AvailabilityGrid() {
     switch (screenSize) {
       case ScreenSize.XXS:
       case ScreenSize.XS:
-        return setAvailabilityGridViewWindowSize(4);
+        return setAvailabilityGridViewWindowSize(3);
       case ScreenSize.SM:
-        return setAvailabilityGridViewWindowSize(6);
+        return setAvailabilityGridViewWindowSize(4);
       case ScreenSize.MD:
-        return setAvailabilityGridViewWindowSize(7);
+        return setAvailabilityGridViewWindowSize(5);
       case ScreenSize.LG:
         return setAvailabilityGridViewWindowSize(6);
       default:

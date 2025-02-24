@@ -77,7 +77,7 @@ export default function AvailabilityGridRowHeader({
   return (
     <span
       className={cn(
-        "-translate-y-1.5 pr-2 text-right text-2xs font-medium text-primary duration-300 sm:-translate-y-2 sm:text-[0.75rem] xl:text-xs",
+        "-translate-y-1.5 pr-2 text-right text-2xs font-medium text-text-light duration-300 sm:-translate-y-2 sm:text-[0.75rem] xl:text-xs",
         { "opacity-0": originalDateTime.getMinutes() !== 0 },
         {
           "font-bold opacity-100": isHoveredTimeSlot || isPrevTimeSlotHovered,
