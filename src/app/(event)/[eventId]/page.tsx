@@ -1,5 +1,6 @@
 "use client";
 
+import { useChat } from "@ai-sdk/react";
 import { isAxiosError } from "axios";
 import { redirect, useParams } from "next/navigation";
 import { useEffect } from "react";
@@ -8,6 +9,7 @@ import { useShallow } from "zustand/react/shallow";
 import AvailabilityGrid from "@/components/availability-grid/availability-grid";
 import AvailabilityGridBottomPanel from "@/components/availability-grid/panel/availability-grid-bottom-panel";
 import AvailabilityGridLeftPanel from "@/components/availability-grid/panel/availability-grid-left-panel";
+import Chat from "@/components/chat";
 import { MediaQueryLG, MediaQueryXXS } from "@/components/media-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
@@ -71,6 +73,7 @@ export default function Event() {
 
   return (
     <div className="flex flex-col">
+      <Chat />
       <div className="mt-4 grid w-full grid-flow-col justify-center gap-3 pb-4">
         <MediaQueryLG>
           <div className="sticky top-[4.3rem] h-[85vh] max-h-[50rem] min-h-[28rem] w-[18rem] xl:w-[20rem]">
