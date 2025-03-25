@@ -3,6 +3,7 @@ import { Label } from "../ui/label";
 import { format, isEqual, parseISO } from "date-fns";
 import { AnimationScope } from "framer-motion";
 import { ChevronLeft, ChevronRight, Copy, Eye, Link, Pencil } from "lucide-react";
+import { useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import { MediaQueryLG } from "@/components/media-query";
@@ -47,12 +48,18 @@ export default function AvailabilityGridHeader({
   const [availabilityGridNextPage, availabilityGridPreviousPage] = useAvailabilityGridStore(
     useShallow((state) => [state.nextPage, state.previousPage])
   );
+  const [availabilityGridViewWindowSize, setAvailabilityGridViewWindowSize] = useAvailabilityGridStore(
+    useShallow((state) => [state.availabilityGridViewWindowSize, state.setAvailabilityGridViewWindowSize])
+  );
   const isPaginationRequired = useAvailabilityGridStore((state) => state.isPaginationRequired);
   const leftMostColumnInView = useAvailabilityGridStore(useShallow((state) => state.leftMostColumnInView));
   const getMaxLeftMostColumnInView = useAvailabilityGridStore((state) => state.getMaxLeftMostColumnInView);
 
   const earliestDate = parseISO(sortedEventDates[0]);
   const latestDate = parseISO(sortedEventDates[sortedEventDates.length - 1]);
+  const numDays = sortedEventDates.length;
+  const progressWidth = (availabilityGridViewWindowSize / numDays) * 100;
+  const progressPos = (leftMostColumnInView / numDays) * 100;
 
   const isFirstColInView = leftMostColumnInView === 0;
   const isLastColInView = leftMostColumnInView === getMaxLeftMostColumnInView();
@@ -130,6 +137,23 @@ export default function AvailabilityGridHeader({
     </div>
   );
 
+  const progressBar = (
+    <div
+      className="w-full bg-gray-200 rounded-full h-0.5 mt-2 mb-2"
+      style={{
+        position: "absolute" // Absolute positioning to move the block
+      }}
+    >
+      <div
+        className="bg-primary h-0.5 rounded-full transition-all duration-300"
+        style={{
+          width: `${progressWidth}%`, // Width of the block based on the visible window size
+          left: `${progressPos}%`, // Position of the block based on where the user is in the grid
+          position: "absolute" // Absolute positioning to move the block
+        }}
+      ></div>
+    </div>
+  );
   const headerTitle = (
     <span>
       <div className="mb-2">{editStatus}</div>
@@ -144,7 +168,6 @@ export default function AvailabilityGridHeader({
         {`${isEditMode(mode) ? "your availability" : "all availability"}`}
         {screenSize <= ScreenSize.MD && " for..."}
       </h4> */}
-
       {availabilityType === AvailabilityType.SPECIFIC_DATES && (
         <h1 className="mb-[2px] whitespace-nowrap text-lg font-semibold tracking-wide text-text-primary xl:mr-20 xl:text-xl">
           {heading}
@@ -185,7 +208,9 @@ export default function AvailabilityGridHeader({
     <div className="ml-4 mr-1 flex h-7 items-center whitespace-nowrap xs:pr-2 xl:pr-0">
       <Button
         className="h-7 w-7 rounded-sm px-[2px] py-0 lg:h-6 lg:w-6 lg:rounded-[0.45rem] xl:h-7 xl:w-7 xl:rounded-sm"
-        onClick={availabilityGridPreviousPage}
+        onClick={() => {
+          availabilityGridPreviousPage();
+        }}
         type="button"
         variant={isFirstColInView ? "default-disabled-white" : "default"}
       >
@@ -194,7 +219,9 @@ export default function AvailabilityGridHeader({
       </Button>
       <Button
         className="ml-[5px] h-7 w-7 rounded-sm px-[2px] py-0 lg:h-6 lg:w-6 lg:rounded-[0.45rem] xl:h-7 xl:w-7 xl:rounded-sm"
-        onClick={availabilityGridNextPage}
+        onClick={() => {
+          availabilityGridNextPage();
+        }}
         type="button"
         variant={isLastColInView ? "default-disabled-white" : "default"}
       >
@@ -218,6 +245,7 @@ export default function AvailabilityGridHeader({
         </div>
         {paginationButtons}
       </div>
+      <>{progressBar}</>
     </>
   );
 }
