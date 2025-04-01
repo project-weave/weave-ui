@@ -101,7 +101,6 @@ const useAvailabilityGridStore = create<AvailabilityGridState>()(
       }),
       {
         name: "timeZone",
-        partialize: ({ selectedTimeZone }: AvailabilityGridState) => ({ timeZone: selectedTimeZone }),
         onRehydrateStorage: () => (state) => {
           const storedTimeZone = localStorage.getItem("timeZone");
           if (storedTimeZone) {
@@ -112,7 +111,8 @@ const useAvailabilityGridStore = create<AvailabilityGridState>()(
               }
             } catch {}
           }
-        }
+        },
+        partialize: ({ selectedTimeZone }: AvailabilityGridState) => ({ timeZone: selectedTimeZone })
       }
     )
   )

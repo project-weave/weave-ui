@@ -10,18 +10,17 @@ export interface GetEventResponse {
 
 const mockEvent: GetEventResponse = {
   event: {
-    id: "12345",
-    name: "Mock Event",
-    isSpecificDates: true,
-    startTime: "09:00:00",
-    endTime: "21:00:00",
     dates: Array.from({ length: 31 }, (_, i) => `2025-01-${String(i + 1).padStart(2, "0")}`),
+    endTime: "21:00:00",
+    id: "12345",
+    isSpecificDates: true,
+    name: "Mock Event",
+    startTime: "09:00:00",
     timeZone: "UTC"
   },
   responses: [
     {
       alias: "John",
-      userId: "user_abc_001",
       availabilities: [
         "2025-01-05 10:00:00",
         "2025-01-06 14:00:00",
@@ -29,11 +28,11 @@ const mockEvent: GetEventResponse = {
         "2025-01-10 13:00:00",
         "2025-01-12 16:00:00",
         "2025-01-15 09:00:00"
-      ]
+      ],
+      userId: "user_abc_001"
     },
     {
       alias: "Emily",
-      userId: "user_abc_002",
       availabilities: [
         "2025-01-05 10:00:00", // Overlaps with John
         "2025-01-06 14:00:00", // Overlaps with John
@@ -41,11 +40,11 @@ const mockEvent: GetEventResponse = {
         "2025-01-12 17:00:00",
         "2025-01-15 09:00:00", // Overlaps with John
         "2025-01-18 11:30:00"
-      ]
+      ],
+      userId: "user_abc_002"
     },
     {
       alias: "Raj",
-      userId: "user_abc_003",
       availabilities: [
         "2025-01-05 10:00:00", // Overlaps with John & Emily
         "2025-01-06 14:00:00", // Overlaps
@@ -53,11 +52,11 @@ const mockEvent: GetEventResponse = {
         "2025-01-12 16:00:00", // Overlaps with John
         "2025-01-15 09:00:00", // Overlaps with both
         "2025-01-22 18:00:00"
-      ]
+      ],
+      userId: "user_abc_003"
     },
     {
       alias: "Lena",
-      userId: "user_abc_004",
       availabilities: [
         "2025-01-06 14:00:00", // Overlaps with John, Emily, Raj
         "2025-01-08 10:00:00", // Overlaps with Raj
@@ -65,11 +64,11 @@ const mockEvent: GetEventResponse = {
         "2025-01-12 16:00:00", // Overlaps with John, Raj
         "2025-01-15 09:00:00", // Overlaps with everyone
         "2025-01-18 11:30:00" // Overlaps with Emily
-      ]
+      ],
+      userId: "user_abc_004"
     },
     {
       alias: "Carlos",
-      userId: "user_abc_005",
       availabilities: [
         "2025-01-05 10:00:00", // Overlaps with others
         "2025-01-06 14:00:00", // Overlaps with many
@@ -77,7 +76,8 @@ const mockEvent: GetEventResponse = {
         "2025-01-15 09:00:00", // Everyone’s in
         "2025-01-22 18:00:00", // Matches Raj
         "2025-01-25 19:00:00"
-      ]
+      ],
+      userId: "user_abc_005"
     }
   ]
 };

@@ -6,7 +6,7 @@ import { z } from "zod";
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  const { messages, eventData } = await req.json();
+  const { eventData, messages } = await req.json();
 
   if (!eventData) {
     return new Response("Missing event data", { status: 400 });
@@ -33,19 +33,11 @@ Time windows:
   // Use closure to inject eventData into tool
   const findBestMeetingTimes = tool({
     description: "Find the top 3 meeting times that fit the user's request and maximize attendance.",
-    parameters: z.object({
-      startTime: z.string().describe("Start of the meeting range in HH:MM:SS format (e.g. 12:00:00)"),
-      endTime: z.string().describe("End of the meeting range in HH:MM:SS format (e.g. 17:00:00)"),
-      durationMinutes: z.number().describe("Desired meeting duration in minutes"),
-      topN: z.number().default(3).describe("Number of meeting times to return"),
-      requiredParticipants: z.array(z.string()).optional().describe("Optional list of aliases who must be present"),
-      dayOfWeek: z.string().optional().describe("Optional list of days of the week allowed for meeting")
-    }),
-    execute: async ({ startTime, endTime, durationMinutes, requiredParticipants, topN, dayOfWeek }) => {
+    execute: async ({ dayOfWeek, durationMinutes, endTime, requiredParticipants, startTime, topN }) => {
       const { event, responses } = eventData;
       const { dates, timeZone } = event;
       const slotLengthMs = Math.ceil(durationMinutes / 30) * 30 * 60 * 1000;
-      const timeSlotsToParticipants = {}
+      const timeSlotsToParticipants = {};
 
       responses.forEach(({ alias, availabilities }) => {
         (availabilities || []).forEach((timeSlot) => {
@@ -56,24 +48,32 @@ Time windows:
         });
       });
 
-      console.log(timeSlotsToParticipants)
+      console.log(timeSlotsToParticipants);
 
-      return ""
+      return "";
       // return {
       //   start: "1/6/2025, 14:00:00 PM",
       //   end: "1/6/2025, 14:30:00 PM",
       //   attendees: ["John", "Emily", "Raj", "Lena", "Carlos"]
       // };
-    }
+    },
+    parameters: z.object({
+      dayOfWeek: z.string().optional().describe("Optional list of days of the week allowed for meeting"),
+      durationMinutes: z.number().describe("Desired meeting duration in minutes"),
+      endTime: z.string().describe("End of the meeting range in HH:MM:SS format (e.g. 17:00:00)"),
+      requiredParticipants: z.array(z.string()).optional().describe("Optional list of aliases who must be present"),
+      startTime: z.string().describe("Start of the meeting range in HH:MM:SS format (e.g. 12:00:00)"),
+      topN: z.number().default(3).describe("Number of meeting times to return")
+    })
   });
 
   // Call the model
   const result = streamText({
+    maxSteps: 5,
+    messages,
     model: xai("grok-2-1212"),
     system: systemPrompt,
-    messages,
-    tools: { findBestMeetingTimes },
-    maxSteps: 5
+    tools: { findBestMeetingTimes }
   });
 
   return result.toDataStreamResponse();

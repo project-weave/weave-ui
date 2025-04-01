@@ -323,10 +323,10 @@ function DateButton({
         "my-[3px] flex h-[2.1rem] xl:h-[1.7rem] cursor-pointer touch-none items-center justify-center rounded-sm p-[1px] text-sm outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
         !isDaySelected
           ? {
-              "border-transparent bg-input": true,
-              "text-text-primary": isSameMonth(day, firstDayCurrentMonth),
               "bg-lime-200 hover:bg-lime-200/80": isToday(day),
-              "text-text-light hover:text-light/80": !isToday(day) && !isSameMonth(day, firstDayCurrentMonth)
+              "border-transparent bg-input": true,
+              "text-text-light hover:text-light/80": !isToday(day) && !isSameMonth(day, firstDayCurrentMonth),
+              "text-text-primary": isSameMonth(day, firstDayCurrentMonth)
             }
           : {
               "bg-primary/70": !isSameMonth(day, firstDayCurrentMonth),
@@ -356,10 +356,10 @@ function DateButton({
             "border-r-0": !isNextDayVisible && isNextDaySelected && day.getDay() !== 6
           },
         {
-          "text-text-primary": isToday(day) && !isDaySelected,
           "my-[3px] h-6 px-2": isViewMode,
           "my-4 xl:h-[3.1rem] border-[1px] px-8 py-2 text-lg sm:text-lg": size === "large",
-          "text-text-light pointer-events-none": !isViewMode && isBeforeToday(day) && !selectedDates.has(formattedDay)
+          "text-text-light pointer-events-none": !isViewMode && isBeforeToday(day) && !selectedDates.has(formattedDay),
+          "text-text-primary": isToday(day) && !isDaySelected
         }
       )}
       drag-select-attr={formattedDay}

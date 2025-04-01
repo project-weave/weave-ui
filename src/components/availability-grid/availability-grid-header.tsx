@@ -33,9 +33,9 @@ export default function AvailabilityGridHeader({
 }: AvailabilityGridHeaderProps) {
   const {
     availabilityType,
+    eventId,
     eventName,
     sortedEventDates,
-    eventId,
     timeZone: eventTimeZone
   } = useAvailabilityGridStore((state) => state.eventData);
 
@@ -147,9 +147,9 @@ export default function AvailabilityGridHeader({
       <div
         className="bg-primary h-0.5 rounded-full transition-all duration-300"
         style={{
-          width: `${progressWidth}%`, // Width of the block based on the visible window size
           left: `${progressPos}%`, // Position of the block based on where the user is in the grid
-          position: "absolute" // Absolute positioning to move the block
+          position: "absolute", // Absolute positioning to move the block
+          width: `${progressWidth}%` // Width of the block based on the visible window size
         }}
       ></div>
     </div>
