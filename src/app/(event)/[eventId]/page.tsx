@@ -73,7 +73,7 @@ export default function Event() {
 
   return (
     <div className="flex flex-col">
-      <Chat />
+      <Chat eventData={data} />
       <div className="mt-4 grid w-full grid-flow-col justify-center gap-3 pb-4">
         <MediaQueryLG>
           <div className="sticky top-[4.3rem] h-[85vh] max-h-[50rem] min-h-[28rem] w-[18rem] xl:w-[20rem]">

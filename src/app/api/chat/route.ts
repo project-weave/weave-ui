@@ -6,59 +6,75 @@ import { z } from "zod";
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  // Extract the `messages` from the body of the request
-  const { messages } = await req.json();
-  const systemPrompt = `You are Weaver, built by Weave, designed to assist with scheduling meetings based on event details and participant availability. Your task is to analyze user requests about meeting times (e.g., "What's the best time to meet for 2 hours in the afternoon") and suggest optimal time slots that maximize attendance. You have access to a tool called \`findBestMeetingTimes\` that processes event data and participant responses to calculate and sort time slots by attendance rate.
+  const { messages, eventData } = await req.json();
 
-  The event data includes:
-  - \`event\`: Contains \`id\`, \`name\`, \`isSpecificDates\`, \`startTime\`, \`endTime\`, \`dates\` (an array of dates in "YYYY-MM-DD" format), and \`timeZone\`.
-  - \`responses\`: An array of participant objects, each with \`alias\`, \`userId\`, and \`availabilities\` (an array of "YYYY-MM-DD HH:MM:SS" timestamps in the event’s timezone).
+  if (!eventData) {
+    return new Response("Missing event data", { status: 400 });
+  }
 
-  Your responses should:
-  1. Interpret the user’s request (e.g., duration and time of day like "afternoon").
-  2. Use the \`findBestMeetingTimes\` tool to identify time slots within the event’s dates and time range (e.g., 09:00:00 to 21:00:00 UTC) that satisfy the request.
-  3. Return the top suggested time slots (up to 3), sorted by highest attendance, including the date, time, duration, and list of available attendees.
-  4. If no exact matches exist, suggest the closest viable options and explain why.
-  5. Present times in the event’s timezone (e.g., UTC) in a clear, human-readable format (e.g., "January 5, 2025, 10:00 AM UTC").
-  6. Be concise, helpful, and proactive, offering alternatives if needed.
+  const systemPrompt = `You are Weaver, a scheduling assistant. Your job is to:
+1. Understand the user's request for a meeting time — including duration, time of day, date preferences, or required participants.
+2. Convert the request into a structured format: start time, end time, duration, and any constraints.
+3. Use the \`findBestMeetingTimes\` tool to return up to 3 optimal time slots based on event data and availability.
 
-  Assume "morning" is 00:00-11:59, "afternoon" is 12:00-17:59, and "evening" is 18:00-23:59 unless specified otherwise. If the request is unclear, ask for clarification.`;
+The event includes:
+- \`event\`: { id, name, isSpecificDates, startTime, endTime, dates[], timeZone }
+- \`responses\`: each has { alias, userId, availabilities[] in "YYYY-MM-DD HH:MM:SS" format }
 
-  // Call the language model
-  const result = streamText({
-    system: systemPrompt,
-    model: xai("grok-2-1212"),
-    messages,
-    // Dummy tools
-    tools: {
-      weather: tool({
-        description: "Get the weather in a location (fahrenheit)",
-        parameters: z.object({
-          location: z.string().describe("The location to get the weather for")
-        }),
-        execute: async ({ location }) => {
-          const temperature = Math.round(Math.random() * (90 - 32) + 32);
-          return {
-            location,
-            temperature
-          };
-        }
-      }),
-      convertFahrenheitToCelsius: tool({
-        description: "Convert a temperature in fahrenheit to celsius",
-        parameters: z.object({
-          temperature: z.number().describe("The temperature in fahrenheit to convert")
-        }),
-        execute: async ({ temperature }) => {
-          const celsius = Math.round((temperature - 32) * (5 / 9));
-          return {
-            celsius
-          };
-        }
-      })
+Respond clearly with the best matching slots, showing:
+- Date, time, duration, available attendees (in event timezone)
+- Alternatives if no exact match
+
+Time windows:
+- Morning: 00:00–11:59
+- Afternoon: 12:00–17:59
+- Evening: 18:00–23:59`;
+
+  // Use closure to inject eventData into tool
+  const findBestMeetingTimes = tool({
+    description: "Find the top 3 meeting times that fit the user's request and maximize attendance.",
+    parameters: z.object({
+      startTime: z.string().describe("Start of the meeting range in HH:MM:SS format (e.g. 12:00:00)"),
+      endTime: z.string().describe("End of the meeting range in HH:MM:SS format (e.g. 17:00:00)"),
+      durationMinutes: z.number().describe("Desired meeting duration in minutes"),
+      topN: z.number().default(3).describe("Number of meeting times to return"),
+      requiredParticipants: z.array(z.string()).optional().describe("Optional list of aliases who must be present"),
+      dayOfWeek: z.string().optional().describe("Optional list of days of the week allowed for meeting")
+    }),
+    execute: async ({ startTime, endTime, durationMinutes, requiredParticipants, topN, dayOfWeek }) => {
+      const { event, responses } = eventData;
+      const { dates, timeZone } = event;
+      const slotLengthMs = Math.ceil(durationMinutes / 30) * 30 * 60 * 1000;
+      const timeSlotsToParticipants = {}
+
+      responses.forEach(({ alias, availabilities }) => {
+        (availabilities || []).forEach((timeSlot) => {
+          if (timeSlotsToParticipants[timeSlot] === undefined) {
+            timeSlotsToParticipants[timeSlot] = [];
+          }
+          timeSlotsToParticipants[timeSlot].push(alias);
+        });
+      });
+
+      console.log(timeSlotsToParticipants)
+
+      return ""
+      // return {
+      //   start: "1/6/2025, 14:00:00 PM",
+      //   end: "1/6/2025, 14:30:00 PM",
+      //   attendees: ["John", "Emily", "Raj", "Lena", "Carlos"]
+      // };
     }
   });
 
-  // Respond with the stream
+  // Call the model
+  const result = streamText({
+    model: xai("grok-2-1212"),
+    system: systemPrompt,
+    messages,
+    tools: { findBestMeetingTimes },
+    maxSteps: 5
+  });
+
   return result.toDataStreamResponse();
 }
