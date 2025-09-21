@@ -1,5 +1,5 @@
 import { addMinutes, format, isValid, parse } from "date-fns";
-import { Check, ChevronUp } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
@@ -155,8 +155,7 @@ export default function NewEventFromTimeDropdown({
               nextDayMidnight
             ) : (
               <span className="flex w-full items-center justify-between">
-                {convertValueToLabel(selected)}{" "}
-                <ChevronUp className={cn("text-text-primary rotate-180")} height={15} width={15} />
+                {convertValueToLabel(selected)} <ChevronDown className="text-black" height={15} width={15} />
               </span>
             )}
           </div>

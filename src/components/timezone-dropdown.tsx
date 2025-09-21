@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronUp } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -105,7 +105,7 @@ export default function TimeZoneDropdown({
     let info: ReactNode = null;
     if (gridDropdown) {
       if (timeZone.value === originalTimeZone) {
-        info = <span className="ml-2 text-[0.6rem] text-text-light ">(Event Default)</span>;
+        info = <span className="ml-2 text-[0.7rem] text-text-light ">(Event Default)</span>;
       }
     } else {
       info = <span className="ml-2 text-[0.85rem] text-text-light ">({timeZone.offset})</span>;
@@ -124,35 +124,23 @@ export default function TimeZoneDropdown({
   }
 
   const popoverDisplay = (
-    <div className="relative w-full">
-      {gridDropdown ? (
-        <span className="space-between flex w-full items-center">
-          <span className="text-xs text-text-light">{getTimeZoneJSX(selectedTimeZone)}</span>
-          <ChevronUp
-            className={cn("text-text-primary align-right ml-2", open && "rotate-180 duration-200")}
-            height={15}
-            width={15}
-          />
-        </span>
-      ) : (
-        <div
-          className={cn(
-            "peer box-border flex h-10 transform-none cursor-pointer items-center rounded-xl bg-input px-4 pb-2.5 pt-3 text-sm",
-            {
-              "outline-primary": open,
-              "outline-red-500/40 focus-within:outline-red-500 hover:outline-red-500": error
-            },
-            {
-              "outline-red-500": error && open
-            }
-          )}
-        >
-          <span className="flex w-full items-center justify-between">
-            {getTimeZoneJSX(selectedTimeZone)}
-            <ChevronUp className={cn("text-text-primary rotate-180")} height={15} width={15} />
-          </span>
-        </div>
+    <div
+      className={cn(
+        "ext-sm peer box-border flex transform-none cursor-pointer items-center rounded-xl bg-input px-4 py-2.5",
+        {
+          "px-2.5 py-2 text-xs": gridDropdown,
+          "outline-primary": open,
+          "outline-red-500/40 focus-within:outline-red-500 hover:outline-red-500": error
+        },
+        {
+          "outline-red-500": error && open
+        }
       )}
+    >
+      <span className="flex w-full items-center justify-between">
+        {getTimeZoneJSX(selectedTimeZone)}
+        <ChevronDown className="ml-2 text-black" height={15} width={15} />
+      </span>
     </div>
   );
 

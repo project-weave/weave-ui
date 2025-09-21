@@ -17,7 +17,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
   const currentIsEditMode = isEditMode(mode);
 
   return (
-    <div className="fixed bottom-10 left-1/2 z-50 -translate-x-1/2 transform">
+    <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 transform">
       <div className="flex items-center gap-4 rounded-xl bg-white px-4 py-3 shadow-[0px_0px_50px_10px_rgba(0,0,0,0.05)] ">
         {currentIsEditMode ? (
           <Button

@@ -155,7 +155,7 @@ const EventDateCalendar = ({
           })}
         >
           <h1
-            className={cn("text-md text-text-primary flex-auto ", {
+            className={cn("text-md flex-auto text-black ", {
               "text-2xl": size === "large",
               "text-md": isViewMode
             })}
@@ -320,12 +320,12 @@ function DateButton({
   return (
     <Button
       className={cn(
-        "my-[3px] flex h-[2.1rem] cursor-pointer touch-none items-center justify-center rounded-sm p-[1px] text-sm outline-none focus-visible:ring-0 focus-visible:ring-offset-0 xl:h-[1.7rem]",
+        "my-[3px] flex h-[1.7rem] cursor-pointer touch-none items-center justify-center rounded-sm p-[1px] text-sm font-normal outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
         !isDaySelected
           ? {
               "border-transparent bg-input": true,
               "bg-white": size === "large",
-              "text-text-primary": isSameMonth(day, firstDayCurrentMonth),
+              "text-black": isSameMonth(day, firstDayCurrentMonth),
               "bg-success hover:bg-success/70 ": isToday(day),
               "hover:text-light/80 text-text-light": !isToday(day) && !isSameMonth(day, firstDayCurrentMonth)
             }
@@ -343,21 +343,21 @@ function DateButton({
           "rounded-r-sm": isPrevDaySelected && !isNextDaySelected
         },
         isViewMode && {
-          "text-text-light hover:bg-background": !isDaySelected,
+          "bg-primary": isDaySelected,
+          "pointer-events-none opacity-20 hover:bg-background": !isDaySelected,
+          "bg-transparent text-black opacity-100": isToday(day) && !isDaySelected,
           "text-xs": true
         },
         isViewMode &&
           !isDayVisible &&
           isDaySelected && {
-            "bg-primary/40 hover:bg-primary/60": isToday(day),
             "border-l-0": !isPrevDayVisible && isPrevDaySelected && day.getDay() !== 0,
-            "border-primary-light bg-accent-light text-secondary hover:bg-accent": true,
+            "bg-secondary text-black hover:bg-secondary hover:opacity-80": true,
             "border-r-0": !isNextDayVisible && isNextDaySelected && day.getDay() !== 6
           },
         {
-          "my-[3px] h-6 px-2": isViewMode,
           "mt-8 border-[1px] px-10 py-7 text-2xl font-normal sm:text-2xl xl:h-[3.1rem]": size === "large",
-          "pointer-events-none text-light-gray-2": !isViewMode && isBeforeToday(day) && !selectedDates.has(formattedDay)
+          "pointer-events-none opacity-20": !isViewMode && isBeforeToday(day) && !selectedDates.has(formattedDay)
         }
       )}
       drag-select-attr={formattedDay}

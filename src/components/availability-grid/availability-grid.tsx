@@ -110,7 +110,7 @@ export default function AvailabilityGrid() {
       case ScreenSize.MD:
         return setAvailabilityGridViewWindowSize(5);
       case ScreenSize.LG:
-        return setAvailabilityGridViewWindowSize(6);
+        return setAvailabilityGridViewWindowSize(5);
       default:
         return setAvailabilityGridViewWindowSize(8);
     }
@@ -212,11 +212,12 @@ export default function AvailabilityGrid() {
     >
       <div
         className={cn(
-          "sticky top-[3.4rem] z-[999] w-[101%] bg-background pb-[7px] pl-4 pt-4 xs:pl-10 xl:pl-14",
+          "sticky top-[3.4rem] z-[999] bg-background pl-5 pt-4",
           availabilityType === AvailabilityType.DAYS_OF_WEEK && "top-[3rem] pb-2"
         )}
       >
-        <AvailabilityGridHeader editAvailabilityButtonAnimationScope={scope} screenSize={screenSize} />
+        <AvailabilityGridHeader />
+        {/* <AvailabilityGridHeader editAvailabilityButtonAnimationScope={scope} /> */}
       </div>
       <div className="flex h-full w-full">
         <div

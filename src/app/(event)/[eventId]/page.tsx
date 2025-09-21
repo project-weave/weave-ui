@@ -46,8 +46,8 @@ export default function Event() {
 
   if (isPending) {
     return (
-      <div className="mb-10 mt-4 grid h-fit w-full grid-flow-col justify-center gap-3">
-        <div className="hidden h-[85vh] max-h-[50rem] min-h-[28rem] w-[18rem] lg:block xl:w-[20rem]">
+      <div className="mb-10 mt-4 grid h-fit w-full grid-flow-col justify-center gap-5">
+        <div className="hidden h-[85vh] max-h-[50rem] min-h-[28rem] w-[22rem] lg:block xl:w-[24rem]">
           <Skeleton className="h-full w-full rounded-md bg-primary-light/30" />
         </div>
         <div className="h-full w-[25rem] xs:w-[95vw] lg:w-[44rem] xl:w-[56rem]">
@@ -81,9 +81,9 @@ export default function Event() {
 
   return (
     <div className="flex flex-col">
-      <div className="mt-4 grid w-full grid-flow-col justify-center gap-3 pb-4">
+      <div className="mt-4 grid w-full grid-flow-col justify-center gap-6 pb-4">
         <MediaQueryLG>
-          <div className="sticky top-[4.3rem] h-[85vh] max-h-[50rem] min-h-[28rem] w-[18rem] xl:w-[20rem]">
+          <div className="sticky top-[4.3rem] h-[85vh] max-h-[50rem] min-h-[28rem] w-[22rem] xl:w-[24rem]">
             <AvailabilityGridLeftPanel />
           </div>
         </MediaQueryLG>

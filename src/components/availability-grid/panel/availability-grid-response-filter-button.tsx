@@ -24,9 +24,18 @@ const AvailbilityGridResponseFilterButton = ({ className, name }: AvailbilityGri
 
     const hoveredTimeSlotResponses = eventData.timeSlotsToParticipants[hoveredTimeSlot] ?? [];
 
+    console.log("userFilter", userFilter);
+    console.log(hoveredTimeSlotResponses);
+    console.log(
+      name,
+      userFilter.length === 0
+        ? hoveredTimeSlotResponses.includes(name)
+        : hoveredTimeSlotResponses.includes(name) && userFilter.includes(name)
+    );
+
     return userFilter.length === 0
       ? hoveredTimeSlotResponses.includes(name)
-      : hoveredTimeSlotResponses.some((user) => userFilter.includes(user));
+      : hoveredTimeSlotResponses.includes(name) && userFilter.includes(name);
   });
 
   function onFilterClicked(user: string) {
@@ -44,21 +53,23 @@ const AvailbilityGridResponseFilterButton = ({ className, name }: AvailbilityGri
   return (
     <button
       className={cn(
-        "box-border inline-flex w-min flex-row items-center rounded-md border-2 border-primary-light bg-accent-light px-1 py-[1.5px] text-2xs text-secondary outline-none duration-100 hover:bg-accent",
+        "m-[1px] box-border inline-flex w-min flex-row items-center rounded-md border-[1px] border-dark-gray bg-input px-2 py-[2px] text-2xs font-normal text-black outline-none duration-100 hover:bg-light-gray",
         isEditMode(mode) && {
-          "border-transparent bg-transparent text-gray-500 line-through hover:bg-transparent": name !== loggedInUser,
-          "border-transparent font-medium text-secondary no-underline hover:bg-accent-light": name === loggedInUser
+          "border-transparent bg-transparent line-through opacity-40 hover:bg-transparent": name !== loggedInUser,
+          "font-medium no-underline hover:bg-input": name === loggedInUser
         },
         isViewMode(mode) &&
           userFilter.length !== 0 && {
-            "border-2 border-primary font-semibold hover:bg-purple-200": userFilter.includes(name),
-            "border-gray-200 bg-transparent text-gray-300 line-through hover:bg-gray-100 hover:text-gray-500":
-              !userFilter.includes(name)
+            "border-black font-semibold hover:opacity-70": userFilter.includes(name) && isUserHighlighted,
+            "border-black/70 font-normal opacity-20 ": userFilter.includes(name) && !isUserHighlighted,
+            "border-light-gray bg-transparent line-through opacity-[0.15] hover:opacity-50 ": !userFilter.includes(name)
           },
+
         isViewMode(mode) &&
+          userFilter.length === 0 &&
           !isUserHighlighted && {
-            "border-gray-300 bg-transparent text-gray-400": userFilter.length === 0,
-            "border-gray-400 bg-transparent text-gray-500": userFilter.includes(name)
+            "border-transparent bg-transparent opacity-20": userFilter.length === 0,
+            "opacity-50x border-transparent bg-transparent": userFilter.includes(name)
           },
         className
       )}
