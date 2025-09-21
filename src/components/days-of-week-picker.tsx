@@ -22,9 +22,9 @@ const DaysOfWeekPicker = forwardRef<HTMLDivElement, DaysOfWeekPickerProps>(
 
     return (
       <div
-        className={cn("bg-input rounded-xl scroll-m-24 flex h-[15rem] flex-col px-5 pt-4 sm:h-[16.5rem]", {
+        className={cn("flex h-[15rem] scroll-m-24 flex-col rounded-xl bg-input px-5 pt-4 sm:h-[16.5rem]", {
           "border-red-500": error,
-          "w-full px-8 pb-8 sm:h-full bg-white card pt-10": size === "large"
+          "card w-full bg-white px-8 pb-8 pt-10 sm:h-full": size === "large"
         })}
         onContextMenu={onMouseDragEnd}
         onMouseLeave={onMouseDragEnd}
@@ -91,7 +91,7 @@ function DayOfWeekButton({
     <div className="flex flex-col items-center text-text-light" key={`days-of-weeks-picker-${date}`}>
       <label
         className={cn("mb-2 text-sm font-normal", {
-          "font-normal text-xl md:mb-5 md:text-xl": size === "large"
+          "text-xl font-normal md:mb-5 md:text-xl": size === "large"
         })}
         htmlFor={`days-of-weeks-picker-${date}`}
       >

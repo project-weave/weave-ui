@@ -141,7 +141,7 @@ export default function NewEventFromTimeDropdown({
         <div className="relative w-full">
           <div
             className={cn(
-              "peer box-border cursor-pointer flex h-10 items-center rounded-xl bg-input px-4 pb-2.5 pt-3",
+              "peer box-border flex h-10 cursor-pointer items-center rounded-xl bg-input px-4 pb-2.5 pt-3",
               {
                 "outline-primary": open,
                 "outline-red-500/40 focus-within:outline-red-500 hover:outline-red-500": error
@@ -154,7 +154,7 @@ export default function NewEventFromTimeDropdown({
             {isNextDayMidnight(selected) ? (
               nextDayMidnight
             ) : (
-              <span className="flex w-full justify-between items-center">
+              <span className="flex w-full items-center justify-between">
                 {convertValueToLabel(selected)}{" "}
                 <ChevronUp className={cn("text-text-primary rotate-180")} height={15} width={15} />
               </span>
@@ -162,7 +162,7 @@ export default function NewEventFromTimeDropdown({
           </div>
         </div>
       </PopoverTrigger>
-      <PopoverContent className="w-[140px] p-0 mb-2 bg-background sm:w-[154px]">
+      <PopoverContent className="mb-2 w-[140px] bg-background p-0 sm:w-[154px]">
         <Command filter={(value, search) => timeFilter(value, search)}>
           <CommandInput className="border-primary py-5 text-sm" onBlur={onBlur} />
           <CommandEmpty className="m-2 rounded-sm bg-gray-200 py-1.5 text-center text-xs">{INVALID_TIME} </CommandEmpty>
@@ -174,7 +174,7 @@ export default function NewEventFromTimeDropdown({
               return (
                 <CommandItem
                   className={cn(
-                    "my-[1px] cursor-pointer mb-1 mr-2 flex items-center justify-between border-[1px] border-transparent text-sm hover:bg-primary/20 md:border-[1.5px] ",
+                    "my-[1px] mb-1 mr-2 flex cursor-pointer items-center justify-between border-[1px] border-transparent text-sm hover:bg-primary/20 md:border-[1.5px] ",
                     {
                       "border-primary ": selected === value
                     }

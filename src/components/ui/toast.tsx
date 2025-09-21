@@ -69,7 +69,7 @@ const ToastClose = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToastPrimitives.Close
     className={cn(
-      "absolute right-1 top-1 rounded-md p-1 text-foreground/50 opacity-100 transition-opacity group-hover:opacity-100 group-[.failure]:text-failure group-[.success]:text-success hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-1 group-[.failure]:focus:ring-failure group-[.success]:focus:ring-success group-[.failure]:focus:ring-offset-red-600 group-[.success]:focus:ring-offset-green-600 sm:opacity-0",
+      "group-[.failure]:focus:ring-offset-red-600 group-[.success]:focus:ring-offset-green-600 absolute right-1 top-1 rounded-md p-1 text-foreground/50 opacity-100 transition-opacity group-hover:opacity-100 group-[.failure]:text-failure group-[.success]:text-success hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-1 group-[.failure]:focus:ring-failure group-[.success]:focus:ring-success sm:opacity-0",
       className
     )}
     ref={ref}
@@ -104,11 +104,11 @@ type ToastActionElement = React.ReactElement<typeof ToastAction>;
 export {
   Toast,
   ToastAction,
-  type ToastActionElement,
   ToastClose,
   ToastDescription,
-  type ToastProps,
   ToastProvider,
   ToastTitle,
-  ToastViewport
+  ToastViewport,
+  type ToastActionElement,
+  type ToastProps
 };

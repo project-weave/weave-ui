@@ -105,14 +105,14 @@ export default function TimeZoneDropdown({
     let info: ReactNode = null;
     if (gridDropdown) {
       if (timeZone.value === originalTimeZone) {
-        info = <span className="text-[0.6rem] ml-2 text-text-light ">(Event Default)</span>;
+        info = <span className="ml-2 text-[0.6rem] text-text-light ">(Event Default)</span>;
       }
     } else {
-      info = <span className="text-[0.85rem] ml-2 text-text-light ">({timeZone.offset})</span>;
+      info = <span className="ml-2 text-[0.85rem] text-text-light ">({timeZone.offset})</span>;
     }
 
     return (
-      <span className="flex h-full items-center mb-1 lg:mb-0">
+      <span className="mb-1 flex h-full items-center lg:mb-0">
         <span>{`${timeZone.abbreviation} - ${timeZone.value.replaceAll("_", " ").split("/").pop() ?? ""}`}</span>
         <span>{info}</span>
       </span>
@@ -126,10 +126,10 @@ export default function TimeZoneDropdown({
   const popoverDisplay = (
     <div className="relative w-full">
       {gridDropdown ? (
-        <span className="flex w-full space-between items-center">
+        <span className="space-between flex w-full items-center">
           <span className="text-xs text-text-light">{getTimeZoneJSX(selectedTimeZone)}</span>
           <ChevronUp
-            className={cn("text-text-primary align-right ml-2", open && "duration-200 rotate-180")}
+            className={cn("text-text-primary align-right ml-2", open && "rotate-180 duration-200")}
             height={15}
             width={15}
           />
@@ -137,7 +137,7 @@ export default function TimeZoneDropdown({
       ) : (
         <div
           className={cn(
-            "peer text-sm transform-none box-border cursor-pointer flex h-10 items-center rounded-xl bg-input px-4 pb-2.5 pt-3",
+            "peer box-border flex h-10 transform-none cursor-pointer items-center rounded-xl bg-input px-4 pb-2.5 pt-3 text-sm",
             {
               "outline-primary": open,
               "outline-red-500/40 focus-within:outline-red-500 hover:outline-red-500": error
@@ -147,7 +147,7 @@ export default function TimeZoneDropdown({
             }
           )}
         >
-          <span className="flex w-full justify-between items-center">
+          <span className="flex w-full items-center justify-between">
             {getTimeZoneJSX(selectedTimeZone)}
             <ChevronUp className={cn("text-text-primary rotate-180")} height={15} width={15} />
           </span>
@@ -162,20 +162,20 @@ export default function TimeZoneDropdown({
       <PopoverContent
         align={gridDropdown ? "start" : "center"}
         className={cn(
-          "min-w-[20rem] sm:min-w-[22rem] p-0 mb-2",
-          gridDropdown && "min-w-[16rem] sm:min-w-[16rem] w-[16rem] border-[1px] border-primary mb-1"
+          "mb-2 min-w-[20rem] p-0 sm:min-w-[22rem]",
+          gridDropdown && "mb-1 w-[16rem] min-w-[16rem] border-[1px] border-primary sm:min-w-[16rem]"
         )}
       >
         <Command className="bg-background" filter={(value, search) => timeZoneFilter(value, search)}>
-          <CommandInput className={cn("py-5 text-sm", gridDropdown && "text-2xs h-7 py-0")} />
+          <CommandInput className={cn("py-5 text-sm", gridDropdown && "h-7 py-0 text-2xs")} />
           <CommandList
             className={cn(
-              "scrollbar-primary my-1 overflow-y-scroll max-h-[11rem] sm:max-h-[14rem]",
+              "scrollbar-primary my-1 max-h-[11rem] overflow-y-scroll sm:max-h-[14rem]",
               gridDropdown && "max-h-[7rem] sm:max-h-[10rem]"
             )}
           >
             <CommandEmpty
-              className={cn("my-1 mx-2 rounded-sm bg-gray-200 py-1.5 text-center text-xs", gridDropdown && "text-2xs")}
+              className={cn("mx-2 my-1 rounded-sm bg-gray-200 py-1.5 text-center text-xs", gridDropdown && "text-2xs")}
             >
               {NO_TIME_ZONES_FOUND}
             </CommandEmpty>
@@ -183,12 +183,12 @@ export default function TimeZoneDropdown({
               {allTimeZones.map((timeZone) => (
                 <CommandItem
                   className={cn(
-                    "my-[1px] cursor-pointer mb-1 mr-2 flex items-center justify-between border-[1px] border-transparent text-xs sm:text-sm hover:bg-primary/20 md:border-[1.5px]",
+                    "my-[1px] mb-1 mr-2 flex cursor-pointer items-center justify-between border-[1px] border-transparent text-xs hover:bg-primary/20 sm:text-sm md:border-[1.5px]",
                     {
                       "border-primary": selectedTimeZone.value === timeZone.value
                     },
                     {
-                      "text-2xs sm:text-2xs py-[2px] ml-[1px] md:border-[1px]": gridDropdown
+                      "ml-[1px] py-[2px] text-2xs sm:text-2xs md:border-[1px]": gridDropdown
                     }
                   )}
                   data-value={timeZone.value}

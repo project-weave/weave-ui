@@ -11,7 +11,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, error
   return (
     <input
       className={cn(
-        "placeholder:text-text-light peer flex w-full rounded-xl bg-input px-4 py-2 file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+        "peer flex w-full rounded-xl bg-input px-4 py-2 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-text-light focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
         error && "border-red-500",
         className
       )}

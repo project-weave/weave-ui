@@ -61,9 +61,9 @@ export default function AvailabilityGridRowHeader({
     const [convertedFormattedTime, dayDifference] = getTimezoneConveredTimeAndDayDifference();
     let dayOffsetJSX: ReactNode = null;
     if (dayDifference > 0) {
-      dayOffsetJSX = <sup className="text-3xs ml-[0.5px]">+1</sup>;
+      dayOffsetJSX = <sup className="ml-[0.5px] text-3xs">+1</sup>;
     } else if (dayDifference < 0) {
-      dayOffsetJSX = <sup className="text-3xs ml-[0.5px]">-1</sup>;
+      dayOffsetJSX = <sup className="ml-[0.5px] text-3xs">-1</sup>;
     }
 
     return (

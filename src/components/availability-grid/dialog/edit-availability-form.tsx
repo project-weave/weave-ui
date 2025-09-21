@@ -96,7 +96,7 @@ export default function EditAvailabilityForm({ isDialogOpen }: { isDialogOpen: b
       name="selectedUserName"
       render={({ field }) => (
         <>
-          <div className="grid scrollbar-primary text-secondary grid-cols-3 gap-x-3 gap-y-1 overflow-y-scroll scroll-smooth mb-1">
+          <div className="scrollbar-primary mb-1 grid grid-cols-3 gap-x-3 gap-y-1 overflow-y-scroll scroll-smooth text-secondary">
             {allUserNames.map((userName) => (
               <button
                 {...field}
@@ -121,7 +121,7 @@ export default function EditAvailabilityForm({ isDialogOpen }: { isDialogOpen: b
               </button>
             ))}
           </div>
-          <div className="ml-3 h-2 text-2xs font-medium text-red-600 whitespace-nowrap">
+          <div className="text-red-600 ml-3 h-2 whitespace-nowrap text-2xs font-medium">
             {form.formState.errors.selectedUserName?.message}
           </div>
         </>
@@ -206,7 +206,7 @@ export default function EditAvailabilityForm({ isDialogOpen }: { isDialogOpen: b
             <>
               <Label className="mb-2 ml-2 text-sm font-semibold text-secondary">{ENTER_YOUR_NAME}</Label>
               <hr className="mx-auto mt-1 h-[1px] w-full bg-secondary" />
-              <div className="mb-5 mt-4 flex flex-col w-[86%] mx-auto ">{nameInput}</div>
+              <div className="mx-auto mb-5 mt-4 flex w-[86%] flex-col ">{nameInput}</div>
             </>
           ) : (
             <>

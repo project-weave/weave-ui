@@ -25,7 +25,7 @@ const InputWithLabel = forwardRef<HTMLDivElement, InputWithLabelProps>(({ error,
         type={type}
       />
       <Label
-        className="text-text-light absolute left-1 top-1 z-10 origin-[0] -translate-y-3.5 scale-75 transform rounded-sm bg-input px-3 text-[.9rem] duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-placeholder-shown:text-[.9rem] peer-focus:top-1 peer-focus:-translate-y-3.5 peer-focus:scale-75 peer-focus:px-2"
+        className="absolute left-1 top-1 z-10 origin-[0] -translate-y-3.5 scale-75 transform rounded-sm bg-input px-3 text-[.9rem] text-text-light duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-placeholder-shown:text-[.9rem] peer-focus:top-1 peer-focus:-translate-y-3.5 peer-focus:scale-75 peer-focus:px-2"
         htmlFor={id}
       >
         {label}

@@ -140,8 +140,8 @@ const EventDateCalendar = ({
 
   return (
     <div
-      className={cn("bg-input h-fit scroll-m-24 select-none rounded-xl p-5 pt-3", {
-        "h-full w-full px-12 pb-5 pt-8 bg-white border-[1px]": size === "large"
+      className={cn("h-fit select-none scroll-m-24 rounded-xl bg-input p-5 pt-3", {
+        "h-full w-full border-[1px] bg-white px-12 pb-5 pt-8": size === "large"
       })}
       onContextMenu={handleMouseUp}
       onMouseLeave={handleMouseUp}
@@ -155,7 +155,7 @@ const EventDateCalendar = ({
           })}
         >
           <h1
-            className={cn("flex-auto text-md text-text-primary ", {
+            className={cn("text-md text-text-primary flex-auto ", {
               "text-2xl": size === "large",
               "text-md": isViewMode
             })}
@@ -320,14 +320,14 @@ function DateButton({
   return (
     <Button
       className={cn(
-        "my-[3px] flex h-[2.1rem] xl:h-[1.7rem] cursor-pointer touch-none items-center justify-center rounded-sm p-[1px] text-sm outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
+        "my-[3px] flex h-[2.1rem] cursor-pointer touch-none items-center justify-center rounded-sm p-[1px] text-sm outline-none focus-visible:ring-0 focus-visible:ring-offset-0 xl:h-[1.7rem]",
         !isDaySelected
           ? {
               "border-transparent bg-input": true,
               "bg-white": size === "large",
               "text-text-primary": isSameMonth(day, firstDayCurrentMonth),
               "bg-success hover:bg-success/70 ": isToday(day),
-              "text-text-light hover:text-light/80": !isToday(day) && !isSameMonth(day, firstDayCurrentMonth)
+              "hover:text-light/80 text-text-light": !isToday(day) && !isSameMonth(day, firstDayCurrentMonth)
             }
           : {
               "bg-primary/70": !isSameMonth(day, firstDayCurrentMonth),
@@ -356,8 +356,8 @@ function DateButton({
           },
         {
           "my-[3px] h-6 px-2": isViewMode,
-          "mt-8 xl:h-[3.1rem] border-[1px] px-10 py-7 font-normal text-2xl sm:text-2xl": size === "large",
-          "text-light-gray-2 pointer-events-none": !isViewMode && isBeforeToday(day) && !selectedDates.has(formattedDay)
+          "mt-8 border-[1px] px-10 py-7 text-2xl font-normal sm:text-2xl xl:h-[3.1rem]": size === "large",
+          "pointer-events-none text-light-gray-2": !isViewMode && isBeforeToday(day) && !selectedDates.has(formattedDay)
         }
       )}
       drag-select-attr={formattedDay}

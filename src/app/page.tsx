@@ -48,10 +48,6 @@ export default function LandingPage() {
           </div>
         </h1>
       </div>
-      {/* 
-      <p className="mt-10 hidden w-9/12 text-center font-medium sm:mt-8 sm:block sm:w-8/12 md:mt-10 md:text-lg xl:w-9/12 xl:px-10 xl:text-xl 2xl:w-3/4">
-        {SUBTITLE}
-      </p> */}
 
       <Button
         className="mt-8 h-auto px-10 py-3 text-sm md:mt-16 md:px-16  md:text-lg"
@@ -62,7 +58,7 @@ export default function LandingPage() {
         {CREATE_A_WEAVE}
       </Button>
 
-      <div className="h-full min-h-screen w-full pb-10 mt-28 sm:pb-0">
+      <div className="mt-28 h-full min-h-screen w-full pb-10 sm:pb-0">
         <div className="pt-20" ref={eventFormRef}>
           <NewEventForm />
         </div>
