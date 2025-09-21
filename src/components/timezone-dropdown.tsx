@@ -1,6 +1,5 @@
 "use client";
 
-import { Label } from "@radix-ui/react-label";
 import { Check, ChevronUp } from "lucide-react";
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
@@ -9,7 +8,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/utils/cn";
 import { getGMTOffset, getTimeZoneAbbreviation, getTimeZoneCity } from "@/utils/timeZone";
 
-const TIME_ZONE_LABEL = "Time Zone";
 const NO_TIME_ZONES_FOUND = "No Time Zones Found";
 
 interface TimeZone {
@@ -41,6 +39,7 @@ export default function TimeZoneDropdown({
 
   const allTimeZones = useMemo<TimeZone[]>(() => {
     const timeZones = Intl.supportedValuesOf("timeZone");
+
     return timeZones.map((timeZone) => toTimeZoneObject(timeZone)).sort((a, b) => a.city.localeCompare(b.city));
   }, []);
 
@@ -106,10 +105,10 @@ export default function TimeZoneDropdown({
     let info: ReactNode = null;
     if (gridDropdown) {
       if (timeZone.value === originalTimeZone) {
-        info = <span className="text-[0.6rem] ml-2 text-gray-400">(Event Default)</span>;
+        info = <span className="text-[0.6rem] ml-2 text-text-light ">(Event Default)</span>;
       }
     } else {
-      info = <span className="text-[0.85rem] ml-2 text-gray-400">({timeZone.offset})</span>;
+      info = <span className="text-[0.85rem] ml-2 text-text-light ">({timeZone.offset})</span>;
     }
 
     return (
@@ -154,18 +153,6 @@ export default function TimeZoneDropdown({
           </span>
         </div>
       )}
-      {/* {!gridDropdown && (
-        <Label
-          className={cn(
-            "absolute font-medium left-1 top-1 z-10 origin-[0] -translate-y-4 scale-75 transform rounded-sm bg-background px-3 text-[.9rem] duration-300 sm:top-1 ",
-            {
-              "border-primary px-2": open
-            }
-          )}
-        >
-          {TIME_ZONE_LABEL}
-        </Label>
-      )} */}
     </div>
   );
 

@@ -23,6 +23,18 @@ export default {
         sm: "calc(var(--radius) - 4px)"
       },
       colors: {
+        "primary-purple": "rgb(var(--primary-purple), <alpha-value>)",
+        "medium-purple": "rgb(var(--medium-purple), <alpha-value>)",
+        black: "rgb(var(--black), <alpha-value>)",
+        "dark-gray": "rgb(var(--dark-gray), <alpha-value>)",
+        green: "rgb(var(--green), <alpha-value>)",
+        red: "rgb(var(--red), <alpha-value>)",
+        yellow: "rgb(var(--yellow), <alpha-value>)",
+        "light-gray": "rgb(var(--light-gray), <alpha-value>)",
+        "light-gray-2": "rgb(var(--light-gray-2), <alpha-value>)",
+        "off-white": "rgb(var(--off-white), <alpha-value>)",
+        white: "rgb(var(--white), <alpha-value>)",
+
         accent: {
           dark: "rgb(var(--accent-dark), <alpha-value>)",
           DEFAULT: "rgb(var(--accent), <alpha-value>)",
@@ -31,16 +43,16 @@ export default {
         background: "rgb(var(--background), <alpha-value>)",
         border: "rgb(var(--border), <alpha-value>)",
         failure: {
-          DEFAULT: "rgb(var(--failure), <alpha-value>)",
+          DEFAULT: "rgb(var(--red), <alpha-value>)",
           foreground: "rgb(var(--failure-foreground), <alpha-value>)",
           light: "rgb(var(--failure-light), <alpha-value>)"
         },
         foreground: "rgb(var(--foreground), <alpha-value>)",
-        input: "rgb(var(--input), <alpha-value>)",
+        input: "rgb(var(--off-white), <alpha-value>)",
         primary: {
           dark: "rgb(var(--primary-dark), <alpha-value>)",
           "dark-hover": "rgb(var(--primary-dark-hover), <alpha-value>)",
-          DEFAULT: "rgb(var(--primary), <alpha-value>)",
+          DEFAULT: "rgb(var(--primary-purple), <alpha-value>)",
           foreground: "rgb(var(--primary-foreground), <alpha-value>)",
           hover: "rgb(var(--primary-hover), <alpha-value>)",
           light: "rgb(var(--primary-light), <alpha-value>)"
@@ -52,13 +64,13 @@ export default {
           light: "rgb(var(--secondary-light), <alpha-value>)"
         },
         success: {
-          DEFAULT: "rgb(var(--success), <alpha-value>)",
+          DEFAULT: "rgb(var(--green), <alpha-value>)",
           foreground: "rgb(var(--success-foreground), <alpha-value>)",
           light: "rgb(var(--success-light), <alpha-value>)"
         },
         text: {
-          DEFAULT: "rgb(var(--primary-text), <alpha-value>)",
-          light: "rgb(var(--secondary-text), <alpha-value>)"
+          DEFAULT: "rgb(var(--black), <alpha-value>)",
+          light: "rgb(var(--dark-gray), <alpha-value>)"
         }
       },
       fontSize: {

@@ -15,8 +15,6 @@ type DaysOfWeekPickerProps = {
   size?: "large" | "small";
 };
 
-const DAYS_OF_WEEK_TITLE = "Days of the Week";
-
 const DaysOfWeekPicker = forwardRef<HTMLDivElement, DaysOfWeekPickerProps>(
   ({ error, selectedDaysOfWeek, setSelectedDaysOfWeek, size }, ref) => {
     const { onMouseDragEnd, onMouseDragMove, onMouseDragStart, onTouchDragEnd, onTouchDragMove, onTouchDragStart } =
@@ -26,20 +24,13 @@ const DaysOfWeekPicker = forwardRef<HTMLDivElement, DaysOfWeekPickerProps>(
       <div
         className={cn("bg-input rounded-xl scroll-m-24 flex h-[15rem] flex-col px-5 pt-4 sm:h-[16.5rem]", {
           "border-red-500": error,
-          "w-full px-8 pb-8 sm:h-full": size === "large"
+          "w-full px-8 pb-8 sm:h-full bg-white card pt-10": size === "large"
         })}
         onContextMenu={onMouseDragEnd}
         onMouseLeave={onMouseDragEnd}
         onMouseUp={onMouseDragEnd}
         ref={ref}
       >
-        {size === "large" && (
-          <div className="mx-4 mb-6 mt-4">
-            <h1 className="text-left text-xl font-semibold tracking-wide text-secondary">{DAYS_OF_WEEK_TITLE}</h1>
-            <hr className="mt-4 h-[0.1rem] bg-primary" />
-          </div>
-        )}
-
         <div className="flex flex-grow justify-between">
           {DAYS_OF_WEEK_DATES.map((date) => (
             <DayOfWeekButton
@@ -99,8 +90,8 @@ function DayOfWeekButton({
   return (
     <div className="flex flex-col items-center text-text-light" key={`days-of-weeks-picker-${date}`}>
       <label
-        className={cn("mb-2 text-sm font-medium", {
-          "font-semibold md:mb-5 md:text-lg": size === "large"
+        className={cn("mb-2 text-sm font-normal", {
+          "font-normal text-xl md:mb-5 md:text-xl": size === "large"
         })}
         htmlFor={`days-of-weeks-picker-${date}`}
       >

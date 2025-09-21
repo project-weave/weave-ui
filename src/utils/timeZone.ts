@@ -12,12 +12,15 @@ export function getTimeZoneCity(timeZone: string): string {
 }
 
 export function getTimeZoneAbbreviation(timeZone: string): string {
+  // Use a winter date (January 15) to get standard time abbreviations instead of daylight saving time
+  const winterDate = new Date(2024, 0, 15);
+
   const timeZoneFormatter = new Intl.DateTimeFormat("en-US", {
     hour12: false,
     timeZone,
     timeZoneName: "short"
   });
-  const timeZoneParts = timeZoneFormatter.formatToParts(now);
+  const timeZoneParts = timeZoneFormatter.formatToParts(winterDate);
 
   return timeZoneParts.find((part) => part.type === "timeZoneName")?.value || timeZone;
 }

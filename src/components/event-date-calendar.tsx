@@ -140,8 +140,8 @@ const EventDateCalendar = ({
 
   return (
     <div
-      className={cn("bg-input h-fit scroll-m-24 select-none border-[1px] p-5 pt-3", {
-        "h-full w-full px-12 pb-5 pt-8": size === "large"
+      className={cn("bg-input h-fit scroll-m-24 select-none rounded-xl p-5 pt-3", {
+        "h-full w-full px-12 pb-5 pt-8 bg-white border-[1px]": size === "large"
       })}
       onContextMenu={handleMouseUp}
       onMouseLeave={handleMouseUp}
@@ -151,7 +151,7 @@ const EventDateCalendar = ({
       <div className="mx-auto w-full">
         <div
           className={cn("flex items-center py-0.5 pl-[3px]", {
-            "mb-3 text-2xl": size === "large"
+            "mb-3": size === "large"
           })}
         >
           <h1
@@ -168,17 +168,18 @@ const EventDateCalendar = ({
               <Button
                 className={cn("mb-0.5 h-[1.6rem] w-[1.6rem] rounded-[0.45rem] border-none px-[1px]", {
                   "h-5 w-5": isViewMode,
-                  "h-7 w-7": size === "large"
+                  "ml-2 h-7 w-7": size === "large"
                 })}
                 onClick={setPrevMonth}
                 type="button"
-                variant={isCurrentMonthEarliest ? "default-disabled" : "default"}
+                variant={
+                  !isCurrentMonthEarliest ? "default" : size === "large" ? "default-disabled-white" : "default-disabled"
+                }
               >
                 <span className="sr-only">Previous Columns</span>
                 <ChevronLeft
                   className={cn("h-[1.2rem] w-[1.2rem] stroke-[3px] pr-[1px]", {
-                    "h-4 w-4": isViewMode,
-                    "h-5 w-5": size === "large"
+                    "h-6 w-6": isViewMode || size === "large"
                   })}
                 />
               </Button>
@@ -193,9 +194,8 @@ const EventDateCalendar = ({
               >
                 <span className="sr-only">Next Columns</span>
                 <ChevronRight
-                  className={cn("h-[1.2rem] w-[1.2rem] stroke-[3px] pl-[1px]", {
-                    "h-4 w-4": isViewMode,
-                    "h-5 w-5": size === "large"
+                  className={cn("h-[1.2rem] w-[1.2rem] stroke-[3px] pl-[1px] ", {
+                    "h-6 w-6": isViewMode || size === "large"
                   })}
                 />
               </Button>
@@ -203,12 +203,12 @@ const EventDateCalendar = ({
           )}
         </div>
         <hr className="mt-[0.1rem] h-[0.05rem] bg-text-light" />
-        <div className="mt-3 grid grid-cols-7 text-center font-semibold leading-4 text-text-light">
+        <div className="mt-3 grid grid-cols-7 text-center font-normal leading-4 text-text-light">
           {weekDays.map((weekDay) => {
             return (
               <p
                 className={cn("text-sm sm:text-[0.95rem]", {
-                  "mb-4 mt-6 text-lg sm:text-lg": size === "large",
+                  "mb-1 mt-6 text-2xl sm:text-2xl": size === "large",
                   "text-xs sm:text-xs": isViewMode
                 })}
                 key={`calendar-weekday-${weekDay}`}
@@ -324,20 +324,19 @@ function DateButton({
         !isDaySelected
           ? {
               "border-transparent bg-input": true,
+              "bg-white": size === "large",
               "text-text-primary": isSameMonth(day, firstDayCurrentMonth),
-              "bg-lime-200 hover:bg-lime-200/80": isToday(day),
+              "bg-success hover:bg-success/70 ": isToday(day),
               "text-text-light hover:text-light/80": !isToday(day) && !isSameMonth(day, firstDayCurrentMonth)
             }
           : {
               "bg-primary/70": !isSameMonth(day, firstDayCurrentMonth),
-              "bg-secondary hover:bg-secondary/80": isToday(day),
               "ml-auto w-full rounded-r-none border-r-0": isNextDaySelected && day.getDay() !== 6,
               "mr-auto w-full rounded-l-none": isPrevDaySelected && day.getDay() !== 0,
               "rounded-l-sm": isNextDaySelected && !isPrevDaySelected,
               "rounded-r-sm": isPrevDaySelected && !isNextDaySelected
             },
         isDaySelected && {
-          "border-lime-500 bg-lime-500 hover:bg-lime-500/80": isToday(day),
           "ml-auto w-full rounded-r-none border-r-0": isNextDaySelected && day.getDay() !== 6,
           "mr-auto w-full rounded-l-none": isPrevDaySelected && day.getDay() !== 0,
           "rounded-l-sm": isNextDaySelected && !isPrevDaySelected,
@@ -356,10 +355,9 @@ function DateButton({
             "border-r-0": !isNextDayVisible && isNextDaySelected && day.getDay() !== 6
           },
         {
-          "text-text-primary": isToday(day) && !isDaySelected,
           "my-[3px] h-6 px-2": isViewMode,
-          "my-4 xl:h-[3.1rem] border-[1px] px-8 py-2 text-lg sm:text-lg": size === "large",
-          "text-text-light pointer-events-none": !isViewMode && isBeforeToday(day) && !selectedDates.has(formattedDay)
+          "mt-8 xl:h-[3.1rem] border-[1px] px-10 py-7 font-normal text-2xl sm:text-2xl": size === "large",
+          "text-light-gray-2 pointer-events-none": !isViewMode && isBeforeToday(day) && !selectedDates.has(formattedDay)
         }
       )}
       drag-select-attr={formattedDay}

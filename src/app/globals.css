@@ -13,27 +13,32 @@
     --popover: 255, 255, 255;
     --popover-foreground: 13, 14, 15;
 
+    /* primary purple */ 
     --primary: 151, 71, 255;
     --primary-hover: 172, 108, 255;
     --primary-foreground: 255, 255, 255;
     --primary-light: 219, 183, 244;
 
-    --secondary: 83, 41, 160;
+     /* medium purple */
+    --secondary: 227, 214, 249;
     --secondary-foreground: 29, 30, 32;
     --secondary-light: 185, 175, 204;
 
     --muted: 246, 246, 249;
     --muted-foreground: 119, 121, 125;
 
-    --accent: 233, 213, 255;
+    /* light gray */
+    --accent: 231, 231, 231;
     --accent-light: 243, 232, 255;
     --accent-foreground: 255, 255, 255;
 
-    --failure: 178, 34, 34;
+    /* red */
+    --failure: 255, 175, 175;
     --failure-light: 241, 212, 210;
     --failure-foreground: 13, 14, 15;
 
-    --success: 92, 184, 92;
+    /* green */
+    --success: 200, 240, 202;
     --success-light: 224, 241, 223;
     --success-foreground: 13, 14, 15;
 
@@ -43,8 +48,19 @@
 
     --radius: 0.8rem;
 
-    --primary-text: 16, 16, 16;
-    --secondary-text: 157, 157, 157;
+    /* figma colours */
+
+    --primary-purple: 151, 71, 255;
+    --medium-purple: 227, 214, 249;
+    --black: 16, 16, 16;
+    --dark-gray: 157, 157, 157;
+    --green: 200, 240, 202;
+    --red: 255, 175, 175;
+    --yellow: 255, 241, 170;
+    --light-gray: 231, 231, 231;
+    --light-gray-2: 229, 229, 229;
+    --off-white: 247, 247, 247;
+    --white: 255, 255, 255;
   }
 
   .dark {
@@ -89,7 +105,7 @@
 
 @layer components {
   .card {
-    @apply h-full w-full rounded-xl border-[1px] border-[#E5E5E5] bg-[#FCFCFC] px-8 py-5 shadow-[0px_0px_50px_10px_rgba(0,0,0,0.05)];
+    @apply h-full w-full rounded-xl border-[1px] border-[#E5E5E5] bg-[#FCFCFC] px-8 py-5 shadow-[0px_0px_50px_10px_rgba(0,0,0,0.03)];
   }
 
   .scrollbar-primary {

@@ -1,4 +1,3 @@
-import { Label } from "@radix-ui/react-label";
 import { addMinutes, format, isValid, parse } from "date-fns";
 import { Check, ChevronUp } from "lucide-react";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
@@ -15,8 +14,6 @@ export const NEXT_DAY_MIDNIGHT_OPTION = {
   value: "00:00:00"
 };
 
-const START_TIME_LABEL = "Start Time";
-const END_TIME_LABEL = "End Time";
 const INVALID_TIME = "Invalid time";
 
 type TimeOption = {
@@ -135,7 +132,7 @@ export default function NewEventFromTimeDropdown({
 
     const parsedTime = parse(value, EVENT_TIME_FORMAT, new Date());
     if (!isValid(parsedTime)) return "";
-    return format(parsedTime, TIME_LABEL_FORMAT).toLowerCase();
+    return format(parsedTime, TIME_LABEL_FORMAT).toUpperCase();
   }
 
   return (
@@ -163,16 +160,6 @@ export default function NewEventFromTimeDropdown({
               </span>
             )}
           </div>
-          {/* <Label
-            className={cn(
-              "absolute font-medium left-1 top-1 z-10 origin-[0] -translate-y-4 scale-75 transform rounded-sm bg-background px-3 text-[.9rem] duration-300 sm:top-1 ",
-              {
-                "border-primary px-2": open
-              }
-            )}
-          >
-            {isStartTime ? START_TIME_LABEL : END_TIME_LABEL}
-          </Label> */}
         </div>
       </PopoverTrigger>
       <PopoverContent className="w-[140px] p-0 mb-2 bg-background sm:w-[154px]">

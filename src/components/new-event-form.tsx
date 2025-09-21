@@ -13,7 +13,6 @@ import TimeDropdown from "@/components/new-event-from-time-dropdown";
 import { Button } from "@/components/ui/button";
 import { FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import InputWithLabel from "@/components/ui/input-with-label";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import useCreateEvent, { CreateEventRequest } from "@/hooks/requests/useCreateEvent";
@@ -25,16 +24,15 @@ import { cn } from "@/utils/cn";
 import EventDateCalendar from "./no-ssr-event-date-calendar";
 import TimeZoneDropdown from "./timezone-dropdown";
 
-const EVENT_NAME_LABEL = "Event Name";
+const EVENT_NAME_PLACEHOLDER = "Event Name";
 
 const EVENT_NAME = "What is the name of your event?";
 const WHAT_TIMES = "What times work for you?";
 const WHAT_AVAILABILITY = "What availability do you want to know?";
 const WHAT_TIME_ZONE = "What time zone works for you?";
 const I_WANT_TO_BE_NOTIFIED = "I want to be notified when there is a new availability inputted.";
-const CREATE_EVENT = "Create Event";
+const CONTINUE = "Continue";
 const TO = "to";
-const OR = "or";
 
 export default function NewEventForm() {
   const [currentCalendarMonth, setCurrentCalendarMonth] = useState(format(startOfToday(), MONTH_FORMAT));
@@ -42,7 +40,7 @@ export default function NewEventForm() {
   const [selectedDaysOfWeek, setSelectedDaysOfWeek] = useState(new Set<EventDate>());
 
   const isSubmitAttempted = useRef(false);
-  const nameInputRef = useRef<HTMLDivElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
   const timeRangeDropdownsRef = useRef<HTMLDivElement>(null);
   const specificDatesPickerRef = useRef<HTMLDivElement>(null);
   const daysOfWeekPickerRef = useRef<HTMLDivElement>(null);
@@ -187,11 +185,11 @@ export default function NewEventForm() {
         <FormItem>
           <FormLabel>{EVENT_NAME}</FormLabel>
           <div className="mt-1.5">
-            <InputWithLabel
+            <Input
               {...field}
               error={invalid}
               id="name"
-              label={EVENT_NAME_LABEL}
+              placeholder={EVENT_NAME_PLACEHOLDER}
               ref={nameInputRef}
               type="text"
             />
@@ -231,7 +229,7 @@ export default function NewEventForm() {
                 </FormItem>
               )}
             />
-            <p className="mx-6 text-2xs text-secondary"> {TO} </p>
+            <p className="mx-4 text-xs text-text-light"> {TO} </p>
             <FormField
               control={form.control}
               name="timeRange.endTime"
@@ -259,8 +257,8 @@ export default function NewEventForm() {
 
   const availabilityTypeInput = (
     <>
-      <p className="mb-3 text-xs font-medium text-text-light">{WHAT_AVAILABILITY}</p>
-      <fieldset className="flex p-1 rounded-xl w-full items-center justify-between bg-input">
+      <p className="mb-3 text-xs font-normal text-text-light">{WHAT_AVAILABILITY}</p>
+      <fieldset className="flex p-1 rounded-md w-full items-center justify-between bg-input">
         <div className="h-full w-full">
           <Input
             className="peer hidden"
@@ -272,7 +270,7 @@ export default function NewEventForm() {
             value={AvailabilityType.SPECIFIC_DATES}
           />
           <Label
-            className="text-text-light cursor-pointer font-medium rounded-sm flex items-center py-1.5 justify-center w-full text-sm peer-checked:bg-primary peer-checked:text-white peer-checked:hover:bg-primary"
+            className="text-light cursor-pointer rounded-sm flex items-center py-1.5 justify-center w-full text-sm peer-checked:bg-primary peer-checked:text-white peer-checked:hover:bg-primary"
             htmlFor="specific-dates"
           >
             <span className="flex flex-col items-center">
@@ -417,7 +415,7 @@ export default function NewEventForm() {
               form="new-event-form"
               type="submit"
             >
-              {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin text-white" /> : CREATE_EVENT}
+              {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin text-white" /> : CONTINUE}
             </Button>
           </motion.div>
         )}
@@ -428,7 +426,7 @@ export default function NewEventForm() {
         form="new-event-form"
         type="submit"
       >
-        {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin py-0 text-white" /> : CREATE_EVENT}
+        {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin py-0 text-white" /> : CONTINUE}
       </Button>
     </>
   );
