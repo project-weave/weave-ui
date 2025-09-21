@@ -52,6 +52,7 @@
 
     --primary-purple: 151, 71, 255;
     --medium-purple: 227, 214, 249;
+    --light-purple: 251, 248, 253;
     --black: 16, 16, 16;
     --dark-gray: 157, 157, 157;
     --green: 200, 240, 202;
@@ -105,7 +106,7 @@
 
 @layer components {
   .card {
-    @apply h-full w-full rounded-xl border-[1px] border-[#E5E5E5] bg-[#FCFCFC] px-8 py-5 shadow-[0px_0px_50px_10px_rgba(0,0,0,0.05)];
+    @apply h-full w-full rounded-xl border-[1px] border-[#E5E5E5] px-8 py-5 bg-white shadow-[0px_0px_50px_10px_rgba(0,0,0,0.05)];
   }
 
   .scrollbar-primary {

@@ -1,23 +1,13 @@
 "use client";
 
-import { Settings, User } from "lucide-react";
+import { ChevronDown, UserCircle } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 
-import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ScreenSize } from "@/hooks/useScreenSize";
-import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
-
-import BestTimesAvailableSwitch from "./availability-grid/best-times-available-switch";
-import { MediaQueryXXS } from "./media-query";
-
-const LOGIN = "Log In";
-const SIGN_UP = "Sign Up";
+import useAvailabilityGridStore from "@/store/availabilityGridStore";
 
 export default function NavBar() {
   const eventId = useAvailabilityGridStore((state) => state.eventData.eventId);
-  const mode = useAvailabilityGridStore((state) => state.mode);
   const user = useAvailabilityGridStore((state) => state.user);
 
   const router = useRouter();
@@ -25,67 +15,31 @@ export default function NavBar() {
   const isEventPage = eventId !== "" && pathName.startsWith(`/${eventId}`);
 
   return (
-    // adding padding and translating down to hide overflowed components on mobile
-    <nav className="fixed top-0 z-50 mx-auto flex w-full max-w-[85rem] -translate-y-[18.25rem] bg-white pb-[0.75rem] pt-[19.25rem]">
-      <div className="mx-auto flex h-8 w-full items-end justify-between lg:h-10 ">
-        <Image
-          alt="weave-logo"
-          className="ml-4 h-8 w-8 cursor-pointer sm:ml-6 md:ml-9 md:h-9 md:w-9"
-          height={40}
-          onClick={() => router.push("/")}
-          src="/favicon.ico"
-          width={40}
-        />
-        <ul className="mr-4 flex items-center sm:mr-6 md:mr-9">
-          <li>
-            <MediaQueryXXS maxScreenSize={ScreenSize.LG}>
-              {isEventPage && isViewMode(mode) && <SettingsPopover />}
-            </MediaQueryXXS>
-          </li>
-          <li>
-            {isEventPage && isEditMode(mode) && (
-              <div className="mr-4 flex w-full font-semibold text-secondary sm:mr-6 md:mr-9">
-                <User className="mr-2 h-6 w-6" />
-                <span className="max-w-[9rem] overflow-hidden text-ellipsis whitespace-nowrap sm:max-w-[14rem] md:max-w-[20rem] lg:max-w-[30rem] xl:max-w-[40rem]">
-                  {user}
-                </span>
-              </div>
+    <nav className="fixed top-6 z-50 w-full">
+      <div className="w-full max-w-[85rem] pl-7">
+        <div className="card flex w-fit items-center gap-4 px-5 py-2.5 ">
+          <div className="flex items-center gap-6">
+            <Image
+              alt="weave-logo"
+              className="h-5 w-5 cursor-pointer opacity-70"
+              height={20}
+              onClick={() => router.push("/")}
+              src="/favicon.ico"
+              width={20}
+            />
+
+            {isEventPage && (
+              <>
+                <div className="bg-light-purple flex items-center gap-2 rounded-sm p-1.5">
+                  <UserCircle className="h-5 w-5" />
+                  <span className="text-sm font-medium text-black">{user || "Brian Yang"}</span>
+                  <ChevronDown className="h-3 w-3" />
+                </div>
+              </>
             )}
-          </li>
-          {/* <li>
-          <Button className="h-8 rounded-2xl border-none bg-transparent  text-black hover:bg-accent-light">
-            {SIGN_UP}
-          </Button>
-        </li>
-        <li>
-          <Button className="ml-6 h-8 rounded-2xl border-2 border-primary-light bg-transparent  text-black hover:bg-accent-light">
-            {LOGIN}
-          </Button>
-        </li> */}
-        </ul>
+          </div>
+        </div>
       </div>
     </nav>
-  );
-}
-
-function SettingsPopover() {
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button className="border-none bg-transparent p-1 outline-none hover:bg-transparent">
-          <Settings className="h-6 w-6 translate-y-1 cursor-pointer text-secondary md:h-7 md:w-7" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="mr-2 mt-2 w-[12rem] bg-white px-4">
-        <header className="text-sm font-medium text-secondary">View Settings</header>
-        <section className="mt-4 p-0">
-          <ul>
-            <li className="w-full rounded-xl border-[1px] border-accent bg-accent/20 p-2">
-              <BestTimesAvailableSwitch labelStyles="font-normal mr-4" />
-            </li>
-          </ul>
-        </section>
-      </PopoverContent>
-    </Popover>
   );
 }
