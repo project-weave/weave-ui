@@ -1,12 +1,11 @@
 import EditAvailabilityDialog from "../dialog/edit-availability-dialog";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, Copy } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import BestTimesAvailableSwitch from "@/components/availability-grid/best-times-available-switch";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { toast } from "@/components/ui/use-toast";
 import useScreenSize, { ScreenSize } from "@/hooks/useScreenSize";
 import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
@@ -15,10 +14,7 @@ import AvailbilityGridResponseFilterButton from "./availability-grid-response-fi
 import AvailabilityResponsesCount from "./availability-responses-count";
 
 const SAVE_AVAILABILITY_BUTTON_TEXT = "Save Availability";
-const COPY_LINK = "Copy Link";
-
 export default function AvailabilityGridBottomPanel() {
-  const { eventId } = useAvailabilityGridStore((state) => state.eventData);
   const screenSize = useScreenSize();
 
   const mode = useAvailabilityGridStore((state) => state.mode);
@@ -88,21 +84,6 @@ export default function AvailabilityGridBottomPanel() {
             </>
           )}
           <div className="z-10 mx-auto grid w-full max-w-[56rem] grid-flow-col justify-between px-6 pt-4">
-            {/* <Button
-              className="h-[2rem] rounded-[.5rem] border-2 text-sm sm:h-[2.3rem] md:h-[2.6rem] md:px-6 md:text-[1.05rem]"
-              onClick={() => {
-                const url = `${window.location.origin}/${eventId}`;
-                navigator.clipboard.writeText(url);
-                toast({
-                  className: "w-fit ml-auto py-4 text-sm md:w-full md:py-6",
-                  description: "Copied link to clipboard.",
-                  variant: "success"
-                });
-              }}
-              variant="outline"
-            >
-              {COPY_LINK} <Copy className="ml-2 h-4 w-4 md:ml-3 md:h-5 md:w-5" />
-            </Button> */}
             <BestTimesAvailableSwitch />
             <div className="text-sm">{isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}</div>
           </div>
