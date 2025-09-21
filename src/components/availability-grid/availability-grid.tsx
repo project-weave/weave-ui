@@ -27,7 +27,7 @@ export default function AvailabilityGrid() {
   const { availabilityType, eventId, sortedEventDates, sortedEventTimes } = useAvailabilityGridStore(
     (state) => state.eventData
   );
-  const setMode = useAvailabilityGridStore(useShallow((state) => state.setMode));
+  const [mode, setMode] = useAvailabilityGridStore(useShallow((state) => [state.mode, state.setMode]));
   const user = useAvailabilityGridStore((state) => state.user);
   const resetGridState = useAvailabilityGridStore(useShallow((state) => state.resetGridState));
   const [availabilityGridViewWindowSize, setAvailabilityGridViewWindowSize] = useAvailabilityGridStore(
@@ -192,7 +192,9 @@ export default function AvailabilityGrid() {
 
   return (
     <form
-      className="card flex w-full select-none flex-col bg-white pl-0 pr-5 pt-1 sm:pr-8 xl:pl-2 xl:pr-10"
+      className={cn("card flex w-full select-none flex-col bg-white pl-0 pr-5 pt-1 sm:pr-8 xl:pl-2 xl:pr-10", {
+        "border-[3px] border-yellow": mode === AvailabilityGridMode.EDIT
+      })}
       id="availability-grid"
       // mouseUp is cancelled when onContextMenu is triggered so we need to save the selection here as well
       onContextMenu={onMouseDragEnd}
