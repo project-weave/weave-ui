@@ -30,7 +30,7 @@ export default function NavBar() {
 
             {isEventPage && (
               <>
-                <div className="bg-light-purple flex items-center gap-2 rounded-sm p-1.5">
+                <div className="flex items-center gap-2 rounded-sm bg-light-purple p-1.5">
                   <UserCircle className="h-5 w-5" />
                   <span className="text-sm font-medium text-black">{user || "Brian Yang"}</span>
                   <ChevronDown className="h-3 w-3" />
