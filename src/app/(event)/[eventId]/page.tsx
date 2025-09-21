@@ -9,6 +9,7 @@ import AvailabilityGrid from "@/components/availability-grid/availability-grid";
 import AvailabilityGridBottomPanel from "@/components/availability-grid/panel/availability-grid-bottom-panel";
 import AvailabilityGridLeftPanel from "@/components/availability-grid/panel/availability-grid-left-panel";
 import { MediaQueryLG, MediaQueryXXS } from "@/components/media-query";
+import { SettingsIsland } from "@/components/settings-island";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import useGetEvent, { GetEventResponse } from "@/hooks/requests/useGetEvent";
@@ -23,6 +24,15 @@ export default function Event() {
   const resetGridState = useAvailabilityGridStore(useShallow((state) => state.resetGridState));
 
   const { toast } = useToast();
+
+  const handleCopyClick = () => {
+    // Add your copy link logic here
+    navigator.clipboard.writeText(window.location.href);
+    toast({
+      title: "Link copied",
+      description: "Event link has been copied to clipboard"
+    });
+  };
 
   useEffect(() => {
     resetGridState();
@@ -84,6 +94,8 @@ export default function Event() {
       <MediaQueryXXS maxScreenSize={ScreenSize.LG}>
         <AvailabilityGridBottomPanel />
       </MediaQueryXXS>
+
+      <SettingsIsland onCopyClick={handleCopyClick} />
     </div>
   );
 }

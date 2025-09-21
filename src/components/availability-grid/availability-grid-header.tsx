@@ -2,8 +2,7 @@ import TimeZoneDropdown from "../timezone-dropdown";
 import { Label } from "../ui/label";
 import { format, isEqual, parseISO } from "date-fns";
 import { AnimationScope } from "framer-motion";
-import { ChevronLeft, ChevronRight, Copy, Eye, Link, Pencil } from "lucide-react";
-import { useState } from "react";
+import { ChevronLeft, ChevronRight, Eye, Link, Pencil } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
 import { MediaQueryLG } from "@/components/media-query";
@@ -15,7 +14,6 @@ import { AvailabilityType } from "@/types/Event";
 import { cn } from "@/utils/cn";
 import { isSupportedTimeZone } from "@/utils/timeZone";
 
-import BestTimesAvailableSwitch from "./best-times-available-switch";
 import EditAvailabilityDialog from "./dialog/edit-availability-dialog";
 
 const SAVE_AVAILABILITY_BUTTON_TEXT = "Save Availability";
@@ -92,14 +90,14 @@ export default function AvailabilityGridHeader({
   );
 
   const eventTitle = (
-    <span className="flex justify-between items-center">
+    <span className="flex items-center justify-between">
       {screenSize <= ScreenSize.MD && (
         <div className="max-w-[16rem] overflow-hidden text-ellipsis text-lg font-semibold text-text sm:max-w-[24rem] md:max-w-[30rem]">
           {eventName}
         </div>
       )}
       <Button
-        className="p-0 bg-primary w-[2.5rem] h-[2.5rem] rounded-sm sm:h-[2.3rem] md:h-[2.6rem] md:text-[1.05rem]"
+        className="h-[2.5rem] w-[2.5rem] rounded-sm bg-primary p-0 sm:h-[2.3rem] md:h-[2.6rem] md:text-[1.05rem]"
         onClick={() => {
           const url = `${window.location.origin}/${eventId}`;
           navigator.clipboard.writeText(url);
@@ -110,7 +108,7 @@ export default function AvailabilityGridHeader({
           });
         }}
       >
-        <Link className="h-4 w-4 md:h-5 md:w-5 text-white" />
+        <Link className="h-4 w-4 text-white md:h-5 md:w-5" />
       </Button>
     </span>
   );
@@ -119,7 +117,7 @@ export default function AvailabilityGridHeader({
     <div className="flex items-center space-x-2">
       <Label
         className={cn(
-          "bg-red-200 px-4 py-1 rounded-sm whitespace-nowrap text-sm text-text-primary lg:text-xs xl:text-sm",
+          "bg-red-200 text-text-primary whitespace-nowrap rounded-sm px-4 py-1 text-sm lg:text-xs xl:text-sm",
           isEditMode(mode) && "bg-yellow-200"
         )}
         htmlFor="edit-status"
@@ -139,17 +137,17 @@ export default function AvailabilityGridHeader({
 
   const progressBar = (
     <div
-      className="w-full bg-gray-200 rounded-full h-0.5 mt-2 mb-2"
+      className="mb-2 mt-2 h-0.5 w-full rounded-full bg-gray-200"
       style={{
-        position: "absolute" // Absolute positioning to move the block
+        position: "absolute"
       }}
     >
       <div
-        className="bg-primary h-0.5 rounded-full transition-all duration-300"
+        className="h-0.5 rounded-full bg-primary transition-all duration-300"
         style={{
-          width: `${progressWidth}%`, // Width of the block based on the visible window size
-          left: `${progressPos}%`, // Position of the block based on where the user is in the grid
-          position: "absolute" // Absolute positioning to move the block
+          width: `${progressWidth}%`,
+          left: `${progressPos}%`,
+          position: "absolute"
         }}
       ></div>
     </div>
@@ -157,19 +155,8 @@ export default function AvailabilityGridHeader({
   const headerTitle = (
     <span>
       <div className="mb-2">{editStatus}</div>
-      {/* <h4
-        className={cn(
-          "whitespace-nowrap text-xs text-secondary xl:text-sm",
-          availabilityType === AvailabilityType.DAYS_OF_WEEK && screenSize >= ScreenSize.LG && "mb-1"
-        )}
-      >
-        {"You're now "}
-        <span className="font-bold">{isEditMode(mode) ? "editing" : "viewing"} </span>
-        {`${isEditMode(mode) ? "your availability" : "all availability"}`}
-        {screenSize <= ScreenSize.MD && " for..."}
-      </h4> */}
       {availabilityType === AvailabilityType.SPECIFIC_DATES && (
-        <h1 className="mb-[2px] whitespace-nowrap text-lg font-semibold tracking-wide text-text-primary xl:mr-20 xl:text-xl">
+        <h1 className="text-text-primary mb-[2px] whitespace-nowrap text-lg font-semibold tracking-wide xl:mr-20 xl:text-xl">
           {heading}
         </h1>
       )}
@@ -186,9 +173,6 @@ export default function AvailabilityGridHeader({
   const gridSettingsButtons = (
     <div className="flex w-fit items-center">
       <MediaQueryLG>
-        <div className="ml-3 lg:ml-0">
-          <BestTimesAvailableSwitch />
-        </div>
         <div
           className={cn(
             "ml-8 mr-3 text-sm lg:ml-6 lg:text-xs xl:ml-16 xl:text-sm",

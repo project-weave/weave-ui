@@ -208,7 +208,7 @@ export default function NewEventForm() {
         <FormItem>
           <FormLabel>{WHAT_TIMES}</FormLabel>
           <div
-            className="flex mb-0.5 w-full mt-2 items-center justify-between scroll-m-24 space-y-1"
+            className="mb-0.5 mt-2 flex w-full scroll-m-24 items-center justify-between space-y-1"
             ref={timeRangeDropdownsRef}
           >
             <FormField
@@ -258,7 +258,7 @@ export default function NewEventForm() {
   const availabilityTypeInput = (
     <>
       <p className="mb-3 text-xs font-normal text-text-light">{WHAT_AVAILABILITY}</p>
-      <fieldset className="flex p-1 rounded-md w-full items-center justify-between bg-input">
+      <fieldset className="flex w-full items-center justify-between rounded-md bg-input p-1">
         <div className="h-full w-full">
           <Input
             className="peer hidden"
@@ -270,7 +270,7 @@ export default function NewEventForm() {
             value={AvailabilityType.SPECIFIC_DATES}
           />
           <Label
-            className="text-light cursor-pointer rounded-sm flex items-center py-1.5 justify-center w-full text-sm peer-checked:bg-primary peer-checked:text-white peer-checked:hover:bg-primary"
+            className="text-light flex w-full cursor-pointer items-center justify-center rounded-sm py-1.5 text-sm peer-checked:bg-primary peer-checked:text-white peer-checked:hover:bg-primary"
             htmlFor="specific-dates"
           >
             <span className="flex flex-col items-center">
@@ -291,7 +291,7 @@ export default function NewEventForm() {
             value={AvailabilityType.DAYS_OF_WEEK}
           />
           <Label
-            className="text-text-light cursor-pointer font-medium rounded-sm flex items-center py-1.5 justify-center w-full text-sm peer-checked:bg-primary peer-checked:text-white peer-checked:hover:bg-primary"
+            className="flex w-full cursor-pointer items-center justify-center rounded-sm py-1.5 text-sm font-medium text-text-light peer-checked:bg-primary peer-checked:text-white peer-checked:hover:bg-primary"
             htmlFor="dow"
           >
             <span className="flex flex-col items-center">
@@ -358,7 +358,7 @@ export default function NewEventForm() {
           setSelectedDates={setSelectedDates}
           size="large"
         />
-        <div className="ml-3 h-2 text-2xs font-medium text-red-600 whitespace-nowrap">
+        <div className="text-red-600 ml-3 h-2 whitespace-nowrap text-2xs font-medium">
           {form.formState.errors.specificDates?.message}
         </div>
       </>
@@ -370,7 +370,7 @@ export default function NewEventForm() {
           setSelectedDaysOfWeek={setSelectedDaysOfWeek}
           size="large"
         />
-        <div className="ml-3 h-2 text-2xs font-medium text-red-600 whitespace-nowrap">
+        <div className="text-red-600 ml-3 h-2 whitespace-nowrap text-2xs font-medium">
           {form.formState.errors.specificDates?.message}
         </div>
       </>
@@ -399,7 +399,7 @@ export default function NewEventForm() {
           <motion.div
             animate="shiftUp"
             className={cn(
-              "xs:hidden z-[999] fixed bottom-0 left-0 flex w-full justify-center rounded-t-sm bg-white px-9 pb-6 pt-4 shadow-[0px_2px_2px_4px] shadow-gray-200"
+              "fixed bottom-0 left-0 z-[999] flex w-full justify-center rounded-t-sm bg-white px-9 pb-6 pt-4 shadow-[0px_2px_2px_4px] shadow-gray-200 xs:hidden"
             )}
             exit="shiftDown"
             initial="shiftDown"
@@ -421,7 +421,7 @@ export default function NewEventForm() {
         )}
       </AnimatePresence>
       <Button
-        className="hidden z-[999] xs:block h-12 w-full rounded-xl border-[1px] align-bottom text-sm"
+        className="z-[999] hidden h-12 w-full rounded-xl border-[1px] align-bottom text-sm xs:block"
         disabled={!isFormValid}
         form="new-event-form"
         type="submit"

@@ -14,7 +14,10 @@ import AvailbilityGridResponseFilterButton from "./availability-grid-response-fi
 import AvailabilityResponsesCount from "./availability-responses-count";
 
 const SAVE_AVAILABILITY_BUTTON_TEXT = "Save Availability";
+const COPY_LINK = "Copy Link";
+
 export default function AvailabilityGridBottomPanel() {
+  const { eventId } = useAvailabilityGridStore((state) => state.eventData);
   const screenSize = useScreenSize();
 
   const mode = useAvailabilityGridStore((state) => state.mode);
@@ -148,7 +151,7 @@ function ResponsesAccordion({
               <div className="mx-auto my-1 max-w-[48rem] flex-1 px-5 text-secondary sm:grid sm:grid-cols-4 sm:px-7 md:my-2 md:grid-cols-5">
                 {eventParticipants.map((name, i) => (
                   <AvailbilityGridResponseFilterButton
-                    className="my-1.5 mx-1 p-[3px] text-[0.74rem] font-medium md:text-[0.84rem]"
+                    className="mx-1 my-1.5 p-[3px] text-[0.74rem] font-medium md:text-[0.84rem]"
                     key={`${name}-${i}-filter-button-bottom-panel`}
                     name={name}
                   />

@@ -15,17 +15,24 @@ const EDIT_AVAILABILITY = "Edit Availability";
 type EditAvailabilityDialogProps = {
   className?: string;
   editAvailabilityButtonAnimationScope?: AnimationScope;
+  trigger?: React.ReactNode;
 };
 
-const EditAvailabilityDialog = ({ className, editAvailabilityButtonAnimationScope }: EditAvailabilityDialogProps) => {
+const EditAvailabilityDialog = ({
+  className,
+  editAvailabilityButtonAnimationScope,
+  trigger
+}: EditAvailabilityDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Dialog onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className={className} ref={editAvailabilityButtonAnimationScope} variant="default">
-          {EDIT_AVAILABILITY}
-        </Button>
+        {trigger || (
+          <Button className={className} ref={editAvailabilityButtonAnimationScope} variant="default">
+            {EDIT_AVAILABILITY}
+          </Button>
+        )}
       </DialogTrigger>
 
       <DialogContent className="px-8">
