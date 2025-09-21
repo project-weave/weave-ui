@@ -192,7 +192,7 @@ export default function AvailabilityGrid() {
 
   return (
     <form
-      className="card flex w-full select-none flex-col pl-0 pr-5 pt-1 sm:pr-8 xl:pl-2 xl:pr-10"
+      className="card flex w-full select-none flex-col bg-white pl-0 pr-5 pt-1 sm:pr-8 xl:pl-2 xl:pr-10"
       id="availability-grid"
       // mouseUp is cancelled when onContextMenu is triggered so we need to save the selection here as well
       onContextMenu={onMouseDragEnd}
@@ -212,7 +212,7 @@ export default function AvailabilityGrid() {
     >
       <div
         className={cn(
-          "sticky top-[3.4rem] z-[999] bg-background pl-5 pt-4",
+          "sticky top-[3.4rem] z-[999] bg-white pb-6 pl-5 pt-4",
           availabilityType === AvailabilityType.DAYS_OF_WEEK && "top-[3rem] pb-2"
         )}
       >
@@ -249,9 +249,7 @@ export default function AvailabilityGrid() {
 
             return (
               <div
-                className={cn("grid", {
-                  "pr-1": hasDateGapRight
-                })}
+                className="grid"
                 key={`availability-column-${displayColIndex}`}
                 style={{
                   gridTemplateRows: `${columnHeaderHeight} ${topBottomCellHeight} repeat(${sortedEventTimes.length - 1}, minmax(${timeSlotCellHeight}, 1fr)) ${topBottomCellHeight}`

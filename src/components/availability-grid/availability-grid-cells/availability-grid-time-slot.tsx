@@ -210,28 +210,27 @@ export default function AvailabilityGridTimeSlot({
   return (
     <button
       className={cn(
-        "h-full w-full cursor-pointer touch-none appearance-none border-b-0 border-t-[1px] border-text-light outline-none",
+        "h-full w-full cursor-pointer touch-none appearance-none border-b-0 border-t-[1px] border-dark-gray outline-none",
         borderXSizeStyles,
         {
-          "bg-primary hover:bg-primary/60": (isSelected || isBeingAdded) && !isBeingRemoved,
-          "border-l-primary": hasDateGapLeft,
-          "border-r-primary": hasDateGapRight,
-          "border-t-[2px]": isTimeHovered,
+          "bg-primary-purple hover:bg-primary-purple/60": (isSelected || isBeingAdded) && !isBeingRemoved,
+          "border-r-2": hasDateGapRight,
+          "border-t-2": isTimeHovered,
           "border-t-0": !shouldDisplayBorder && !isTimeHovered
         },
-        isViewMode(mode) && isTimeHovered && "border-t-secondary",
-        isEditMode(mode) && isTimeSlotHovered && "bg-accent",
+        isViewMode(mode) && isTimeHovered && "border-t-dark-gray",
+        isEditMode(mode) && isTimeSlotHovered && "bg-light-gray",
         isViewMode(mode) &&
           isTimeSlotHovered && {
-            "border-[3px] border-secondary": true,
+            "border-[3px] border-dark-gray": true,
             "border-l-[3px]": hasDateGapLeft,
             "border-r-[3px]": hasDateGapRight
           },
         isBeingRemoved && {
-          "border-b-4 border-b-secondary": isBottomBorder,
-          "border-l-4 border-l-secondary": isLeftBorder,
-          "border-r-4 border-r-secondary": isRightBorder,
-          "border-t-4 border-t-secondary": isTopBorder
+          "border-b-[3px] border-b-dark-gray": isBottomBorder,
+          "border-l-[3px] border-l-dark-gray": isLeftBorder,
+          "border-r-[3px] border-r-dark-gray": isRightBorder,
+          "border-t-[3px] border-t-dark-gray": isTopBorder
         }
       )}
       grid-drag-select-attr={`${timeSlotsRow}_${timeSlotsCol}`}

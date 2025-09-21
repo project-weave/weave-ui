@@ -141,7 +141,7 @@ const EventDateCalendar = ({
   return (
     <div
       className={cn("h-fit select-none scroll-m-24 rounded-xl bg-input p-5 pt-3", {
-        "h-full w-full border-[1px] bg-white px-12 pb-5 pt-8": size === "large"
+        "card h-full w-full border-[1px] bg-white px-12 pb-5 pt-8": size === "large"
       })}
       onContextMenu={handleMouseUp}
       onMouseLeave={handleMouseUp}

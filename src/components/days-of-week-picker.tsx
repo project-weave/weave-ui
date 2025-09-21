@@ -22,7 +22,7 @@ const DaysOfWeekPicker = forwardRef<HTMLDivElement, DaysOfWeekPickerProps>(
 
     return (
       <div
-        className={cn("flex h-[15rem] scroll-m-24 flex-col rounded-xl bg-input px-5 pt-4 sm:h-[16.5rem]", {
+        className={cn("flex h-[15rem] scroll-m-24 flex-col rounded-xl bg-input px-5 pb-5 pt-4 sm:h-[16.5rem]", {
           "border-red-500": error,
           "card w-full bg-white px-8 pb-8 pt-10 sm:h-full": size === "large"
         })}

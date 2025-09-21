@@ -76,7 +76,7 @@ function SettingsPopover() {
           <Settings className="h-6 w-6 translate-y-1 cursor-pointer text-secondary md:h-7 md:w-7" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="mr-2 mt-2 w-[12rem] bg-background px-4">
+      <PopoverContent className="mr-2 mt-2 w-[12rem] bg-white px-4">
         <header className="text-sm font-medium text-secondary">View Settings</header>
         <section className="mt-4 p-0">
           <ul>

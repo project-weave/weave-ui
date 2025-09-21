@@ -3,7 +3,7 @@ import { CSSProperties } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import { Button } from "@/components/ui/button";
-import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
+import useAvailabilityGridStore, { isViewMode } from "@/store/availabilityGridStore";
 import { AvailabilityType } from "@/types/Event";
 import { EventDate, getDateFromTimeSlot, getTimeSlot } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
@@ -38,8 +38,12 @@ export default function AvailabilityGridColumnHeader({
 
   const parsedDate = isValid(parseISO(eventDate)) ? parseISO(eventDate) : startOfToday();
 
-  const allTimeSlotsForDate = sortedEventTimes.map((eventTime) => getTimeSlot(eventTime, eventDate));
-  const isAllTimeSlotForDateSelected = allTimeSlotsForDate.every((timeSlot) => selectedTimeSlots.includes(timeSlot));
+  const allTimeSlotsForDate =
+    sortedEventTimes.length > 0
+      ? sortedEventTimes.slice(0, -1).map((eventTime) => getTimeSlot(eventTime, eventDate))
+      : [];
+  const isAllTimeSlotForDateSelected =
+    allTimeSlotsForDate.length > 0 && allTimeSlotsForDate.every((timeSlot) => selectedTimeSlots.includes(timeSlot));
 
   function dateClickedHandler() {
     if (isViewMode(mode)) return;
@@ -52,55 +56,49 @@ export default function AvailabilityGridColumnHeader({
 
   return (
     <div
-      className={cn(
-        "flex h-full flex-col items-center justify-center border-transparent bg-background pb-0.5 pr-0.5",
-        borderXSizeStyles,
-        {
-          "pr-[7px]": hasDateGapRight,
-          "pt-2": availabilityType === AvailabilityType.DAYS_OF_WEEK
-        }
-      )}
+      className={cn("flex h-full flex-col items-center justify-center border-transparent bg-white", borderXSizeStyles, {
+        "pt-2": availabilityType === AvailabilityType.DAYS_OF_WEEK,
+        "border-r-2 border-r-dark-gray": hasDateGapRight
+      })}
       onMouseEnter={onMouseEnter}
-      style={{ ...style, width: `calc(100% + ${hasDateGapRight ? "7px" : "2px"}` }}
+      style={{ ...style }}
     >
       {availabilityType === AvailabilityType.SPECIFIC_DATES && (
-        <h3 className="text-xl text-text-light xl:text-xl">{format(parsedDate, "EEE")}</h3>
-      )}
-      <div
-        className={cn("border-b-2 border-transparent pb-0.5 text-center xl:w-16", {
-          "border-b-2 border-secondary": (isDateHovered || isDateFocused) && isViewMode(mode)
-        })}
-      >
-        {availabilityType === AvailabilityType.SPECIFIC_DATES && (
+        <div className="flex flex-col items-center space-y-1">
+          <h3 className="text-sm font-normal text-text-light">{format(parsedDate, "EEE")}</h3>
           <Button
             className={cn(
-              "h-6 w-[3.7rem] whitespace-nowrap rounded-sm border-2 border-transparent bg-accent-light text-xs tracking-wide text-text-light transition-all hover:bg-accent xl:h-[1.7rem] xl:w-[4.2rem] xl:text-sm",
+              "text-text-primary flex h-6 items-center justify-center whitespace-nowrap rounded-sm border-[1px] border-none bg-input px-2 text-sm font-normal transition-all hover:opacity-80",
               {
-                "bg-primary text-white hover:bg-primary-hover": isAllTimeSlotForDateSelected,
-                "mt-0 cursor-default bg-background text-xs text-text-light hover:bg-background xl:text-sm":
-                  isViewMode(mode),
-                "ring-[1.5px] ring-primary ring-offset-1": (isDateHovered || isDateFocused) && isEditMode(mode)
+                "bg-primary-purple text-white hover:bg-primary-hover": isAllTimeSlotForDateSelected,
+                "text-text-primary cursor-default bg-transparent hover:bg-transparent": isViewMode(mode)
               }
             )}
             onClick={dateClickedHandler}
             type="button"
+            variant="ghost"
           >
             <time dateTime={eventDate}>{format(parsedDate, "MMM d")}</time>
           </Button>
-        )}
+        </div>
+      )}
+      <div
+        className={cn("border-b-2 border-transparent pb-2 text-center xl:w-16", {
+          "border-b-2 border-primary-purple": isDateHovered || isDateFocused
+        })}
+      >
         {availabilityType === AvailabilityType.DAYS_OF_WEEK && (
           <Button
             className={cn(
-              "mb-0.5 h-7 w-14 rounded-xl border-2 border-transparent bg-accent-light text-sm font-semibold tracking-wide text-text-light transition-all hover:bg-accent",
+              "text-transition-all mb-0.5 h-7 w-14 rounded-xl border-2 border-transparent bg-input text-lg font-normal tracking-wide hover:opacity-80",
               {
                 "bg-primary text-white hover:bg-primary-hover": isAllTimeSlotForDateSelected,
-                "cursor-default bg-background text-sm text-secondary hover:bg-background lg:text-base":
-                  isViewMode(mode),
-                "ring-2 ring-primary ring-offset-2": (isDateHovered || isDateFocused) && isEditMode(mode)
+                "cursor-default bg-white text-sm text-secondary hover:bg-white lg:text-base": isViewMode(mode)
               }
             )}
             onClick={dateClickedHandler}
             type="button"
+            variant="ghost"
           >
             <time dateTime={eventDate}> {format(parsedDate, "EEE")}</time>
           </Button>

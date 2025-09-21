@@ -47,11 +47,11 @@ export default function AvailabilityGridCell({
     hasDateGapLeft: boolean,
     hasDateGapRight: boolean
   ): string {
-    const classNames: string[] = ["border-l-[1px] border-r-[1px]"];
-    if (isCellInFirstDisplayedCol) classNames.push("border-l-0");
-    if (hasDateGapLeft || (isCellInFirstDisplayedCol && !isCellInFirstActualCol)) classNames.push("border-l-[1px]");
-    if (isCellInLastActualCol) classNames.push("border-r-0");
-    if (hasDateGapRight || (isCellInLastDisplayedCol && !isCellInLastActualCol)) classNames.push("border-r-[1px]");
+    const classNames: string[] = ["border-r-[1px]"];
+    // if (isCellInFirstDisplayedCol) classNames.push("border-l-0");
+    if (isCellInFirstDisplayedCol) classNames.push("border-l-[1px]");
+    // if (isCellInLastActualCol) classNames.push("border-r-0");
+    if (hasDateGapRight || isCellInLastDisplayedCol) classNames.push("border-r-[1px]");
 
     return classNames.join(" ");
   }
@@ -74,27 +74,15 @@ export default function AvailabilityGridCell({
     hasDateGapRight
   );
 
-  let topValue = 0;
-  switch (availabilityType) {
-    // Values for adjusting sticky headers
-    case AvailabilityType.SPECIFIC_DATES:
-      topValue = 10.9;
-      if (screenSize === ScreenSize.LG) topValue -= 1.74;
-      if (screenSize >= ScreenSize.XL) topValue -= 1.34;
-      break;
-    case AvailabilityType.DAYS_OF_WEEK:
-      topValue = 9.7;
-      if (screenSize === ScreenSize.LG) topValue -= 1.5;
-      if (screenSize >= ScreenSize.XL) topValue -= 1.4;
-      break;
-  }
+  const topValue = availabilityType === AvailabilityType.SPECIFIC_DATES ? 8.6 : 7.4;
+
   const topStyle = `${topValue}rem`;
 
   switch (node.getRenderType()) {
     case NodeType.COLUMN_HEADER_PLACEHOLDER:
       return (
         <div
-          className="m-0 h-full w-full bg-background"
+          className="m-0 h-full w-full bg-white"
           style={{
             position: "sticky",
             top: `${topStyle}`,
@@ -137,8 +125,7 @@ export default function AvailabilityGridCell({
       return (
         <div
           className={cn("h-full w-full border-t-0 border-text-light", {
-            "border-l-primary": hasDateGapLeft,
-            "border-r-primary": hasDateGapRight
+            "border-r-2 border-r-dark-gray": hasDateGapRight
           })}
           onMouseEnter={() => setHoveredTimeSlot(null)}
           style={{ borderStyle: getFirstAndLastCellBorderStyle() }}
@@ -147,10 +134,7 @@ export default function AvailabilityGridCell({
     case NodeType.LAST_CELL_IN_COLUMN:
       return (
         <div
-          className={cn("h-full w-full border-b-0 border-t-[1px] border-text-light", {
-            "border-l-primary": hasDateGapLeft,
-            "border-r-primary": hasDateGapRight
-          })}
+          className="h-full w-full border-b-0 border-t-[1px] border-text-light"
           onMouseEnter={() => setHoveredTimeSlot(null)}
           style={{ borderStyle: getFirstAndLastCellBorderStyle() }}
         />

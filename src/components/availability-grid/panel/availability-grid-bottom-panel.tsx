@@ -69,7 +69,7 @@ export default function AvailabilityGridBottomPanel() {
       <div style={{ height: spacingHeightStyle }}></div>
       <div
         className={cn(
-          "fixed bottom-0 w-full rounded-t-3xl bg-background pb-5 shadow-[0px_-1px_6px_1px] shadow-gray-100",
+          "fixed bottom-0 w-full rounded-t-3xl bg-white pb-5 shadow-[0px_-1px_6px_1px] shadow-gray-100",
           isEditMode(mode) && "rounded-t-none pt-2"
         )}
       >
@@ -107,7 +107,7 @@ function ResponsesAccordion({
     <>
       <header
         className={cn(
-          "flex h-[3rem] w-full items-center justify-between rounded-t-2xl border-[1px] border-b-0 border-accent bg-background px-5 pt-1 text-center font-medium sm:h-[3.5rem] sm:pt-0 md:h-[3.6rem] md:px-7",
+          "flex h-[3rem] w-full items-center justify-between rounded-t-2xl border-[1px] border-b-0 border-accent bg-white px-5 pt-1 text-center font-medium sm:h-[3.5rem] sm:pt-0 md:h-[3.6rem] md:px-7",
           totalResponseCount !== 0 && "cursor-pointer"
         )}
         onClick={() => {

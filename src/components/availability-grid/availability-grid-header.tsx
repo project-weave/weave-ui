@@ -33,9 +33,9 @@ export default function AvailabilityGridHeader() {
 
   const progressBar =
     availabilityGridViewWindowSize >= numDays ? (
-      <Separator className="bg-light-gray" />
+      <Separator className="mt-2 bg-light-gray" />
     ) : (
-      <div className="absolute left-5 right-0 mb-2 mt-2 h-0.5 rounded-full bg-light-gray">
+      <div className="absolute left-7 right-0 mb-2 mt-2 h-0.5 rounded-full bg-light-gray">
         <div
           className="absolute h-0.5 rounded-full bg-primary transition-all duration-300"
           style={{
@@ -47,7 +47,7 @@ export default function AvailabilityGridHeader() {
     );
 
   const paginationButtons = isPaginationRequired() && (
-    <div className="ml-4 mr-1 flex h-7 items-center whitespace-nowrap xs:pr-2 xl:pr-0">
+    <div className="ml-4 mr-1 flex items-center whitespace-nowrap  xs:pr-2 xl:pr-0">
       <Button
         className="h-7 w-7 rounded-sm px-[2px] py-0 lg:h-6 lg:w-6 lg:rounded-[0.45rem] xl:h-7 xl:w-7 xl:rounded-sm"
         onClick={() => {
@@ -74,9 +74,9 @@ export default function AvailabilityGridHeader() {
   );
 
   return (
-    <div className="">
-      <div className="mb-3 flex w-full">
-        <div className="ml-1 flex w-full items-center justify-between">
+    <div className="mt-1">
+      <div className="mb-1 flex w-full">
+        <div className="ml-2 flex w-full items-center justify-between">
           <TimeZoneDropdown
             error={false}
             gridDropdown={true}

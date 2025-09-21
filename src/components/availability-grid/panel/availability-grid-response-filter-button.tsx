@@ -53,7 +53,7 @@ const AvailbilityGridResponseFilterButton = ({ className, name }: AvailbilityGri
   return (
     <button
       className={cn(
-        "m-[1px] box-border inline-flex w-min flex-row items-center rounded-md border-[1px] border-dark-gray bg-input px-2 py-[2px] text-2xs font-normal text-black outline-none duration-100 hover:bg-light-gray",
+        "m-[1px] box-border inline-flex w-min flex-row items-center rounded-md border-[1px] border-dark-gray bg-input px-2 py-[2px] text-2xs font-normal text-black outline-none transition-all duration-100 hover:bg-light-gray",
         isEditMode(mode) && {
           "border-transparent bg-transparent line-through opacity-40 hover:bg-transparent": name !== loggedInUser,
           "font-medium no-underline hover:bg-input": name === loggedInUser

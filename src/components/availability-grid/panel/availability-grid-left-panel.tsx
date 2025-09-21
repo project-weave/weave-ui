@@ -67,13 +67,13 @@ export default function AvailabilityGridLeftPanel() {
   const earliestDate = parseISO(sortedEventDates[0]);
   const latestDate = parseISO(sortedEventDates[sortedEventDates.length - 1]);
 
-  let heading = "";
+  let dateRange = "";
   if (isEqual(earliestDate, latestDate)) {
-    heading = `${format(earliestDate, "MMM d yyyy")}`;
+    dateRange = `${format(earliestDate, "MMM d yyyy")}`;
   } else if (earliestDate.getUTCFullYear() !== latestDate.getUTCFullYear()) {
-    heading = `${format(earliestDate, "MMM d yyyy")} - ${format(latestDate, "MMM d yyyy")}`;
+    dateRange = `${format(earliestDate, "MMM d yyyy")} - ${format(latestDate, "MMM d yyyy")}`;
   } else {
-    heading = `${format(earliestDate, "MMM d")} - ${format(latestDate, "MMM d yyyy")}`;
+    dateRange = `${format(earliestDate, "MMM d")} - ${format(latestDate, "MMM d yyyy")}`;
   }
 
   const saveUserAvailabilityButton = (
@@ -102,7 +102,7 @@ export default function AvailabilityGridLeftPanel() {
     <div className="card flex h-full cursor-pointer flex-col px-6 pb-6">
       <div className="pb-2 pt-1">
         <h1 className="text-xl font-normal text-black">{eventName}</h1>
-        <p className="text-xs text-text-light">{heading}</p>
+        {availabilityType === AvailabilityType.SPECIFIC_DATES && <p className="text-xs text-text-light">{dateRange}</p>}
       </div>
 
       <div className="mt-5 flex items-center justify-between">

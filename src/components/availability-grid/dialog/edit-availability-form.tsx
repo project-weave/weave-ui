@@ -101,7 +101,7 @@ export default function EditAvailabilityForm({ isDialogOpen }: { isDialogOpen: b
               <button
                 {...field}
                 className={cn(
-                  "my-[2px] inline-flex w-full flex-row items-center rounded-xl border-2 border-primary-light bg-background px-2 py-[5px] outline-none duration-100 hover:bg-accent-light",
+                  "my-[2px] inline-flex w-full flex-row items-center rounded-xl border-2 border-primary-light bg-white px-2 py-[5px] outline-none duration-100 hover:bg-accent-light",
                   {
                     "border-2 border-primary bg-accent font-semibold hover:bg-purple-200":
                       userName === form.watch("selectedUserName")
