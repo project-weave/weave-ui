@@ -326,7 +326,7 @@ function DateButton({
               "border-transparent bg-input": true,
               "bg-white": size === "large",
               "text-black": isSameMonth(day, firstDayCurrentMonth),
-              "bg-success hover:bg-success/70 ": isToday(day),
+              "bg-success text-black hover:bg-success/70 ": isToday(day),
               "hover:text-light/80 text-text-light": !isToday(day) && !isSameMonth(day, firstDayCurrentMonth)
             }
           : {

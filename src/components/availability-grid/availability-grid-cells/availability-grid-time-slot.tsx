@@ -215,22 +215,22 @@ export default function AvailabilityGridTimeSlot({
         {
           "bg-primary-purple hover:bg-primary-purple/60": (isSelected || isBeingAdded) && !isBeingRemoved,
           "border-r-2": hasDateGapRight,
-          "border-t-2": isTimeHovered,
+          "border-t-2 border-t-black": isTimeHovered,
           "border-t-0": !shouldDisplayBorder && !isTimeHovered
         },
-        isViewMode(mode) && isTimeHovered && "border-t-dark-gray",
+        isViewMode(mode) && isTimeHovered && "border-t-black",
         isEditMode(mode) && isTimeSlotHovered && "bg-light-gray",
         isViewMode(mode) &&
           isTimeSlotHovered && {
-            "border-[3px] border-dark-gray": true,
-            "border-l-[3px]": hasDateGapLeft,
-            "border-r-[3px]": hasDateGapRight
+            "border-2 border-black": true,
+            "border-l-2": hasDateGapLeft,
+            "border-r-2": hasDateGapRight
           },
         isBeingRemoved && {
-          "border-b-[3px] border-b-dark-gray": isBottomBorder,
-          "border-l-[3px] border-l-dark-gray": isLeftBorder,
-          "border-r-[3px] border-r-dark-gray": isRightBorder,
-          "border-t-[3px] border-t-dark-gray": isTopBorder
+          "border-b-2 border-b-black": isBottomBorder,
+          "border-l-2 border-l-black": isLeftBorder,
+          "border-r-2 border-r-black": isRightBorder,
+          "border-t-2 border-t-black": isTopBorder
         }
       )}
       grid-drag-select-attr={`${timeSlotsRow}_${timeSlotsCol}`}

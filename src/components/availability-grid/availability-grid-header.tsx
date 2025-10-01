@@ -33,7 +33,7 @@ export default function AvailabilityGridHeader() {
 
   const progressBar =
     availabilityGridViewWindowSize >= numDays ? (
-      <Separator className="mt-2 bg-light-gray" />
+      <Separator className="mt-3 bg-light-gray" />
     ) : (
       <div className="absolute left-7 right-0 mb-2 mt-2 h-0.5 rounded-full bg-light-gray">
         <div

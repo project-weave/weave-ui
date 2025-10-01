@@ -214,7 +214,7 @@ export default function AvailabilityGrid() {
     >
       <div
         className={cn(
-          "sticky top-[3.4rem] z-[999] bg-white pb-6 pl-5 pt-4",
+          "sticky top-[3.4rem] z-[999] bg-white pb-3 pl-5 pt-4",
           availabilityType === AvailabilityType.DAYS_OF_WEEK && "top-[3rem] pb-2"
         )}
       >

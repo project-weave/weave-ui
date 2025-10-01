@@ -3,6 +3,7 @@
 import { ChevronDown, UserCircle } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 
 import useAvailabilityGridStore from "@/store/availabilityGridStore";
 

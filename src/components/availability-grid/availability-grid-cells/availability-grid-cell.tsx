@@ -22,7 +22,6 @@ export default function AvailabilityGridCell({
   hasDateGapLeft,
   hasDateGapRight,
   node,
-  screenSize,
   timeSlotDragSelectionState
 }: AvailabilityGridCellProps) {
   const { availabilityType, sortedEventDates, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);

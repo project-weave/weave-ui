@@ -50,9 +50,20 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
 
         <div className="h-6 w-px bg-light-gray"></div>
 
-        <Button className="h-8 w-8 rounded-md p-0 hover:bg-secondary" onClick={onCopyClick} size="sm" variant="ghost">
-          <Link2 className="h-5 w-5" />
-        </Button>
+        {currentIsEditMode ? (
+          <Button
+            className="h-8 rounded-sm bg-primary-purple px-3 text-sm"
+            form="availability-grid"
+            size="sm"
+            type="submit"
+          >
+            Save
+          </Button>
+        ) : (
+          <Button className="h-8 w-8 rounded-md p-0 hover:bg-secondary" onClick={onCopyClick} size="sm" variant="ghost">
+            <Link2 className="h-5 w-5" />
+          </Button>
+        )}
       </div>
     </div>
   );

@@ -80,7 +80,7 @@ export default function AvailabilityGridRowHeader({
         "-translate-y-1.5 pr-2 text-right text-2xs font-normal text-dark-gray duration-300 sm:-translate-y-2",
         { "opacity-0": originalDateTime.getMinutes() !== 0 },
         {
-          "font-semibold opacity-100": isHoveredTimeSlot || isPrevTimeSlotHovered,
+          "font-semibold text-black opacity-100": isHoveredTimeSlot || isPrevTimeSlotHovered,
           "text-black": isViewMode(mode) && (isHoveredTimeSlot || isPrevTimeSlotHovered)
         }
       )}
