@@ -29,8 +29,8 @@ export default function Event() {
     // Add your copy link logic here
     navigator.clipboard.writeText(window.location.href);
     toast({
-      title: "Link copied",
-      description: "Event link has been copied to clipboard"
+      variant: "success",
+      description: "Event link copied"
     });
   };
 

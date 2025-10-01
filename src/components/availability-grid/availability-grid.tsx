@@ -74,20 +74,8 @@ export default function AvailabilityGrid() {
       },
       onSuccess: () => {
         toast({
-          description: (
-            <span>
-              Your availability has been successfully recorded. We&apos;d love to hear your feedback! Please{" "}
-              <a
-                className="text-primary underline"
-                href="https://forms.gle/m6vyA7ifEcgtA1vL6"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                fill out this form.
-              </a>
-            </span>
-          ),
-          title: "Congrats!",
+          description: <span>Availability saved</span>,
+          title: "",
           variant: "success"
         });
       }
