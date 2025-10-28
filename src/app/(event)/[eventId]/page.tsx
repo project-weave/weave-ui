@@ -6,14 +6,12 @@ import { useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import AvailabilityGrid from "@/components/availability-grid/availability-grid";
-import AvailabilityGridBottomPanel from "@/components/availability-grid/panel/availability-grid-bottom-panel";
 import AvailabilityGridLeftPanel from "@/components/availability-grid/panel/availability-grid-left-panel";
-import { MediaQueryLG, MediaQueryXXS } from "@/components/media-query";
+import { MediaQueryLG } from "@/components/media-query";
 import { SettingsIsland } from "@/components/settings-island";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import useGetEvent, { GetEventResponse } from "@/hooks/requests/useGetEvent";
-import { ScreenSize } from "@/hooks/useScreenSize";
 import useAvailabilityGridStore from "@/store/availabilityGridStore";
 
 export default function Event() {
@@ -91,10 +89,6 @@ export default function Event() {
           <AvailabilityGrid />
         </div>
       </div>
-      <MediaQueryXXS maxScreenSize={ScreenSize.LG}>
-        <AvailabilityGridBottomPanel />
-      </MediaQueryXXS>
-
       <SettingsIsland onCopyClick={handleCopyClick} />
     </div>
   );
