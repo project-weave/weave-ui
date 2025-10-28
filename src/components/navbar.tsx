@@ -16,7 +16,7 @@ export default function NavBar() {
   const isEventPage = eventId !== "" && pathName.startsWith(`/${eventId}`);
 
   return (
-    <nav className="fixed top-6 z-50 w-full">
+    <nav className={`${isEventPage ? "fixed top-6" : "absolute top-6"} z-50 w-full`}>
       <div className="w-full max-w-[85rem] pl-7">
         <div className="card flex w-fit items-center gap-4 px-5 py-2.5 ">
           <div className="flex items-center gap-6">
