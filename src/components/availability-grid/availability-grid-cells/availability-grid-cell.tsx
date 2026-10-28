@@ -2,7 +2,6 @@ import { AvailabilityGridNode, NodeType } from "../availability-grid-node";
 
 import { ScreenSize } from "@/hooks/useScreenSize";
 import useAvailabilityGridStore, { isViewMode } from "@/store/availabilityGridStore";
-import { AvailabilityType } from "@/types/Event";
 import { cn } from "@/utils/cn";
 
 import AvailabilityGridColumnHeader from "./availability-grid-column-header";
@@ -24,7 +23,7 @@ export default function AvailabilityGridCell({
   node,
   timeSlotDragSelectionState
 }: AvailabilityGridCellProps) {
-  const { availabilityType, sortedEventDates, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);
+  const { sortedEventDates, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);
   const mode = useAvailabilityGridStore((state) => state.mode);
   const setHoveredTimeSlot = useAvailabilityGridStore((state) => state.setHoveredTimeSlot);
 
@@ -73,24 +72,9 @@ export default function AvailabilityGridCell({
     hasDateGapRight
   );
 
-  const topValue = availabilityType === AvailabilityType.SPECIFIC_DATES ? 8.6 : 7.4;
-
-  const topStyle = `${topValue}rem`;
-
   switch (node.getRenderType()) {
     case NodeType.COLUMN_HEADER_PLACEHOLDER:
-      return (
-        <div
-          className="m-0 h-full w-full bg-white"
-          style={{
-            position: "sticky",
-            top: `${topStyle}`,
-            zIndex: 100
-          }}
-        >
-          &nbsp;
-        </div>
-      );
+      return <div className="m-0 h-full w-full bg-white">&nbsp;</div>;
     case NodeType.PLACEHOLDER:
       return (
         <div className="h-full w-full" onMouseEnter={() => setHoveredTimeSlot(null)}>
@@ -112,11 +96,6 @@ export default function AvailabilityGridCell({
           eventDate={eventDate}
           hasDateGapRight={hasDateGapRight}
           onMouseEnter={() => setHoveredTimeSlot(null)}
-          style={{
-            position: "sticky",
-            top: `${topStyle}`,
-            zIndex: 100
-          }}
         />
       );
 

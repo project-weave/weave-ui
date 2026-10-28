@@ -1,5 +1,4 @@
 import { format, isValid, parseISO, startOfToday } from "date-fns";
-import { CSSProperties } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import { Button } from "@/components/ui/button";
@@ -13,15 +12,13 @@ type AvailabilityGridColumnHeaderProps = {
   eventDate: EventDate;
   hasDateGapRight: boolean;
   onMouseEnter: () => void;
-  style: CSSProperties;
 };
 
 export default function AvailabilityGridColumnHeader({
   borderXSizeStyles,
   eventDate,
   hasDateGapRight,
-  onMouseEnter,
-  style
+  onMouseEnter
 }: AvailabilityGridColumnHeaderProps) {
   const { availabilityType, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);
   const mode = useAvailabilityGridStore((state) => state.mode);
@@ -61,7 +58,6 @@ export default function AvailabilityGridColumnHeader({
         "border-r-2 border-r-dark-gray": hasDateGapRight
       })}
       onMouseEnter={onMouseEnter}
-      style={{ ...style }}
     >
       {availabilityType === AvailabilityType.SPECIFIC_DATES && (
         <div className="flex flex-col items-center space-y-1">

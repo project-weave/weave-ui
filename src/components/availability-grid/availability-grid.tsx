@@ -177,6 +177,24 @@ export default function AvailabilityGrid() {
   }, [sortedEventTimes, sortedEventDates, leftMostColumnInView, timeSlotColumnsCount]);
 
   const gridHeightStyle = useAvailabilityGridHeight();
+  const gridTemplateColumns = `${screenSize <= ScreenSize.XS ? "4.9rem" : "5.1rem"} repeat(${timeSlotColumnsCount}, minmax(1.3rem, 1fr))`;
+  const columnHeaderHeight = availabilityType === AvailabilityType.SPECIFIC_DATES ? "4.3rem" : "3rem";
+
+  function getDateGaps(columnNodes: AvailabilityGridNode[]) {
+    const colHeaderNode = columnNodes[0];
+    const dateIndex = colHeaderNode.getSortedEventDatesIndex();
+    if (dateIndex === -1) return { hasDateGapLeft: false, hasDateGapRight: false };
+
+    const eventDate = parseISO(sortedEventDates[dateIndex]);
+    return {
+      hasDateGapLeft:
+        colHeaderNode.displayedColIndex !== 1 &&
+        !isConsecutiveDay(parseISO(sortedEventDates[dateIndex - 1]), eventDate),
+      hasDateGapRight:
+        !colHeaderNode.isNodeInLastDisplayedCol &&
+        !isConsecutiveDay(eventDate, parseISO(sortedEventDates[dateIndex + 1]))
+    };
+  }
 
   return (
     <form
@@ -200,52 +218,45 @@ export default function AvailabilityGrid() {
         height: screenSize <= ScreenSize.MD ? gridHeightStyle : "100%"
       }}
     >
-      <div
-        className={cn(
-          "sticky top-[3.4rem] z-[999] bg-white pb-3 pl-5 pt-4",
-          availabilityType === AvailabilityType.DAYS_OF_WEEK && "top-[3rem] pb-2"
-        )}
-      >
-        <AvailabilityGridHeader />
-        {/* <AvailabilityGridHeader editAvailabilityButtonAnimationScope={scope} /> */}
+      <div className="sticky top-[4.5rem] z-30 shrink-0 bg-white pt-4">
+        <div className="pb-3 pl-5">
+          <AvailabilityGridHeader />
+        </div>
+        <div className="grid" style={{ gridTemplateColumns, height: columnHeaderHeight }}>
+          {gridNodes.map((columnNodes) => (
+            <AvailabilityGridCell
+              animateEditAvailabilityButton={animateEditAvailabilityButton}
+              {...getDateGaps(columnNodes)}
+              key={`availability-header-${columnNodes[0].offsettedColIndex}`}
+              node={columnNodes[0]}
+              screenSize={screenSize}
+              timeSlotDragSelectionState={timeSlotDragSelectionState}
+            />
+          ))}
+        </div>
       </div>
       <div className="flex h-full w-full">
         <div
           className="grid h-full w-full"
+          id="availability-grid-dates"
           onContextMenu={() => setHoveredTimeSlot(null)}
           onMouseLeave={() => setHoveredTimeSlot(null)}
-          style={{
-            gridTemplateColumns: `${screenSize <= ScreenSize.XS ? "4.9rem" : "5.1rem"} repeat(${timeSlotColumnsCount}, minmax(1.3rem, 1fr))`
-          }}
+          style={{ gridTemplateColumns }}
         >
           {gridNodes.map((columnNodes, displayColIndex) => {
-            const columnHeaderHeight = availabilityType === AvailabilityType.SPECIFIC_DATES ? "4.3rem" : "3rem";
             const topBottomCellHeight = "0.7rem";
             const timeSlotCellHeight = screenSize <= ScreenSize.MD ? "1.5rem" : "1.45rem";
-
-            let hasDateGapLeft = false;
-            let hasDateGapRight = false;
-            const colHeaderNode = columnNodes[0];
-            const timeSlotsColumnIndex = colHeaderNode.getSortedEventDatesIndex();
-            if (timeSlotsColumnIndex !== -1) {
-              const eventDate = sortedEventDates[timeSlotsColumnIndex];
-              const prevEventDate = sortedEventDates[colHeaderNode.getSortedEventDatesIndex() - 1];
-              const nextEventDate = sortedEventDates[colHeaderNode.getSortedEventDatesIndex() + 1];
-              hasDateGapLeft = displayColIndex !== 1 && !isConsecutiveDay(parseISO(prevEventDate), parseISO(eventDate));
-              hasDateGapRight =
-                displayColIndex !== gridNodes.length - 1 &&
-                !isConsecutiveDay(parseISO(eventDate), parseISO(nextEventDate));
-            }
+            const { hasDateGapLeft, hasDateGapRight } = getDateGaps(columnNodes);
 
             return (
               <div
                 className="grid"
                 key={`availability-column-${displayColIndex}`}
                 style={{
-                  gridTemplateRows: `${columnHeaderHeight} ${topBottomCellHeight} repeat(${sortedEventTimes.length - 1}, minmax(${timeSlotCellHeight}, 1fr)) ${topBottomCellHeight}`
+                  gridTemplateRows: `${topBottomCellHeight} repeat(${sortedEventTimes.length - 1}, minmax(${timeSlotCellHeight}, 1fr)) ${topBottomCellHeight}`
                 }}
               >
-                {columnNodes.map((node) => {
+                {columnNodes.slice(1).map((node) => {
                   return (
                     <AvailabilityGridCell
                       animateEditAvailabilityButton={animateEditAvailabilityButton}
