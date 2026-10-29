@@ -20,6 +20,7 @@ test("time search distinguishes AM from PM and rejects invalid times", () => {
 
 test("time search supports broad hour searches and next-day midnight", () => {
   assert.equal(matchesTimeSearch("9:30 PM", "9"), true);
+  assert.equal(matchesTimeSearch("10:00 AM", "1"), true);
   assert.equal(matchesTimeSearch("12:00 AM +1", "12am"), true);
   assert.equal(matchesTimeSearch("10:30 AM", ""), true);
 });

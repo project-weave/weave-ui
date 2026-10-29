@@ -19,7 +19,7 @@ export function matchesTimeSearch(label: string, query: string, intervalMinutes 
       case 1:
         minutes.forEach((minute) => patterns.push(`${search}:${minute}${ampm}`));
         if (search === "1" && !ampmMatch) {
-          [11, 12].forEach((hour) => minutes.forEach((minute) => patterns.push(`${hour}:${minute}`)));
+          [10, 11, 12].forEach((hour) => minutes.forEach((minute) => patterns.push(`${hour}:${minute}`)));
         }
         break;
       case 2:
