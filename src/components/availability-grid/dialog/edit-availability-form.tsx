@@ -1,7 +1,7 @@
-import { User } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 
+import ParticipantAvatar from "@/components/participant-avatar";
 import { Button } from "@/components/ui/button";
 import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -41,12 +41,13 @@ export default function EditAvailabilityForm({
 
   useEffect(() => {
     if (!isDialogOpen) {
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         isSubmitAttempted.current = false;
         form.reset();
       }, 100);
+      return () => clearTimeout(timeout);
     }
-  }, [isDialogOpen]);
+  }, [form, isDialogOpen]);
 
   useEffect(() => {
     form.setValue("isEnterNewAvailability", mode === "add-new");
@@ -58,7 +59,7 @@ export default function EditAvailabilityForm({
     } else {
       if (isSubmitAttempted.current) form.trigger("selectedUserName");
     }
-  }, [isEnterNewAvailability]);
+  }, [form, isEnterNewAvailability]);
 
   const isSubmitAttempted = useRef(false);
   const allUserNames = useAvailabilityGridStore((state) => state.eventData.allParticipants);
@@ -104,23 +105,26 @@ export default function EditAvailabilityForm({
       render={({ field }) => (
         <>
           <div className="scrollbar-primary mb-1 grid grid-cols-3 gap-x-3 gap-y-1 overflow-y-scroll scroll-smooth ">
-            {allUserNames.map((userName) => (
+            {allUserNames.map((userName, index) => (
               <button
-                {...field}
+                aria-pressed={field.value === userName}
                 className={cn(
                   "my-[2px] inline-flex w-full flex-row items-center rounded-xl bg-input px-2 py-[5px] font-normal outline-none duration-100 ",
                   {
-                    "border-[1px] border-black font-medium": userName === form.watch("selectedUserName")
+                    "border-[1px] border-black font-medium": userName === field.value
                   }
                 )}
                 key={`edit-availability-button-${userName}`}
+                onBlur={field.onBlur}
                 onClick={() => {
                   field.onChange(userName);
                   form.trigger("selectedUserName");
                 }}
+                ref={index === 0 ? field.ref : undefined}
+                title={userName}
                 type="button"
               >
-                <User className="h-4 w-4" />
+                <ParticipantAvatar className="h-5 w-5 text-[0.6rem]" name={userName} />
                 <span className="mx-1 max-w-[6rem] overflow-hidden text-ellipsis whitespace-nowrap text-2xs">
                   {userName}
                 </span>

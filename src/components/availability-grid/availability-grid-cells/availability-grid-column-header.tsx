@@ -71,8 +71,8 @@ export default function AvailabilityGridColumnHeader({
                 "text-text-primary cursor-default bg-transparent hover:bg-transparent": isViewMode(mode)
               }
             )}
-            onClick={dateClickedHandler}
             disabled={isSaving}
+            onClick={dateClickedHandler}
             type="button"
             variant="ghost"
           >
@@ -94,8 +94,8 @@ export default function AvailabilityGridColumnHeader({
                 "cursor-default bg-white text-sm text-secondary hover:bg-white lg:text-base": isViewMode(mode)
               }
             )}
-            onClick={dateClickedHandler}
             disabled={isSaving}
+            onClick={dateClickedHandler}
             type="button"
             variant="ghost"
           >

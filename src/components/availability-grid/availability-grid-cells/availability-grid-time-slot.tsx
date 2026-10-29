@@ -109,7 +109,14 @@ export default function AvailabilityGridTimeSlot({
     });
 
     return unsub;
-  }, [isDragSelecting]);
+  }, [
+    dragMode,
+    isCellBorderOfDragSelectionArea,
+    isCellInDragSelectionArea,
+    isDragSelecting,
+    timeSlotsCol,
+    timeSlotsRow
+  ]);
 
   function handleMouseDown(e: MouseEvent<HTMLButtonElement>) {
     if (isSaving) return;
@@ -250,12 +257,12 @@ export default function AvailabilityGridTimeSlot({
           "border-t-2 border-t-black": isTopBorder
         }
       )}
-      grid-drag-select-attr={`${timeSlotsRow}_${timeSlotsCol}`}
       disabled={isSaving}
-      onMouseDown={handleMouseDown}
+      grid-drag-select-attr={`${timeSlotsRow}_${timeSlotsCol}`}
+      onBlur={() => setHoveredTimeSlot(null)}
       onClick={activateWithKeyboard}
       onFocus={() => setHoveredTimeSlot(timeSlot)}
-      onBlur={() => setHoveredTimeSlot(null)}
+      onMouseDown={handleMouseDown}
       onMouseEnter={handleMouseEnter}
       onTouchEnd={handleTouchEnd}
       ref={timeSlotCellRef}

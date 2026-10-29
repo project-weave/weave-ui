@@ -43,7 +43,7 @@ export default function NewEventFromTimeDropdown({
 
   useEffect(() => {
     // need setTimeout here to allow for the DOM to render CommandGroup
-    setTimeout(() => {
+    const timeout = setTimeout(() => {
       if (commandGroupRef.current && open) {
         const selectedItem = commandGroupRef.current.querySelector(`[data-value="${selected}"]`);
         if (selectedItem) {
@@ -51,7 +51,8 @@ export default function NewEventFromTimeDropdown({
         }
       }
     });
-  }, [open]);
+    return () => clearTimeout(timeout);
+  }, [open, selected]);
 
   const startTime = new Date(0, 0, 0, 0, isStartTime ? 0 : 30);
   const endTime = new Date(0, 0, 0, 23, 30);
@@ -102,7 +103,7 @@ export default function NewEventFromTimeDropdown({
         >
           <div
             className={cn(
-              "peer box-border flex h-10 cursor-pointer items-center rounded-xl bg-input px-4 pb-2.5 pt-3",
+              "peer box-border flex h-10 w-full min-w-0 cursor-pointer items-center rounded-xl bg-input px-4 pb-2.5 pt-3 text-left",
               {
                 "outline-primary": open,
                 "outline-red-500/40 focus-within:outline-red-500 hover:outline-red-500": error

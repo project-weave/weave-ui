@@ -47,7 +47,7 @@ export default function BestTimesAvailableSwitch({
 
     const eventDatesWithBestTimes = new Set(
       Object.entries(timeSlotsToParticipants)
-        .filter(([_, participants]) => getFilteredSelectionCount(participants) === highestParticiantsSelectedCount)
+        .filter(([, participants]) => getFilteredSelectionCount(participants) === highestParticiantsSelectedCount)
         .map(([timeSlot]) => getDateFromTimeSlot(timeSlot))
     );
 
@@ -88,9 +88,9 @@ export default function BestTimesAvailableSwitch({
         {labelText ? labelText : DEFAULT_LABEL}
       </Label>
       <Switch
+        aria-label={labelText ?? DEFAULT_LABEL}
         checked={isBestTimesEnabled}
         className={cn("data-[state=unchecked]:bg-accent first-letter:data-[state=checked]:bg-primary", switchStyles)}
-        aria-label={labelText ?? DEFAULT_LABEL}
         id={switchId}
         onCheckedChange={handleBestTimesToggle}
       />

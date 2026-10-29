@@ -111,16 +111,16 @@ function DayOfWeekButton({
         <Button
           aria-label={format(parseISO(date), "EEEE")}
           aria-pressed={selected}
-          id={buttonId}
           className={cn("h-full w-full min-w-0 touch-none rounded-sm bg-primary px-0", {
             "bg-[#E7E7E7] hover:scale-[1.02]": !selected,
             "text-md mx-2 w-[5rem] rounded-xl sm:w-[5rem]": size === "large"
           })}
           drag-select-attr={date}
-          onMouseDown={handleMouseDown}
+          id={buttonId}
           onClick={(event) => {
             if (event.detail === 0) onKeyboardActivate();
           }}
+          onMouseDown={handleMouseDown}
           onMouseEnter={handleMouseEnter}
           onTouchCancel={onTouchDragEnd}
           onTouchEnd={onTouchDragEnd}

@@ -22,10 +22,10 @@ const EDIT_AVAILABILITY = "Edit Availability";
 type EditAvailabilityDialogProps = {
   className?: string;
   editAvailabilityButtonAnimationScope?: AnimationScope;
-  trigger?: React.ReactNode;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
   initialViewMode?: ViewMode;
+  onOpenChange?: (open: boolean) => void;
+  open?: boolean;
+  trigger?: React.ReactNode;
 };
 
 type ViewMode = "add-new" | "edit-existing" | "initial";
