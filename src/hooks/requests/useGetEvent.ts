@@ -8,8 +8,8 @@ export interface GetEventResponse {
   responses: EventResponse[];
 }
 
-export async function getEvent(eventId: string) {
-  const { data } = await axios.get(`/api/v1/event/${eventId}`);
+export async function getEvent(eventId: string): Promise<GetEventResponse> {
+  const { data } = await axios.get<GetEventResponse>(`/api/v1/event/${eventId}`);
   return data;
 }
 

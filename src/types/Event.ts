@@ -1,3 +1,4 @@
+import { isSupportedTimeZone } from "../utils/timeZone";
 import { isBefore, parse } from "date-fns";
 import { z } from "zod";
 
@@ -43,12 +44,12 @@ export interface EventForm {
 export const EventFormSchema = z
   .object({
     availabilityType: AvailbilityTypeSchema,
-    daysOfTheWeek: z.set(EventDateSchema),
+    daysOfTheWeek: z.set(EventDateSchema).default(new Set<EventDate>()),
     name: z
       .string()
       .transform((str) => str.trim())
       .pipe(z.string().min(1, { message: "Event name must be at least 1 character long." })),
-    specificDates: z.set(EventDateSchema),
+    specificDates: z.set(EventDateSchema).default(new Set<EventDate>()),
     timeRange: z
       .object({
         endTime: z.string(EventTimeSchema),
@@ -65,9 +66,7 @@ export const EventFormSchema = z
           path: ["root"]
         }
       ),
-    timeZone: z.string().refine((data) => {
-      return Intl.supportedValuesOf("timeZone").includes(data);
-    })
+    timeZone: z.string().refine(isSupportedTimeZone)
   })
   .superRefine((data, ctx) => {
     if (data.availabilityType === AvailabilityType.SPECIFIC_DATES) {

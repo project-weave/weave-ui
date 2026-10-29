@@ -1,7 +1,7 @@
-import { User } from "lucide-react";
 import { memo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
+import ParticipantAvatar from "@/components/participant-avatar";
 import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
 
@@ -26,7 +26,7 @@ const AvailbilityGridResponseFilterButton = ({ className, name }: AvailbilityGri
 
     return userFilter.length === 0
       ? hoveredTimeSlotResponses.includes(name)
-      : hoveredTimeSlotResponses.some((user) => userFilter.includes(user));
+      : hoveredTimeSlotResponses.includes(name) && userFilter.includes(name);
   });
 
   function onFilterClicked(user: string) {
@@ -43,32 +43,33 @@ const AvailbilityGridResponseFilterButton = ({ className, name }: AvailbilityGri
 
   return (
     <button
+      aria-pressed={userFilter.includes(name)}
       className={cn(
-        "box-border inline-flex w-min flex-row items-center rounded-md border-2 border-primary-light bg-accent-light px-1 py-[1.5px] text-2xs text-secondary outline-none duration-100 hover:bg-accent",
+        "box-border inline-flex min-w-0 max-w-full items-center gap-1.5 rounded-md border border-dark-gray bg-input px-2 py-1 text-2xs font-normal text-black outline-none transition-colors hover:bg-light-gray focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
         isEditMode(mode) && {
-          "border-transparent bg-transparent text-gray-500 line-through hover:bg-transparent": name !== loggedInUser,
-          "border-transparent font-medium text-secondary no-underline hover:bg-accent-light": name === loggedInUser
+          "border-transparent bg-transparent line-through opacity-40 hover:bg-transparent": name !== loggedInUser,
+          "font-medium no-underline hover:bg-input": name === loggedInUser
         },
         isViewMode(mode) &&
           userFilter.length !== 0 && {
-            "border-2 border-primary font-semibold hover:bg-purple-200": userFilter.includes(name),
-            "border-gray-200 bg-transparent text-gray-300 line-through hover:bg-gray-100 hover:text-gray-500":
-              !userFilter.includes(name)
+            "border-black font-semibold hover:opacity-70": userFilter.includes(name) && isUserHighlighted,
+            "border-black/70 font-normal opacity-60": userFilter.includes(name) && !isUserHighlighted,
+            "border-light-gray bg-transparent line-through opacity-[0.15] hover:opacity-50 ": !userFilter.includes(name)
           },
+
         isViewMode(mode) &&
-          !isUserHighlighted && {
-            "border-gray-300 bg-transparent text-gray-400": userFilter.length === 0,
-            "border-gray-400 bg-transparent text-gray-500": userFilter.includes(name)
-          },
+          userFilter.length === 0 &&
+          !isUserHighlighted &&
+          "border-light-gray bg-transparent opacity-60",
         className
       )}
+      disabled={isEditMode(mode)}
       onClick={() => onFilterClicked(name)}
+      title={name}
       type="button"
     >
-      <User className="h-4 w-4" />
-      <span className="mx-1 max-w-[5.8rem] overflow-hidden text-ellipsis whitespace-nowrap lg:max-w-[4.5rem] xl:max-w-[5.2rem]">
-        {name}
-      </span>
+      <ParticipantAvatar className="h-5 w-5 text-[0.6rem]" name={name} />
+      <span className="max-w-[10rem] truncate">{name}</span>
     </button>
   );
 };

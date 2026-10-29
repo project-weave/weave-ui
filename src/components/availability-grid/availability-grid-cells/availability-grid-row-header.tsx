@@ -61,9 +61,9 @@ export default function AvailabilityGridRowHeader({
     const [convertedFormattedTime, dayDifference] = getTimezoneConveredTimeAndDayDifference();
     let dayOffsetJSX: ReactNode = null;
     if (dayDifference > 0) {
-      dayOffsetJSX = <sup className="text-3xs ml-[0.5px]">+1</sup>;
+      dayOffsetJSX = <sup className="ml-[0.5px] text-3xs">+1</sup>;
     } else if (dayDifference < 0) {
-      dayOffsetJSX = <sup className="text-3xs ml-[0.5px]">-1</sup>;
+      dayOffsetJSX = <sup className="ml-[0.5px] text-3xs">-1</sup>;
     }
 
     return (
@@ -77,11 +77,11 @@ export default function AvailabilityGridRowHeader({
   return (
     <span
       className={cn(
-        "-translate-y-1.5 pr-2 text-right text-2xs font-medium text-primary duration-300 sm:-translate-y-2 sm:text-[0.75rem] xl:text-xs",
+        "-translate-y-1.5 pr-2 text-right text-2xs font-normal text-dark-gray duration-300 sm:-translate-y-2",
         { "opacity-0": originalDateTime.getMinutes() !== 0 },
         {
-          "font-bold opacity-100": isHoveredTimeSlot || isPrevTimeSlotHovered,
-          "text-secondary": isViewMode(mode) && (isHoveredTimeSlot || isPrevTimeSlotHovered)
+          "font-semibold text-black opacity-100": isHoveredTimeSlot || isPrevTimeSlotHovered,
+          "text-black": isViewMode(mode) && (isHoveredTimeSlot || isPrevTimeSlotHovered)
         }
       )}
       onMouseEnter={onMouseEnter}

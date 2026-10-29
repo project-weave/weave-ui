@@ -1,5 +1,5 @@
 import { format, parseISO } from "date-fns";
-import { Dispatch, forwardRef, MouseEvent, SetStateAction, useRef } from "react";
+import { Dispatch, forwardRef, MouseEvent, SetStateAction, useId, useRef } from "react";
 
 import { Button } from "@/components/ui/button";
 import useDragSelect, { extractDragSelectData } from "@/hooks/useDragSelect";
@@ -15,8 +15,6 @@ type DaysOfWeekPickerProps = {
   size?: "large" | "small";
 };
 
-const DAYS_OF_WEEK_TITLE = "Days of the Week";
-
 const DaysOfWeekPicker = forwardRef<HTMLDivElement, DaysOfWeekPickerProps>(
   ({ error, selectedDaysOfWeek, setSelectedDaysOfWeek, size }, ref) => {
     const { onMouseDragEnd, onMouseDragMove, onMouseDragStart, onTouchDragEnd, onTouchDragMove, onTouchDragStart } =
@@ -24,27 +22,28 @@ const DaysOfWeekPicker = forwardRef<HTMLDivElement, DaysOfWeekPickerProps>(
 
     return (
       <div
-        className={cn("card border-1 scroll-m-24 flex h-[15rem] flex-col px-5 pt-4 sm:h-[16.5rem]", {
+        className={cn("flex h-[15rem] scroll-m-24 flex-col rounded-xl bg-input px-5 pb-5 pt-4 sm:h-[16.5rem]", {
           "border-red-500": error,
-          "w-full px-8 pb-8 sm:h-full": size === "large"
+          "card w-full bg-white px-8 pb-8 pt-10 sm:h-full": size === "large"
         })}
         onContextMenu={onMouseDragEnd}
         onMouseLeave={onMouseDragEnd}
         onMouseUp={onMouseDragEnd}
         ref={ref}
       >
-        {size === "large" && (
-          <div className="mx-4 mb-6 mt-4">
-            <h1 className="text-left text-xl font-semibold tracking-wide text-secondary">{DAYS_OF_WEEK_TITLE}</h1>
-            <hr className="mt-4 h-[0.1rem] bg-primary" />
-          </div>
-        )}
-
-        <div className="flex flex-grow justify-between">
+        <div className="flex flex-grow justify-between gap-1">
           {DAYS_OF_WEEK_DATES.map((date) => (
             <DayOfWeekButton
               date={date}
               key={`dow-button-${date}`}
+              onKeyboardActivate={() =>
+                setSelectedDaysOfWeek((previous) => {
+                  const next = new Set(previous);
+                  if (next.has(date)) next.delete(date);
+                  else next.add(date);
+                  return next;
+                })
+              }
               onMouseDragMove={onMouseDragMove}
               onMouseDragStart={onMouseDragStart}
               onTouchDragEnd={onTouchDragEnd}
@@ -64,6 +63,7 @@ export default DaysOfWeekPicker;
 
 function DayOfWeekButton({
   date,
+  onKeyboardActivate,
   onMouseDragMove,
   onMouseDragStart,
   onTouchDragEnd,
@@ -80,6 +80,7 @@ function DayOfWeekButton({
   }
 
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const buttonId = useId();
 
   function handleTouchStart(e: TouchEvent) {
     if (e.cancelable) e.preventDefault();
@@ -97,25 +98,28 @@ function DayOfWeekButton({
   const formattedDateOfWeek = format(parseISO(date), "E");
 
   return (
-    <div className="flex flex-col items-center text-secondary" key={`days-of-weeks-picker-${date}`}>
+    <div className="flex min-w-0 flex-1 flex-col items-center text-text-light" key={`days-of-weeks-picker-${date}`}>
       <label
-        className={cn("mb-2 text-sm font-medium", {
-          "font-semibold md:mb-5 md:text-lg": size === "large"
+        className={cn("mb-2 text-sm font-normal", {
+          "text-xl font-normal md:mb-5 md:text-xl": size === "large"
         })}
-        htmlFor={`days-of-weeks-picker-${date}`}
+        htmlFor={buttonId}
       >
-        {size === "large" ? formattedDateOfWeek : formattedDateOfWeek[0]}
+        {formattedDateOfWeek}
       </label>
-      <div className="flex h-full flex-grow touch-none">
+      <div className="flex h-full w-full flex-grow touch-none">
         <Button
-          className={cn(
-            "h-full w-[2.16rem] touch-none rounded-sm bg-primary px-[.9rem] xs:px-4 sm:w-[2.4rem] sm:px-[1.2rem]",
-            {
-              "bg-primary/30 hover:scale-[1.02]": !selected,
-              "text-md mx-2 w-[5rem] rounded-xl sm:w-[5rem]": size === "large"
-            }
-          )}
+          aria-label={format(parseISO(date), "EEEE")}
+          aria-pressed={selected}
+          className={cn("h-full w-full min-w-0 touch-none rounded-sm bg-primary px-0", {
+            "bg-[#E7E7E7] hover:scale-[1.02]": !selected,
+            "text-md mx-2 w-[5rem] rounded-xl sm:w-[5rem]": size === "large"
+          })}
           drag-select-attr={date}
+          id={buttonId}
+          onClick={(event) => {
+            if (event.detail === 0) onKeyboardActivate();
+          }}
           onMouseDown={handleMouseDown}
           onMouseEnter={handleMouseEnter}
           onTouchCancel={onTouchDragEnd}

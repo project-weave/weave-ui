@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import { Label } from "@/components/ui/label";
@@ -19,6 +20,7 @@ export default function BestTimesAvailableSwitch({
   labelText,
   switchStyles
 }: BestTimesAvailableSwitchProps) {
+  const switchId = useId();
   const { allParticipants, sortedEventDates, timeSlotsToParticipants } = useAvailabilityGridStore(
     (state) => state.eventData
   );
@@ -45,7 +47,7 @@ export default function BestTimesAvailableSwitch({
 
     const eventDatesWithBestTimes = new Set(
       Object.entries(timeSlotsToParticipants)
-        .filter(([_, participants]) => getFilteredSelectionCount(participants) === highestParticiantsSelectedCount)
+        .filter(([, participants]) => getFilteredSelectionCount(participants) === highestParticiantsSelectedCount)
         .map(([timeSlot]) => getDateFromTimeSlot(timeSlot))
     );
 
@@ -77,18 +79,20 @@ export default function BestTimesAvailableSwitch({
     <div className={cn("flex items-center space-x-2", { invisible: isEditMode(mode) })}>
       <Label
         className={cn(
-          "cursor-pointer whitespace-nowrap text-sm font-semibold text-secondary lg:text-xs xl:text-sm",
+          "cursor-pointer whitespace-nowrap font-normal",
+          isBestTimesEnabled ? "text-primary-purple" : "text-text-light",
           labelStyles
         )}
-        htmlFor="best-times"
+        htmlFor={switchId}
       >
         {labelText ? labelText : DEFAULT_LABEL}
       </Label>
       <Switch
+        aria-label={labelText ?? DEFAULT_LABEL}
         checked={isBestTimesEnabled}
         className={cn("data-[state=unchecked]:bg-accent first-letter:data-[state=checked]:bg-primary", switchStyles)}
-        id="best-times"
-        onClick={handleBestTimesToggle}
+        id={switchId}
+        onCheckedChange={handleBestTimesToggle}
       />
     </div>
   );

@@ -6,8 +6,8 @@ import { useRef } from "react";
 import NewEventForm from "@/components/new-event-form";
 import { Button } from "@/components/ui/button";
 
-const SUBTITLE =
-  "The hardest part about getting together is finding time for it. With Weave, you'll be able to schedule group events with ease, and enjoy doing so.";
+// const SUBTITLE =
+//   "The hardest part about getting together is finding time for it. With Weave, you'll be able to schedule group events with ease, and enjoy doing so.";
 const CREATE_A_WEAVE = "Create a Weave";
 
 export default function LandingPage() {
@@ -17,7 +17,7 @@ export default function LandingPage() {
   const wordHeight = 77;
 
   return (
-    <div className="mt-10 flex flex-col items-center">
+    <div className="mt-48 flex flex-col items-center">
       <div className="grid h-full w-full">
         <h1 className="flex flex-col text-center text-[2.6rem] font-semibold leading-[3.2rem] sm:mt-8 sm:leading-[3rem] md:text-[3.7rem] md:leading-[4rem] xl:text-[4.3rem] xl:leading-[4.3rem]">
           <div>find time for</div>
@@ -49,12 +49,8 @@ export default function LandingPage() {
         </h1>
       </div>
 
-      <p className="mt-10 hidden w-9/12 text-center font-medium sm:mt-8 sm:block sm:w-8/12 md:mt-10 md:text-lg xl:w-9/12 xl:px-10 xl:text-xl 2xl:w-3/4">
-        {SUBTITLE}
-      </p>
-
       <Button
-        className="mt-16 h-auto px-8 py-3 text-sm md:mt-20 md:px-10 md:py-4 md:text-base xl:px-12 "
+        className="mt-8 h-auto px-10 py-3 text-sm md:mt-16 md:px-16  md:text-lg"
         onClick={() => {
           eventFormRef?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
         }}
@@ -62,7 +58,7 @@ export default function LandingPage() {
         {CREATE_A_WEAVE}
       </Button>
 
-      <div className="h-full min-h-screen w-full pb-10 sm:pb-0 sm:mt-10 xl:mt-20">
+      <div className="mt-28 h-full min-h-screen w-full pb-10 sm:pb-0">
         <div className="pt-20" ref={eventFormRef}>
           <NewEventForm />
         </div>

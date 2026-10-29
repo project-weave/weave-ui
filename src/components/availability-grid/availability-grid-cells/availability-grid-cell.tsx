@@ -2,7 +2,6 @@ import { AvailabilityGridNode, NodeType } from "../availability-grid-node";
 
 import { ScreenSize } from "@/hooks/useScreenSize";
 import useAvailabilityGridStore, { isViewMode } from "@/store/availabilityGridStore";
-import { AvailabilityType } from "@/types/Event";
 import { cn } from "@/utils/cn";
 
 import AvailabilityGridColumnHeader from "./availability-grid-column-header";
@@ -22,10 +21,9 @@ export default function AvailabilityGridCell({
   hasDateGapLeft,
   hasDateGapRight,
   node,
-  screenSize,
   timeSlotDragSelectionState
 }: AvailabilityGridCellProps) {
-  const { availabilityType, sortedEventDates, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);
+  const { sortedEventDates, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);
   const mode = useAvailabilityGridStore((state) => state.mode);
   const setHoveredTimeSlot = useAvailabilityGridStore((state) => state.setHoveredTimeSlot);
 
@@ -47,11 +45,11 @@ export default function AvailabilityGridCell({
     hasDateGapLeft: boolean,
     hasDateGapRight: boolean
   ): string {
-    const classNames: string[] = ["border-l-[1px] border-r-[1px]"];
-    if (isCellInFirstDisplayedCol) classNames.push("border-l-0");
-    if (hasDateGapLeft || (isCellInFirstDisplayedCol && !isCellInFirstActualCol)) classNames.push("border-l-2");
-    if (isCellInLastActualCol) classNames.push("border-r-0");
-    if (hasDateGapRight || (isCellInLastDisplayedCol && !isCellInLastActualCol)) classNames.push("border-r-2");
+    const classNames: string[] = ["border-r-[1px]"];
+    // if (isCellInFirstDisplayedCol) classNames.push("border-l-0");
+    if (isCellInFirstDisplayedCol) classNames.push("border-l-[1px]");
+    // if (isCellInLastActualCol) classNames.push("border-r-0");
+    if (hasDateGapRight || isCellInLastDisplayedCol) classNames.push("border-r-[1px]");
 
     return classNames.join(" ");
   }
@@ -74,36 +72,9 @@ export default function AvailabilityGridCell({
     hasDateGapRight
   );
 
-  let topValue = 0;
-  switch (availabilityType) {
-    // Values for adjusting sticky headers
-    case AvailabilityType.SPECIFIC_DATES:
-      topValue = 10.9;
-      if (screenSize === ScreenSize.LG) topValue -= 1.74;
-      if (screenSize >= ScreenSize.XL) topValue -= 1.34;
-      break;
-    case AvailabilityType.DAYS_OF_WEEK:
-      topValue = 9.7;
-      if (screenSize === ScreenSize.LG) topValue -= 1.5;
-      if (screenSize >= ScreenSize.XL) topValue -= 1.4;
-      break;
-  }
-  const topStyle = `${topValue}rem`;
-
   switch (node.getRenderType()) {
     case NodeType.COLUMN_HEADER_PLACEHOLDER:
-      return (
-        <div
-          className="m-0 h-full w-full bg-background"
-          style={{
-            position: "sticky",
-            top: `${topStyle}`,
-            zIndex: 100
-          }}
-        >
-          &nbsp;
-        </div>
-      );
+      return <div className="m-0 h-full w-full bg-white">&nbsp;</div>;
     case NodeType.PLACEHOLDER:
       return (
         <div className="h-full w-full" onMouseEnter={() => setHoveredTimeSlot(null)}>
@@ -125,20 +96,14 @@ export default function AvailabilityGridCell({
           eventDate={eventDate}
           hasDateGapRight={hasDateGapRight}
           onMouseEnter={() => setHoveredTimeSlot(null)}
-          style={{
-            position: "sticky",
-            top: `${topStyle}`,
-            zIndex: 100
-          }}
         />
       );
 
     case NodeType.FIRST_CELL_IN_COLUMN:
       return (
         <div
-          className={cn("h-full w-full border-t-0 border-primary-light", borderXSizeStyles, {
-            "border-l-primary": hasDateGapLeft,
-            "border-r-primary": hasDateGapRight
+          className={cn("h-full w-full border-t-0 border-text-light", {
+            "border-r-2 border-r-dark-gray": hasDateGapRight
           })}
           onMouseEnter={() => setHoveredTimeSlot(null)}
           style={{ borderStyle: getFirstAndLastCellBorderStyle() }}
@@ -147,10 +112,7 @@ export default function AvailabilityGridCell({
     case NodeType.LAST_CELL_IN_COLUMN:
       return (
         <div
-          className={cn("h-full w-full border-b-0 border-t-2 border-primary-light", borderXSizeStyles, {
-            "border-l-primary": hasDateGapLeft,
-            "border-r-primary": hasDateGapRight
-          })}
+          className="h-full w-full border-b-0 border-t-[1px] border-text-light"
           onMouseEnter={() => setHoveredTimeSlot(null)}
           style={{ borderStyle: getFirstAndLastCellBorderStyle() }}
         />
