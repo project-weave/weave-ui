@@ -24,15 +24,6 @@ const AvailbilityGridResponseFilterButton = ({ className, name }: AvailbilityGri
 
     const hoveredTimeSlotResponses = eventData.timeSlotsToParticipants[hoveredTimeSlot] ?? [];
 
-    console.log("userFilter", userFilter);
-    console.log(hoveredTimeSlotResponses);
-    console.log(
-      name,
-      userFilter.length === 0
-        ? hoveredTimeSlotResponses.includes(name)
-        : hoveredTimeSlotResponses.includes(name) && userFilter.includes(name)
-    );
-
     return userFilter.length === 0
       ? hoveredTimeSlotResponses.includes(name)
       : hoveredTimeSlotResponses.includes(name) && userFilter.includes(name);
@@ -52,6 +43,8 @@ const AvailbilityGridResponseFilterButton = ({ className, name }: AvailbilityGri
 
   return (
     <button
+      aria-pressed={userFilter.includes(name)}
+      disabled={isEditMode(mode)}
       className={cn(
         "m-[1px] box-border inline-flex w-min flex-row items-center rounded-md border-[1px] border-dark-gray bg-input px-2 py-[2px] text-2xs font-normal text-black outline-none transition-all duration-100 hover:bg-light-gray",
         isEditMode(mode) && {

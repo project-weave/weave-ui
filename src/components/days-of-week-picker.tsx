@@ -31,7 +31,7 @@ const DaysOfWeekPicker = forwardRef<HTMLDivElement, DaysOfWeekPickerProps>(
         onMouseUp={onMouseDragEnd}
         ref={ref}
       >
-        <div className="flex flex-grow justify-between">
+        <div className="flex flex-grow justify-between gap-1">
           {DAYS_OF_WEEK_DATES.map((date) => (
             <DayOfWeekButton
               date={date}
@@ -98,7 +98,7 @@ function DayOfWeekButton({
   const formattedDateOfWeek = format(parseISO(date), "E");
 
   return (
-    <div className="flex flex-col items-center text-text-light" key={`days-of-weeks-picker-${date}`}>
+    <div className="flex min-w-0 flex-1 flex-col items-center text-text-light" key={`days-of-weeks-picker-${date}`}>
       <label
         className={cn("mb-2 text-sm font-normal", {
           "text-xl font-normal md:mb-5 md:text-xl": size === "large"
@@ -107,18 +107,15 @@ function DayOfWeekButton({
       >
         {formattedDateOfWeek}
       </label>
-      <div className="flex h-full flex-grow touch-none">
+      <div className="flex h-full w-full flex-grow touch-none">
         <Button
           aria-label={format(parseISO(date), "EEEE")}
           aria-pressed={selected}
           id={buttonId}
-          className={cn(
-            "h-full w-[2.16rem] touch-none rounded-sm bg-primary px-[.9rem] xs:px-4 sm:w-[2.4rem] sm:px-[1.2rem]",
-            {
-              "bg-[#E7E7E7] hover:scale-[1.02]": !selected,
-              "text-md mx-2 w-[5rem] rounded-xl sm:w-[5rem]": size === "large"
-            }
-          )}
+          className={cn("h-full w-full min-w-0 touch-none rounded-sm bg-primary px-0", {
+            "bg-[#E7E7E7] hover:scale-[1.02]": !selected,
+            "text-md mx-2 w-[5rem] rounded-xl sm:w-[5rem]": size === "large"
+          })}
           drag-select-attr={date}
           onMouseDown={handleMouseDown}
           onClick={(event) => {

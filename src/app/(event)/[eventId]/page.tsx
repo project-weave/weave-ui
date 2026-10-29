@@ -8,6 +8,7 @@ import { useShallow } from "zustand/react/shallow";
 
 import AvailabilityGrid from "@/components/availability-grid/availability-grid";
 import AvailabilityGridLeftPanel from "@/components/availability-grid/panel/availability-grid-left-panel";
+import AvailabilityMobileHeader from "@/components/availability-grid/panel/availability-mobile-header";
 import { MediaQueryLG } from "@/components/media-query";
 import { SettingsIsland } from "@/components/settings-island";
 import { Button } from "@/components/ui/button";
@@ -26,13 +27,13 @@ export default function Event() {
 
   const { toast } = useToast();
 
-  const handleCopyClick = () => {
-    // Add your copy link logic here
-    navigator.clipboard.writeText(window.location.href);
-    toast({
-      variant: "success",
-      description: "Event link copied"
-    });
+  const handleCopyClick = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast({ variant: "success", description: "Event link copied" });
+    } catch {
+      toast({ variant: "failure", description: "Unable to copy the link. Copy it from your browser’s address bar." });
+    }
   };
 
   useEffect(() => {
@@ -47,11 +48,11 @@ export default function Event() {
 
   if (isPending || (data && loadedEventId !== data.event.id)) {
     return (
-      <div className="mb-10 mt-4 grid h-fit w-full grid-flow-col justify-center gap-5">
+      <div className="mx-auto mb-10 mt-4 grid h-fit w-full max-w-[82rem] grid-cols-1 gap-5 px-3 lg:grid-cols-[20rem_minmax(0,1fr)]">
         <div className="hidden h-[85vh] max-h-[50rem] min-h-[28rem] w-[22rem] lg:block xl:w-[24rem]">
           <Skeleton className="h-full w-full rounded-md bg-primary-light/30" />
         </div>
-        <div className="h-full w-[25rem] xs:w-[95vw] lg:w-[44rem] xl:w-[56rem]">
+        <div className="h-[85vh] min-w-0">
           <Skeleton className="h-full w-full rounded-md bg-primary-light/30" />
         </div>
       </div>
@@ -96,14 +97,15 @@ export default function Event() {
   }
 
   return (
-    <div className="mb-24 flex flex-col">
-      <div className="mt-9 grid w-full grid-flow-col justify-center gap-6 pb-4">
+    <div className="mb-28 flex min-w-0 flex-col px-3 sm:px-5">
+      <div className="mx-auto mt-5 grid w-full max-w-[82rem] grid-cols-1 gap-5 pb-4 lg:mt-9 lg:grid-cols-[20rem_minmax(0,1fr)] xl:grid-cols-[22rem_minmax(0,1fr)]">
         <MediaQueryLG>
-          <div className="sticky top-[4.5rem] h-[85vh] max-h-[50rem] min-h-[28rem] w-[22rem] xl:w-[24rem]">
+          <div className="sticky top-[4.5rem] h-[85vh] max-h-[50rem] min-h-[28rem] min-w-0">
             <AvailabilityGridLeftPanel />
           </div>
         </MediaQueryLG>
-        <div className="h-full w-[25rem] xs:w-[95vw] md:w-[45rem] lg:w-[44rem] xl:w-[56rem]">
+        <div className="min-w-0">
+          <AvailabilityMobileHeader />
           <AvailabilityGrid />
         </div>
       </div>
