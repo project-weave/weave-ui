@@ -20,6 +20,7 @@ import useElementInView from "@/hooks/useElementInView";
 import { AvailabilityType, EventForm, EventFormSchema } from "@/types/Event";
 import { EventDate } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
+import { isSupportedTimeZone } from "@/utils/timeZone";
 
 import EventDateCalendar from "./no-ssr-event-date-calendar";
 import TimeZoneDropdown from "./timezone-dropdown";
@@ -60,6 +61,11 @@ export default function NewEventForm() {
     resolver: zodResolver(EventFormSchema)
   });
 
+  useEffect(() => {
+    const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (isSupportedTimeZone(detected)) form.setValue("timeZone", detected);
+  }, [form]);
+
   // custom validation for form
   const isFormValid =
     !!form.watch("name").trim() &&
@@ -75,14 +81,14 @@ export default function NewEventForm() {
   useEffect(() => {
     form.setValue("specificDates", selectedDates);
     if (isSubmitAttempted.current) form.trigger("specificDates");
-  }, [form, selectedDates]);
+  }, [availabilityType, form, selectedDates]);
 
   // set value of "daysOfTheWeek" when selectedDaysOfTheWeek changes
   // only trigger validation of "daysOfTheWeek" if it has been modified or submit as been attempted
   useEffect(() => {
     form.setValue("daysOfTheWeek", selectedDaysOfWeek);
     if (isSubmitAttempted.current) form.trigger("daysOfTheWeek");
-  }, [form, selectedDaysOfWeek]);
+  }, [availabilityType, form, selectedDaysOfWeek]);
 
   // trigger validation of specificDates and daysOfTheWeek if submit is already attempted
   useEffect(() => {

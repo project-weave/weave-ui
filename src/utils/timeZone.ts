@@ -1,10 +1,16 @@
-// These util functions assume that timeZone is one of Intl.supportedValuesOf("timeZone")
+// These helpers accept IANA time zones supported by the browser, including UTC and aliases.
 import { format, utcToZonedTime } from "date-fns-tz";
 
 const now = new Date();
 
 export function isSupportedTimeZone(timeZone: string) {
-  return Intl.supportedValuesOf("timeZone").includes(timeZone);
+  if (!timeZone) return false;
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone }).format();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function getTimeZoneCity(timeZone: string): string {

@@ -1,3 +1,4 @@
+import { isSupportedTimeZone } from "../utils/timeZone";
 import { isBefore, parse } from "date-fns";
 import { z } from "zod";
 
@@ -65,9 +66,7 @@ export const EventFormSchema = z
           path: ["root"]
         }
       ),
-    timeZone: z.string().refine((data) => {
-      return Intl.supportedValuesOf("timeZone").includes(data);
-    })
+    timeZone: z.string().refine(isSupportedTimeZone)
   })
   .superRefine((data, ctx) => {
     if (data.availabilityType === AvailabilityType.SPECIFIC_DATES) {

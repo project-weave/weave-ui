@@ -28,3 +28,25 @@ test("the active selection remains required", () => {
     assert.equal(result.error.issues[0].path[0], availabilityType === 0 ? "specificDates" : "daysOfTheWeek");
   }
 });
+
+test("UTC is a valid event time zone", () => {
+  const result = EventFormSchema.safeParse({
+    ...base,
+    timeZone: "UTC",
+    availabilityType: 0,
+    specificDates: new Set(["2026-11-02"])
+  });
+  assert.equal(result.success, true);
+});
+
+test("invalid and empty event time zones are rejected", () => {
+  for (const timeZone of ["", "Not/A_Time_Zone"]) {
+    const result = EventFormSchema.safeParse({
+      ...base,
+      timeZone,
+      availabilityType: 0,
+      specificDates: new Set(["2026-11-02"])
+    });
+    assert.equal(result.success, false);
+  }
+});

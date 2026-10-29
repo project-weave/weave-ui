@@ -27,6 +27,39 @@ export interface TimeZoneDropdownProps {
   selected: string;
 }
 
+function toTimeZoneObject(timeZone: string, gridDropdown?: boolean, originalTimeZone?: string): TimeZone {
+  if (timeZone === "") {
+    return {
+      abbreviation: "",
+      city: "",
+      offset: "",
+      queryLabel: "",
+      value: ""
+    };
+  }
+
+  function getTimeZoneLabel(timeZone: string): string {
+    let info = "";
+    if (gridDropdown) {
+      if (timeZone === originalTimeZone) {
+        info = "(Event Default)";
+      }
+    } else {
+      info = `(${getGMTOffset(timeZone)})`;
+    }
+
+    return `${getTimeZoneAbbreviation(timeZone)} - ${timeZone.replaceAll("_", " ").split("/").pop() ?? ""} ${info}`;
+  }
+
+  return {
+    abbreviation: getTimeZoneAbbreviation(timeZone),
+    city: getTimeZoneCity(timeZone),
+    offset: getGMTOffset(timeZone),
+    queryLabel: getTimeZoneLabel(timeZone),
+    value: timeZone
+  };
+}
+
 export default function TimeZoneDropdown({
   error,
   gridDropdown,
@@ -36,28 +69,30 @@ export default function TimeZoneDropdown({
 }: TimeZoneDropdownProps) {
   const commandGroupRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
-  const [selectedTimeZone, setSelectedTimeZone] = useState<TimeZone>(toTimeZoneObject(selected));
+  const [selectedTimeZone, setSelectedTimeZone] = useState<TimeZone>(
+    toTimeZoneObject(selected, gridDropdown, originalTimeZone)
+  );
 
   const allTimeZones = useMemo<TimeZone[]>(() => {
-    const timeZones = Intl.supportedValuesOf("timeZone");
+    const timeZones = [
+      ...new Set(
+        ["UTC", ...Intl.supportedValuesOf("timeZone"), selected, originalTimeZone].filter(
+          (zone): zone is string => !!zone
+        )
+      )
+    ];
 
-    return timeZones.map((timeZone) => toTimeZoneObject(timeZone)).sort((a, b) => a.city.localeCompare(b.city));
-  }, []);
-
-  useEffect(() => {
-    if (gridDropdown) return;
-    const detectedTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (allTimeZones.find((timeZone) => timeZone.value === detectedTimeZone)) {
-      setSelectedTimeZone(toTimeZoneObject(detectedTimeZone));
-    }
-  }, [allTimeZones, gridDropdown]);
-
-  useEffect(() => {
-    setSelectedTimeZone(toTimeZoneObject(selected));
-  }, [selected]);
+    return timeZones
+      .map((timeZone) => toTimeZoneObject(timeZone, gridDropdown, originalTimeZone))
+      .sort((a, b) => a.city.localeCompare(b.city));
+  }, [gridDropdown, originalTimeZone, selected]);
 
   useEffect(() => {
-    setTimeout(() => {
+    setSelectedTimeZone(toTimeZoneObject(selected, gridDropdown, originalTimeZone));
+  }, [gridDropdown, originalTimeZone, selected]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
       if (commandGroupRef.current && open) {
         const selectedItem = commandGroupRef.current.querySelector(
           `[data-value="${selectedTimeZone.value.toLowerCase()}"]`
@@ -67,40 +102,8 @@ export default function TimeZoneDropdown({
         }
       }
     });
-  }, [open]);
-
-  function toTimeZoneObject(timeZone: string): TimeZone {
-    if (timeZone === "") {
-      return {
-        abbreviation: "",
-        city: "",
-        offset: "",
-        queryLabel: "",
-        value: ""
-      };
-    }
-
-    function getTimeZoneLabel(timeZone: string): string {
-      let info = "";
-      if (gridDropdown) {
-        if (timeZone === originalTimeZone) {
-          info = "(Event Default)";
-        }
-      } else {
-        info = `(${getGMTOffset(timeZone)})`;
-      }
-
-      return `${getTimeZoneAbbreviation(timeZone)} - ${timeZone.replaceAll("_", " ").split("/").pop() ?? ""} ${info}`;
-    }
-
-    return {
-      abbreviation: getTimeZoneAbbreviation(timeZone),
-      city: getTimeZoneCity(timeZone),
-      offset: getGMTOffset(timeZone),
-      queryLabel: getTimeZoneLabel(timeZone),
-      value: timeZone
-    };
-  }
+    return () => clearTimeout(timeout);
+  }, [open, selectedTimeZone.value]);
 
   function getTimeZoneJSX(timeZone: TimeZone): ReactNode {
     let info: ReactNode = null;
@@ -121,14 +124,16 @@ export default function TimeZoneDropdown({
   }
 
   function timeZoneFilter(value: string, search: string): number {
-    return toTimeZoneObject(value).queryLabel.toLowerCase().includes(search.toLowerCase()) ? 1 : 0;
+    return toTimeZoneObject(value, gridDropdown, originalTimeZone)
+      .queryLabel.toLowerCase()
+      .includes(search.toLowerCase())
+      ? 1
+      : 0;
   }
 
   const popoverDisplay = (
     <Button
       aria-label={gridDropdown ? "Display time zone" : "Event time zone"}
-      type="button"
-      variant="ghost"
       className={cn(
         "peer box-border flex h-auto transform-none cursor-pointer items-center rounded-xl bg-input px-4 py-2.5",
         {
@@ -140,6 +145,8 @@ export default function TimeZoneDropdown({
           "outline-red-500": error && open
         }
       )}
+      type="button"
+      variant="ghost"
     >
       <span className="flex w-full items-center justify-between">
         {getTimeZoneJSX(selectedTimeZone)}
