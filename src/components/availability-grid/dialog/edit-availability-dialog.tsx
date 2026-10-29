@@ -1,12 +1,13 @@
 "use client";
 
 import { AnimationScope } from "framer-motion";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, X } from "lucide-react";
 import { memo, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -65,42 +66,63 @@ const EditAvailabilityDialog = ({
         </DialogTrigger>
       )}
 
-      <DialogContent className="max-w-[min(32rem,calc(100vw-1.5rem))] pb-6">
-        <DialogHeader className="mb-8">
-          {viewMode !== "initial" && (
+      <DialogContent
+        className="top-1/2 max-h-[calc(100dvh-2rem)] max-w-[min(32rem,calc(100vw-1.5rem))] gap-6 overflow-y-auto p-6"
+        showCloseButton={false}
+      >
+        <div className="grid grid-cols-[2rem_minmax(0,1fr)_2rem] items-center gap-2">
+          {viewMode !== "initial" ? (
             <Button
-              className="absolute left-4 top-4 h-8 w-8 bg-transparent p-0"
+              aria-label="Back"
+              className="h-8 w-8 bg-transparent p-0 hover:bg-accent"
               onClick={() => setViewMode("initial")}
+              type="button"
               variant="ghost"
             >
               <ChevronLeft className="h-5 w-5" />
             </Button>
+          ) : (
+            <span aria-hidden="true" />
           )}
-          <DialogTitle className="mb-1 px-1 text-center text-lg font-medium">Edit your availability</DialogTitle>
-          <DialogDescription className="sr-only">
-            Choose a participant or enter your name to add availability.
-          </DialogDescription>
-        </DialogHeader>
+          <DialogHeader className="space-y-0">
+            <DialogTitle className="text-center text-lg font-medium leading-snug">Edit your availability</DialogTitle>
+            <DialogDescription className="sr-only">
+              Choose a participant or enter your name to add availability.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogClose asChild>
+            <Button
+              aria-label="Close"
+              className="h-8 w-8 bg-transparent p-0 hover:bg-accent"
+              type="button"
+              variant="ghost"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </DialogClose>
+        </div>
 
         {viewMode === "initial" && (
-          <>
+          <div className="space-y-3">
             <Button
-              className="w-full py-6 text-base hover:bg-light-gray"
+              className="h-12 w-full text-base hover:bg-light-gray"
               onClick={() => setViewMode("add-new")}
+              type="button"
               variant="ghost"
             >
               Add new availability
             </Button>
             {allUserNames.length > 0 && (
               <Button
-                className="w-full py-6 text-base hover:bg-light-gray"
+                className="h-12 w-full text-base hover:bg-light-gray"
                 onClick={() => setViewMode("edit-existing")}
+                type="button"
                 variant="ghost"
               >
                 Edit existing availability
               </Button>
             )}
-          </>
+          </div>
         )}
 
         {viewMode === "add-new" && (

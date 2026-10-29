@@ -3,9 +3,8 @@ import { Controller, FormProvider, useForm } from "react-hook-form";
 
 import ParticipantAvatar from "@/components/participant-avatar";
 import { Button } from "@/components/ui/button";
-import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import useAvailabilityGridStore, { AvailabilityGridMode } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
 
@@ -71,17 +70,18 @@ export default function EditAvailabilityForm({
       control={form.control}
       name="enteredUserName"
       render={({ field, fieldState: { invalid } }) => (
-        <FormItem>
+        <FormItem className="space-y-2">
+          <FormLabel className="mb-0 block">Your name</FormLabel>
           <FormControl>
             <Input
               {...field}
-              className="placeholder:text-sm"
+              className="h-11 text-sm placeholder:text-sm"
               error={invalid}
               placeholder={WHAT_IS_YOUR_NAME}
               type="text"
             />
           </FormControl>
-          <FormMessage className="ml-3 text-red" />
+          <FormMessage className="static m-0 whitespace-normal text-xs text-red" />
         </FormItem>
       )}
       rules={{
@@ -103,15 +103,15 @@ export default function EditAvailabilityForm({
       control={form.control}
       name="selectedUserName"
       render={({ field }) => (
-        <>
-          <div className="scrollbar-primary mb-1 grid grid-cols-3 gap-x-3 gap-y-1 overflow-y-scroll scroll-smooth ">
+        <div className="space-y-2">
+          <div className="scrollbar-primary grid max-h-48 grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-3">
             {allUserNames.map((userName, index) => (
               <button
                 aria-pressed={field.value === userName}
                 className={cn(
-                  "my-[2px] inline-flex w-full flex-row items-center rounded-xl bg-input px-2 py-[5px] font-normal outline-none duration-100 ",
+                  "inline-flex min-h-[2.5rem] w-full min-w-0 items-center gap-1.5 rounded-lg border border-transparent bg-input px-2 py-2 font-normal outline-none duration-100 focus-visible:ring-2 focus-visible:ring-ring",
                   {
-                    "border-[1px] border-black font-medium": userName === field.value
+                    "border-black font-medium": userName === field.value
                   }
                 )}
                 key={`edit-availability-button-${userName}`}
@@ -125,16 +125,14 @@ export default function EditAvailabilityForm({
                 type="button"
               >
                 <ParticipantAvatar className="h-5 w-5 text-[0.6rem]" name={userName} />
-                <span className="mx-1 max-w-[6rem] overflow-hidden text-ellipsis whitespace-nowrap text-2xs">
-                  {userName}
-                </span>
+                <span className="truncate text-2xs">{userName}</span>
               </button>
             ))}
           </div>
-          <div className="text-red-600 ml-3 h-2 whitespace-nowrap text-2xs font-medium">
-            {form.formState.errors.selectedUserName?.message}
-          </div>
-        </>
+          {form.formState.errors.selectedUserName && (
+            <p className="text-xs font-medium text-red">{form.formState.errors.selectedUserName.message}</p>
+          )}
+        </div>
       )}
       rules={{
         validate: (value, formValues) => {
@@ -149,6 +147,7 @@ export default function EditAvailabilityForm({
   return (
     <FormProvider {...form}>
       <form
+        className="space-y-6"
         id="edit-availability-dialog"
         onSubmit={(e) => {
           e.preventDefault();
@@ -162,28 +161,10 @@ export default function EditAvailabilityForm({
           })();
         }}
       >
-        {mode === "add-new" ? (
-          <>
-            <Label className="ml-2 text-2xs font-normal text-dark-gray">Your name</Label>
-            {nameInput}
-            <Button
-              className="mt-6 w-full rounded-lg bg-primary py-6 text-base text-white hover:bg-primary/90"
-              type="submit"
-            >
-              {CONTINUE}
-            </Button>
-          </>
-        ) : (
-          <>
-            {existingUserSelection}
-            <Button
-              className="mt-6 w-full rounded-lg bg-primary py-6 text-base text-white hover:bg-primary/90"
-              type="submit"
-            >
-              {CONTINUE}
-            </Button>
-          </>
-        )}
+        {mode === "add-new" ? nameInput : existingUserSelection}
+        <Button className="h-12 w-full rounded-lg bg-primary text-base text-white hover:bg-primary/90" type="submit">
+          {CONTINUE}
+        </Button>
       </form>
     </FormProvider>
   );
