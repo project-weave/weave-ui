@@ -13,15 +13,13 @@ import useAvailabilityGridStore, { isViewMode } from "@/store/availabilityGridSt
 import { AvailabilityType } from "@/types/Event";
 import { EventDate } from "@/types/Timeslot";
 
-import AvailabilityGridResponseFilterButton from "./availability-grid-response-filter-button";
+import AvailabilityParticipantFilters from "./availability-participant-filters";
 import AvailabilityResponsesCount from "./availability-responses-count";
 
 const SAVE_AVAILABILITY_BUTTON_TEXT = "Save Availability";
 
 export default function AvailabilityGridLeftPanel() {
   const { availabilityType, sortedEventDates } = useAvailabilityGridStore((state) => state.eventData);
-  const getEventParticipants = useAvailabilityGridStore((state) => state.getEventParticipants);
-  const eventParticipants = getEventParticipants();
 
   const mode = useAvailabilityGridStore((state) => state.mode);
   const isSaving = useAvailabilityGridStore((state) => state.isSavingAvailability);
@@ -87,20 +85,15 @@ export default function AvailabilityGridLeftPanel() {
   const eventCalendarMonthOverride = format(parseISO(sortedEventDates[leftMostColumnInView]), MONTH_FORMAT);
 
   return (
-    <div className="card flex h-full flex-col px-6 pb-6">
+    <aside aria-label="Event participants" className="card flex h-full flex-col px-6 pb-6">
       <div className="mt-1 flex items-center justify-between">
         <AvailabilityResponsesCount />
       </div>
 
       <div className="mt-3">{isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}</div>
 
-      <div
-        className="scrollbar-primary mt-5 box-border grid flex-1 gap-x-0.5 gap-y-1 overflow-y-scroll text-secondary"
-        style={{ gridAutoRows: "min-content", gridTemplateColumns: `repeat(2, minmax(5rem, 1fr))` }}
-      >
-        {eventParticipants.map((name, i) => (
-          <AvailabilityGridResponseFilterButton key={`${name}-${i}-filter-button`} name={name} />
-        ))}
+      <div className="scrollbar-primary mt-5 min-h-0 flex-1 overflow-y-auto pb-4">
+        <AvailabilityParticipantFilters />
       </div>
       {availabilityType === AvailabilityType.SPECIFIC_DATES && sortedEventDates.length !== 0 && (
         <div className="min-h-[16rem]">
@@ -116,6 +109,6 @@ export default function AvailabilityGridLeftPanel() {
           />
         </div>
       )}
-    </div>
+    </aside>
   );
 }
