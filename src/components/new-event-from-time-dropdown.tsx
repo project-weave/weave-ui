@@ -7,6 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { TIME_SLOT_INTERVAL_MINUTES } from "@/store/eventDataSlice";
 import { EVENT_TIME_FORMAT } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
+import { matchesTimeSearch } from "@/utils/timeSearch";
 
 export const TIME_LABEL_FORMAT = "h:mm aa";
 export const NEXT_DAY_MIDNIGHT_OPTION = {
@@ -50,52 +51,6 @@ export default function NewEventFromTimeDropdown({
       }
     });
   }, [open]);
-
-  function timeFilter(value: string, search: string) {
-    search = search.trim().toLowerCase();
-    value = value.toLowerCase();
-
-    const ampmMatch = search.match(/(a|p)m?$/);
-    const ampm = ampmMatch ? ` ${ampmMatch[0]}` : "";
-    search = search.replace(/(a|p)m?$/, "").trim();
-
-    const minutesPatterns: string[] = [];
-    for (let i = 0; i < 60; i += TIME_SLOT_INTERVAL_MINUTES) {
-      minutesPatterns.push(i.toString().padEnd(2, "0"));
-    }
-
-    const patterns: string[] = [];
-    if (search.includes(":")) {
-      if (search.split(":").length > 2) return 0;
-      const [hours, minutes] = search.split(":");
-      patterns.push(`${hours}:${minutes}${ampm}`);
-    } else {
-      const len = search.length;
-      if (len === 1) {
-        minutesPatterns.forEach((minutes) => {
-          patterns.push(`${search}:${minutes}${ampm}`);
-        });
-        if (search === "1" && !ampmMatch) {
-          [1, 2].forEach((hour) => {
-            minutesPatterns.forEach((minutes) => {
-              patterns.push(`1${hour}:${minutes}${ampm}`);
-            });
-          });
-        }
-      } else if (len === 2) {
-        minutesPatterns.forEach((minutes) => {
-          patterns.push(`${search}:${minutes}${ampm}`);
-        });
-        patterns.push(`${search[0]}:${search[1]}0${ampm}`);
-      } else if (len === 3) {
-        patterns.push(`${search[0]}:${search.slice(1, 3)}${ampm}`);
-        patterns.push(`${search.slice(0, 2)}:${search[2]}0${ampm}`);
-      } else if (len === 4) {
-        patterns.push(`${search.slice(0, 2)}:${search.slice(2, 4)}${ampm}`);
-      }
-    }
-    return patterns.some((pattern) => convertValueToLabel(value).startsWith(pattern)) ? 1 : 0;
-  }
 
   const startTime = new Date(0, 0, 0, 0, isStartTime ? 0 : 30);
   const endTime = new Date(0, 0, 0, 23, 30);
@@ -162,7 +117,11 @@ export default function NewEventFromTimeDropdown({
         </div>
       </PopoverTrigger>
       <PopoverContent className="mb-2 w-[140px] bg-background p-0 sm:w-[154px]">
-        <Command filter={(value, search) => timeFilter(value, search)}>
+        <Command
+          filter={(value, search) =>
+            matchesTimeSearch(convertValueToLabel(value), search, TIME_SLOT_INTERVAL_MINUTES) ? 1 : 0
+          }
+        >
           <CommandInput className="border-primary py-5 text-sm" onBlur={onBlur} />
           <CommandEmpty className="m-2 rounded-sm bg-gray-200 py-1.5 text-center text-xs">{INVALID_TIME} </CommandEmpty>
           <CommandGroup
@@ -191,7 +150,6 @@ export default function NewEventFromTimeDropdown({
                   <Check className={cn("h-4 w-4 ", selected === value ? "opacity-100" : "opacity-0")} />
                 </CommandItem>
               );
-              2;
             })}
           </CommandGroup>
         </Command>
