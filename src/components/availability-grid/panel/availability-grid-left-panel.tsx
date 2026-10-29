@@ -1,6 +1,6 @@
 // eslint-disable-next-line prettier/prettier
-import { format, isEqual, parseISO } from "date-fns";
 import EditAvailabilityDialog from "../dialog/edit-availability-dialog";
+import { format, isEqual, parseISO } from "date-fns";
 // eslint-disable-next-line prettier/prettier
 import { useCallback, useRef } from "react";
 // eslint-disable-next-line prettier/prettier
@@ -26,6 +26,7 @@ export default function AvailabilityGridLeftPanel() {
   const eventParticipants = getEventParticipants();
 
   const mode = useAvailabilityGridStore((state) => state.mode);
+  const isSaving = useAvailabilityGridStore((state) => state.isSavingAvailability);
 
   const [leftMostColumnInView, setLeftMostColumnInView] = useAvailabilityGridStore(
     useShallow((state) => [state.leftMostColumnInView, state.setLeftMostColumnInView])
@@ -79,11 +80,12 @@ export default function AvailabilityGridLeftPanel() {
   const saveUserAvailabilityButton = (
     <Button
       className="over:bg-primary-purple/80 w-full text-sm font-normal"
+      disabled={isSaving}
       form="availability-grid"
       type="submit"
       variant="default"
     >
-      {SAVE_AVAILABILITY_BUTTON_TEXT}
+      {isSaving ? "Saving…" : SAVE_AVAILABILITY_BUTTON_TEXT}
     </Button>
   );
 

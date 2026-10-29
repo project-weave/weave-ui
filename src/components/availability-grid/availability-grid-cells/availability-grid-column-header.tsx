@@ -22,6 +22,7 @@ export default function AvailabilityGridColumnHeader({
 }: AvailabilityGridColumnHeaderProps) {
   const { availabilityType, sortedEventTimes } = useAvailabilityGridStore((state) => state.eventData);
   const mode = useAvailabilityGridStore((state) => state.mode);
+  const isSaving = useAvailabilityGridStore((state) => state.isSavingAvailability);
   const [selectedTimeSlots, addSelectedTimeSlot, removeSelectedTimeSlot] = useAvailabilityGridStore(
     useShallow((state) => [state.selectedTimeSlots, state.addSelectedTimeSlots, state.removeSelectedTimeSlots])
   );
@@ -43,7 +44,7 @@ export default function AvailabilityGridColumnHeader({
     allTimeSlotsForDate.length > 0 && allTimeSlotsForDate.every((timeSlot) => selectedTimeSlots.includes(timeSlot));
 
   function dateClickedHandler() {
-    if (isViewMode(mode)) return;
+    if (isViewMode(mode) || isSaving) return;
     if (isAllTimeSlotForDateSelected) {
       removeSelectedTimeSlot(allTimeSlotsForDate);
     } else {
@@ -71,6 +72,7 @@ export default function AvailabilityGridColumnHeader({
               }
             )}
             onClick={dateClickedHandler}
+            disabled={isSaving}
             type="button"
             variant="ghost"
           >
@@ -93,6 +95,7 @@ export default function AvailabilityGridColumnHeader({
               }
             )}
             onClick={dateClickedHandler}
+            disabled={isSaving}
             type="button"
             variant="ghost"
           >

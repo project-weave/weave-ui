@@ -27,12 +27,14 @@ type AvailabilityGridState = {
   getEventParticipants: () => string[];
   hoveredTimeSlot: null | TimeSlot;
   isBestTimesEnabled: boolean;
+  isSavingAvailability: boolean;
   mode: AvailabilityGridMode;
   resetGridState: () => void;
   selectedTimeZone: string;
   setFocusedDate: (focusedDate: EventDate | null) => void;
   setHoveredTimeSlot: (hoveredTimeSlot: null | TimeSlot) => void;
   setIsBestTimesEnabled: (isBestTimesEnabled: boolean) => void;
+  setIsSavingAvailability: (isSavingAvailability: boolean) => void;
   setMode: (mode: AvailabilityGridMode) => void;
   setSelectedTimeZone: (timeZone: string) => void;
   setUser: (user: string) => void;
@@ -61,12 +63,14 @@ const useAvailabilityGridStore = create<AvailabilityGridState>()(
         },
         hoveredTimeSlot: null,
         isBestTimesEnabled: false,
+        isSavingAvailability: false,
         mode: AvailabilityGridMode.VIEW,
         resetGridState: () => {
           set({
             focusedDate: null,
             hoveredTimeSlot: null,
             isBestTimesEnabled: false,
+            isSavingAvailability: false,
             leftMostColumnInView: 0,
             mode: AvailabilityGridMode.VIEW,
             selectedTimeSlots: [],
@@ -78,6 +82,7 @@ const useAvailabilityGridStore = create<AvailabilityGridState>()(
         setFocusedDate: (focusedDate: EventDate | null) => set({ focusedDate }),
         setHoveredTimeSlot: (hoveredTimeSlot: null | TimeSlot) => set({ hoveredTimeSlot }),
         setIsBestTimesEnabled: (isBestTimesEnabled: boolean) => set({ isBestTimesEnabled }),
+        setIsSavingAvailability: (isSavingAvailability: boolean) => set({ isSavingAvailability }),
         setMode: (mode: AvailabilityGridMode) => set({ mode }),
         setSelectedTimeZone: (timeZone: string) => set({ selectedTimeZone: timeZone }),
         setUser: (user: string) => set({ user }),

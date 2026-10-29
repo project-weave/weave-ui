@@ -9,40 +9,47 @@ export interface UpdateAvailabilityRequest {
   alias: string;
   availabilities: TimeSlot[];
   eventId: string;
-  // TODO: add userId
+  userId?: string;
 }
 
 async function updateAvailability({
   alias,
   availabilities,
-  eventId
-}: UpdateAvailabilityRequest): Promise<UpdateAvailabilityRequest> {
-  return axios.post(`/api/v1/event/${eventId}/availability`, { alias, availabilities });
+  eventId,
+  userId
+}: UpdateAvailabilityRequest): Promise<void> {
+  await axios.post(`/api/v1/event/${eventId}/availability`, { alias, availabilities, ...(userId ? { userId } : {}) });
 }
 
 function useUpdateAvailability() {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  return useMutation<void, Error, UpdateAvailabilityRequest, { prevEventData: GetEventResponse | undefined }>({
     mutationFn: updateAvailability,
 
-    onError: (err, newEventData, context) => {
-      const prevEventData = (context as { prevEventData: GetEventResponse }).prevEventData;
-      queryClient.setQueryData(["event", `${prevEventData.event.id}`], prevEventData);
+    onError: (_error, variables, context) => {
+      if (context?.prevEventData) {
+        queryClient.setQueryData(["event", variables.eventId], context.prevEventData);
+      }
     },
 
     onMutate: async (data) => {
       // cancel any outgoing queries
       await queryClient.cancelQueries({ queryKey: ["event", `${data.eventId}`] });
 
-      const prevEventData = queryClient.getQueryData(["event", `${data.eventId}`]);
+      const prevEventData = queryClient.getQueryData<GetEventResponse>(["event", data.eventId]);
 
-      queryClient.setQueryData(["event", `${data.eventId}`], (prevEventData: GetEventResponse) => {
+      queryClient.setQueryData<GetEventResponse>(["event", data.eventId], (prevEventData) => {
+        if (!prevEventData) return prevEventData;
         let updatedResponses: EventResponse[] = [];
         const prevResonse = prevEventData.responses.find((response) => response.alias === data.alias);
 
         // TODO: fix userID
-        const newResponse: EventResponse = { alias: data.alias, availabilities: data.availabilities, userId: "" };
+        const newResponse: EventResponse = {
+          alias: data.alias,
+          availabilities: data.availabilities,
+          userId: prevResonse?.userId ?? ""
+        };
 
         if (prevResonse === undefined) {
           updatedResponses = [...prevEventData.responses, newResponse];
@@ -62,11 +69,7 @@ function useUpdateAvailability() {
       // return context object of snapshotted value
       return { prevEventData };
     },
-    onSettled: (data) => {
-      if (data !== undefined) {
-        queryClient.invalidateQueries({ queryKey: ["event", `${data.eventId}`] });
-      }
-    }
+    onSuccess: (_data, variables) => queryClient.invalidateQueries({ queryKey: ["event", variables.eventId] })
   });
 }
 

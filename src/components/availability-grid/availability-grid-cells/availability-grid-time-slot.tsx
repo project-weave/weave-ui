@@ -74,6 +74,7 @@ export default function AvailabilityGridTimeSlot({
   const timeSlot = getTimeSlot(eventTime, eventDate);
 
   const mode = useAvailabilityGridStore((state) => state.mode);
+  const isSaving = useAvailabilityGridStore((state) => state.isSavingAvailability);
   const isBestTimesEnabled = useAvailabilityGridStore((state) => state.isBestTimesEnabled);
   const isTimeHovered = useAvailabilityGridStore((state) => eventTime === getTimeFromTimeSlot(state.hoveredTimeSlot));
   const isTimeSlotHovered = useAvailabilityGridStore((state) => state.hoveredTimeSlot === timeSlot);
@@ -112,6 +113,7 @@ export default function AvailabilityGridTimeSlot({
   }, [isDragSelecting]);
 
   function handleMouseDown(e: MouseEvent<HTMLButtonElement>) {
+    if (isSaving) return;
     // touchStart and touchEnd occurs before mouseEnd
     // need to prevent this on touch screens as mouseStart is trigged on touch as well
     if (!isLeftClick(e)) return;
@@ -123,6 +125,7 @@ export default function AvailabilityGridTimeSlot({
   }
 
   function handleMouseEnter(e: MouseEvent<HTMLButtonElement>) {
+    if (isSaving) return;
     if (!isLeftClick(e)) return;
     if (isEditMode(mode)) onMouseDragMove(timeSlotsRow, timeSlotsCol);
     setHoveredTimeSlot(getTimeSlot(sortedEventTimes[timeSlotsRow], sortedEventDates[timeSlotsCol]));
@@ -139,6 +142,7 @@ export default function AvailabilityGridTimeSlot({
   }
 
   function handleTouchStart(e: TouchEvent) {
+    if (isSaving) return;
     if (e.cancelable) e.preventDefault();
     const [row, col] = extractRowCol(e);
 
@@ -147,6 +151,7 @@ export default function AvailabilityGridTimeSlot({
   }
 
   function handleTouchMove(e: TouchEvent) {
+    if (isSaving) return;
     if (e.cancelable) e.preventDefault();
 
     const [row, col] = extractRowCol(e);
@@ -234,6 +239,7 @@ export default function AvailabilityGridTimeSlot({
         }
       )}
       grid-drag-select-attr={`${timeSlotsRow}_${timeSlotsCol}`}
+      disabled={isSaving}
       onMouseDown={handleMouseDown}
       onMouseEnter={handleMouseEnter}
       onTouchEnd={handleTouchEnd}

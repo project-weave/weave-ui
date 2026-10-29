@@ -15,6 +15,7 @@ interface SettingsIslandProps {
 export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
   const mode = useAvailabilityGridStore((state) => state.mode);
   const currentIsEditMode = isEditMode(mode);
+  const isSaving = useAvailabilityGridStore((state) => state.isSavingAvailability);
 
   return (
     <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 transform">
@@ -23,6 +24,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
           <Button
             className="flex items-center rounded-md bg-yellow px-4 py-2 text-sm font-medium text-black hover:bg-yellow/80"
             form="availability-grid"
+            disabled={isSaving}
             type="submit"
           >
             <Pencil className="mr-2 h-4 w-4" />
@@ -54,10 +56,11 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
           <Button
             className="h-8 rounded-sm bg-primary-purple px-3 text-sm"
             form="availability-grid"
+            disabled={isSaving}
             size="sm"
             type="submit"
           >
-            Save
+            {isSaving ? "Saving…" : "Save"}
           </Button>
         ) : (
           <Button className="h-8 w-8 rounded-md p-0 hover:bg-secondary" onClick={onCopyClick} size="sm" variant="ghost">

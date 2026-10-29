@@ -24,12 +24,14 @@ import AvailabilityGridHeader from "./availability-grid-header";
 import { AvailabilityGridNode } from "./availability-grid-node";
 
 export default function AvailabilityGrid() {
-  const { availabilityType, eventId, sortedEventDates, sortedEventTimes } = useAvailabilityGridStore(
+  const { availabilityType, eventId, eventResponses, sortedEventDates, sortedEventTimes } = useAvailabilityGridStore(
     (state) => state.eventData
   );
   const [mode, setMode] = useAvailabilityGridStore(useShallow((state) => [state.mode, state.setMode]));
   const user = useAvailabilityGridStore((state) => state.user);
-  const resetGridState = useAvailabilityGridStore(useShallow((state) => state.resetGridState));
+  const [isSavingAvailability, setIsSavingAvailability, setSelectedTimeSlots] = useAvailabilityGridStore(
+    useShallow((state) => [state.isSavingAvailability, state.setIsSavingAvailability, state.setSelectedTimeSlots])
+  );
   const [availabilityGridViewWindowSize, setAvailabilityGridViewWindowSize] = useAvailabilityGridStore(
     useShallow((state) => [state.availabilityGridViewWindowSize, state.setAvailabilityGridViewWindowSize])
   );
@@ -39,7 +41,7 @@ export default function AvailabilityGrid() {
     useShallow((state) => [state.selectedTimeSlots, state.addSelectedTimeSlots, state.removeSelectedTimeSlots])
   );
 
-  const { mutate } = useUpdateAvailability();
+  const { mutateAsync } = useUpdateAvailability();
 
   const { formState, handleSubmit, setValue } = useForm<EventResponse>({
     defaultValues: {
@@ -51,38 +53,38 @@ export default function AvailabilityGrid() {
 
   useEffect(() => {
     setValue("alias", user);
-  }, [user]);
+  }, [setValue, user]);
 
   useEffect(() => {
     setValue("availabilities", selectedTimeSlots);
-  }, [selectedTimeSlots]);
+  }, [selectedTimeSlots, setValue]);
 
-  function onSubmit({ alias, availabilities }: EventResponse) {
+  async function onSubmit({ alias, availabilities }: EventResponse) {
     const req: UpdateAvailabilityRequest = {
       alias,
       availabilities,
-      eventId: eventId
+      eventId,
+      userId: eventResponses.find((response) => response.alias === alias)?.userId
     };
 
-    mutate(req, {
-      onError: () => {
-        toast({
-          description: "An error occurred while saving your availability. Please try again later.",
-          title: "Oh no! Something went wrong",
-          variant: "failure"
-        });
-      },
-      onSuccess: () => {
-        toast({
-          description: <span>Availability saved</span>,
-          title: "",
-          variant: "success"
-        });
+    setIsSavingAvailability(true);
+    try {
+      await mutateAsync(req);
+      if (useAvailabilityGridStore.getState().eventData.eventId === eventId) {
+        setMode(AvailabilityGridMode.VIEW);
+        setSelectedTimeSlots([]);
+        setHoveredTimeSlot(null);
       }
-    });
-
-    setMode(AvailabilityGridMode.VIEW);
-    resetGridState();
+      toast({ description: "Availability saved", variant: "success" });
+    } catch {
+      toast({
+        description: "An error occurred while saving your availability. Please try again later.",
+        title: "Oh no! Something went wrong",
+        variant: "failure"
+      });
+    } finally {
+      setIsSavingAvailability(false);
+    }
   }
 
   // TODO: add timezone logic
@@ -198,6 +200,7 @@ export default function AvailabilityGrid() {
 
   return (
     <form
+      aria-busy={isSavingAvailability}
       className={cn("card flex w-full select-none flex-col bg-white pl-0 pr-5 pt-1 sm:pr-8 xl:pl-2 xl:pr-10", {
         "border-[3px] border-yellow": mode === AvailabilityGridMode.EDIT
       })}
@@ -210,7 +213,7 @@ export default function AvailabilityGrid() {
       onSubmit={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (formState.isSubmitting) return;
+        if (formState.isSubmitting || isSavingAvailability) return;
         handleSubmit(onSubmit)();
       }}
       onTouchEnd={onTouchDragEnd}
