@@ -23,6 +23,7 @@ export function isViewMode(mode: AvailabilityGridMode): boolean {
 // TODO: only take event dates that fall within the event date/time range
 
 type AvailabilityGridState = {
+  cancelEditing: () => void;
   focusedDate: EventDate | null;
   getEventParticipants: () => string[];
   hoveredTimeSlot: null | TimeSlot;
@@ -54,11 +55,12 @@ const useAvailabilityGridStore = create<AvailabilityGridState>()(
         ...createSelectedTimeSlotsSlice(set, get),
         ...createEventDataSlice(set, get),
         ...createViewWindowSlice(set, get),
+        cancelEditing: () => set({ hoveredTimeSlot: null, mode: AvailabilityGridMode.VIEW, selectedTimeSlots: [] }),
         focusedDate: null,
         getEventParticipants: () => {
-          const { eventData, user } = get();
+          const { eventData, mode, user } = get();
           const allParticipants = eventData.allParticipants;
-          if (allParticipants.includes(user) || user === "") return allParticipants;
+          if (isViewMode(mode) || allParticipants.includes(user) || user === "") return allParticipants;
           return [user, ...allParticipants];
         },
         hoveredTimeSlot: null,

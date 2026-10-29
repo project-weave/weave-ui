@@ -1,23 +1,31 @@
-"use-client";
+"use client";
 
 import { AnimationScope } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
-import Image from "next/image";
-import { memo, useState } from "react";
+import { memo, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from "@/components/ui/dialog";
 import useAvailabilityGridStore from "@/store/availabilityGridStore";
 
 import EditAvailabilityForm from "./edit-availability-form";
 
-const LOGIN_WITH_GOOGLE = "Google Calendar (coming soon)";
 const EDIT_AVAILABILITY = "Edit Availability";
 
 type EditAvailabilityDialogProps = {
   className?: string;
   editAvailabilityButtonAnimationScope?: AnimationScope;
   trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  initialViewMode?: ViewMode;
 };
 
 type ViewMode = "add-new" | "edit-existing" | "initial";
@@ -25,28 +33,39 @@ type ViewMode = "add-new" | "edit-existing" | "initial";
 const EditAvailabilityDialog = ({
   className,
   editAvailabilityButtonAnimationScope,
-  trigger
+  trigger,
+  open,
+  onOpenChange,
+  initialViewMode = "initial"
 }: EditAvailabilityDialogProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>("initial");
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isOpen = open ?? internalOpen;
+  const [viewMode, setViewMode] = useState<ViewMode>(initialViewMode);
   const allUserNames = useAvailabilityGridStore((state) => state.eventData.allParticipants);
 
-  return (
-    <Dialog
-      onOpenChange={(open) => {
-        setIsOpen(open);
-        if (!open) setViewMode("initial");
-      }}
-    >
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button className={className} ref={editAvailabilityButtonAnimationScope} variant="default">
-            {EDIT_AVAILABILITY}
-          </Button>
-        )}
-      </DialogTrigger>
+  useEffect(() => {
+    if (isOpen) setViewMode(initialViewMode);
+  }, [initialViewMode, isOpen]);
 
-      <DialogContent className="pb-6">
+  function changeOpen(next: boolean) {
+    setInternalOpen(next);
+    onOpenChange?.(next);
+    if (!next) setViewMode(initialViewMode);
+  }
+
+  return (
+    <Dialog onOpenChange={changeOpen} open={isOpen}>
+      {trigger !== null && (
+        <DialogTrigger asChild>
+          {trigger || (
+            <Button className={className} ref={editAvailabilityButtonAnimationScope} variant="default">
+              {EDIT_AVAILABILITY}
+            </Button>
+          )}
+        </DialogTrigger>
+      )}
+
+      <DialogContent className="max-w-[min(32rem,calc(100vw-1.5rem))] pb-6">
         <DialogHeader className="mb-8">
           {viewMode !== "initial" && (
             <Button
@@ -57,22 +76,14 @@ const EditAvailabilityDialog = ({
               <ChevronLeft className="h-5 w-5" />
             </Button>
           )}
-          <div className="mb-1 px-1 text-center text-lg ">Edit your availability</div>
+          <DialogTitle className="mb-1 px-1 text-center text-lg font-medium">Edit your availability</DialogTitle>
+          <DialogDescription className="sr-only">
+            Choose a participant or enter your name to add availability.
+          </DialogDescription>
         </DialogHeader>
 
         {viewMode === "initial" && (
           <>
-            <Button className="py-6">
-              <Image
-                alt="google-logo"
-                className="mr-2 h-5 w-5"
-                height={40}
-                key="google-logo"
-                src="/google.png"
-                width={40}
-              />
-              <span className="text-base">{LOGIN_WITH_GOOGLE}</span>
-            </Button>
             <Button
               className="w-full py-6 text-base hover:bg-light-gray"
               onClick={() => setViewMode("add-new")}
@@ -92,8 +103,12 @@ const EditAvailabilityDialog = ({
           </>
         )}
 
-        {viewMode === "add-new" && <EditAvailabilityForm isDialogOpen={isOpen} mode="add-new" />}
-        {viewMode === "edit-existing" && <EditAvailabilityForm isDialogOpen={isOpen} mode="edit-existing" />}
+        {viewMode === "add-new" && (
+          <EditAvailabilityForm isDialogOpen={isOpen} mode="add-new" onComplete={() => changeOpen(false)} />
+        )}
+        {viewMode === "edit-existing" && (
+          <EditAvailabilityForm isDialogOpen={isOpen} mode="edit-existing" onComplete={() => changeOpen(false)} />
+        )}
       </DialogContent>
     </Dialog>
   );

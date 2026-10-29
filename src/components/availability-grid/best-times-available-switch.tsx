@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import { Label } from "@/components/ui/label";
@@ -19,6 +20,7 @@ export default function BestTimesAvailableSwitch({
   labelText,
   switchStyles
 }: BestTimesAvailableSwitchProps) {
+  const switchId = useId();
   const { allParticipants, sortedEventDates, timeSlotsToParticipants } = useAvailabilityGridStore(
     (state) => state.eventData
   );
@@ -81,15 +83,16 @@ export default function BestTimesAvailableSwitch({
           isBestTimesEnabled ? "text-primary-purple" : "text-text-light",
           labelStyles
         )}
-        htmlFor="best-times"
+        htmlFor={switchId}
       >
         {labelText ? labelText : DEFAULT_LABEL}
       </Label>
       <Switch
         checked={isBestTimesEnabled}
         className={cn("data-[state=unchecked]:bg-accent first-letter:data-[state=checked]:bg-primary", switchStyles)}
-        id="best-times"
-        onClick={handleBestTimesToggle}
+        aria-label={labelText ?? DEFAULT_LABEL}
+        id={switchId}
+        onCheckedChange={handleBestTimesToggle}
       />
     </div>
   );

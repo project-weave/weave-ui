@@ -20,10 +20,12 @@ const CONTINUE = "Continue";
 
 export default function EditAvailabilityForm({
   isDialogOpen,
-  mode
+  mode,
+  onComplete
 }: {
   isDialogOpen: boolean;
   mode: "add-new" | "edit-existing";
+  onComplete?: () => void;
 }) {
   const form = useForm<EditAvailabiltyFormType>({
     defaultValues: {
@@ -85,7 +87,8 @@ export default function EditAvailabilityForm({
         validate: (value, formValues) => {
           if (formValues.isEnterNewAvailability) {
             if (value.trim().length === 0) return "Name must be at least 1 character long";
-            if (allUserNames.includes(value.trim())) return "This name is already taken.";
+            if (allUserNames.some((name) => name.toLowerCase() === value.trim().toLowerCase()))
+              return "This name is already taken.";
           }
         }
       }}
@@ -148,9 +151,10 @@ export default function EditAvailabilityForm({
           e.stopPropagation();
           isSubmitAttempted.current = true;
           form.handleSubmit((data) => {
-            const userName = mode === "add-new" ? data.enteredUserName : data.selectedUserName;
+            const userName = mode === "add-new" ? data.enteredUserName.trim() : data.selectedUserName;
             setUserGridState(userName);
             setMode(AvailabilityGridMode.EDIT);
+            onComplete?.();
           })();
         }}
       >
