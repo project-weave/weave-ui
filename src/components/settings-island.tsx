@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,7 +18,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import useAvailabilityGridStore, { AvailabilityGridMode, isEditMode } from "@/store/availabilityGridStore";
+import useAvailabilityEntry from "@/hooks/useAvailabilityEntry";
+import useAvailabilityGridStore, { isEditMode } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
 import { isSupportedTimeZone } from "@/utils/timeZone";
 
@@ -36,20 +36,12 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
   const mode = useAvailabilityGridStore((state) => state.mode);
   const editing = isEditMode(mode);
   const isSaving = useAvailabilityGridStore((state) => state.isSavingAvailability);
-  const participants = useAvailabilityGridStore((state) => state.eventData.allParticipants);
   const eventTimeZone = useAvailabilityGridStore((state) => state.eventData.timeZone);
   const selectedTimeZone = useAvailabilityGridStore((state) => state.selectedTimeZone);
   const setSelectedTimeZone = useAvailabilityGridStore((state) => state.setSelectedTimeZone);
   const cancelEditing = useAvailabilityGridStore((state) => state.cancelEditing);
   const setSelectedTimeSlots = useAvailabilityGridStore((state) => state.setSelectedTimeSlots);
-  const user = useAvailabilityGridStore((state) => state.user);
-  const [entryOpen, setEntryOpen] = useState(false);
-  const [entryMode, setEntryMode] = useState<"add-new" | "edit-existing">("add-new");
-
-  function openEntry(next: "add-new" | "edit-existing") {
-    setEntryMode(next);
-    setEntryOpen(true);
-  }
+  const { actionLabel, namePromptOpen, openAvailability, setNamePromptOpen } = useAvailabilityEntry();
 
   return (
     <>
@@ -89,23 +81,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
                   <DropdownMenuItem onSelect={cancelEditing}>Discard changes and view</DropdownMenuItem>
                 </>
               ) : (
-                <>
-                  {user && (
-                    <DropdownMenuItem
-                      onSelect={() => {
-                        const state = useAvailabilityGridStore.getState();
-                        state.setUserGridState(user);
-                        state.setMode(AvailabilityGridMode.EDIT);
-                      }}
-                    >
-                      Edit my availability
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem onSelect={() => openEntry("add-new")}>Add availability</DropdownMenuItem>
-                  {participants.length > 0 && (
-                    <DropdownMenuItem onSelect={() => openEntry("edit-existing")}>Edit availability</DropdownMenuItem>
-                  )}
-                </>
+                <DropdownMenuItem onSelect={openAvailability}>{actionLabel}</DropdownMenuItem>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -178,7 +154,14 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
           </Button>
         </div>
       </div>
-      <EditAvailabilityDialog initialViewMode={entryMode} onOpenChange={setEntryOpen} open={entryOpen} trigger={null} />
+      <EditAvailabilityDialog
+        allowModeSelection={false}
+        initialViewMode="add-new"
+        onOpenChange={setNamePromptOpen}
+        open={namePromptOpen}
+        title="Add your availability"
+        trigger={null}
+      />
     </>
   );
 }

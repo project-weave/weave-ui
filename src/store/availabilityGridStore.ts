@@ -24,6 +24,7 @@ export function isViewMode(mode: AvailabilityGridMode): boolean {
 
 type AvailabilityGridState = {
   cancelEditing: () => void;
+  clearUser: () => void;
   focusedDate: EventDate | null;
   getEventParticipants: () => string[];
   hoveredTimeSlot: null | TimeSlot;
@@ -56,6 +57,16 @@ const useAvailabilityGridStore = create<AvailabilityGridState>()(
         ...createEventDataSlice(set, get),
         ...createViewWindowSlice(set, get),
         cancelEditing: () => set({ hoveredTimeSlot: null, mode: AvailabilityGridMode.VIEW, selectedTimeSlots: [] }),
+        clearUser: () => {
+          if (get().isSavingAvailability) return;
+          set({
+            hoveredTimeSlot: null,
+            mode: AvailabilityGridMode.VIEW,
+            selectedTimeSlots: [],
+            user: "",
+            userFilter: []
+          });
+        },
         focusedDate: null,
         getEventParticipants: () => {
           const { eventData, mode, user } = get();
@@ -90,13 +101,17 @@ const useAvailabilityGridStore = create<AvailabilityGridState>()(
         setUser: (user: string) => set({ user }),
         setUserFilter: (userFilter: string[]) => set({ userFilter }),
         setUserGridState: (user: string) => {
+          if (get().isSavingAvailability) return;
           const userResponse = (get().eventData.eventResponses || []).find(({ alias }) => {
             // TODO: use user_id as well when logged in users functionality is implemented
             return user === alias;
           });
           set({
-            selectedTimeSlots: userResponse?.availabilities || [],
-            user
+            hoveredTimeSlot: null,
+            mode: AvailabilityGridMode.EDIT,
+            selectedTimeSlots: [...(userResponse?.availabilities || [])],
+            user,
+            userFilter: []
           });
         },
         toggleIsBestTimesEnabled: () =>

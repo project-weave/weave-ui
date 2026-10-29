@@ -9,6 +9,7 @@ import { useShallow } from "zustand/react/shallow";
 import { MONTH_FORMAT } from "@/components/event-date-calendar";
 import EventDateCalendar from "@/components/no-ssr-event-date-calendar";
 import { Button } from "@/components/ui/button";
+import useAvailabilityEntry from "@/hooks/useAvailabilityEntry";
 import useAvailabilityGridStore, { isViewMode } from "@/store/availabilityGridStore";
 import { AvailabilityType } from "@/types/Event";
 import { EventDate } from "@/types/Timeslot";
@@ -23,6 +24,7 @@ export default function AvailabilityGridLeftPanel() {
 
   const mode = useAvailabilityGridStore((state) => state.mode);
   const isSaving = useAvailabilityGridStore((state) => state.isSavingAvailability);
+  const { actionLabel, namePromptOpen, openAvailability, setNamePromptOpen } = useAvailabilityEntry();
 
   const [leftMostColumnInView, setLeftMostColumnInView] = useAvailabilityGridStore(
     useShallow((state) => [state.leftMostColumnInView, state.setLeftMostColumnInView])
@@ -66,6 +68,7 @@ export default function AvailabilityGridLeftPanel() {
       className="over:bg-primary-purple/80 w-full text-sm font-normal"
       disabled={isSaving}
       form="availability-grid"
+      key="save-availability"
       type="submit"
       variant="default"
     >
@@ -74,12 +77,15 @@ export default function AvailabilityGridLeftPanel() {
   );
 
   const editUserAvailabilityButton = (
-    <EditAvailabilityDialog
-      // editAvailabilityButtonAnimationScope={editAvailabilityButtonAnimationScope}
-      trigger={
-        <Button className="over:bg-primary-purple/80 w-full rounded-md text-sm font-normal">Add availability</Button>
-      }
-    />
+    <Button
+      className="w-full rounded-md text-sm font-normal"
+      disabled={isSaving}
+      key="edit-availability"
+      onClick={openAvailability}
+      type="button"
+    >
+      {actionLabel}
+    </Button>
   );
 
   const eventCalendarMonthOverride = format(parseISO(sortedEventDates[leftMostColumnInView]), MONTH_FORMAT);
@@ -109,6 +115,14 @@ export default function AvailabilityGridLeftPanel() {
           />
         </div>
       )}
+      <EditAvailabilityDialog
+        allowModeSelection={false}
+        initialViewMode="add-new"
+        onOpenChange={setNamePromptOpen}
+        open={namePromptOpen}
+        title="Add your availability"
+        trigger={null}
+      />
     </aside>
   );
 }

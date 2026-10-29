@@ -5,7 +5,7 @@ import ParticipantAvatar from "@/components/participant-avatar";
 import { Button } from "@/components/ui/button";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import useAvailabilityGridStore, { AvailabilityGridMode } from "@/store/availabilityGridStore";
+import useAvailabilityGridStore from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
 
 type EditAvailabiltyFormType = {
@@ -62,7 +62,6 @@ export default function EditAvailabilityForm({
 
   const isSubmitAttempted = useRef(false);
   const allUserNames = useAvailabilityGridStore((state) => state.eventData.allParticipants);
-  const setMode = useAvailabilityGridStore((state) => state.setMode);
   const setUserGridState = useAvailabilityGridStore((state) => state.setUserGridState);
 
   const nameInput = (
@@ -156,7 +155,6 @@ export default function EditAvailabilityForm({
           form.handleSubmit((data) => {
             const userName = mode === "add-new" ? data.enteredUserName.trim() : data.selectedUserName;
             setUserGridState(userName);
-            setMode(AvailabilityGridMode.EDIT);
             onComplete?.();
           })();
         }}

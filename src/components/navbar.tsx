@@ -25,6 +25,10 @@ export default function NavBar() {
   const mode = useAvailabilityGridStore((state) => state.mode);
   const isSaving = useAvailabilityGridStore((state) => state.isSavingAvailability);
   const setUserFilter = useAvailabilityGridStore((state) => state.setUserFilter);
+  const clearUser = useAvailabilityGridStore((state) => state.clearUser);
+  const hasSavedAvailability = useAvailabilityGridStore((state) =>
+    state.eventData.eventResponses.some(({ alias }) => alias === state.user)
+  );
   const editing = isEditMode(mode);
   const pathName = usePathname();
   const isEventPage = eventId !== "" && pathName === `/${eventId}`;
@@ -68,14 +72,19 @@ export default function NavBar() {
                     {user || "Guest participant"}
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  {user && (
+                  {user && hasSavedAvailability && (
                     <DropdownMenuItem disabled={editing} onSelect={() => setUserFilter([user])}>
                       View my availability
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuItem disabled={editing} onSelect={() => setParticipantOpen(true)}>
-                    Change participant
+                    Switch participant
                   </DropdownMenuItem>
+                  {user && (
+                    <DropdownMenuItem disabled={editing} onSelect={clearUser}>
+                      Clear my name
+                    </DropdownMenuItem>
+                  )}
                   {editing && (
                     <DropdownMenuItem onSelect={() => useAvailabilityGridStore.getState().cancelEditing()}>
                       Discard changes and view
@@ -91,7 +100,12 @@ export default function NavBar() {
           </div>
         </div>
       </nav>
-      <EditAvailabilityDialog onOpenChange={setParticipantOpen} open={participantOpen} trigger={null} />
+      <EditAvailabilityDialog
+        onOpenChange={setParticipantOpen}
+        open={participantOpen}
+        title="Switch participant"
+        trigger={null}
+      />
     </>
   );
 }

@@ -21,22 +21,26 @@ import EditAvailabilityForm from "./edit-availability-form";
 const EDIT_AVAILABILITY = "Edit Availability";
 
 type EditAvailabilityDialogProps = {
+  allowModeSelection?: boolean;
   className?: string;
   editAvailabilityButtonAnimationScope?: AnimationScope;
   initialViewMode?: ViewMode;
   onOpenChange?: (open: boolean) => void;
   open?: boolean;
+  title?: string;
   trigger?: React.ReactNode;
 };
 
 type ViewMode = "add-new" | "edit-existing" | "initial";
 
 const EditAvailabilityDialog = ({
+  allowModeSelection = true,
   className,
   editAvailabilityButtonAnimationScope,
   trigger,
   open,
   onOpenChange,
+  title = "Edit your availability",
   initialViewMode = "initial"
 }: EditAvailabilityDialogProps) => {
   const [internalOpen, setInternalOpen] = useState(false);
@@ -71,7 +75,7 @@ const EditAvailabilityDialog = ({
         showCloseButton={false}
       >
         <div className="grid grid-cols-[2rem_minmax(0,1fr)_2rem] items-center gap-2">
-          {viewMode !== "initial" ? (
+          {allowModeSelection && viewMode !== "initial" ? (
             <Button
               aria-label="Back"
               className="h-8 w-8 bg-transparent p-0 hover:bg-accent"
@@ -85,9 +89,11 @@ const EditAvailabilityDialog = ({
             <span aria-hidden="true" />
           )}
           <DialogHeader className="space-y-0">
-            <DialogTitle className="text-center text-lg font-medium leading-snug">Edit your availability</DialogTitle>
+            <DialogTitle className="text-center text-lg font-medium leading-snug">{title}</DialogTitle>
             <DialogDescription className="sr-only">
-              Choose a participant or enter your name to add availability.
+              {allowModeSelection
+                ? "Choose a participant or enter your name to add availability."
+                : "Enter your name to add your availability."}
             </DialogDescription>
           </DialogHeader>
           <DialogClose asChild>
@@ -110,7 +116,7 @@ const EditAvailabilityDialog = ({
               type="button"
               variant="ghost"
             >
-              Add new availability
+              Use a new name
             </Button>
             {allUserNames.length > 0 && (
               <Button
@@ -119,7 +125,7 @@ const EditAvailabilityDialog = ({
                 type="button"
                 variant="ghost"
               >
-                Edit existing availability
+                Choose an existing participant
               </Button>
             )}
           </div>

@@ -31,6 +31,7 @@ async function checkScheduling(page) {
   const assert = (condition, message) => {
     if (!condition) throw new Error(message);
   };
+  const waitForMenusToClose = () => page.getByRole("menu").waitFor({ state: "hidden" });
   await page.unroute("**/api/v1/event**");
   await page.route("**/api/v1/event**", async (route) => {
     const request = route.request();
@@ -123,10 +124,15 @@ async function checkScheduling(page) {
   };
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto(`${origin}/${event.id}`);
-  await page.getByRole("button", { name: "Add availability", exact: true }).click();
-  await page.getByRole("button", { name: "Add new availability", exact: true }).click();
+  await page.getByRole("button", { name: "Add your availability", exact: true }).click();
+  const namePrompt = page.getByRole("dialog", { name: "Add your availability", exact: true });
+  assert(
+    (await namePrompt.getByRole("button", { name: "Back", exact: true }).count()) === 0,
+    "Name prompt exposes participant switching"
+  );
   await page.getByPlaceholder("What is your name?", { exact: true }).fill("Regression Person");
   await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await namePrompt.waitFor({ state: "hidden" });
   const selected = () => page.locator('[grid-drag-select-attr][aria-pressed="true"]').count();
   const firstSlot = page.locator('[grid-drag-select-attr="0_0"]');
   await firstSlot.press("Space");
@@ -143,6 +149,10 @@ async function checkScheduling(page) {
     page.getByRole("toolbar", { name: "Availability controls" }).getByRole("button", { name: "Save", exact: true });
   await save().click();
   assert((await page.locator("#availability-grid").getAttribute("aria-busy")) === "true", "Save has no pending state");
+  assert(
+    await page.getByRole("button", { name: "Participant profile: Regression Person", exact: true }).isDisabled(),
+    "Participant can change during saving"
+  );
   await page
     .getByText("An error occurred while saving your availability. Please try again later.", { exact: true })
     .waitFor();
@@ -150,10 +160,28 @@ async function checkScheduling(page) {
   const readsBeforeRetry = reads;
   await save().click();
   await page.getByText("Availability saved", { exact: true }).waitFor();
+  await page.getByText("Availability saved", { exact: true }).waitFor({ state: "hidden" });
   assert(reads > readsBeforeRetry, "Save did not refetch event data");
   assert(saves === 2, "Unexpected duplicate saves");
   await page.getByRole("button", { name: "Participant profile: Regression Person", exact: true }).waitFor();
   passed.push("save pending state, draft recovery, retry, refetch, and participant identity");
+
+  await page.getByRole("button", { name: "Edit your availability", exact: true }).click();
+  await page.getByRole("button", { name: "Availability mode: Editing", exact: true }).waitFor();
+  assert((await page.getByRole("dialog").count()) === 0, "Desktop asks a known participant for their name again");
+  assert((await selected()) === 3, "Desktop re-entry did not load saved availability");
+  await page.getByRole("button", { name: "Participant profile: Regression Person", exact: true }).click();
+  assert(saves === 2, "Reopening availability submitted another response");
+  assert(
+    await page.getByRole("menuitem", { name: "Switch participant", exact: true }).isDisabled(),
+    "Switching can discard an active draft"
+  );
+  assert(
+    await page.getByRole("menuitem", { name: "Clear my name", exact: true }).isDisabled(),
+    "Clearing a name can discard an active draft"
+  );
+  await page.getByRole("menuitem", { name: "Discard changes and view", exact: true }).click();
+  await waitForMenusToClose();
 
   await page.setViewportSize({ width: 375, height: 812 });
   await page.getByRole("heading", { name: event.name, exact: true }).waitFor();
@@ -170,33 +198,77 @@ async function checkScheduling(page) {
   await page.getByRole("button", { name: "Show all responses", exact: true }).click();
   await page.getByRole("button", { name: "Hide participants", exact: true }).click();
   await page.getByRole("button", { name: "Availability mode: Viewing", exact: true }).click();
-  await page.getByRole("menuitem", { name: "Add availability", exact: true }).click();
-  await page.getByPlaceholder("What is your name?", { exact: true }).fill("Discarded draft");
-  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Edit your availability", exact: true }).click();
+  await waitForMenusToClose();
+  assert((await page.getByRole("dialog").count()) === 0, "Mobile asks a known participant for their name again");
+  assert((await selected()) === 3, "Mobile re-entry did not load saved availability");
   await page.getByRole("button", { name: "Availability mode: Editing", exact: true }).click();
   assert(saves === 2, "Mode control submitted the form");
   await page.getByRole("menuitem", { name: "Discard changes and view", exact: true }).click();
+  await waitForMenusToClose();
   assert(saves === 2, "Discard submitted the form");
   passed.push("mobile event details, participants, mode menu, and discard");
 
+  await page.getByRole("button", { name: "Participant profile: Regression Person", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Switch participant", exact: true }).click();
+  const switchPrompt = page.getByRole("dialog", { name: "Switch participant", exact: true });
+  await switchPrompt.getByRole("button", { name: "Use a new name", exact: true }).click();
+  await switchPrompt.getByPlaceholder("What is your name?", { exact: true }).fill("Discarded draft");
+  await switchPrompt.getByRole("button", { name: "Continue", exact: true }).click();
+  await switchPrompt.waitFor({ state: "hidden" });
+  await page.getByRole("button", { name: "Availability mode: Editing", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Discard changes and view", exact: true }).click();
+  await waitForMenusToClose();
+  await page.getByRole("button", { name: "Availability mode: Viewing", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Add your availability", exact: true }).click();
+  await waitForMenusToClose();
+  assert((await page.getByRole("dialog").count()) === 0, "Unsaved named participant is prompted again");
+  assert((await selected()) === 0, "A new name inherited another participant's availability");
+  await page.getByRole("button", { name: "Participant profile: Discarded draft", exact: true }).waitFor();
+  await page.getByRole("button", { name: "Availability mode: Editing", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Discard changes and view", exact: true }).click();
+  await waitForMenusToClose();
+  passed.push("saved and unsaved participant names are reused on desktop and mobile");
+
   await page.getByRole("button", { name: "Participant profile: Discarded draft", exact: true }).click();
-  await page.getByRole("menuitem", { name: "Change participant", exact: true }).click();
-  await page.getByRole("button", { name: "Edit existing availability", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Switch participant", exact: true }).click();
+  await page.getByRole("button", { name: "Choose an existing participant", exact: true }).click();
   await page.getByRole("button", { name: "Bob", exact: true }).click();
   await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await switchPrompt.waitFor({ state: "hidden" });
+  assert((await selected()) === 1, "Switching did not load the chosen participant's availability");
   await page.getByRole("button", { name: "Participant profile: Bob", exact: true }).waitFor();
   await page.getByRole("button", { name: "Availability mode: Editing", exact: true }).click();
   await page.getByRole("menuitem", { name: "Discard changes and view", exact: true }).click();
+  await waitForMenusToClose();
   await page.getByRole("button", { name: "Participant profile: Bob", exact: true }).click();
   await page.getByRole("menuitem", { name: "View my availability", exact: true }).click();
+  await waitForMenusToClose();
   await page.getByRole("button", { name: "Show participants", exact: true }).click();
   assert(
     (await page.getByRole("button", { name: "Bob", exact: true }).getAttribute("aria-pressed")) === "true",
     "Profile filtering failed"
   );
-  await page.getByRole("button", { name: "Show all responses", exact: true }).click();
+  await page.getByRole("button", { name: "Participant profile: Bob", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Clear my name", exact: true }).click();
+  await waitForMenusToClose();
+  await page.getByRole("button", { name: "Participant profile: Guest", exact: true }).waitFor();
+  assert(
+    (await page.getByRole("button", { name: "Bob", exact: true }).getAttribute("aria-pressed")) === "false",
+    "Clear name retained a participant filter"
+  );
+  assert(saves === 2 && responses.length === 3, "Clearing a name changed saved responses");
   await page.getByRole("button", { name: "Hide participants", exact: true }).click();
-  passed.push("profile menu and participant switching");
+  await page.getByRole("button", { name: "Availability mode: Viewing", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Add your availability", exact: true }).click();
+  await namePrompt.waitFor();
+  assert(
+    (await namePrompt.getByPlaceholder("What is your name?", { exact: true }).inputValue()) === "",
+    "Clear name retained the previous name in the prompt"
+  );
+  await namePrompt.getByRole("button", { name: "Close", exact: true }).click();
+  await namePrompt.waitFor({ state: "hidden" });
+  passed.push("profile switching and clearing a name preserve saved responses");
 
   await page.getByRole("button", { name: "Event settings", exact: true }).click();
   const settings = page.getByRole("dialog", { name: "Event settings", exact: true });
