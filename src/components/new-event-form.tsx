@@ -1,4 +1,4 @@
-"use-client";
+"use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, startOfToday } from "date-fns";
@@ -30,7 +30,6 @@ const EVENT_NAME = "What is the name of your event?";
 const WHAT_TIMES = "What times work for you?";
 const WHAT_AVAILABILITY = "What availability do you want to know?";
 const WHAT_TIME_ZONE = "What time zone works for you?";
-const I_WANT_TO_BE_NOTIFIED = "I want to be notified when there is a new availability inputted.";
 const CONTINUE = "Continue";
 const TO = "to";
 
@@ -63,7 +62,7 @@ export default function NewEventForm() {
 
   // custom validation for form
   const isFormValid =
-    !!form.watch("name") &&
+    !!form.watch("name").trim() &&
     !(
       (form.watch("availabilityType") === AvailabilityType.SPECIFIC_DATES && selectedDates.size === 0) ||
       (form.watch("availabilityType") === AvailabilityType.DAYS_OF_WEEK && selectedDaysOfWeek.size === 0)
@@ -76,14 +75,14 @@ export default function NewEventForm() {
   useEffect(() => {
     form.setValue("specificDates", selectedDates);
     if (isSubmitAttempted.current) form.trigger("specificDates");
-  }, [selectedDates]);
+  }, [form, selectedDates]);
 
   // set value of "daysOfTheWeek" when selectedDaysOfTheWeek changes
   // only trigger validation of "daysOfTheWeek" if it has been modified or submit as been attempted
   useEffect(() => {
     form.setValue("daysOfTheWeek", selectedDaysOfWeek);
     if (isSubmitAttempted.current) form.trigger("daysOfTheWeek");
-  }, [selectedDaysOfWeek]);
+  }, [form, selectedDaysOfWeek]);
 
   // trigger validation of specificDates and daysOfTheWeek if submit is already attempted
   useEffect(() => {
@@ -95,13 +94,13 @@ export default function NewEventForm() {
         if (isSubmitAttempted.current) form.trigger("daysOfTheWeek");
         break;
     }
-  }, [availabilityType]);
+  }, [availabilityType, form]);
 
   const formRef = useRef<HTMLFormElement>(null);
   const isFormInView = useElementInView(formRef);
 
   const { toast } = useToast();
-  const { isPending, mutate } = useCreateEvent();
+  const { isPending, isSuccess, mutateAsync } = useCreateEvent();
 
   function onInvalid(errors: FieldErrors) {
     if (errors.name && nameInputRef.current)
@@ -144,24 +143,16 @@ export default function NewEventForm() {
       timeZone
     };
 
-    mutate(req, {
-      onError: () => {
-        toast({
-          description: "An error occurred while creating your event. Please try again later.",
-          title: "Oh no! Something went wrong.",
-          variant: "failure"
-        });
-      },
-      onSuccess: () => {
-        setTimeout(() => {
-          toast({
-            description: <span>Your event has been created</span>,
-            title: "",
-            variant: "success"
-          });
-        }, 500);
-      }
-    });
+    try {
+      await mutateAsync(req);
+      toast({ description: "Your event has been created", variant: "success" });
+    } catch {
+      toast({
+        description: "An error occurred while creating your event. Please try again later.",
+        title: "Oh no! Something went wrong.",
+        variant: "failure"
+      });
+    }
   }
 
   const eventNameInput = (
@@ -398,7 +389,7 @@ export default function NewEventForm() {
           >
             <Button
               className="h-12 w-full max-w-[26rem] rounded-xl text-sm"
-              disabled={!isFormValid}
+              disabled={!isFormValid || isPending || isSuccess}
               form="new-event-form"
               type="submit"
             >
@@ -409,7 +400,7 @@ export default function NewEventForm() {
       </AnimatePresence>
       <Button
         className="z-[999] hidden h-12 w-full rounded-xl border-[1px] align-bottom text-sm xs:block"
-        disabled={!isFormValid}
+        disabled={!isFormValid || isPending || isSuccess}
         form="new-event-form"
         type="submit"
       >
@@ -430,7 +421,7 @@ export default function NewEventForm() {
               e.preventDefault();
               e.stopPropagation();
               isSubmitAttempted.current = true;
-              if (form.formState.isSubmitting || form.formState.isSubmitSuccessful) return;
+              if (form.formState.isSubmitting || isPending || isSuccess) return;
               form.handleSubmit(onSubmit, onInvalid)();
             }}
             ref={formRef}
