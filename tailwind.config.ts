@@ -50,6 +50,14 @@ export default {
         },
         foreground: "rgb(var(--foreground), <alpha-value>)",
         input: "rgb(var(--off-white), <alpha-value>)",
+        muted: {
+          DEFAULT: "rgb(var(--muted), <alpha-value>)",
+          foreground: "rgb(var(--muted-foreground), <alpha-value>)"
+        },
+        popover: {
+          DEFAULT: "rgb(var(--popover), <alpha-value>)",
+          foreground: "rgb(var(--popover-foreground), <alpha-value>)"
+        },
         primary: {
           dark: "rgb(var(--primary-dark), <alpha-value>)",
           "dark-hover": "rgb(var(--primary-dark-hover), <alpha-value>)",
