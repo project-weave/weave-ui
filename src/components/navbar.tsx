@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import EditAvailabilityDialog from "@/components/availability-grid/dialog/edit-availability-dialog";
+import ParticipantAvatar from "@/components/participant-avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -51,7 +52,11 @@ export default function NavBar() {
                     type="button"
                     variant="ghost"
                   >
-                    <UserCircle aria-hidden="true" className="h-5 w-5 shrink-0" />
+                    {user ? (
+                      <ParticipantAvatar className="h-5 w-5 text-[0.6rem]" name={user} />
+                    ) : (
+                      <UserCircle aria-hidden="true" className="h-5 w-5 shrink-0" />
+                    )}
                     <span className="max-w-[8rem] truncate text-sm font-medium" title={user || "Guest"}>
                       {user || "Guest"}
                     </span>

@@ -11,6 +11,7 @@ import { isSupportedTimeZone } from "@/utils/timeZone";
 export default function AvailabilityGridHeader() {
   const {
     availabilityType,
+    eventName,
     sortedEventDates,
     timeZone: eventTimeZone
   } = useAvailabilityGridStore((state) => state.eventData);
@@ -50,7 +51,8 @@ export default function AvailabilityGridHeader() {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3">
+      <h1 className="hidden break-words text-xl font-medium [overflow-wrap:anywhere] lg:block">{eventName}</h1>
       <div className="flex items-center">
         <TimeZoneDropdown
           error={false}

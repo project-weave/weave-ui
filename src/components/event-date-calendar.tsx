@@ -153,6 +153,7 @@ const EventDateCalendar = ({
 
   return (
     <div
+      aria-invalid={error || undefined}
       className={cn("h-fit select-none scroll-m-24 rounded-xl bg-input p-5 pt-3", {
         "card h-full w-full border-[1px] bg-white px-12 pb-5 pt-8": size === "large"
       })}
@@ -167,14 +168,14 @@ const EventDateCalendar = ({
             "mb-3": size === "large"
           })}
         >
-          <h1
+          <h2
             className={cn("text-md flex-auto text-black ", {
               "text-2xl": size === "large",
               "text-md": isViewMode
             })}
           >
             {format(firstDayCurrentMonth, "MMMM yyyy")}
-          </h1>
+          </h2>
 
           {isNextAndPrevButtonsVisible && (
             <>
@@ -183,8 +184,8 @@ const EventDateCalendar = ({
                   "h-5 w-5": isViewMode,
                   "ml-2 h-7 w-7": size === "large"
                 })}
-                onClick={setPrevMonth}
                 disabled={isCurrentMonthEarliest}
+                onClick={setPrevMonth}
                 type="button"
                 variant={
                   !isCurrentMonthEarliest ? "default" : size === "large" ? "default-disabled-white" : "default-disabled"
@@ -202,8 +203,8 @@ const EventDateCalendar = ({
                   "h-5 w-5": isViewMode,
                   "ml-2 h-7 w-7": size === "large"
                 })}
-                onClick={setNextMonth}
                 disabled={isCurrentMonthLatest}
+                onClick={setNextMonth}
                 type="button"
                 variant={isCurrentMonthLatest ? "default-disabled" : "default"}
               >
@@ -379,14 +380,14 @@ function DateButton({
           "pointer-events-none opacity-20": !isViewMode && isBeforeToday(day) && !selectedDates.has(formattedDay)
         }
       )}
-      drag-select-attr={formattedDay}
       disabled={isViewMode ? !isDaySelected : isBeforeToday(day) && !isDaySelected}
+      drag-select-attr={formattedDay}
       id={`${id}-${formattedDay}`}
       key={`calendar-day-${day}`}
-      onMouseDown={handleMouseDown}
       onClick={(event) => {
         if (event.detail === 0) onKeyboardActivate(formattedDay);
       }}
+      onMouseDown={handleMouseDown}
       onMouseEnter={handleMouseEnter}
       onTouchCancel={handleTouchEnd}
       onTouchEnd={handleTouchEnd}

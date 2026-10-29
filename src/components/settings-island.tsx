@@ -59,7 +59,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
           className="card flex h-auto min-w-0 items-center gap-2 rounded-2xl px-3 py-2.5 sm:gap-4 sm:px-4"
           role="toolbar"
         >
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button
                 aria-label={`Availability mode: ${editing ? "Editing" : "Viewing"}`}
@@ -120,7 +120,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
               {isSaving ? "Saving…" : "Save"}
             </Button>
           ) : (
-            <BestTimesAvailableSwitch labelStyles="hidden text-xs sm:block" />
+            <BestTimesAvailableSwitch labelStyles="text-2xs sm:text-xs" />
           )}
 
           <span aria-hidden="true" className="h-6 w-px shrink-0 bg-light-gray" />

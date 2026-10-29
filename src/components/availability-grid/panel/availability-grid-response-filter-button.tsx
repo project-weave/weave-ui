@@ -1,7 +1,7 @@
-import { User } from "lucide-react";
 import { memo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
+import ParticipantAvatar from "@/components/participant-avatar";
 import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
 
@@ -44,7 +44,6 @@ const AvailbilityGridResponseFilterButton = ({ className, name }: AvailbilityGri
   return (
     <button
       aria-pressed={userFilter.includes(name)}
-      disabled={isEditMode(mode)}
       className={cn(
         "m-[1px] box-border inline-flex w-min flex-row items-center rounded-md border-[1px] border-dark-gray bg-input px-2 py-[2px] text-2xs font-normal text-black outline-none transition-all duration-100 hover:bg-light-gray",
         isEditMode(mode) && {
@@ -66,10 +65,11 @@ const AvailbilityGridResponseFilterButton = ({ className, name }: AvailbilityGri
           },
         className
       )}
+      disabled={isEditMode(mode)}
       onClick={() => onFilterClicked(name)}
       type="button"
     >
-      <User className="h-4 w-4" />
+      <ParticipantAvatar className="h-5 w-5 text-[0.6rem]" name={name} />
       <span className="mx-1 max-w-[5.8rem] overflow-hidden text-ellipsis whitespace-nowrap lg:max-w-[4.5rem] xl:max-w-[5.2rem]">
         {name}
       </span>

@@ -1,6 +1,6 @@
 // eslint-disable-next-line prettier/prettier
 import EditAvailabilityDialog from "../dialog/edit-availability-dialog";
-import { format, isEqual, parseISO } from "date-fns";
+import { format, parseISO } from "date-fns";
 // eslint-disable-next-line prettier/prettier
 import { useCallback, useRef } from "react";
 // eslint-disable-next-line prettier/prettier
@@ -17,11 +17,9 @@ import AvailabilityGridResponseFilterButton from "./availability-grid-response-f
 import AvailabilityResponsesCount from "./availability-responses-count";
 
 const SAVE_AVAILABILITY_BUTTON_TEXT = "Save Availability";
-const EDITING_TEXT = "Editing availability";
-const VIEWING_TEXT = "Viewing availability";
 
 export default function AvailabilityGridLeftPanel() {
-  const { availabilityType, eventName, sortedEventDates } = useAvailabilityGridStore((state) => state.eventData);
+  const { availabilityType, sortedEventDates } = useAvailabilityGridStore((state) => state.eventData);
   const getEventParticipants = useAvailabilityGridStore((state) => state.getEventParticipants);
   const eventParticipants = getEventParticipants();
 
@@ -65,18 +63,6 @@ export default function AvailabilityGridLeftPanel() {
     [setFocusedDate, sortedEventDates, setLeftMostColumnInView]
   );
 
-  const earliestDate = parseISO(sortedEventDates[0]);
-  const latestDate = parseISO(sortedEventDates[sortedEventDates.length - 1]);
-
-  let dateRange = "";
-  if (isEqual(earliestDate, latestDate)) {
-    dateRange = `${format(earliestDate, "MMM d yyyy")}`;
-  } else if (earliestDate.getUTCFullYear() !== latestDate.getUTCFullYear()) {
-    dateRange = `${format(earliestDate, "MMM d yyyy")} - ${format(latestDate, "MMM d yyyy")}`;
-  } else {
-    dateRange = `${format(earliestDate, "MMM d")} - ${format(latestDate, "MMM d yyyy")}`;
-  }
-
   const saveUserAvailabilityButton = (
     <Button
       className="over:bg-primary-purple/80 w-full text-sm font-normal"
@@ -101,13 +87,8 @@ export default function AvailabilityGridLeftPanel() {
   const eventCalendarMonthOverride = format(parseISO(sortedEventDates[leftMostColumnInView]), MONTH_FORMAT);
 
   return (
-    <div className="card flex h-full cursor-pointer flex-col px-6 pb-6">
-      <div className="pb-2 pt-1">
-        <h1 className="text-xl font-normal text-black">{eventName}</h1>
-        {availabilityType === AvailabilityType.SPECIFIC_DATES && <p className="text-xs text-text-light">{dateRange}</p>}
-      </div>
-
-      <div className="mt-5 flex items-center justify-between">
+    <div className="card flex h-full flex-col px-6 pb-6">
+      <div className="mt-1 flex items-center justify-between">
         <AvailabilityResponsesCount />
       </div>
 

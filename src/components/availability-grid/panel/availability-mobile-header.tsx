@@ -17,7 +17,7 @@ export default function AvailabilityMobileHeader() {
   const detailsId = useId();
 
   return (
-    <section className="card mb-4 h-auto px-4 py-3 lg:hidden">
+    <section aria-label="Event details" className="card mb-4 h-auto px-4 py-3 lg:hidden">
       <h1>
         <button
           aria-controls={detailsId}

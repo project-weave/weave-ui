@@ -48,8 +48,8 @@ export default function Event() {
 
   if (isPending || (data && loadedEventId !== data.event.id)) {
     return (
-      <div className="mx-auto mb-10 mt-4 grid h-fit w-full max-w-[82rem] grid-cols-1 gap-5 px-3 lg:grid-cols-[20rem_minmax(0,1fr)]">
-        <div className="hidden h-[85vh] max-h-[50rem] min-h-[28rem] w-[22rem] lg:block xl:w-[24rem]">
+      <div className="mx-auto mb-10 mt-9 grid h-fit w-full max-w-[82rem] grid-cols-1 gap-5 px-3 lg:grid-cols-[20rem_minmax(0,1fr)]">
+        <div className="hidden h-[85vh] max-h-[50rem] min-h-[28rem] min-w-0 lg:block">
           <Skeleton className="h-full w-full rounded-md bg-primary-light/30" />
         </div>
         <div className="h-[85vh] min-w-0">
@@ -98,9 +98,9 @@ export default function Event() {
 
   return (
     <div className="mb-28 flex min-w-0 flex-col px-3 sm:px-5">
-      <div className="mx-auto mt-5 grid w-full max-w-[82rem] grid-cols-1 gap-5 pb-4 lg:mt-9 lg:grid-cols-[20rem_minmax(0,1fr)] xl:grid-cols-[22rem_minmax(0,1fr)]">
+      <div className="mx-auto mt-9 grid w-full max-w-[82rem] grid-cols-1 gap-5 pb-4 lg:grid-cols-[20rem_minmax(0,1fr)] xl:grid-cols-[22rem_minmax(0,1fr)]">
         <MediaQueryLG>
-          <div className="sticky top-[4.5rem] h-[85vh] max-h-[50rem] min-h-[28rem] min-w-0">
+          <div className="sticky top-[4.5rem] hidden h-[85vh] max-h-[50rem] min-h-[28rem] min-w-0 lg:block">
             <AvailabilityGridLeftPanel />
           </div>
         </MediaQueryLG>
