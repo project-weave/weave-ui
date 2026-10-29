@@ -43,12 +43,12 @@ export interface EventForm {
 export const EventFormSchema = z
   .object({
     availabilityType: AvailbilityTypeSchema,
-    daysOfTheWeek: z.set(EventDateSchema),
+    daysOfTheWeek: z.set(EventDateSchema).default(new Set<EventDate>()),
     name: z
       .string()
       .transform((str) => str.trim())
       .pipe(z.string().min(1, { message: "Event name must be at least 1 character long." })),
-    specificDates: z.set(EventDateSchema),
+    specificDates: z.set(EventDateSchema).default(new Set<EventDate>()),
     timeRange: z
       .object({
         endTime: z.string(EventTimeSchema),
