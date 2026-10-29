@@ -1,6 +1,5 @@
-import { parseISO } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { MouseEvent, useEffect, useRef, useState } from "react";
-import style from "styled-jsx/style";
 
 import { DragMode } from "@/hooks/useDragSelect";
 import {
@@ -171,6 +170,17 @@ export default function AvailabilityGridTimeSlot({
 
   const isSelected = selectedTimeSlots.includes(timeSlot);
 
+  function activateWithKeyboard(event: MouseEvent<HTMLButtonElement>) {
+    if (event.detail !== 0 || isSaving) return;
+    if (isEditMode(mode)) {
+      const state = useAvailabilityGridStore.getState();
+      if (isSelected) state.removeSelectedTimeSlots([timeSlot]);
+      else state.addSelectedTimeSlots([timeSlot]);
+    } else {
+      animateEditAvailabilityButton();
+    }
+  }
+
   const filteredParticipants = userFilter.length === 0 ? allParticipants : userFilter;
   const filteredParticipantsTotal = filteredParticipants.length;
   const allParticipantsForTimeSlot = timeSlotsToParticipants[timeSlot] ?? [];
@@ -214,8 +224,10 @@ export default function AvailabilityGridTimeSlot({
 
   return (
     <button
+      aria-label={`${format(parseISO(timeSlot), "EEEE, MMMM d, h:mm a")} (event time)`}
+      aria-pressed={isEditMode(mode) ? isSelected : undefined}
       className={cn(
-        "h-full w-full cursor-pointer touch-none appearance-none border-b-0 border-t-[1px] border-dark-gray outline-none",
+        "h-full w-full cursor-pointer touch-none appearance-none border-b-0 border-t-[1px] border-dark-gray outline-none focus-visible:relative focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-primary",
         borderXSizeStyles,
         {
           "bg-primary-purple hover:bg-primary-purple/60": (isSelected || isBeingAdded) && !isBeingRemoved,
@@ -241,13 +253,15 @@ export default function AvailabilityGridTimeSlot({
       grid-drag-select-attr={`${timeSlotsRow}_${timeSlotsCol}`}
       disabled={isSaving}
       onMouseDown={handleMouseDown}
+      onClick={activateWithKeyboard}
+      onFocus={() => setHoveredTimeSlot(timeSlot)}
+      onBlur={() => setHoveredTimeSlot(null)}
       onMouseEnter={handleMouseEnter}
       onTouchEnd={handleTouchEnd}
       ref={timeSlotCellRef}
       style={{
         borderStyle: getBorderStyle(),
-        ...(isViewMode(mode) ? { backgroundColor: getViewModeCellColour() } : {}),
-        ...style
+        ...(isViewMode(mode) ? { backgroundColor: getViewModeCellColour() } : {})
       }}
       type="button"
     />

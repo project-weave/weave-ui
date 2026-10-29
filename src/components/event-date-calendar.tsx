@@ -96,6 +96,19 @@ const EventDateCalendar = ({
     if (!isViewMode) onMouseDragEnd();
   }
 
+  function activateDate(date: EventDate) {
+    if (isViewMode) {
+      if (selectedDates.has(date)) onViewModeDateClick(date);
+    } else if (!isBefore(parseISO(date), startOfToday()) || selectedDates.has(date)) {
+      setSelectedDates((previous) => {
+        const next = new Set(previous);
+        if (next.has(date)) next.delete(date);
+        else next.add(date);
+        return next;
+      });
+    }
+  }
+
   const firstDayCurrentMonth = parse(currentMonth, MONTH_FORMAT, startOfToday());
 
   const earliestMonth = earliestSelectedDate ? format(parseISO(earliestSelectedDate), MONTH_FORMAT) : "";
@@ -171,12 +184,13 @@ const EventDateCalendar = ({
                   "ml-2 h-7 w-7": size === "large"
                 })}
                 onClick={setPrevMonth}
+                disabled={isCurrentMonthEarliest}
                 type="button"
                 variant={
                   !isCurrentMonthEarliest ? "default" : size === "large" ? "default-disabled-white" : "default-disabled"
                 }
               >
-                <span className="sr-only">Previous Columns</span>
+                <span className="sr-only">Previous month</span>
                 <ChevronLeft
                   className={cn("h-[1.2rem] w-[1.2rem] stroke-[3px] pr-[1px]", {
                     "h-6 w-6": isViewMode || size === "large"
@@ -189,10 +203,11 @@ const EventDateCalendar = ({
                   "ml-2 h-7 w-7": size === "large"
                 })}
                 onClick={setNextMonth}
+                disabled={isCurrentMonthLatest}
                 type="button"
                 variant={isCurrentMonthLatest ? "default-disabled" : "default"}
               >
-                <span className="sr-only">Next Columns</span>
+                <span className="sr-only">Next month</span>
                 <ChevronRight
                   className={cn("h-[1.2rem] w-[1.2rem] stroke-[3px] pl-[1px] ", {
                     "h-6 w-6": isViewMode || size === "large"
@@ -227,6 +242,7 @@ const EventDateCalendar = ({
               id={id}
               isViewMode={isViewMode}
               key={`calendar-day-button-${day}`}
+              onKeyboardActivate={activateDate}
               onMouseDragMove={onMouseDragMove}
               onMouseDragStart={onMouseDragStart}
               onTouchDragEnd={onTouchDragEnd}
@@ -251,6 +267,7 @@ function DateButton({
   firstDayCurrentMonth,
   id,
   isViewMode,
+  onKeyboardActivate,
   onMouseDragMove,
   onMouseDragStart,
   onTouchDragEnd,
@@ -319,8 +336,10 @@ function DateButton({
 
   return (
     <Button
+      aria-label={format(day, "EEEE, MMMM d, yyyy")}
+      aria-pressed={isViewMode ? !!isDayVisible : isDaySelected}
       className={cn(
-        "my-[3px] flex h-[1.7rem] cursor-pointer touch-none items-center justify-center rounded-sm p-[1px] text-sm font-normal outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
+        "my-[3px] flex h-[1.7rem] cursor-pointer touch-none items-center justify-center rounded-sm p-[1px] text-sm font-normal outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
         !isDaySelected
           ? {
               "border-transparent bg-input": true,
@@ -361,9 +380,13 @@ function DateButton({
         }
       )}
       drag-select-attr={formattedDay}
-      id={id}
+      disabled={isViewMode ? !isDaySelected : isBeforeToday(day) && !isDaySelected}
+      id={`${id}-${formattedDay}`}
       key={`calendar-day-${day}`}
       onMouseDown={handleMouseDown}
+      onClick={(event) => {
+        if (event.detail === 0) onKeyboardActivate(formattedDay);
+      }}
       onMouseEnter={handleMouseEnter}
       onTouchCancel={handleTouchEnd}
       onTouchEnd={handleTouchEnd}

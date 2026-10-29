@@ -2,6 +2,7 @@ import { addMinutes, format, isValid, parse } from "date-fns";
 import { Check, ChevronDown } from "lucide-react";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { TIME_SLOT_INTERVAL_MINUTES } from "@/store/eventDataSlice";
@@ -93,7 +94,12 @@ export default function NewEventFromTimeDropdown({
   return (
     <Popover onOpenChange={setOpen} open={open}>
       <PopoverTrigger asChild>
-        <div className="relative w-full">
+        <Button
+          aria-label={isStartTime ? "Start time" : "End time"}
+          className="relative h-auto w-full p-0"
+          type="button"
+          variant="ghost"
+        >
           <div
             className={cn(
               "peer box-border flex h-10 cursor-pointer items-center rounded-xl bg-input px-4 pb-2.5 pt-3",
@@ -114,7 +120,7 @@ export default function NewEventFromTimeDropdown({
               </span>
             )}
           </div>
-        </div>
+        </Button>
       </PopoverTrigger>
       <PopoverContent className="mb-2 w-[140px] bg-background p-0 sm:w-[154px]">
         <Command

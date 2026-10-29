@@ -3,6 +3,7 @@
 import { Check, ChevronDown } from "lucide-react";
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/utils/cn";
@@ -124,9 +125,12 @@ export default function TimeZoneDropdown({
   }
 
   const popoverDisplay = (
-    <div
+    <Button
+      aria-label={gridDropdown ? "Display time zone" : "Event time zone"}
+      type="button"
+      variant="ghost"
       className={cn(
-        "ext-sm peer box-border flex transform-none cursor-pointer items-center rounded-xl bg-input px-4 py-2.5",
+        "peer box-border flex h-auto transform-none cursor-pointer items-center rounded-xl bg-input px-4 py-2.5",
         {
           "px-2.5 py-2 text-xs": gridDropdown,
           "outline-primary": open,
@@ -141,7 +145,7 @@ export default function TimeZoneDropdown({
         {getTimeZoneJSX(selectedTimeZone)}
         <ChevronDown className="ml-2 text-black" height={15} width={15} />
       </span>
-    </div>
+    </Button>
   );
 
   return (

@@ -1,5 +1,5 @@
 import { format, parseISO } from "date-fns";
-import { Dispatch, forwardRef, MouseEvent, SetStateAction, useRef } from "react";
+import { Dispatch, forwardRef, MouseEvent, SetStateAction, useId, useRef } from "react";
 
 import { Button } from "@/components/ui/button";
 import useDragSelect, { extractDragSelectData } from "@/hooks/useDragSelect";
@@ -36,6 +36,14 @@ const DaysOfWeekPicker = forwardRef<HTMLDivElement, DaysOfWeekPickerProps>(
             <DayOfWeekButton
               date={date}
               key={`dow-button-${date}`}
+              onKeyboardActivate={() =>
+                setSelectedDaysOfWeek((previous) => {
+                  const next = new Set(previous);
+                  if (next.has(date)) next.delete(date);
+                  else next.add(date);
+                  return next;
+                })
+              }
               onMouseDragMove={onMouseDragMove}
               onMouseDragStart={onMouseDragStart}
               onTouchDragEnd={onTouchDragEnd}
@@ -55,6 +63,7 @@ export default DaysOfWeekPicker;
 
 function DayOfWeekButton({
   date,
+  onKeyboardActivate,
   onMouseDragMove,
   onMouseDragStart,
   onTouchDragEnd,
@@ -71,6 +80,7 @@ function DayOfWeekButton({
   }
 
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const buttonId = useId();
 
   function handleTouchStart(e: TouchEvent) {
     if (e.cancelable) e.preventDefault();
@@ -93,12 +103,15 @@ function DayOfWeekButton({
         className={cn("mb-2 text-sm font-normal", {
           "text-xl font-normal md:mb-5 md:text-xl": size === "large"
         })}
-        htmlFor={`days-of-weeks-picker-${date}`}
+        htmlFor={buttonId}
       >
         {formattedDateOfWeek}
       </label>
       <div className="flex h-full flex-grow touch-none">
         <Button
+          aria-label={format(parseISO(date), "EEEE")}
+          aria-pressed={selected}
+          id={buttonId}
           className={cn(
             "h-full w-[2.16rem] touch-none rounded-sm bg-primary px-[.9rem] xs:px-4 sm:w-[2.4rem] sm:px-[1.2rem]",
             {
@@ -108,6 +121,9 @@ function DayOfWeekButton({
           )}
           drag-select-attr={date}
           onMouseDown={handleMouseDown}
+          onClick={(event) => {
+            if (event.detail === 0) onKeyboardActivate();
+          }}
           onMouseEnter={handleMouseEnter}
           onTouchCancel={onTouchDragEnd}
           onTouchEnd={onTouchDragEnd}
