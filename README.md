@@ -13,10 +13,10 @@
 
 ## Getting Started
 
-Install depenencies:
+Install dependencies using the committed lockfile:
 
 ```bash
-npm install
+npm ci
 ```
 
 Run the development server:
