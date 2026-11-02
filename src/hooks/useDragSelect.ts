@@ -32,13 +32,13 @@ export default function useDragSelect<T>(
   const onMouseDragStart: DragMoveHandler<T> = (item: null | T) => {
     if (item === null) return;
 
+    const shouldAdd = !selected.has(item);
+    setDragMode(shouldAdd ? DragMode.ADD : DragMode.REMOVE);
     setSelected((prev) => {
       const newSelected = new Set(prev);
-      if (!selected.has(item)) {
-        setDragMode(DragMode.ADD);
+      if (shouldAdd) {
         newSelected.add(item);
       } else {
-        setDragMode(DragMode.REMOVE);
         newSelected.delete(item);
       }
       return newSelected;
@@ -73,19 +73,7 @@ export default function useDragSelect<T>(
   };
 
   const onTouchDragStart: DragStartHandler<T> = (item: null | T) => {
-    if (!item) return;
-
-    setSelected((prev) => {
-      const newSelected = new Set(prev);
-      if (!selected.has(item)) {
-        setDragMode(DragMode.ADD);
-        newSelected.add(item);
-      } else {
-        setDragMode(DragMode.REMOVE);
-        newSelected.delete(item);
-      }
-      return newSelected;
-    });
+    onMouseDragStart(item);
   };
 
   const onTouchDragMove: DragMoveHandler<T> = (item: null | T) => {

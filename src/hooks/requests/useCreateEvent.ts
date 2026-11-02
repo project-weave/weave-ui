@@ -1,4 +1,4 @@
-import { QueryClient, useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
 import { EventDate, EventTime } from "@/types/Timeslot";
@@ -25,7 +25,7 @@ async function createEvent(request: CreateEventRequest): Promise<CreateEventResp
 }
 
 const useCreateEvent = () => {
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   const router = useRouter();
 
   return useMutation({
@@ -33,7 +33,7 @@ const useCreateEvent = () => {
 
     onSuccess: async (data) => {
       await queryClient.prefetchQuery({ queryFn: () => getEvent(data.eventId), queryKey: ["event", data.eventId] });
-      router.push(`${data.eventId}`);
+      router.push(`/${data.eventId}`);
     }
   });
 };

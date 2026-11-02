@@ -9,23 +9,30 @@ export function Toaster() {
   const { toasts } = useToast();
 
   return (
-    <ToastProvider>
+    <ToastProvider swipeDirection="right">
       {toasts.map(function ({ action, description, id, title, variant, ...props }) {
         let icon;
         switch (variant) {
           case "success":
-            icon = <CheckCircle2 className="h-5 w-5 text-success" />;
+            icon = <CheckCircle2 className="h-5 w-5" />;
             break;
           case "failure":
-            icon = <XCircle className="h-5 w-5 text-failure" />;
+            icon = <XCircle className="h-5 w-5" />;
             break;
           default:
             icon = <></>;
         }
         return (
-          <Toast key={id} {...props} variant={variant}>
+          <Toast
+            duration={4000}
+            key={id}
+            onPointerDown={(e) => e.preventDefault()}
+            onPointerMove={(e) => e.preventDefault()}
+            {...props}
+            variant={variant}
+          >
             <div className="grid grid-flow-col items-center gap-1 text-sm 2xl:text-base">
-              <div className="mr-2 mt-[.2px]">{icon}</div>
+              <div className="mr-1.5 mt-[.2px]">{icon}</div>
               <div>
                 {title && <ToastTitle>{title}</ToastTitle>}
                 {description && <ToastDescription>{description}</ToastDescription>}

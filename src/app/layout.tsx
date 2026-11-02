@@ -1,6 +1,6 @@
 import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 
 import MainNav from "@/components/navbar";
 import { Toaster } from "@/components/ui/toaster";
@@ -9,7 +9,7 @@ import { cn } from "@/utils/cn";
 import "./globals.css";
 import Providers from "./providers";
 
-const inter = Inter({ subsets: ["latin"] });
+const dmSans = DM_Sans({ display: "swap", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   openGraph: {
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html className="" lang="en">
-      <body className={cn("relative flex items-center justify-center ", inter.className)} suppressHydrationWarning>
+      <body className={cn("relative flex items-center justify-center", dmSans.className)} suppressHydrationWarning>
         <Analytics />
         <Providers>
           <div className="mx-auto flex w-full max-w-[85rem]">

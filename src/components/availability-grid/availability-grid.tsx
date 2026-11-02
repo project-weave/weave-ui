@@ -24,12 +24,14 @@ import AvailabilityGridHeader from "./availability-grid-header";
 import { AvailabilityGridNode } from "./availability-grid-node";
 
 export default function AvailabilityGrid() {
-  const { availabilityType, eventId, sortedEventDates, sortedEventTimes } = useAvailabilityGridStore(
+  const { availabilityType, eventId, eventResponses, sortedEventDates, sortedEventTimes } = useAvailabilityGridStore(
     (state) => state.eventData
   );
-  const setMode = useAvailabilityGridStore(useShallow((state) => state.setMode));
+  const [mode, setMode] = useAvailabilityGridStore(useShallow((state) => [state.mode, state.setMode]));
   const user = useAvailabilityGridStore((state) => state.user);
-  const resetGridState = useAvailabilityGridStore(useShallow((state) => state.resetGridState));
+  const [isSavingAvailability, setIsSavingAvailability, setSelectedTimeSlots] = useAvailabilityGridStore(
+    useShallow((state) => [state.isSavingAvailability, state.setIsSavingAvailability, state.setSelectedTimeSlots])
+  );
   const [availabilityGridViewWindowSize, setAvailabilityGridViewWindowSize] = useAvailabilityGridStore(
     useShallow((state) => [state.availabilityGridViewWindowSize, state.setAvailabilityGridViewWindowSize])
   );
@@ -39,7 +41,7 @@ export default function AvailabilityGrid() {
     useShallow((state) => [state.selectedTimeSlots, state.addSelectedTimeSlots, state.removeSelectedTimeSlots])
   );
 
-  const { mutate } = useUpdateAvailability();
+  const { mutateAsync } = useUpdateAvailability();
 
   const { formState, handleSubmit, setValue } = useForm<EventResponse>({
     defaultValues: {
@@ -51,50 +53,38 @@ export default function AvailabilityGrid() {
 
   useEffect(() => {
     setValue("alias", user);
-  }, [user]);
+  }, [setValue, user]);
 
   useEffect(() => {
     setValue("availabilities", selectedTimeSlots);
-  }, [selectedTimeSlots]);
+  }, [selectedTimeSlots, setValue]);
 
-  function onSubmit({ alias, availabilities }: EventResponse) {
+  async function onSubmit({ alias, availabilities }: EventResponse) {
     const req: UpdateAvailabilityRequest = {
       alias,
       availabilities,
-      eventId: eventId
+      eventId,
+      userId: eventResponses.find((response) => response.alias === alias)?.userId
     };
 
-    mutate(req, {
-      onError: () => {
-        toast({
-          description: "An error occurred while saving your availability. Please try again later.",
-          title: "Oh no! Something went wrong",
-          variant: "failure"
-        });
-      },
-      onSuccess: () => {
-        toast({
-          description: (
-            <span>
-              Your availability has been successfully recorded. We&apos;d love to hear your feedback! Please{" "}
-              <a
-                className="text-primary underline"
-                href="https://forms.gle/m6vyA7ifEcgtA1vL6"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                fill out this form.
-              </a>
-            </span>
-          ),
-          title: "Congrats!",
-          variant: "success"
-        });
+    setIsSavingAvailability(true);
+    try {
+      await mutateAsync(req);
+      if (useAvailabilityGridStore.getState().eventData.eventId === eventId) {
+        setMode(AvailabilityGridMode.VIEW);
+        setSelectedTimeSlots([]);
+        setHoveredTimeSlot(null);
       }
-    });
-
-    setMode(AvailabilityGridMode.VIEW);
-    resetGridState();
+      toast({ description: "Availability saved", variant: "success" });
+    } catch {
+      toast({
+        description: "An error occurred while saving your availability. Please try again later.",
+        title: "Oh no! Something went wrong",
+        variant: "failure"
+      });
+    } finally {
+      setIsSavingAvailability(false);
+    }
   }
 
   // TODO: add timezone logic
@@ -104,13 +94,13 @@ export default function AvailabilityGrid() {
     switch (screenSize) {
       case ScreenSize.XXS:
       case ScreenSize.XS:
-        return setAvailabilityGridViewWindowSize(4);
+        return setAvailabilityGridViewWindowSize(3);
       case ScreenSize.SM:
-        return setAvailabilityGridViewWindowSize(6);
+        return setAvailabilityGridViewWindowSize(4);
       case ScreenSize.MD:
-        return setAvailabilityGridViewWindowSize(7);
+        return setAvailabilityGridViewWindowSize(5);
       case ScreenSize.LG:
-        return setAvailabilityGridViewWindowSize(6);
+        return setAvailabilityGridViewWindowSize(5);
       default:
         return setAvailabilityGridViewWindowSize(8);
     }
@@ -189,10 +179,31 @@ export default function AvailabilityGrid() {
   }, [sortedEventTimes, sortedEventDates, leftMostColumnInView, timeSlotColumnsCount]);
 
   const gridHeightStyle = useAvailabilityGridHeight();
+  const gridTemplateColumns = `${screenSize <= ScreenSize.XS ? "4.9rem" : "5.1rem"} repeat(${timeSlotColumnsCount}, minmax(1.3rem, 1fr))`;
+  const columnHeaderHeight = availabilityType === AvailabilityType.SPECIFIC_DATES ? "4.3rem" : "3rem";
+
+  function getDateGaps(columnNodes: AvailabilityGridNode[]) {
+    const colHeaderNode = columnNodes[0];
+    const dateIndex = colHeaderNode.getSortedEventDatesIndex();
+    if (dateIndex === -1) return { hasDateGapLeft: false, hasDateGapRight: false };
+
+    const eventDate = parseISO(sortedEventDates[dateIndex]);
+    return {
+      hasDateGapLeft:
+        colHeaderNode.displayedColIndex !== 1 &&
+        !isConsecutiveDay(parseISO(sortedEventDates[dateIndex - 1]), eventDate),
+      hasDateGapRight:
+        !colHeaderNode.isNodeInLastDisplayedCol &&
+        !isConsecutiveDay(eventDate, parseISO(sortedEventDates[dateIndex + 1]))
+    };
+  }
 
   return (
     <form
-      className="card flex w-full select-none flex-col pl-0 pr-5 pt-1 sm:pr-8 xl:pl-2 xl:pr-10"
+      aria-busy={isSavingAvailability}
+      className={cn("card flex w-full select-none flex-col bg-white pl-0 pr-5 pt-1 sm:pr-8 xl:pl-2 xl:pr-10", {
+        "border-[3px] border-yellow": mode === AvailabilityGridMode.EDIT
+      })}
       id="availability-grid"
       // mouseUp is cancelled when onContextMenu is triggered so we need to save the selection here as well
       onContextMenu={onMouseDragEnd}
@@ -202,7 +213,7 @@ export default function AvailabilityGrid() {
       onSubmit={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (formState.isSubmitting) return;
+        if (formState.isSubmitting || isSavingAvailability) return;
         handleSubmit(onSubmit)();
       }}
       onTouchEnd={onTouchDragEnd}
@@ -210,53 +221,45 @@ export default function AvailabilityGrid() {
         height: screenSize <= ScreenSize.MD ? gridHeightStyle : "100%"
       }}
     >
-      <div
-        className={cn(
-          "sticky top-[3.4rem] z-[999] w-[101%] bg-background pb-[7px] pl-4 pt-4 xs:pl-10 xl:pl-14",
-          availabilityType === AvailabilityType.DAYS_OF_WEEK && "top-[3rem] pb-2"
-        )}
-      >
-        <AvailabilityGridHeader editAvailabilityButtonAnimationScope={scope} screenSize={screenSize} />
+      <div className="sticky top-[4.5rem] z-30 shrink-0 bg-white pt-4">
+        <div className="pb-3 pl-5">
+          <AvailabilityGridHeader />
+        </div>
+        <div className="grid" style={{ gridTemplateColumns, height: columnHeaderHeight }}>
+          {gridNodes.map((columnNodes) => (
+            <AvailabilityGridCell
+              animateEditAvailabilityButton={animateEditAvailabilityButton}
+              {...getDateGaps(columnNodes)}
+              key={`availability-header-${columnNodes[0].offsettedColIndex}`}
+              node={columnNodes[0]}
+              screenSize={screenSize}
+              timeSlotDragSelectionState={timeSlotDragSelectionState}
+            />
+          ))}
+        </div>
       </div>
       <div className="flex h-full w-full">
         <div
           className="grid h-full w-full"
+          id="availability-grid-dates"
           onContextMenu={() => setHoveredTimeSlot(null)}
           onMouseLeave={() => setHoveredTimeSlot(null)}
-          style={{
-            gridTemplateColumns: `${screenSize <= ScreenSize.XS ? "4.9rem" : "5.1rem"} repeat(${timeSlotColumnsCount}, minmax(1.3rem, 1fr))`
-          }}
+          style={{ gridTemplateColumns }}
         >
           {gridNodes.map((columnNodes, displayColIndex) => {
-            const columnHeaderHeight = availabilityType === AvailabilityType.SPECIFIC_DATES ? "4.3rem" : "3rem";
             const topBottomCellHeight = "0.7rem";
             const timeSlotCellHeight = screenSize <= ScreenSize.MD ? "1.5rem" : "1.45rem";
-
-            let hasDateGapLeft = false;
-            let hasDateGapRight = false;
-            const colHeaderNode = columnNodes[0];
-            const timeSlotsColumnIndex = colHeaderNode.getSortedEventDatesIndex();
-            if (timeSlotsColumnIndex !== -1) {
-              const eventDate = sortedEventDates[timeSlotsColumnIndex];
-              const prevEventDate = sortedEventDates[colHeaderNode.getSortedEventDatesIndex() - 1];
-              const nextEventDate = sortedEventDates[colHeaderNode.getSortedEventDatesIndex() + 1];
-              hasDateGapLeft = displayColIndex !== 1 && !isConsecutiveDay(parseISO(prevEventDate), parseISO(eventDate));
-              hasDateGapRight =
-                displayColIndex !== gridNodes.length - 1 &&
-                !isConsecutiveDay(parseISO(eventDate), parseISO(nextEventDate));
-            }
+            const { hasDateGapLeft, hasDateGapRight } = getDateGaps(columnNodes);
 
             return (
               <div
-                className={cn("grid", {
-                  "pr-1": hasDateGapRight
-                })}
+                className="grid"
                 key={`availability-column-${displayColIndex}`}
                 style={{
-                  gridTemplateRows: `${columnHeaderHeight} ${topBottomCellHeight} repeat(${sortedEventTimes.length - 1}, minmax(${timeSlotCellHeight}, 1fr)) ${topBottomCellHeight}`
+                  gridTemplateRows: `${topBottomCellHeight} repeat(${sortedEventTimes.length - 1}, minmax(${timeSlotCellHeight}, 1fr)) ${topBottomCellHeight}`
                 }}
               >
-                {columnNodes.map((node) => {
+                {columnNodes.slice(1).map((node) => {
                   return (
                     <AvailabilityGridCell
                       animateEditAvailabilityButton={animateEditAvailabilityButton}

@@ -38,7 +38,15 @@ export const createViewWindowSlice = (set, get): ViewWindowSlice => ({
       };
     }),
   setAvailabilityGridViewWindowSize: (availabilityGridViewWindowSize: number) =>
-    set({ availabilityGridViewWindowSize }),
+    set((state) => ({
+      availabilityGridViewWindowSize,
+      hoveredTimeSlot: null,
+      leftMostColumnInView: ensureWithinBounds(
+        0,
+        Math.max(0, state.eventData.sortedEventDates.length - availabilityGridViewWindowSize),
+        state.leftMostColumnInView
+      )
+    })),
   setLeftMostColumnInView: (size: number) =>
     set({ leftMostColumnInView: ensureWithinBounds(0, get().getMaxLeftMostColumnInView(), size) })
 });

@@ -1,4 +1,4 @@
-"use-client";
+"use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, startOfToday } from "date-fns";
@@ -13,7 +13,6 @@ import TimeDropdown from "@/components/new-event-from-time-dropdown";
 import { Button } from "@/components/ui/button";
 import { FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import InputWithLabel from "@/components/ui/input-with-label";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import useCreateEvent, { CreateEventRequest } from "@/hooks/requests/useCreateEvent";
@@ -21,20 +20,19 @@ import useElementInView from "@/hooks/useElementInView";
 import { AvailabilityType, EventForm, EventFormSchema } from "@/types/Event";
 import { EventDate } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
+import { isSupportedTimeZone } from "@/utils/timeZone";
 
 import EventDateCalendar from "./no-ssr-event-date-calendar";
 import TimeZoneDropdown from "./timezone-dropdown";
 
-const EVENT_NAME_LABEL = "Event Name";
+const EVENT_NAME_PLACEHOLDER = "Event Name";
 
-const WHAT_EVENT_NAME = "What is the name of your event?";
-const WHAT_TIMES = "What times are you checking availability for?";
+const EVENT_NAME = "What is the name of your event?";
+const WHAT_TIMES = "What times work for you?";
 const WHAT_AVAILABILITY = "What availability do you want to know?";
-const WHAT_TIME_ZONE = "What time zone is your event in?";
-const I_WANT_TO_BE_NOTIFIED = "I want to be notified when there is a new availability inputted.";
-const CREATE_EVENT = "Create Event";
+const WHAT_TIME_ZONE = "What time zone works for you?";
+const CONTINUE = "Continue";
 const TO = "to";
-const OR = "or";
 
 export default function NewEventForm() {
   const [currentCalendarMonth, setCurrentCalendarMonth] = useState(format(startOfToday(), MONTH_FORMAT));
@@ -42,7 +40,7 @@ export default function NewEventForm() {
   const [selectedDaysOfWeek, setSelectedDaysOfWeek] = useState(new Set<EventDate>());
 
   const isSubmitAttempted = useRef(false);
-  const nameInputRef = useRef<HTMLDivElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
   const timeRangeDropdownsRef = useRef<HTMLDivElement>(null);
   const specificDatesPickerRef = useRef<HTMLDivElement>(null);
   const daysOfWeekPickerRef = useRef<HTMLDivElement>(null);
@@ -63,6 +61,19 @@ export default function NewEventForm() {
     resolver: zodResolver(EventFormSchema)
   });
 
+  useEffect(() => {
+    const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (isSupportedTimeZone(detected)) form.setValue("timeZone", detected);
+  }, [form]);
+
+  // custom validation for form
+  const isFormValid =
+    !!form.watch("name").trim() &&
+    !(
+      (form.watch("availabilityType") === AvailabilityType.SPECIFIC_DATES && selectedDates.size === 0) ||
+      (form.watch("availabilityType") === AvailabilityType.DAYS_OF_WEEK && selectedDaysOfWeek.size === 0)
+    );
+
   const availabilityType = form.watch("availabilityType");
 
   // set value of "specificDates" when selectedDates changes
@@ -70,14 +81,14 @@ export default function NewEventForm() {
   useEffect(() => {
     form.setValue("specificDates", selectedDates);
     if (isSubmitAttempted.current) form.trigger("specificDates");
-  }, [selectedDates]);
+  }, [availabilityType, form, selectedDates]);
 
   // set value of "daysOfTheWeek" when selectedDaysOfTheWeek changes
   // only trigger validation of "daysOfTheWeek" if it has been modified or submit as been attempted
   useEffect(() => {
     form.setValue("daysOfTheWeek", selectedDaysOfWeek);
     if (isSubmitAttempted.current) form.trigger("daysOfTheWeek");
-  }, [selectedDaysOfWeek]);
+  }, [availabilityType, form, selectedDaysOfWeek]);
 
   // trigger validation of specificDates and daysOfTheWeek if submit is already attempted
   useEffect(() => {
@@ -89,13 +100,13 @@ export default function NewEventForm() {
         if (isSubmitAttempted.current) form.trigger("daysOfTheWeek");
         break;
     }
-  }, [availabilityType]);
+  }, [availabilityType, form]);
 
   const formRef = useRef<HTMLFormElement>(null);
   const isFormInView = useElementInView(formRef);
 
   const { toast } = useToast();
-  const { isPending, mutate } = useCreateEvent();
+  const { isPending, isSuccess, mutateAsync } = useCreateEvent();
 
   function onInvalid(errors: FieldErrors) {
     if (errors.name && nameInputRef.current)
@@ -138,37 +149,16 @@ export default function NewEventForm() {
       timeZone
     };
 
-    mutate(req, {
-      onError: () => {
-        toast({
-          description: "An error occurred while creating your event. Please try again later.",
-          title: "Oh no! Something went wrong.",
-          variant: "failure"
-        });
-      },
-      onSuccess: () => {
-        setTimeout(() => {
-          toast({
-            description: (
-              <span>
-                Your event has been successfully created. We&apos;d love to hear your feedback! Please{" "}
-                <a
-                  href="https://forms.gle/m6vyA7ifEcgtA1vL6"
-                  rel="noopener noreferrer"
-                  style={{ color: "#9747ff", textDecoration: "underline" }}
-                  target="_blank"
-                >
-                  fill out this form
-                </a>
-                .
-              </span>
-            ),
-            title: "Congrats!",
-            variant: "success"
-          });
-        }, 1000);
-      }
-    });
+    try {
+      await mutateAsync(req);
+      toast({ description: "Your event has been created", variant: "success" });
+    } catch {
+      toast({
+        description: "An error occurred while creating your event. Please try again later.",
+        title: "Oh no! Something went wrong.",
+        variant: "failure"
+      });
+    }
   }
 
   const eventNameInput = (
@@ -177,13 +167,13 @@ export default function NewEventForm() {
       name="name"
       render={({ field, fieldState: { invalid } }) => (
         <FormItem>
-          <FormLabel>{WHAT_EVENT_NAME}</FormLabel>
+          <FormLabel>{EVENT_NAME}</FormLabel>
           <div className="mt-1.5">
-            <InputWithLabel
+            <Input
               {...field}
               error={invalid}
               id="name"
-              label={EVENT_NAME_LABEL}
+              placeholder={EVENT_NAME_PLACEHOLDER}
               ref={nameInputRef}
               type="text"
             />
@@ -202,7 +192,7 @@ export default function NewEventForm() {
         <FormItem>
           <FormLabel>{WHAT_TIMES}</FormLabel>
           <div
-            className="flex mb-0.5 w-full mt-2 items-center justify-between scroll-m-24 space-y-1"
+            className="mb-0.5 mt-2 flex w-full scroll-m-24 items-center justify-between space-y-1"
             ref={timeRangeDropdownsRef}
           >
             <FormField
@@ -223,7 +213,7 @@ export default function NewEventForm() {
                 </FormItem>
               )}
             />
-            <p className="mx-6 text-2xs text-secondary"> {TO} </p>
+            <p className="mx-4 text-xs text-text-light"> {TO} </p>
             <FormField
               control={form.control}
               name="timeRange.endTime"
@@ -251,8 +241,8 @@ export default function NewEventForm() {
 
   const availabilityTypeInput = (
     <>
-      <p className="mb-3 text-xs font-medium text-secondary">{WHAT_AVAILABILITY}</p>
-      <fieldset className="flex w-full items-center justify-between">
+      <p className="mb-3 text-xs font-normal text-text-light">{WHAT_AVAILABILITY}</p>
+      <fieldset className="flex w-full items-center justify-between rounded-md bg-input p-1">
         <div className="h-full w-full">
           <Input
             className="peer hidden"
@@ -264,16 +254,15 @@ export default function NewEventForm() {
             value={AvailabilityType.SPECIFIC_DATES}
           />
           <Label
-            className="text-secondary cursor-pointer font-medium rounded-md flex items-center py-1.5 justify-center w-full border-[1px] border-primary text-sm peer-checked:bg-primary peer-checked:text-white peer-checked:hover:bg-primary"
+            className="text-light flex w-full cursor-pointer items-center justify-center rounded-sm py-1.5 text-sm peer-checked:bg-primary peer-checked:text-white peer-checked:hover:bg-primary"
             htmlFor="specific-dates"
           >
             <span className="flex flex-col items-center">
-              <div>Specific</div>
-              <div>Dates</div>
+              <div>Specific dates</div>
             </span>
           </Label>
         </div>
-        <p className="mx-6 text-xs text-secondary"> {OR} </p>
+        {/* <p className="mx-6 text-xs text-secondary"> {OR} </p> */}
         <div className="h-full w-full">
           <Input
             className="peer hidden"
@@ -286,12 +275,11 @@ export default function NewEventForm() {
             value={AvailabilityType.DAYS_OF_WEEK}
           />
           <Label
-            className="text-secondary cursor-pointer font-medium rounded-md flex items-center py-1.5 justify-center w-full border-[1px] border-primary text-sm peer-checked:bg-primary peer-checked:text-white peer-checked:hover:bg-primary"
+            className="flex w-full cursor-pointer items-center justify-center rounded-sm py-1.5 text-sm font-medium text-text-light peer-checked:bg-primary peer-checked:text-white peer-checked:hover:bg-primary"
             htmlFor="dow"
           >
             <span className="flex flex-col items-center">
-              <div>Days Of</div>
-              <div>The Week</div>
+              <div>Days of the week</div>
             </span>
           </Label>
         </div>
@@ -354,7 +342,7 @@ export default function NewEventForm() {
           setSelectedDates={setSelectedDates}
           size="large"
         />
-        <div className="ml-3 h-2 text-2xs font-medium text-red-600 whitespace-nowrap">
+        <div className="text-red-600 ml-3 h-2 whitespace-nowrap text-2xs font-medium">
           {form.formState.errors.specificDates?.message}
         </div>
       </>
@@ -366,7 +354,7 @@ export default function NewEventForm() {
           setSelectedDaysOfWeek={setSelectedDaysOfWeek}
           size="large"
         />
-        <div className="ml-3 h-2 text-2xs font-medium text-red-600 whitespace-nowrap">
+        <div className="text-red-600 ml-3 h-2 whitespace-nowrap text-2xs font-medium">
           {form.formState.errors.specificDates?.message}
         </div>
       </>
@@ -395,7 +383,7 @@ export default function NewEventForm() {
           <motion.div
             animate="shiftUp"
             className={cn(
-              "xs:hidden z-[999] fixed bottom-0 left-0 flex w-full justify-center rounded-t-sm bg-white px-9 pb-6 pt-4 shadow-[0px_2px_2px_4px] shadow-gray-200"
+              "fixed bottom-0 left-0 z-[999] flex w-full justify-center rounded-t-sm bg-white px-9 pb-6 pt-4 shadow-[0px_2px_2px_4px] shadow-gray-200 xs:hidden"
             )}
             exit="shiftDown"
             initial="shiftDown"
@@ -406,23 +394,23 @@ export default function NewEventForm() {
             }}
           >
             <Button
-              className="h-12 w-full max-w-[26rem] rounded-xl border-primary text-sm"
-              disabled={isSubmitAttempted.current && !form.formState.isValid}
+              className="h-12 w-full max-w-[26rem] rounded-xl text-sm"
+              disabled={!isFormValid || isPending || isSuccess}
               form="new-event-form"
               type="submit"
             >
-              {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin text-white" /> : CREATE_EVENT}
+              {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin text-white" /> : CONTINUE}
             </Button>
           </motion.div>
         )}
       </AnimatePresence>
       <Button
-        className="hidden z-[999] xs:block h-12 w-full rounded-xl border-[1px] border-primary align-bottom text-sm"
-        disabled={isSubmitAttempted.current && !form.formState.isValid}
+        className="z-[999] hidden h-12 w-full rounded-xl border-[1px] align-bottom text-sm xs:block"
+        disabled={!isFormValid || isPending || isSuccess}
         form="new-event-form"
         type="submit"
       >
-        {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin py-0 text-white" /> : CREATE_EVENT}
+        {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin py-0 text-white" /> : CONTINUE}
       </Button>
     </>
   );
@@ -433,22 +421,22 @@ export default function NewEventForm() {
         <FormProvider {...form}>
           <form
             autoComplete="off"
-            className="card mx-auto flex h-full w-full min-w-[22rem] max-w-[26rem] flex-col sm:min-h-[36rem] sm:max-w-[30rem] md:mx-[1rem] xl:max-w-[26rem]"
+            className="card mx-auto flex h-full w-full min-w-0 max-w-[26rem] flex-col bg-white px-5 sm:min-h-[36rem] sm:max-w-[30rem] sm:px-8 md:mx-[1rem] xl:max-w-[26rem]"
             id="new-event-form"
             onSubmit={(e) => {
               e.preventDefault();
               e.stopPropagation();
               isSubmitAttempted.current = true;
-              if (form.formState.isSubmitting || form.formState.isSubmitSuccessful) return;
+              if (form.formState.isSubmitting || isPending || isSuccess) return;
               form.handleSubmit(onSubmit, onInvalid)();
             }}
             ref={formRef}
           >
             <div className="mb-5 flex flex-col">{eventNameInput}</div>
             <div className="mb-6 flex w-full flex-col">{startAndEndTimeInput}</div>
+            <div className="mb-6"> {timeZoneDropdown}</div>
             <div className="mb-5 flex flex-col">{availabilityTypeInput}</div>
             <div className="mb-6">{dateSelector}</div>
-            <div className="mb-6"> {timeZoneDropdown}</div>
             {formSubmissionButton}
           </form>
         </FormProvider>

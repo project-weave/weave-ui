@@ -1,11 +1,11 @@
 import EditAvailabilityDialog from "../dialog/edit-availability-dialog";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, Copy } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import BestTimesAvailableSwitch from "@/components/availability-grid/best-times-available-switch";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { toast } from "@/components/ui/use-toast";
 import useScreenSize, { ScreenSize } from "@/hooks/useScreenSize";
 import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
@@ -69,7 +69,7 @@ export default function AvailabilityGridBottomPanel() {
       <div style={{ height: spacingHeightStyle }}></div>
       <div
         className={cn(
-          "fixed bottom-0 w-full rounded-t-3xl bg-background pb-5 shadow-[0px_-1px_6px_1px] shadow-gray-100",
+          "fixed bottom-0 w-full rounded-t-3xl bg-white pb-5 shadow-[0px_-1px_6px_1px] shadow-gray-100",
           isEditMode(mode) && "rounded-t-none pt-2"
         )}
       >
@@ -87,21 +87,7 @@ export default function AvailabilityGridBottomPanel() {
             </>
           )}
           <div className="z-10 mx-auto grid w-full max-w-[56rem] grid-flow-col justify-between px-6 pt-4">
-            <Button
-              className="h-[2rem] rounded-[.5rem] border-2 text-sm sm:h-[2.3rem] md:h-[2.6rem] md:px-6 md:text-[1.05rem]"
-              onClick={() => {
-                const url = `${window.location.origin}/${eventId}`;
-                navigator.clipboard.writeText(url);
-                toast({
-                  className: "w-fit ml-auto py-4 text-sm md:w-full md:py-6",
-                  description: "Copied link to clipboard.",
-                  variant: "success"
-                });
-              }}
-              variant="outline"
-            >
-              {COPY_LINK} <Copy className="ml-2 h-4 w-4 md:ml-3 md:h-5 md:w-5" />
-            </Button>
+            <BestTimesAvailableSwitch />
             <div className="text-sm">{isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}</div>
           </div>
         </div>
@@ -121,7 +107,7 @@ function ResponsesAccordion({
     <>
       <header
         className={cn(
-          "flex h-[3rem] w-full items-center justify-between rounded-t-2xl border-[1px] border-b-0 border-accent bg-background px-5 pt-1 text-center font-medium sm:h-[3.5rem] sm:pt-0 md:h-[3.6rem] md:px-7",
+          "flex h-[3rem] w-full items-center justify-between rounded-t-2xl border-[1px] border-b-0 border-accent bg-white px-5 pt-1 text-center font-medium sm:h-[3.5rem] sm:pt-0 md:h-[3.6rem] md:px-7",
           totalResponseCount !== 0 && "cursor-pointer"
         )}
         onClick={() => {
@@ -165,7 +151,7 @@ function ResponsesAccordion({
               <div className="mx-auto my-1 max-w-[48rem] flex-1 px-5 text-secondary sm:grid sm:grid-cols-4 sm:px-7 md:my-2 md:grid-cols-5">
                 {eventParticipants.map((name, i) => (
                   <AvailbilityGridResponseFilterButton
-                    className="my-1.5 mx-1 p-[3px] text-[0.74rem] font-medium md:text-[0.84rem]"
+                    className="mx-1 my-1.5 p-[3px] text-[0.74rem] font-medium md:text-[0.84rem]"
                     key={`${name}-${i}-filter-button-bottom-panel`}
                     name={name}
                   />

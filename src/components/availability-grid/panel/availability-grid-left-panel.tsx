@@ -1,33 +1,36 @@
+// eslint-disable-next-line prettier/prettier
+import EditAvailabilityDialog from "../dialog/edit-availability-dialog";
 import { format, parseISO } from "date-fns";
-import { Copy } from "lucide-react";
+// eslint-disable-next-line prettier/prettier
 import { useCallback, useRef } from "react";
+// eslint-disable-next-line prettier/prettier
 import { useShallow } from "zustand/react/shallow";
 
 import { MONTH_FORMAT } from "@/components/event-date-calendar";
 import EventDateCalendar from "@/components/no-ssr-event-date-calendar";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-import useAvailabilityGridStore from "@/store/availabilityGridStore";
+import useAvailabilityEntry from "@/hooks/useAvailabilityEntry";
+import useAvailabilityGridStore, { isViewMode } from "@/store/availabilityGridStore";
 import { AvailabilityType } from "@/types/Event";
 import { EventDate } from "@/types/Timeslot";
 
-import AvailabilityGridResponseFilterButton from "./availability-grid-response-filter-button";
+import AvailabilityParticipantFilters from "./availability-participant-filters";
 import AvailabilityResponsesCount from "./availability-responses-count";
 
+const SAVE_AVAILABILITY_BUTTON_TEXT = "Save Availability";
+
 export default function AvailabilityGridLeftPanel() {
-  const { availabilityType, eventId, eventName, sortedEventDates } = useAvailabilityGridStore(
-    (state) => state.eventData
-  );
-  const getEventParticipants = useAvailabilityGridStore((state) => state.getEventParticipants);
-  const eventParticipants = getEventParticipants();
+  const { availabilityType, sortedEventDates } = useAvailabilityGridStore((state) => state.eventData);
+
+  const mode = useAvailabilityGridStore((state) => state.mode);
+  const isSaving = useAvailabilityGridStore((state) => state.isSavingAvailability);
+  const { actionLabel, namePromptOpen, openAvailability, setNamePromptOpen } = useAvailabilityEntry();
 
   const [leftMostColumnInView, setLeftMostColumnInView] = useAvailabilityGridStore(
     useShallow((state) => [state.leftMostColumnInView, state.setLeftMostColumnInView])
   );
   const availabilityGridViewWindowSize = useAvailabilityGridStore((state) => state.availabilityGridViewWindowSize);
   const setFocusedDate = useAvailabilityGridStore((state) => state.setFocusedDate);
-
-  const { toast } = useToast();
 
   const visibleEventDates = sortedEventDates.slice(
     leftMostColumnInView,
@@ -60,39 +63,43 @@ export default function AvailabilityGridLeftPanel() {
     [setFocusedDate, sortedEventDates, setLeftMostColumnInView]
   );
 
+  const saveUserAvailabilityButton = (
+    <Button
+      className="over:bg-primary-purple/80 w-full text-sm font-normal"
+      disabled={isSaving}
+      form="availability-grid"
+      key="save-availability"
+      type="submit"
+      variant="default"
+    >
+      {isSaving ? "Saving…" : SAVE_AVAILABILITY_BUTTON_TEXT}
+    </Button>
+  );
+
+  const editUserAvailabilityButton = (
+    <Button
+      className="w-full rounded-md text-sm font-normal"
+      disabled={isSaving}
+      key="edit-availability"
+      onClick={openAvailability}
+      type="button"
+    >
+      {actionLabel}
+    </Button>
+  );
+
   const eventCalendarMonthOverride = format(parseISO(sortedEventDates[leftMostColumnInView]), MONTH_FORMAT);
 
   return (
-    <div className="card flex h-full cursor-pointer flex-col px-4 pb-4">
-      <div className="relative flex justify-between rounded-2xl border-2 border-primary px-3 py-2 text-sm font-medium text-secondary">
-        <p className="max-w-[80%] overflow-hidden whitespace-nowrap text-ellipsis">{eventName}</p>
-        <Button
-          className="absolute -end-1 -top-[1.5px] h-10 rounded-2xl hover:bg-primary-hover"
-          onClick={() => {
-            const url = `${window.location.origin}/${eventId}`;
-            navigator.clipboard.writeText(url);
-            toast({
-              description: "Copied link to clipboard.",
-              variant: "success"
-            });
-          }}
-          variant="default"
-        >
-          <Copy className="h-4 w-4" />
-        </Button>
-      </div>
-
-      <div className="ml-2 mt-2 flex items-center justify-between">
+    <aside aria-label="Event participants" className="card flex h-full flex-col px-6 pb-6">
+      <div className="mt-1 flex items-center justify-between">
         <AvailabilityResponsesCount />
       </div>
 
-      <div
-        className="scrollbar-primary m-3 box-border grid flex-1 gap-x-0.5 gap-y-1 overflow-y-scroll text-secondary"
-        style={{ gridAutoRows: "min-content", gridTemplateColumns: `repeat(2, minmax(5rem, 1fr))` }}
-      >
-        {eventParticipants.map((name, i) => (
-          <AvailabilityGridResponseFilterButton key={`${name}-${i}-filter-button`} name={name} />
-        ))}
+      <div className="mt-3">{isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}</div>
+
+      <div className="scrollbar-primary mt-5 min-h-0 flex-1 overflow-y-auto pb-4">
+        <AvailabilityParticipantFilters />
       </div>
       {availabilityType === AvailabilityType.SPECIFIC_DATES && sortedEventDates.length !== 0 && (
         <div className="min-h-[16rem]">
@@ -108,6 +115,14 @@ export default function AvailabilityGridLeftPanel() {
           />
         </div>
       )}
-    </div>
+      <EditAvailabilityDialog
+        allowModeSelection={false}
+        initialViewMode="add-new"
+        onOpenChange={setNamePromptOpen}
+        open={namePromptOpen}
+        title="Add your availability"
+        trigger={null}
+      />
+    </aside>
   );
 }
