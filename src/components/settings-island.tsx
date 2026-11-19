@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import useAvailabilityEntry from "@/hooks/useAvailabilityEntry";
@@ -27,84 +28,98 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
   // afterwards the control becomes a toggle between viewing and editing.
   const hasStarted = editing || hasSavedAvailability;
 
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [contentWidth, setContentWidth] = useState<null | number>(null);
+  useEffect(() => {
+    const content = contentRef.current;
+    if (!content) return;
+    const observer = new ResizeObserver(() => setContentWidth(content.offsetWidth));
+    observer.observe(content);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <>
       {/* Floats over the page on mobile; on desktop it sits in the page flow, 50px below the event container */}
       <div className="fixed bottom-4 left-1/2 z-40 w-max max-w-[calc(100vw-1.5rem)] -translate-x-1/2 pb-[env(safe-area-inset-bottom)] sm:bottom-6 lg:static lg:mx-auto lg:mt-[50px] lg:shrink-0 lg:translate-x-0">
+        {/* The card's width follows its contents with an ease-out transition so switching modes isn't jumpy */}
         <div
           aria-label="Availability controls"
-          className="card flex h-auto min-w-0 items-center gap-2 rounded-2xl px-3 py-2.5 sm:gap-4 sm:px-4"
+          className="card h-auto w-auto overflow-hidden rounded-2xl p-0 transition-[width] duration-300 ease-out motion-reduce:transition-none"
           role="toolbar"
+          style={{ width: contentWidth === null ? undefined : contentWidth + 2 }}
         >
-          {hasStarted ? (
-            <div
-              aria-label="Availability mode"
-              className="flex h-10 shrink-0 items-center rounded-lg bg-input p-1"
-              role="group"
-            >
-              <Button
-                aria-pressed={!editing}
-                className={cn(
-                  "h-8 gap-1.5 rounded-md bg-transparent px-2.5 text-sm text-black hover:bg-light-gray",
-                  !editing && "bg-red hover:bg-red"
-                )}
-                disabled={isSaving}
-                onClick={() => editing && cancelEditing()}
-                type="button"
-                variant="ghost"
+          <div className="flex w-max min-w-0 items-center gap-2 px-3 py-2.5 sm:gap-3 sm:px-4" ref={contentRef}>
+            {hasStarted ? (
+              <div
+                aria-label="Availability mode"
+                className="flex h-10 shrink-0 items-center rounded-lg bg-input p-1"
+                role="group"
               >
-                <Image alt="" height={15} src="/icons/weave/eye.svg" width={15} />
-                <span className="hidden xs:inline">Viewing</span>
-              </Button>
+                <Button
+                  aria-pressed={!editing}
+                  className={cn(
+                    "h-8 gap-1.5 rounded-md bg-transparent px-2.5 text-sm text-black hover:bg-light-gray",
+                    !editing && "bg-red hover:bg-red"
+                  )}
+                  disabled={isSaving}
+                  onClick={() => editing && cancelEditing()}
+                  type="button"
+                  variant="ghost"
+                >
+                  <Image alt="" height={15} src="/icons/weave/eye.svg" width={15} />
+                  <span className="hidden xs:inline">View</span>
+                </Button>
+                <Button
+                  aria-pressed={editing}
+                  className={cn(
+                    "h-8 gap-1 rounded-md bg-transparent px-2.5 text-sm text-black hover:bg-light-gray",
+                    editing && "bg-yellow hover:bg-yellow"
+                  )}
+                  disabled={isSaving}
+                  onClick={() => !editing && openAvailability()}
+                  type="button"
+                  variant="ghost"
+                >
+                  <Image alt="" height={20} src="/icons/weave/pencil.svg" width={20} />
+                  <span className="hidden xs:inline">Edit</span>
+                </Button>
+              </div>
+            ) : (
               <Button
-                aria-pressed={editing}
-                className={cn(
-                  "h-8 gap-1 rounded-md bg-transparent px-2.5 text-sm text-black hover:bg-light-gray",
-                  editing && "bg-yellow hover:bg-yellow"
-                )}
+                className="h-10 shrink-0 rounded-lg px-4 text-sm"
                 disabled={isSaving}
-                onClick={() => !editing && openAvailability()}
+                onClick={openAvailability}
                 type="button"
-                variant="ghost"
               >
-                <Image alt="" height={20} src="/icons/weave/pencil.svg" width={20} />
-                <span className="hidden xs:inline">Editing</span>
+                Add availability
               </Button>
-            </div>
-          ) : (
+            )}
+
+            {editing ? (
+              <Button
+                className="h-10 shrink-0 rounded-lg bg-success px-3 text-sm text-black hover:bg-success/80"
+                disabled={isSaving}
+                form="availability-grid"
+                type="submit"
+              >
+                {isSaving ? "Saving…" : "Save"}
+              </Button>
+            ) : (
+              <BestTimesAvailableSwitch />
+            )}
+
             <Button
-              className="h-10 shrink-0 rounded-lg px-4 text-sm"
-              disabled={isSaving}
-              onClick={openAvailability}
+              aria-label="Copy event link"
+              className="h-10 w-10 shrink-0 rounded-lg p-0"
+              onClick={onCopyClick}
+              title="Copy event link"
               type="button"
+              variant="ghost"
             >
-              Add availability
+              <Image alt="" height={24} src="/icons/weave/link.svg" width={24} />
             </Button>
-          )}
-
-          {editing ? (
-            <Button
-              className="h-10 shrink-0 rounded-lg bg-success px-3 text-sm text-black hover:bg-success/80"
-              disabled={isSaving}
-              form="availability-grid"
-              type="submit"
-            >
-              {isSaving ? "Saving…" : "Save"}
-            </Button>
-          ) : (
-            <BestTimesAvailableSwitch labelStyles="text-2xs sm:text-xs" />
-          )}
-
-          <Button
-            aria-label="Copy event link"
-            className="h-10 w-10 shrink-0 rounded-lg p-0"
-            onClick={onCopyClick}
-            title="Copy event link"
-            type="button"
-            variant="ghost"
-          >
-            <Image alt="" height={24} src="/icons/weave/link.svg" width={24} />
-          </Button>
+          </div>
         </div>
       </div>
       <EditAvailabilityDialog

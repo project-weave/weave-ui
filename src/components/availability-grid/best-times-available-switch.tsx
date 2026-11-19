@@ -1,27 +1,18 @@
-import { useId } from "react";
+import { Star } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import useAvailabilityGridStore, { isEditMode } from "@/store/availabilityGridStore";
 import { getDateFromTimeSlot } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
 
-const DEFAULT_LABEL = "Best Times";
-
 type BestTimesAvailableSwitchProps = {
-  labelStyles?: string;
-  labelText?: string;
-  switchStyles?: string;
+  className?: string;
 };
 
-export default function BestTimesAvailableSwitch({
-  labelStyles,
-  labelText,
-  switchStyles
-}: BestTimesAvailableSwitchProps) {
-  const switchId = useId();
+// Star toggle that highlights the times when the most participants are available
+export default function BestTimesAvailableSwitch({ className }: BestTimesAvailableSwitchProps) {
   const { allParticipants, sortedEventDates, timeSlotsToParticipants } = useAvailabilityGridStore(
     (state) => state.eventData
   );
@@ -78,24 +69,25 @@ export default function BestTimesAvailableSwitch({
   }
 
   return (
-    <div className={cn("flex items-center space-x-2", { invisible: isEditMode(mode) })}>
-      <Label
-        className={cn(
-          "cursor-pointer whitespace-nowrap font-normal",
-          isBestTimesEnabled ? "text-primary-purple" : "text-text-light",
-          labelStyles
-        )}
-        htmlFor={switchId}
-      >
-        {labelText ? labelText : DEFAULT_LABEL}
-      </Label>
-      <Switch
-        aria-label={labelText ?? DEFAULT_LABEL}
-        checked={isBestTimesEnabled}
-        className={cn("data-[state=unchecked]:bg-accent first-letter:data-[state=checked]:bg-primary", switchStyles)}
-        id={switchId}
-        onCheckedChange={handleBestTimesToggle}
+    <Button
+      aria-label="Best times"
+      aria-pressed={isBestTimesEnabled}
+      className={cn(
+        "h-10 w-10 shrink-0 rounded-lg p-0 transition-colors duration-200",
+        isBestTimesEnabled && "bg-primary hover:bg-primary-hover",
+        isEditMode(mode) && "invisible",
+        className
+      )}
+      onClick={handleBestTimesToggle}
+      title={isBestTimesEnabled ? "Show all times" : "Show best times"}
+      type="button"
+      variant="ghost"
+    >
+      <Star
+        aria-hidden="true"
+        className={cn("h-5 w-5", isBestTimesEnabled ? "fill-white text-white" : "text-black")}
+        strokeWidth={1.75}
       />
-    </div>
+    </Button>
   );
 }
