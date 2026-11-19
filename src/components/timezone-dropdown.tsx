@@ -173,23 +173,18 @@ export default function TimeZoneDropdown({
         align={gridDropdown ? "start" : "center"}
         className={cn(
           "mb-2 w-[var(--radix-popover-trigger-width)] min-w-[20rem] p-0",
-          gridDropdown && "mb-1 w-[16rem] min-w-[16rem] border-[1px] border-primary sm:min-w-[16rem]"
+          gridDropdown && "mb-1 w-[18rem] min-w-[18rem]"
         )}
       >
         <Command className="bg-background" filter={(value, search) => timeZoneFilter(value, search)}>
-          <CommandInput
-            className={cn("py-5 text-sm", gridDropdown && "h-7 py-0 text-2xs")}
-            placeholder="Search time zones"
-          />
+          <CommandInput className="py-5 text-sm" placeholder="Search time zones" />
           <CommandList
             className={cn(
               "scrollbar-primary my-1 max-h-[11rem] overflow-y-scroll sm:max-h-[14rem]",
-              gridDropdown && "max-h-[7rem] sm:max-h-[10rem]"
+              gridDropdown && "max-h-[14rem]"
             )}
           >
-            <CommandEmpty
-              className={cn("mx-2 my-1 rounded-sm bg-gray-200 py-1.5 text-center text-xs", gridDropdown && "text-2xs")}
-            >
+            <CommandEmpty className="mx-2 my-1 rounded-sm bg-gray-200 py-1.5 text-center text-xs">
               {NO_TIME_ZONES_FOUND}
             </CommandEmpty>
             <CommandGroup ref={commandGroupRef}>
@@ -201,7 +196,7 @@ export default function TimeZoneDropdown({
                       ? "bg-primary text-white aria-selected:bg-primary [&_*]:text-white"
                       : "aria-selected:bg-primary/20 hover:bg-primary/20",
                     {
-                      "ml-[1px] py-[2px] text-2xs sm:text-2xs": gridDropdown
+                      "text-sm sm:text-sm": gridDropdown
                     }
                   )}
                   data-value={timeZone.value}
@@ -219,7 +214,7 @@ export default function TimeZoneDropdown({
                     className={cn(
                       "h-5 w-5 shrink-0 text-white",
                       selectedTimeZone.value === timeZone.value ? "opacity-100" : "opacity-0",
-                      gridDropdown && "h-3 w-3"
+                      gridDropdown && "h-4 w-4"
                     )}
                   />
                 </CommandItem>

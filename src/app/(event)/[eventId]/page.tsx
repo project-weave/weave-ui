@@ -30,9 +30,11 @@ export default function Event() {
   const handleCopyClick = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      toast({ variant: "success", description: "Event link copied" });
+      toast({ description: "Link copied", duration: 3000, variant: "success" });
+      return true;
     } catch {
-      toast({ variant: "failure", description: "Unable to copy the link. Copy it from your browser’s address bar." });
+      toast({ description: "Couldn't copy the link. Copy it from your browser's address bar.", variant: "failure" });
+      return false;
     }
   };
 

@@ -51,7 +51,7 @@ export default function AvailabilityMobileHeader() {
           {expanded ? "Hide participants" : "Show participants"}
         </button>
       </div>
-      <div className="mt-4 border-t pt-3" hidden={!expanded} id={detailsId}>
+      <div className="mt-3" hidden={!expanded} id={detailsId}>
         <AvailabilityParticipantFilters />
       </div>
     </section>

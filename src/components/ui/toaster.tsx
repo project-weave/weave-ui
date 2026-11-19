@@ -12,7 +12,7 @@ export function Toaster() {
       {toasts.map(function ({ action, description, id, placement, title, variant, ...props }) {
         return (
           <Toast
-            duration={4000}
+            duration={3000}
             key={id}
             onPointerDown={(e) => e.preventDefault()}
             onPointerMove={(e) => e.preventDefault()}

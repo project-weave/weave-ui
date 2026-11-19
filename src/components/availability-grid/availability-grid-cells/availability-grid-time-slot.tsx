@@ -219,11 +219,12 @@ export default function AvailabilityGridTimeSlot({
   }
 
   function getBorderStyle() {
-    if (isViewMode(mode)) return "solid";
+    // the line marking the hovered time is dotted so it's easier on the eye than a solid black rule
+    if (isViewMode(mode)) return isTimeHovered && !isTimeSlotHovered ? "dotted solid solid solid" : "solid";
     const rightStyle = hasDateGapRight || isRightBorder ? "solid" : "dashed";
     const leftStyle = hasDateGapLeft || isLeftBorder ? "solid" : "dashed";
     const bottomStyle = isBottomBorder ? "solid" : "dashed";
-    const topStyle = isTimeHovered || isTopBorder ? "solid" : "dashed";
+    const topStyle = isTopBorder ? "solid" : isTimeHovered ? "dotted" : "dashed";
     return `${topStyle} ${rightStyle} ${bottomStyle} ${leftStyle}`;
   }
 

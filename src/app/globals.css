@@ -133,13 +133,14 @@
 
 .editing-border {
   padding: 3px;
+  /* a faint yellow ring with a bright yellow band that travels around it */
   background: conic-gradient(
     from var(--editing-border-angle),
-    rgb(var(--yellow)) 0deg,
-    rgb(240, 185, 20) 50deg,
-    rgb(240, 185, 20) 70deg,
-    rgb(var(--yellow)) 130deg,
-    rgb(var(--yellow)) 360deg
+    rgba(var(--yellow), 0.6) 0deg,
+    rgba(var(--yellow), 0.6) 200deg,
+    rgb(250, 204, 21) 270deg,
+    rgb(245, 180, 0) 320deg,
+    rgba(var(--yellow), 0.6) 360deg
   );
   /* only paint the 3px ring, not the inside of the container */
   -webkit-mask:
@@ -149,7 +150,7 @@
   mask:
     linear-gradient(#000 0 0) content-box exclude,
     linear-gradient(#000 0 0);
-  animation: editing-border-spin 6s linear infinite;
+  animation: editing-border-spin 4s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {

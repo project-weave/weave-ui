@@ -1,6 +1,6 @@
 "use client";
 
-import { Link2, Pencil } from "lucide-react";
+import { Check, Link2, Pencil } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
@@ -30,8 +30,14 @@ function hasUnsavedChanges() {
 }
 
 interface SettingsIslandProps {
-  onCopyClick?: () => void;
+  // resolves to true when the link was copied
+  onCopyClick?: () => Promise<boolean>;
 }
+
+// shared hover + press-down feedback for every button in the control bar
+const PRESSABLE = "transition-[background-color,transform] duration-150 active:scale-95 motion-reduce:transition-none";
+// how long the copy button stays green with a check after copying
+const COPIED_FEEDBACK_MS = 1500;
 
 export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
   const mode = useAvailabilityGridStore((state) => state.mode);
@@ -47,6 +53,16 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
   const hasStarted = editing || hasSavedAvailability;
 
   const [unsavedPromptOpen, setUnsavedPromptOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const copiedTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => clearTimeout(copiedTimeoutRef.current), []);
+
+  async function onCopy() {
+    if (!onCopyClick || !(await onCopyClick())) return;
+    setCopied(true);
+    clearTimeout(copiedTimeoutRef.current);
+    copiedTimeoutRef.current = setTimeout(() => setCopied(false), COPIED_FEEDBACK_MS);
+  }
 
   function onViewClick() {
     if (!editing) return;
@@ -90,14 +106,15 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
             {hasStarted ? (
               <div
                 aria-label="Availability mode"
-                className="flex h-10 shrink-0 items-center rounded-lg bg-input p-1"
+                className="flex h-10 shrink-0 items-stretch overflow-hidden rounded-lg bg-input"
                 role="group"
               >
                 <Button
                   aria-pressed={!editing}
                   className={cn(
-                    "h-8 gap-1.5 rounded-md bg-transparent px-2.5 text-sm text-black hover:bg-light-gray",
-                    !editing && "bg-red hover:bg-red"
+                    "h-10 gap-1.5 rounded-lg bg-transparent px-3 text-sm text-black hover:bg-light-gray",
+                    PRESSABLE,
+                    !editing && "bg-red hover:bg-red/80"
                   )}
                   disabled={isSaving}
                   onClick={onViewClick}
@@ -110,8 +127,9 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
                 <Button
                   aria-pressed={editing}
                   className={cn(
-                    "h-8 gap-1.5 rounded-md bg-transparent px-2.5 text-sm text-black hover:bg-light-gray",
-                    editing && "bg-yellow hover:bg-yellow"
+                    "h-10 gap-1.5 rounded-lg bg-transparent px-3 text-sm text-black hover:bg-light-gray",
+                    PRESSABLE,
+                    editing && "bg-yellow hover:bg-yellow/80"
                   )}
                   disabled={isSaving}
                   onClick={() => !editing && openAvailability()}
@@ -124,7 +142,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
               </div>
             ) : (
               <Button
-                className="h-10 shrink-0 rounded-lg px-4 text-sm"
+                className={cn("h-10 shrink-0 rounded-lg px-4 text-sm", PRESSABLE)}
                 disabled={isSaving}
                 onClick={openAvailability}
                 type="button"
@@ -135,7 +153,10 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
 
             {editing ? (
               <Button
-                className="h-10 shrink-0 rounded-lg bg-success px-3 text-sm text-black hover:bg-success/80"
+                className={cn(
+                  "h-10 shrink-0 rounded-lg bg-success px-3 text-sm text-black hover:bg-success/70",
+                  PRESSABLE
+                )}
                 disabled={isSaving}
                 form="availability-grid"
                 type="submit"
@@ -147,14 +168,32 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
             )}
 
             <Button
-              aria-label="Copy event link"
-              className="h-10 w-10 shrink-0 rounded-lg p-0"
-              onClick={onCopyClick}
-              title="Copy event link"
+              aria-label={copied ? "Link copied" : "Copy event link"}
+              className={cn(
+                "h-10 w-10 shrink-0 rounded-lg p-0 hover:bg-light-gray",
+                PRESSABLE,
+                copied && "bg-success hover:bg-success"
+              )}
+              onClick={onCopy}
+              title={copied ? "Link copied" : "Copy event link"}
               type="button"
               variant="ghost"
             >
-              <Link2 absoluteStrokeWidth aria-hidden="true" className="h-[15px] w-[15px]" strokeWidth={1.5} />
+              {copied ? (
+                <Check
+                  absoluteStrokeWidth
+                  aria-hidden="true"
+                  className="h-[15px] w-[15px] duration-200 animate-in fade-in-0 zoom-in-50"
+                  strokeWidth={1.75}
+                />
+              ) : (
+                <Link2
+                  absoluteStrokeWidth
+                  aria-hidden="true"
+                  className="h-[15px] w-[15px] duration-200 animate-in fade-in-0"
+                  strokeWidth={1.5}
+                />
+              )}
             </Button>
           </div>
         </div>

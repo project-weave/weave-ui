@@ -4,13 +4,14 @@ import { toast } from "../ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { parseISO } from "date-fns";
 import { useAnimate } from "framer-motion";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useShallow } from "zustand/react/shallow";
 
 import useUpdateAvailability, { UpdateAvailabilityRequest } from "@/hooks/requests/useUpdateAvailability";
 import useAvailabilityGridHeight from "@/hooks/useAvailabilityGridHeight";
 import useGridDragSelect from "@/hooks/useGridDragSelect";
+import useHorizontalDateScroll from "@/hooks/useHorizontalDateScroll";
 import useScreenSize, { ScreenSize } from "@/hooks/useScreenSize";
 import useAvailabilityGridStore, { AvailabilityGridMode } from "@/store/availabilityGridStore";
 import { AvailabilityType, EventResponse, EventResponseSchema } from "@/types/Event";
@@ -143,6 +144,10 @@ export default function AvailabilityGrid() {
 
   const [scope, animate] = useAnimate();
 
+  // horizontal swipes / shift + scroll on the grid move through the dates
+  const formRef = useRef<HTMLFormElement>(null);
+  useHorizontalDateScroll(formRef);
+
   function animateEditAvailabilityButton() {
     if (!scope.current) return;
     animate(scope.current, {
@@ -221,6 +226,7 @@ export default function AvailabilityGrid() {
         handleSubmit(onSubmit)();
       }}
       onTouchEnd={onTouchDragEnd}
+      ref={formRef}
       style={{
         height: screenSize <= ScreenSize.MD ? gridHeightStyle : "100%"
       }}
@@ -238,8 +244,9 @@ export default function AvailabilityGrid() {
         <div className="pb-3 pl-5">
           <AvailabilityGridHeader />
         </div>
+        {/* same right overhang + reserved scrollbar gutter as the rows below, so the columns line up exactly */}
         <div
-          className="grid lg:overflow-y-hidden lg:[scrollbar-gutter:stable]"
+          className="grid scrollbar-thin lg:-mr-8 lg:overflow-y-hidden lg:pr-6 lg:[scrollbar-gutter:stable] xl:-mr-10 xl:pr-8"
           style={{ gridTemplateColumns, height: columnHeaderHeight }}
         >
           {gridNodes.map((columnNodes) => (
@@ -254,7 +261,9 @@ export default function AvailabilityGrid() {
           ))}
         </div>
       </div>
-      <div className="scrollbar-primary flex w-full flex-1 lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain lg:[scrollbar-gutter:stable]">
+      {/* The rows stretch into the card's right padding so the (8px, black) scrollbar sits at the card's edge,
+          outside the calendar. Right padding = card padding - scrollbar width keeps columns aligned with the header. */}
+      <div className="flex w-full flex-1 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-black scrollbar-thumb-rounded-full lg:-mr-8 lg:min-h-0 lg:w-auto lg:overflow-y-auto lg:overscroll-contain lg:pr-6 lg:[scrollbar-gutter:stable] xl:-mr-10 xl:pr-8">
         <div
           className="grid min-h-full w-full"
           id="availability-grid-dates"

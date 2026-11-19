@@ -73,7 +73,7 @@ export default function BestTimesAvailableSwitch({ className }: BestTimesAvailab
       aria-label="Best times"
       aria-pressed={isBestTimesEnabled}
       className={cn(
-        "h-10 w-10 shrink-0 rounded-lg p-0 transition-colors duration-200",
+        "h-10 w-10 shrink-0 rounded-lg p-0 transition-[background-color,transform] duration-150 hover:bg-light-gray active:scale-95 motion-reduce:transition-none",
         isBestTimesEnabled && "bg-primary hover:bg-primary-hover",
         isEditMode(mode) && "invisible",
         className
