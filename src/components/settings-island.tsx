@@ -11,13 +11,6 @@ import {
   DialogTitle,
   DialogTrigger
 } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
 import useAvailabilityEntry from "@/hooks/useAvailabilityEntry";
 import useAvailabilityGridStore, { isEditMode } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
@@ -41,50 +34,68 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
   const setSelectedTimeZone = useAvailabilityGridStore((state) => state.setSelectedTimeZone);
   const cancelEditing = useAvailabilityGridStore((state) => state.cancelEditing);
   const setSelectedTimeSlots = useAvailabilityGridStore((state) => state.setSelectedTimeSlots);
-  const { actionLabel, namePromptOpen, openAvailability, setNamePromptOpen } = useAvailabilityEntry();
+  const { namePromptOpen, openAvailability, setNamePromptOpen } = useAvailabilityEntry();
+  const hasSavedAvailability = useAvailabilityGridStore((state) =>
+    state.eventData.eventResponses.some(({ alias }) => state.user !== "" && alias === state.user)
+  );
+  // Before someone adds their availability they get a single "Add availability" button;
+  // afterwards the control becomes a toggle between viewing and editing.
+  const hasStarted = editing || hasSavedAvailability;
 
   return (
     <>
-      <div className="fixed bottom-4 left-1/2 z-40 w-max max-w-[calc(100vw-1.5rem)] -translate-x-1/2 pb-[env(safe-area-inset-bottom)] sm:bottom-6">
+      {/* Floats over the page on mobile; on desktop it sits in the page flow, 50px below the event container */}
+      <div className="fixed bottom-4 left-1/2 z-40 w-max max-w-[calc(100vw-1.5rem)] -translate-x-1/2 pb-[env(safe-area-inset-bottom)] sm:bottom-6 lg:static lg:mx-auto lg:mt-[50px] lg:shrink-0 lg:translate-x-0">
         <div
           aria-label="Availability controls"
           className="card flex h-auto min-w-0 items-center gap-2 rounded-2xl px-3 py-2.5 sm:gap-4 sm:px-4"
           role="toolbar"
         >
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
+          {hasStarted ? (
+            <div
+              aria-label="Availability mode"
+              className="flex h-10 shrink-0 items-center rounded-lg bg-input p-1"
+              role="group"
+            >
               <Button
-                aria-label={`Availability mode: ${editing ? "Editing" : "Viewing"}`}
+                aria-pressed={!editing}
                 className={cn(
-                  "h-10 shrink-0 gap-2 rounded-lg px-2.5 text-sm text-black",
-                  editing ? "bg-yellow hover:bg-yellow/80" : "bg-red hover:bg-red/80"
+                  "h-8 gap-1.5 rounded-md bg-transparent px-2.5 text-sm text-black hover:bg-light-gray",
+                  !editing && "bg-red hover:bg-red"
                 )}
                 disabled={isSaving}
+                onClick={() => editing && cancelEditing()}
                 type="button"
                 variant="ghost"
               >
-                <Image
-                  alt=""
-                  height={editing ? 24 : 15}
-                  src={editing ? "/icons/weave/pencil.svg" : "/icons/weave/eye.svg"}
-                  width={editing ? 24 : 15}
-                />
-                <span className="hidden xs:inline">{editing ? "Editing" : "Viewing"}</span>
-                <Image alt="" height={10} src="/icons/weave/mode.svg" width={10} />
+                <Image alt="" height={15} src="/icons/weave/eye.svg" width={15} />
+                <span className="hidden xs:inline">Viewing</span>
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="max-w-[calc(100vw-1.5rem)]" side="top">
-              {editing ? (
-                <>
-                  <DropdownMenuItem>Continue editing</DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onSelect={cancelEditing}>Discard changes and view</DropdownMenuItem>
-                </>
-              ) : (
-                <DropdownMenuItem onSelect={openAvailability}>{actionLabel}</DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+              <Button
+                aria-pressed={editing}
+                className={cn(
+                  "h-8 gap-1 rounded-md bg-transparent px-2.5 text-sm text-black hover:bg-light-gray",
+                  editing && "bg-yellow hover:bg-yellow"
+                )}
+                disabled={isSaving}
+                onClick={() => !editing && openAvailability()}
+                type="button"
+                variant="ghost"
+              >
+                <Image alt="" height={20} src="/icons/weave/pencil.svg" width={20} />
+                <span className="hidden xs:inline">Editing</span>
+              </Button>
+            </div>
+          ) : (
+            <Button
+              className="h-10 shrink-0 rounded-lg px-4 text-sm"
+              disabled={isSaving}
+              onClick={openAvailability}
+              type="button"
+            >
+              Add availability
+            </Button>
+          )}
 
           {editing ? (
             <Button
@@ -99,7 +110,6 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
             <BestTimesAvailableSwitch labelStyles="text-2xs sm:text-xs" />
           )}
 
-          <span aria-hidden="true" className="h-6 w-px shrink-0 bg-light-gray" />
           <Dialog>
             <DialogTrigger asChild>
               <Button

@@ -1,4 +1,3 @@
-import TimeZoneDropdown from "../timezone-dropdown";
 import { format, parseISO } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
@@ -6,18 +5,9 @@ import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
 import useAvailabilityGridStore from "@/store/availabilityGridStore";
 import { AvailabilityType } from "@/types/Event";
-import { isSupportedTimeZone } from "@/utils/timeZone";
 
 export default function AvailabilityGridHeader() {
-  const {
-    availabilityType,
-    eventName,
-    sortedEventDates,
-    timeZone: eventTimeZone
-  } = useAvailabilityGridStore((state) => state.eventData);
-  const [selectedTimeZone, setSelectedTimeZone] = useAvailabilityGridStore(
-    useShallow((state) => [state.selectedTimeZone, state.setSelectedTimeZone])
-  );
+  const { availabilityType, eventName, sortedEventDates } = useAvailabilityGridStore((state) => state.eventData);
 
   const [leftMostColumnInView, viewWindowSize, nextPage, previousPage] = useAvailabilityGridStore(
     useShallow((state) => [
@@ -53,15 +43,6 @@ export default function AvailabilityGridHeader() {
   return (
     <div className="flex flex-col gap-3">
       <h1 className="hidden break-words text-xl font-medium [overflow-wrap:anywhere] lg:block">{eventName}</h1>
-      <div className="flex items-center">
-        <TimeZoneDropdown
-          error={false}
-          gridDropdown={true}
-          onChange={setSelectedTimeZone}
-          originalTimeZone={eventTimeZone}
-          selected={isSupportedTimeZone(selectedTimeZone) ? selectedTimeZone : eventTimeZone}
-        />
-      </div>
       {numDays > 0 && (
         <nav aria-label="Date navigation">
           <div className="flex items-center justify-between gap-3">

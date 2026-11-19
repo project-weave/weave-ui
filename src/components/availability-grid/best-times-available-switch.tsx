@@ -3,6 +3,7 @@ import { useShallow } from "zustand/react/shallow";
 
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { toast } from "@/components/ui/use-toast";
 import useAvailabilityGridStore, { isEditMode } from "@/store/availabilityGridStore";
 import { getDateFromTimeSlot } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
@@ -73,6 +74,7 @@ export default function BestTimesAvailableSwitch({
       }
     }
     toggleIsBestTimesEnabled();
+    toast({ description: isBestTimesEnabled ? "Showing all times" : "Showing best times" });
   }
 
   return (

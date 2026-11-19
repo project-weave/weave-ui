@@ -32,9 +32,10 @@ const toastVariants = cva(
     },
     variants: {
       variant: {
-        default: "border bg-background text-foreground",
-        failure: "failure group border-failure bg-failure",
-        success: "success group border-success bg-success"
+        // every toast uses the same plain look: white background, black text
+        default: "border border-light-gray bg-white text-black",
+        failure: "failure group border border-light-gray bg-white text-black",
+        success: "success group border border-light-gray bg-white text-black"
       }
     }
   }
@@ -104,11 +105,11 @@ type ToastActionElement = React.ReactElement<typeof ToastAction>;
 export {
   Toast,
   ToastAction,
+  type ToastActionElement,
   ToastClose,
   ToastDescription,
+  type ToastProps,
   ToastProvider,
   ToastTitle,
-  ToastViewport,
-  type ToastActionElement,
-  type ToastProps
+  ToastViewport
 };

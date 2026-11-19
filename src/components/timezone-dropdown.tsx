@@ -20,6 +20,8 @@ interface TimeZone {
 }
 
 export interface TimeZoneDropdownProps {
+  // compact shows only the abbreviation (e.g. "PT") in a small trigger, used above the grid's time column
+  compact?: boolean;
   error: boolean;
   gridDropdown?: boolean;
   onChange: (timeZone: string) => void;
@@ -61,6 +63,7 @@ function toTimeZoneObject(timeZone: string, gridDropdown?: boolean, originalTime
 }
 
 export default function TimeZoneDropdown({
+  compact,
   error,
   gridDropdown,
   onChange,
@@ -133,11 +136,12 @@ export default function TimeZoneDropdown({
 
   const popoverDisplay = (
     <Button
-      aria-label={gridDropdown ? "Display time zone" : "Event time zone"}
+      aria-label={`${gridDropdown ? "Display time zone" : "Event time zone"}: ${selectedTimeZone.queryLabel}`}
       className={cn(
-        "peer box-border flex h-auto transform-none cursor-pointer items-center rounded-xl bg-input px-4 py-2.5",
+        "peer box-border flex h-auto w-full transform-none cursor-pointer items-center rounded-xl bg-input px-4 py-2.5 text-sm",
         {
           "px-2.5 py-2 text-xs": gridDropdown,
+          "w-auto gap-1 rounded-md px-1.5 py-1 text-2xs font-medium": compact,
           "outline-primary": open,
           "outline-red-500/40 focus-within:outline-red-500 hover:outline-red-500": error
         },
@@ -149,8 +153,16 @@ export default function TimeZoneDropdown({
       variant="ghost"
     >
       <span className="flex w-full items-center justify-between">
-        {getTimeZoneJSX(selectedTimeZone)}
-        <ChevronDown className="ml-2 text-black" height={15} width={15} />
+        {compact ? <span>{selectedTimeZone.abbreviation}</span> : getTimeZoneJSX(selectedTimeZone)}
+        <ChevronDown
+          aria-hidden="true"
+          className={cn("ml-2 shrink-0 text-black transition-transform duration-200", {
+            "ml-0.5": compact,
+            "rotate-180": open
+          })}
+          height={compact ? 12 : 15}
+          width={compact ? 12 : 15}
+        />
       </span>
     </Button>
   );
@@ -161,12 +173,15 @@ export default function TimeZoneDropdown({
       <PopoverContent
         align={gridDropdown ? "start" : "center"}
         className={cn(
-          "mb-2 min-w-[20rem] p-0 sm:min-w-[22rem]",
+          "mb-2 w-[var(--radix-popover-trigger-width)] min-w-[20rem] p-0",
           gridDropdown && "mb-1 w-[16rem] min-w-[16rem] border-[1px] border-primary sm:min-w-[16rem]"
         )}
       >
         <Command className="bg-background" filter={(value, search) => timeZoneFilter(value, search)}>
-          <CommandInput className={cn("py-5 text-sm", gridDropdown && "h-7 py-0 text-2xs")} />
+          <CommandInput
+            className={cn("py-5 text-sm", gridDropdown && "h-7 py-0 text-2xs")}
+            placeholder="Search time zones"
+          />
           <CommandList
             className={cn(
               "scrollbar-primary my-1 max-h-[11rem] overflow-y-scroll sm:max-h-[14rem]",
@@ -182,12 +197,12 @@ export default function TimeZoneDropdown({
               {allTimeZones.map((timeZone) => (
                 <CommandItem
                   className={cn(
-                    "my-[1px] mb-1 mr-2 flex cursor-pointer items-center justify-between border-[1px] border-transparent text-xs hover:bg-primary/20 sm:text-sm md:border-[1.5px]",
+                    "my-[1px] mb-1 mr-2 flex cursor-pointer items-center justify-between text-xs sm:text-sm",
+                    selectedTimeZone.value === timeZone.value
+                      ? "bg-primary text-white aria-selected:bg-primary [&_*]:text-white"
+                      : "aria-selected:bg-primary/20 hover:bg-primary/20",
                     {
-                      "border-primary": selectedTimeZone.value === timeZone.value
-                    },
-                    {
-                      "ml-[1px] py-[2px] text-2xs sm:text-2xs md:border-[1px]": gridDropdown
+                      "ml-[1px] py-[2px] text-2xs sm:text-2xs": gridDropdown
                     }
                   )}
                   data-value={timeZone.value}
@@ -201,8 +216,9 @@ export default function TimeZoneDropdown({
                 >
                   {getTimeZoneJSX(timeZone)}
                   <Check
+                    aria-hidden="true"
                     className={cn(
-                      "h-5 w-5",
+                      "h-5 w-5 shrink-0 text-white",
                       selectedTimeZone.value === timeZone.value ? "opacity-100" : "opacity-0",
                       gridDropdown && "h-3 w-3"
                     )}

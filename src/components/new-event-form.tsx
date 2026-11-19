@@ -191,10 +191,7 @@ export default function NewEventForm() {
       render={() => (
         <FormItem>
           <FormLabel>{WHAT_TIMES}</FormLabel>
-          <div
-            className="mb-0.5 mt-2 flex w-full scroll-m-24 items-center justify-between space-y-1"
-            ref={timeRangeDropdownsRef}
-          >
+          <div className="mb-0.5 mt-2 flex w-full scroll-m-24 items-center justify-between" ref={timeRangeDropdownsRef}>
             <FormField
               control={form.control}
               name="timeRange.startTime"

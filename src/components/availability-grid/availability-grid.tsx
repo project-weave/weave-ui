@@ -201,9 +201,12 @@ export default function AvailabilityGrid() {
   return (
     <form
       aria-busy={isSavingAvailability}
-      className={cn("card flex w-full select-none flex-col bg-white pl-0 pr-5 pt-1 sm:pr-8 xl:pl-2 xl:pr-10", {
-        "border-[3px] border-yellow": mode === AvailabilityGridMode.EDIT
-      })}
+      className={cn(
+        "card flex w-full select-none flex-col bg-white pl-0 pr-5 pt-1 sm:pr-8 lg:overflow-y-auto lg:overscroll-contain lg:pt-0 xl:pl-2 xl:pr-10",
+        {
+          "border-[3px] border-yellow": mode === AvailabilityGridMode.EDIT
+        }
+      )}
       id="availability-grid"
       // mouseUp is cancelled when onContextMenu is triggered so we need to save the selection here as well
       onContextMenu={onMouseDragEnd}
@@ -221,7 +224,7 @@ export default function AvailabilityGrid() {
         height: screenSize <= ScreenSize.MD ? gridHeightStyle : "100%"
       }}
     >
-      <div className="sticky top-[4.5rem] z-30 shrink-0 bg-white pt-4">
+      <div className="sticky top-[4.5rem] z-30 shrink-0 bg-white pt-4 lg:top-0 lg:pt-5">
         <div className="pb-3 pl-5">
           <AvailabilityGridHeader />
         </div>
@@ -238,7 +241,7 @@ export default function AvailabilityGrid() {
           ))}
         </div>
       </div>
-      <div className="flex h-full w-full">
+      <div className="flex w-full flex-1">
         <div
           className="grid h-full w-full"
           id="availability-grid-dates"

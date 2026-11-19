@@ -346,7 +346,7 @@ function DateButton({
               "border-transparent bg-input": true,
               "bg-white": size === "large",
               "text-black": isSameMonth(day, firstDayCurrentMonth),
-              "bg-success text-black hover:bg-success/70 ": isToday(day),
+              "bg-red text-black hover:bg-red/70": isToday(day),
               "hover:text-light/80 text-text-light": !isToday(day) && !isSameMonth(day, firstDayCurrentMonth)
             }
           : {
@@ -365,7 +365,7 @@ function DateButton({
         isViewMode && {
           "bg-primary": isDaySelected,
           "pointer-events-none opacity-20 hover:bg-background": !isDaySelected,
-          "bg-transparent text-black opacity-100": isToday(day) && !isDaySelected,
+          "bg-red text-black opacity-100": isToday(day) && !isDaySelected,
           "text-xs": true
         },
         isViewMode &&

@@ -1,5 +1,3 @@
-// eslint-disable-next-line prettier/prettier
-import EditAvailabilityDialog from "../dialog/edit-availability-dialog";
 import { format, parseISO } from "date-fns";
 // eslint-disable-next-line prettier/prettier
 import { useCallback, useRef } from "react";
@@ -8,23 +6,15 @@ import { useShallow } from "zustand/react/shallow";
 
 import { MONTH_FORMAT } from "@/components/event-date-calendar";
 import EventDateCalendar from "@/components/no-ssr-event-date-calendar";
-import { Button } from "@/components/ui/button";
-import useAvailabilityEntry from "@/hooks/useAvailabilityEntry";
-import useAvailabilityGridStore, { isViewMode } from "@/store/availabilityGridStore";
+import useAvailabilityGridStore from "@/store/availabilityGridStore";
 import { AvailabilityType } from "@/types/Event";
 import { EventDate } from "@/types/Timeslot";
 
 import AvailabilityParticipantFilters from "./availability-participant-filters";
 import AvailabilityResponsesCount from "./availability-responses-count";
 
-const SAVE_AVAILABILITY_BUTTON_TEXT = "Save Availability";
-
 export default function AvailabilityGridLeftPanel() {
   const { availabilityType, sortedEventDates } = useAvailabilityGridStore((state) => state.eventData);
-
-  const mode = useAvailabilityGridStore((state) => state.mode);
-  const isSaving = useAvailabilityGridStore((state) => state.isSavingAvailability);
-  const { actionLabel, namePromptOpen, openAvailability, setNamePromptOpen } = useAvailabilityEntry();
 
   const [leftMostColumnInView, setLeftMostColumnInView] = useAvailabilityGridStore(
     useShallow((state) => [state.leftMostColumnInView, state.setLeftMostColumnInView])
@@ -63,31 +53,6 @@ export default function AvailabilityGridLeftPanel() {
     [setFocusedDate, sortedEventDates, setLeftMostColumnInView]
   );
 
-  const saveUserAvailabilityButton = (
-    <Button
-      className="over:bg-primary-purple/80 w-full text-sm font-normal"
-      disabled={isSaving}
-      form="availability-grid"
-      key="save-availability"
-      type="submit"
-      variant="default"
-    >
-      {isSaving ? "Saving…" : SAVE_AVAILABILITY_BUTTON_TEXT}
-    </Button>
-  );
-
-  const editUserAvailabilityButton = (
-    <Button
-      className="w-full rounded-md text-sm font-normal"
-      disabled={isSaving}
-      key="edit-availability"
-      onClick={openAvailability}
-      type="button"
-    >
-      {actionLabel}
-    </Button>
-  );
-
   const eventCalendarMonthOverride = format(parseISO(sortedEventDates[leftMostColumnInView]), MONTH_FORMAT);
 
   return (
@@ -95,8 +60,6 @@ export default function AvailabilityGridLeftPanel() {
       <div className="mt-1 flex items-center justify-between">
         <AvailabilityResponsesCount />
       </div>
-
-      <div className="mt-3">{isViewMode(mode) ? editUserAvailabilityButton : saveUserAvailabilityButton}</div>
 
       <div className="scrollbar-primary mt-5 min-h-0 flex-1 overflow-y-auto pb-4">
         <AvailabilityParticipantFilters />
@@ -115,14 +78,6 @@ export default function AvailabilityGridLeftPanel() {
           />
         </div>
       )}
-      <EditAvailabilityDialog
-        allowModeSelection={false}
-        initialViewMode="add-new"
-        onOpenChange={setNamePromptOpen}
-        open={namePromptOpen}
-        title="Add your availability"
-        trigger={null}
-      />
     </aside>
   );
 }

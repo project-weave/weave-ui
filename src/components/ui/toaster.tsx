@@ -1,8 +1,6 @@
 "use client";
 
-import { CheckCircle2, XCircle } from "lucide-react";
-
-import { Toast, ToastClose, ToastDescription, ToastProvider, ToastTitle, ToastViewport } from "@/components/ui/toast";
+import { Toast, ToastDescription, ToastProvider, ToastTitle, ToastViewport } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
 
 export function Toaster() {
@@ -11,17 +9,6 @@ export function Toaster() {
   return (
     <ToastProvider swipeDirection="right">
       {toasts.map(function ({ action, description, id, title, variant, ...props }) {
-        let icon;
-        switch (variant) {
-          case "success":
-            icon = <CheckCircle2 className="h-5 w-5" />;
-            break;
-          case "failure":
-            icon = <XCircle className="h-5 w-5" />;
-            break;
-          default:
-            icon = <></>;
-        }
         return (
           <Toast
             duration={4000}
@@ -31,15 +18,11 @@ export function Toaster() {
             {...props}
             variant={variant}
           >
-            <div className="grid grid-flow-col items-center gap-1 text-sm 2xl:text-base">
-              <div className="mr-1.5 mt-[.2px]">{icon}</div>
-              <div>
-                {title && <ToastTitle>{title}</ToastTitle>}
-                {description && <ToastDescription>{description}</ToastDescription>}
-              </div>
+            <div className="text-sm text-black 2xl:text-base">
+              {title && <ToastTitle>{title}</ToastTitle>}
+              {description && <ToastDescription>{description}</ToastDescription>}
             </div>
             {action}
-            <ToastClose />
           </Toast>
         );
       })}
