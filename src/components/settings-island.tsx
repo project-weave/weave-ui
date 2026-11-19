@@ -123,7 +123,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
   return (
     <>
       {/* Floats over the page on mobile; on desktop it sits in the page flow, 50px below the event container */}
-      <div className="fixed bottom-4 left-1/2 z-40 w-max max-w-[calc(100vw-1.5rem)] -translate-x-1/2 pb-[env(safe-area-inset-bottom)] sm:bottom-6 lg:static lg:mx-auto lg:mt-[50px] lg:shrink-0 lg:translate-x-0">
+      <div className="fixed bottom-4 left-1/2 z-40 w-max max-w-[calc(100vw-1.5rem)] -translate-x-1/2 pb-[env(safe-area-inset-bottom)] sm:bottom-6 lg:relative lg:bottom-auto lg:left-auto lg:mx-auto lg:mt-[50px] lg:shrink-0 lg:translate-x-0">
         {/* The card's width follows its contents with an ease-out transition so switching modes isn't jumpy */}
         <div
           aria-label="Availability controls"

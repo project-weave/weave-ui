@@ -12,7 +12,7 @@ import TimeDropdown from "@/components/new-event-from-time-dropdown";
 import { Button } from "@/components/ui/button";
 import { FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import SlidingToggle from "@/components/ui/sliding-toggle";
 import { useToast } from "@/components/ui/use-toast";
 import useCreateEvent, { CreateEventRequest } from "@/hooks/requests/useCreateEvent";
 import useElementInView from "@/hooks/useElementInView";
@@ -32,6 +32,8 @@ const WHAT_AVAILABILITY = "What availability do you want to know?";
 const WHAT_TIME_ZONE = "What time zone works for you?";
 const CONTINUE = "Continue";
 const TO = "to";
+// same as the --primary-purple colour token, for the sliding toggle animation
+const PRIMARY_PURPLE = "rgb(151, 71, 255)";
 
 export default function NewEventForm() {
   const [currentCalendarMonth, setCurrentCalendarMonth] = useState(format(startOfToday(), MONTH_FORMAT));
@@ -240,48 +242,27 @@ export default function NewEventForm() {
   const availabilityTypeInput = (
     <>
       <p className="mb-3 text-xs font-normal text-text-light">{WHAT_AVAILABILITY}</p>
-      <fieldset className="flex w-full items-center justify-between rounded-md bg-input p-1">
-        <div className="h-full w-full">
-          <Input
-            className="peer hidden"
-            defaultChecked={true}
-            id="specific-dates"
-            name="availabilityType"
-            onChange={() => form.setValue("availabilityType", AvailabilityType.SPECIFIC_DATES)}
-            type="radio"
-            value={AvailabilityType.SPECIFIC_DATES}
-          />
-          <Label
-            className="text-light flex w-full cursor-pointer items-center justify-center rounded-sm py-1.5 text-sm peer-checked:bg-primary peer-checked:text-white peer-checked:hover:bg-primary"
-            htmlFor="specific-dates"
-          >
-            <span className="flex flex-col items-center">
-              <div>Specific dates</div>
-            </span>
-          </Label>
-        </div>
-        {/* <p className="mx-6 text-xs text-secondary"> {OR} </p> */}
-        <div className="h-full w-full">
-          <Input
-            className="peer hidden"
-            id="dow"
-            name="availabilityType"
-            onChange={() => {
-              form.setValue("availabilityType", AvailabilityType.DAYS_OF_WEEK);
-            }}
-            type="radio"
-            value={AvailabilityType.DAYS_OF_WEEK}
-          />
-          <Label
-            className="flex w-full cursor-pointer items-center justify-center rounded-sm py-1.5 text-sm font-medium text-text-light peer-checked:bg-primary peer-checked:text-white peer-checked:hover:bg-primary"
-            htmlFor="dow"
-          >
-            <span className="flex flex-col items-center">
-              <div>Days of the week</div>
-            </span>
-          </Label>
-        </div>
-      </fieldset>
+      {/* the purple pill fills the selected option edge to edge and slides across when switching */}
+      <SlidingToggle
+        ariaLabel={WHAT_AVAILABILITY}
+        className="w-full"
+        onChange={(value) => form.setValue("availabilityType", value)}
+        options={[
+          {
+            activeColor: PRIMARY_PURPLE,
+            activeTextClassName: "text-white",
+            label: "Specific dates",
+            value: AvailabilityType.SPECIFIC_DATES
+          },
+          {
+            activeColor: PRIMARY_PURPLE,
+            activeTextClassName: "text-white",
+            label: "Days of the week",
+            value: AvailabilityType.DAYS_OF_WEEK
+          }
+        ]}
+        value={availabilityType}
+      />
     </>
   );
 

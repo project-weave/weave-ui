@@ -66,7 +66,8 @@ export default function AvailabilityGridLeftPanel() {
         <AvailabilityResponsesCount />
       </div>
 
-      <div className="scrollbar-primary mt-5 min-h-0 flex-1 overflow-y-auto pb-4">
+      {/* names scroll in their own area and slide up behind the mini calendar below */}
+      <div className="grid-scrollbar mt-5 min-h-0 flex-1 overflow-y-auto pb-4">
         <AvailabilityParticipantFilters />
       </div>
       {availabilityType === AvailabilityType.SPECIFIC_DATES && sortedEventDates.length !== 0 && (

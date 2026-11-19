@@ -1,8 +1,7 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 
-import { Button } from "@/components/ui/button";
+import NavArrowButton from "@/components/ui/nav-arrow-button";
 import useAvailabilityGridStore from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
 
@@ -37,28 +36,20 @@ export default function AvailabilityGridHeader() {
       />
       <div className="flex shrink-0 items-center gap-3">
         <div className="flex items-center gap-1.5">
-          <Button
+          <NavArrowButton
             aria-controls="availability-grid-dates"
-            aria-label="Previous dates"
-            className="h-8 w-8 rounded-md p-0 transition-transform active:scale-95"
+            direction="previous"
             disabled={leftMostColumnInView === 0}
+            label="Previous dates"
             onClick={previousPage}
-            title="Previous dates"
-            type="button"
-          >
-            <ChevronLeft aria-hidden="true" className="h-4 w-4" />
-          </Button>
-          <Button
+          />
+          <NavArrowButton
             aria-controls="availability-grid-dates"
-            aria-label="Next dates"
-            className="h-8 w-8 rounded-md p-0 transition-transform active:scale-95"
+            direction="next"
             disabled={leftMostColumnInView === maxLeftMostColumn}
+            label="Next dates"
             onClick={nextPage}
-            title="Next dates"
-            type="button"
-          >
-            <ChevronRight aria-hidden="true" className="h-4 w-4" />
-          </Button>
+          />
         </div>
       </div>
     </nav>
