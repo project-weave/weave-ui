@@ -11,18 +11,14 @@ const ToastProvider = ToastPrimitives.Provider;
 
 const ToastViewport = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Viewport>,
-  { placement?: "bottom" | "top" } & React.ComponentPropsWithoutRef<typeof ToastPrimitives.Viewport>
->(({ className, placement = "bottom", ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Viewport>
+>(({ className, ...props }, ref) => (
   <ToastPrimitives.Viewport
     className={cn(
-      "group/viewport text-nowrap fixed left-1/2 z-[999] flex max-h-screen -translate-x-1/2 flex-col",
-      placement === "top"
-        ? "top-6"
-        : // sits just above the floating control bar (bar: 1rem/1.5rem from the bottom, 54px tall)
-          "bottom-[calc(1rem+54px+0.5rem+env(safe-area-inset-bottom))] sm:bottom-[calc(1.5rem+54px+0.5rem+env(safe-area-inset-bottom))]",
+      // always just above where the floating control bar sits (bar: 1rem/1.5rem from the bottom, 54px tall)
+      "fixed bottom-[calc(1rem+54px+0.5rem+env(safe-area-inset-bottom))] left-1/2 z-[999] flex max-w-[calc(100vw-2rem)] -translate-x-1/2 flex-col items-center sm:bottom-[calc(1.5rem+54px+0.5rem+env(safe-area-inset-bottom))]",
       className
     )}
-    data-placement={placement}
     ref={ref}
     {...props}
   />
@@ -30,7 +26,7 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName;
 
 const toastVariants = cva(
-  "group pointer-events-auto relative flex items-center justify-between space-x-4 overflow-hidden rounded-full border px-5 py-2.5 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:slide-out-to-bottom-2 data-[state=open]:slide-in-from-bottom-full group-data-[placement=top]/viewport:data-[state=open]:slide-in-from-top-full data-[state=closed]:fade-out-0",
+  "group pointer-events-auto relative flex max-w-full items-center overflow-hidden whitespace-nowrap rounded-full border px-5 py-2.5 shadow-lg data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:duration-300 data-[state=closed]:duration-300 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-top-3 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-bottom-3",
   {
     defaultVariants: {
       variant: "default"
@@ -99,7 +95,7 @@ const ToastDescription = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Description>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Description>
 >(({ className, ...props }, ref) => (
-  <ToastPrimitives.Description className={cn(" opacity-90", className)} ref={ref} {...props} />
+  <ToastPrimitives.Description className={cn("truncate opacity-90", className)} ref={ref} {...props} />
 ));
 ToastDescription.displayName = ToastPrimitives.Description.displayName;
 

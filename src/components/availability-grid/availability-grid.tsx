@@ -1,6 +1,6 @@
 "use client";
 
-import ProgressiveBlur from "../ui/progressive-blur";
+import ProgressiveFade from "../ui/progressive-fade";
 import { toast } from "../ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { parseISO } from "date-fns";
@@ -81,8 +81,8 @@ export default function AvailabilityGrid() {
       savingToast.update({ description: "Availability saved", duration: 3000, variant: "success" });
     } catch {
       savingToast.update({
-        description: "Couldn't save your availability. Please try again.",
-        duration: 5000,
+        description: "Couldn't save. Try again.",
+        duration: 3000,
         variant: "failure"
       });
     } finally {
@@ -353,22 +353,22 @@ export default function AvailabilityGrid() {
           </div>
         </div>
 
-        {/* progressive blurs hint at more times above/below and more dates left/right; they touch the card edges */}
-        <ProgressiveBlur
+        {/* progressive fades hint at more times above/below and more dates left/right; they touch the card edges */}
+        <ProgressiveFade
           className="inset-x-0 h-10"
           edge="top"
           style={{ top: columnHeaderHeight }}
           visible={edges.top}
         />
-        <ProgressiveBlur className="inset-x-0 bottom-0 h-12" edge="bottom" visible={edges.bottom} />
-        <ProgressiveBlur
+        <ProgressiveFade className="inset-x-0 bottom-0 h-12" edge="bottom" visible={edges.bottom} />
+        <ProgressiveFade
           className="bottom-0 top-0 w-10"
           edge="left"
           style={{ left: rowHeaderWidth + (screenSize >= ScreenSize.XL ? 8 : 0) }}
           visible={edges.left}
         />
         {/* stops at the 5px vertical scrollbar so the scrollbar stays crisp at the card edge */}
-        <ProgressiveBlur className="bottom-0 right-[5px] top-0 w-12" edge="right" visible={edges.right} />
+        <ProgressiveFade className="bottom-0 right-[5px] top-0 w-12" edge="right" visible={edges.right} />
       </div>
       <ViewModeDragHint />
     </form>

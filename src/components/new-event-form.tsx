@@ -148,15 +148,15 @@ export default function NewEventForm() {
       timeZone
     };
 
-    // progress is shown in a toast at the top of the page rather than inside the button
-    const creatingToast = toast({ description: "Creating your event…", duration: Infinity, placement: "top" });
+    // progress is shown in a toast rather than inside the button
+    const creatingToast = toast({ description: "Creating your event…", duration: Infinity });
     try {
       await mutateAsync(req);
       creatingToast.update({ description: "Event created", duration: 3000, variant: "success" });
     } catch {
       creatingToast.update({
-        description: "Couldn't create your event. Please try again.",
-        duration: 5000,
+        description: "Couldn't create event. Try again.",
+        duration: 3000,
         variant: "failure"
       });
     }

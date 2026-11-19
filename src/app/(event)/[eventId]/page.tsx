@@ -33,7 +33,7 @@ export default function Event() {
       toast({ description: "Link copied", duration: 3000, variant: "success" });
       return true;
     } catch {
-      toast({ description: "Couldn't copy the link. Copy it from your browser's address bar.", variant: "failure" });
+      toast({ description: "Couldn't copy link", variant: "failure" });
       return false;
     }
   };

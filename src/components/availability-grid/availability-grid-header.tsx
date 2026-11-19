@@ -29,14 +29,15 @@ export default function AvailabilityGridHeader() {
   if (maxLeftMostColumn === 0) return null;
 
   return (
-    <nav aria-label="Date navigation" className="min-h-8 flex items-center justify-end">
+    // date dots sit at the far left of the calendar, arrows on the right
+    <nav aria-label="Date navigation" className="flex min-h-[2rem] items-center justify-between gap-3">
+      <DatePositionIndicator
+        firstVisible={leftMostColumnInView}
+        numDays={numDays}
+        onSelect={setLeftMostColumnInView}
+        visibleCount={viewWindowSize}
+      />
       <div className="flex shrink-0 items-center gap-3">
-        <DatePositionIndicator
-          firstVisible={leftMostColumnInView}
-          numDays={numDays}
-          onSelect={setLeftMostColumnInView}
-          visibleCount={viewWindowSize}
-        />
         <div className="flex items-center gap-1.5">
           <Button
             aria-controls="availability-grid-dates"
