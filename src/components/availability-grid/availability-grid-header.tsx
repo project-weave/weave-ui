@@ -1,12 +1,10 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import { Button } from "@/components/ui/button";
 import useAvailabilityGridStore from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
-
-// above this many dates the per-date dots get too small, so a compact track is shown instead
-const MAX_DATE_DOTS = 21;
 
 export default function AvailabilityGridHeader() {
   const sortedEventDates = useAvailabilityGridStore((state) => state.eventData.sortedEventDates);
@@ -30,7 +28,7 @@ export default function AvailabilityGridHeader() {
 
   return (
     // date dots sit at the far left of the calendar, arrows on the right
-    <nav aria-label="Date navigation" className="flex min-h-[2rem] items-center justify-between gap-3">
+    <nav aria-label="Date navigation" className="flex min-h-[2rem] items-center justify-between">
       <DatePositionIndicator
         firstVisible={leftMostColumnInView}
         numDays={numDays}
@@ -74,39 +72,58 @@ type DatePositionIndicatorProps = {
   visibleCount: number;
 };
 
+const DOT_SIZE_PX = 6;
+const DOT_GAP_PX = 4;
+
 /**
- * One small dot per date; the dates currently on screen are purple. Shows where you are in the event
- * at a glance. Very long events fall back to a compact track.
+ * One small dot per date on a single line; the dates currently on screen are purple. When there are more
+ * dates than fit (it never runs into the arrows), it shows as many dots as fit, centred on the visible
+ * dates, and the end dots shrink to hint that the row continues.
  */
 function DatePositionIndicator({ firstVisible, numDays, onSelect, visibleCount }: DatePositionIndicatorProps) {
-  if (numDays > MAX_DATE_DOTS) {
-    return (
-      <div aria-hidden="true" className="relative h-1.5 w-24 rounded-full bg-light-gray">
-        <div
-          className="absolute h-full rounded-full bg-primary transition-[left] duration-200 ease-out"
-          style={{ left: `${(firstVisible / numDays) * 100}%`, width: `${(visibleCount / numDays) * 100}%` }}
-        />
-      </div>
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [capacity, setCapacity] = useState(numDays);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const observer = new ResizeObserver(() =>
+      setCapacity(Math.max(1, Math.floor((container.clientWidth + DOT_GAP_PX) / (DOT_SIZE_PX + DOT_GAP_PX))))
     );
-  }
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
+
+  const shownCount = Math.min(numDays, capacity);
+  // keep the visible dates roughly centred within the dots that are shown
+  const start = Math.min(Math.max(firstVisible - Math.floor((shownCount - visibleCount) / 2), 0), numDays - shownCount);
+  const hasMoreBefore = start > 0;
+  const hasMoreAfter = start + shownCount < numDays;
 
   return (
-    <div aria-hidden="true" className="flex items-center gap-1">
-      {Array.from({ length: numDays }, (_, index) => {
-        const isVisible = index >= firstVisible && index < firstVisible + visibleCount;
-        return (
-          <button
-            className={cn(
-              "h-1.5 w-1.5 rounded-full transition-colors duration-200",
-              isVisible ? "bg-primary" : "bg-light-gray hover:bg-dark-gray"
-            )}
-            key={index}
-            onClick={() => onSelect(index)}
-            tabIndex={-1}
-            type="button"
-          />
-        );
-      })}
+    // flex-1 + right margin: uses the free space on the left but always keeps clear of the arrows
+    <div aria-hidden="true" className="mr-6 flex min-w-0 flex-1 items-center overflow-hidden" ref={containerRef}>
+      <div className="flex items-center" style={{ gap: DOT_GAP_PX }}>
+        {Array.from({ length: shownCount }, (_, offset) => {
+          const index = start + offset;
+          const isVisible = index >= firstVisible && index < firstVisible + visibleCount;
+          const isEdgeHint = (offset === 0 && hasMoreBefore) || (offset === shownCount - 1 && hasMoreAfter);
+          return (
+            <button
+              className={cn(
+                "shrink-0 rounded-full transition-colors duration-200",
+                isVisible ? "bg-primary" : "bg-light-gray hover:bg-dark-gray",
+                isEdgeHint && "scale-[0.6]"
+              )}
+              key={index}
+              onClick={() => onSelect(index)}
+              style={{ height: DOT_SIZE_PX, width: DOT_SIZE_PX }}
+              tabIndex={-1}
+              type="button"
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }

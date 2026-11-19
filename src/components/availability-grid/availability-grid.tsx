@@ -174,6 +174,7 @@ export default function AvailabilityGrid() {
   }, []);
   const columnWidth =
     scrollerWidth > 0 ? Math.max(48, (scrollerWidth - rowHeaderWidth - trailingSpace) / visibleColumnCount) : 0;
+  const columnHeaderHeight = availabilityType === AvailabilityType.SPECIFIC_DATES ? "4.3rem" : "3rem";
   const edges = useGridScrollSync(scrollerRef, columnWidth);
   // the calendar's own content fades (lower opacity) towards any edge that has more beyond it
   const FADE_SIZE = "40px";
@@ -184,31 +185,12 @@ export default function AvailabilityGrid() {
     "--fade-left-start": `${rowHeaderWidth + (screenSize >= ScreenSize.XL ? 8 : 0)}px`,
     "--fade-right": edges.right ? FADE_SIZE : "0px",
     "--fade-scrollbar": `${scrollbarWidth}px`,
-    "--fade-top": edges.top ? FADE_SIZE : "0px"
+    "--fade-top": edges.top ? FADE_SIZE : "0px",
+    // the pinned day headers never fade; the top fade starts just below them
+    "--fade-top-start": columnHeaderHeight,
+    // keeps the scrollbar beside the rows rather than beside the day headers
+    "--grid-header-height": columnHeaderHeight
   } as CSSProperties;
-
-  // keep the fixed day headers lined up with the rows as they scroll sideways, and let a sideways
-  // swipe that starts on the headers scroll the rows
-  const headerScrollerRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const scroller = scrollerRef.current;
-    const header = headerScrollerRef.current;
-    if (!scroller || !header) return;
-    const syncHeader = () => (header.scrollLeft = scroller.scrollLeft);
-    function forwardWheel(e: WheelEvent) {
-      const deltaX = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.shiftKey ? e.deltaY : 0;
-      if (deltaX === 0 || !scroller) return;
-      e.preventDefault();
-      scroller.scrollLeft += deltaX;
-    }
-    syncHeader();
-    scroller.addEventListener("scroll", syncHeader, { passive: true });
-    header.addEventListener("wheel", forwardWheel, { passive: false });
-    return () => {
-      scroller.removeEventListener("scroll", syncHeader);
-      header.removeEventListener("wheel", forwardWheel);
-    };
-  }, []);
 
   const gridNodes = useMemo(() => {
     const gridNodeCols: AvailabilityGridNode[][] = [];
@@ -239,7 +221,6 @@ export default function AvailabilityGrid() {
   }, [sortedEventTimes, dateCount]);
 
   const gridTemplateColumns = `${rowHeaderWidth}px repeat(${dateCount}, ${columnWidth > 0 ? `${columnWidth}px` : `minmax(3rem, 1fr)`})`;
-  const columnHeaderHeight = availabilityType === AvailabilityType.SPECIFIC_DATES ? "4.3rem" : "3rem";
   const topBottomCellHeight = "0.7rem";
   const timeSlotCellHeight = screenSize <= ScreenSize.MD ? "1.5rem" : "1.45rem";
 
@@ -292,18 +273,21 @@ export default function AvailabilityGrid() {
 
       {/* The card itself never moves: the dates scroll sideways and the times scroll up and down inside it */}
       <div className="relative flex min-h-0 flex-1 flex-col">
-        {/* Day headers live outside the scroll area so they never move up or down; they only follow the
-            rows sideways. Same 5px scrollbar gutter as the rows keeps the columns aligned. */}
+        {/* One scroll area for everything so the day headers and the rows always move together.
+            The headers are pinned to the top (and bouncing is off) so they never move up or down. */}
         <div
-          className="grid-scrollbar grid-edge-fade-x shrink-0 overflow-hidden"
-          ref={headerScrollerRef}
+          className="grid-scrollbar grid-edge-fade min-h-0 flex-1 overflow-auto overscroll-none"
+          ref={scrollerRef}
           style={{ ...edgeFadeStyle, scrollbarGutter: "stable" }}
         >
           <div
-            className="w-max"
-            style={{ paddingRight: trailingSpace, paddingLeft: screenSize >= ScreenSize.XL ? 8 : 0 }}
+            className="flex min-h-full w-max flex-col"
+            style={{ paddingLeft: screenSize >= ScreenSize.XL ? 8 : 0, paddingRight: trailingSpace }}
           >
-            <div className="grid bg-white" style={{ gridTemplateColumns, height: columnHeaderHeight }}>
+            <div
+              className="sticky top-0 z-20 grid shrink-0 bg-white"
+              style={{ gridTemplateColumns, height: columnHeaderHeight }}
+            >
               {gridNodes.map((columnNodes, colIndex) => (
                 <div
                   className={cn(colIndex === 0 && "sticky left-0 z-10 bg-white")}
@@ -319,17 +303,6 @@ export default function AvailabilityGrid() {
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-        <div
-          className="grid-scrollbar grid-edge-fade min-h-0 flex-1 overflow-auto overscroll-none"
-          ref={scrollerRef}
-          style={{ ...edgeFadeStyle, scrollbarGutter: "stable" }}
-        >
-          <div
-            className="flex min-h-full w-max flex-col"
-            style={{ paddingRight: trailingSpace, paddingLeft: screenSize >= ScreenSize.XL ? 8 : 0 }}
-          >
             <div
               className="grid flex-1 pb-2"
               id="availability-grid-dates"

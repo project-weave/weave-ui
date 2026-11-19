@@ -11,11 +11,12 @@ export function Toaster() {
       {toasts.map(function ({ action, description, id, title, variant, ...props }) {
         return (
           <Toast
-            duration={3000}
             key={id}
             onPointerDown={(e) => e.preventDefault()}
             onPointerMove={(e) => e.preventDefault()}
             {...props}
+            // timing is handled in use-toast so hovering can't keep a toast open
+            duration={Infinity}
             variant={variant}
           >
             <div className="min-w-0 truncate text-sm text-white">

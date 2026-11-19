@@ -1,8 +1,9 @@
 "use client";
 
+import { motion, useReducedMotion } from "framer-motion";
 import { Check, Link2, Pencil } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -88,11 +89,26 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
       useAvailabilityGridStore.subscribe((state, prev) => {
         if (state.mode === prev.mode || state.isSavingAvailability) return;
         toast({
-          description: isEditMode(state.mode) ? "Editing your availability" : "Viewing everyone's availability"
+          description: isEditMode(state.mode) ? "Editing your availability" : "Viewing all availability"
         });
       }),
     []
   );
+
+  // position of the sliding View/Edit pill: it sits under whichever button is active
+  const viewButtonRef = useRef<HTMLButtonElement>(null);
+  const editButtonRef = useRef<HTMLButtonElement>(null);
+  const [modePillRect, setModePillRect] = useState({ left: 0, width: 0 });
+  const reduceMotion = useReducedMotion();
+  useLayoutEffect(() => {
+    const active = editing ? editButtonRef.current : viewButtonRef.current;
+    if (!active) return;
+    const measure = () => setModePillRect({ left: active.offsetLeft, width: active.offsetWidth });
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(active);
+    return () => observer.disconnect();
+  }, [editing, hasStarted]);
 
   const contentRef = useRef<HTMLDivElement>(null);
   const [contentWidth, setContentWidth] = useState<null | number>(null);
@@ -119,18 +135,32 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
             {hasStarted ? (
               <div
                 aria-label="Availability mode"
-                className="flex h-10 shrink-0 items-stretch overflow-hidden rounded-lg bg-input"
+                className="relative flex h-10 shrink-0 items-stretch overflow-hidden rounded-lg bg-input"
                 role="group"
               >
+                {/* one pill slides between View and Edit, changing from red to yellow as it goes */}
+                <motion.span
+                  animate={{
+                    // same as the --yellow / --red colour tokens
+                    backgroundColor: editing ? "rgb(255, 241, 170)" : "rgb(255, 175, 175)",
+                    x: modePillRect.left
+                  }}
+                  aria-hidden="true"
+                  className="absolute inset-y-0 left-0 rounded-lg"
+                  initial={false}
+                  style={{ width: modePillRect.width }}
+                  transition={{ duration: reduceMotion ? 0 : 0.3, ease: "easeOut" }}
+                />
                 <Button
                   aria-pressed={!editing}
                   className={cn(
-                    "h-10 gap-1.5 rounded-lg bg-transparent px-3 text-sm text-black hover:bg-light-gray",
+                    "relative h-10 gap-1.5 rounded-lg bg-transparent px-3 text-sm text-black hover:bg-black/5",
                     PRESSABLE,
-                    !editing && "bg-red hover:bg-red/80"
+                    !editing && "hover:bg-transparent"
                   )}
                   disabled={isSaving}
                   onClick={onViewClick}
+                  ref={viewButtonRef}
                   type="button"
                   variant="ghost"
                 >
@@ -140,12 +170,13 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
                 <Button
                   aria-pressed={editing}
                   className={cn(
-                    "h-10 gap-1.5 rounded-lg bg-transparent px-3 text-sm text-black hover:bg-light-gray",
+                    "relative h-10 gap-1.5 rounded-lg bg-transparent px-3 text-sm text-black hover:bg-black/5",
                     PRESSABLE,
-                    editing && "bg-yellow hover:bg-yellow/80"
+                    editing && "hover:bg-transparent"
                   )}
                   disabled={isSaving}
                   onClick={() => !editing && openAvailability()}
+                  ref={editButtonRef}
                   type="button"
                   variant="ghost"
                 >
