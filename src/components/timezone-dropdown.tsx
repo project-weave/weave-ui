@@ -142,7 +142,6 @@ export default function TimeZoneDropdown({
         {
           "px-2.5 py-2 text-xs": gridDropdown,
           "w-auto gap-1 rounded-md px-1.5 py-1 text-2xs font-medium": compact,
-          "outline-primary": open,
           "outline-red-500/40 focus-within:outline-red-500 hover:outline-red-500": error
         },
         {

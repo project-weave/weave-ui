@@ -365,7 +365,7 @@ function DateButton({
         isViewMode && {
           "bg-primary": isDaySelected,
           "pointer-events-none opacity-20 hover:bg-background": !isDaySelected,
-          "bg-red text-black opacity-100": isToday(day) && !isDaySelected,
+          "bg-red text-black opacity-100 disabled:bg-red disabled:text-black": isToday(day) && !isDaySelected,
           "text-xs": true
         },
         isViewMode &&

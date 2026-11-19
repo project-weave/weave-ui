@@ -202,10 +202,8 @@ export default function AvailabilityGrid() {
     <form
       aria-busy={isSavingAvailability}
       className={cn(
-        "card flex w-full select-none flex-col bg-white pl-0 pr-5 pt-1 sm:pr-8 lg:overflow-y-auto lg:overscroll-contain lg:pt-0 xl:pl-2 xl:pr-10",
-        {
-          "border-[3px] border-yellow": mode === AvailabilityGridMode.EDIT
-        }
+        // the border stays the same size in every mode so entering edit mode never shifts the layout
+        "card relative flex w-full select-none flex-col bg-white pl-0 pr-5 pt-1 sm:pr-8 lg:overflow-hidden lg:pt-0 xl:pl-2 xl:pr-10"
       )}
       id="availability-grid"
       // mouseUp is cancelled when onContextMenu is triggered so we need to save the selection here as well
@@ -224,11 +222,23 @@ export default function AvailabilityGrid() {
         height: screenSize <= ScreenSize.MD ? gridHeightStyle : "100%"
       }}
     >
-      <div className="sticky top-[4.5rem] z-30 shrink-0 bg-white pt-4 lg:top-0 lg:pt-5">
+      {/* yellow highlight that slowly circles the container while editing */}
+      <div
+        aria-hidden="true"
+        className={cn(
+          "editing-border pointer-events-none absolute -inset-px z-40 rounded-[inherit] opacity-0 transition-opacity duration-500 ease-out motion-reduce:transition-none",
+          mode === AvailabilityGridMode.EDIT && "opacity-100"
+        )}
+      />
+      {/* On desktop the header stays put and only the time slot rows below it scroll */}
+      <div className="sticky top-[4.5rem] z-30 shrink-0 bg-white pt-4 lg:static lg:pt-5">
         <div className="pb-3 pl-5">
           <AvailabilityGridHeader />
         </div>
-        <div className="grid" style={{ gridTemplateColumns, height: columnHeaderHeight }}>
+        <div
+          className="grid lg:overflow-y-hidden lg:[scrollbar-gutter:stable]"
+          style={{ gridTemplateColumns, height: columnHeaderHeight }}
+        >
           {gridNodes.map((columnNodes) => (
             <AvailabilityGridCell
               animateEditAvailabilityButton={animateEditAvailabilityButton}
@@ -241,9 +251,9 @@ export default function AvailabilityGrid() {
           ))}
         </div>
       </div>
-      <div className="flex w-full flex-1">
+      <div className="scrollbar-primary flex w-full flex-1 lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain lg:[scrollbar-gutter:stable]">
         <div
-          className="grid h-full w-full"
+          className="grid min-h-full w-full"
           id="availability-grid-dates"
           onContextMenu={() => setHoveredTimeSlot(null)}
           onMouseLeave={() => setHoveredTimeSlot(null)}

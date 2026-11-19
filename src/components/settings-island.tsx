@@ -3,23 +3,12 @@
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from "@/components/ui/dialog";
 import useAvailabilityEntry from "@/hooks/useAvailabilityEntry";
 import useAvailabilityGridStore, { isEditMode } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
-import { isSupportedTimeZone } from "@/utils/timeZone";
 
 import BestTimesAvailableSwitch from "./availability-grid/best-times-available-switch";
 import EditAvailabilityDialog from "./availability-grid/dialog/edit-availability-dialog";
-import AvailabilityParticipantFilters from "./availability-grid/panel/availability-participant-filters";
-import TimeZoneDropdown from "./timezone-dropdown";
 
 interface SettingsIslandProps {
   onCopyClick?: () => void;
@@ -29,11 +18,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
   const mode = useAvailabilityGridStore((state) => state.mode);
   const editing = isEditMode(mode);
   const isSaving = useAvailabilityGridStore((state) => state.isSavingAvailability);
-  const eventTimeZone = useAvailabilityGridStore((state) => state.eventData.timeZone);
-  const selectedTimeZone = useAvailabilityGridStore((state) => state.selectedTimeZone);
-  const setSelectedTimeZone = useAvailabilityGridStore((state) => state.setSelectedTimeZone);
   const cancelEditing = useAvailabilityGridStore((state) => state.cancelEditing);
-  const setSelectedTimeSlots = useAvailabilityGridStore((state) => state.setSelectedTimeSlots);
   const { namePromptOpen, openAvailability, setNamePromptOpen } = useAvailabilityEntry();
   const hasSavedAvailability = useAvailabilityGridStore((state) =>
     state.eventData.eventResponses.some(({ alias }) => state.user !== "" && alias === state.user)
@@ -110,48 +95,6 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
             <BestTimesAvailableSwitch labelStyles="text-2xs sm:text-xs" />
           )}
 
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button
-                aria-label="Event settings"
-                className="h-10 w-10 shrink-0 rounded-lg p-0"
-                disabled={isSaving}
-                title="Event settings"
-                type="button"
-                variant="ghost"
-              >
-                <Image alt="" height={24} src="/icons/weave/settings.svg" width={24} />
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-h-[80dvh] max-w-[min(32rem,calc(100vw-1.5rem))] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Event settings</DialogTitle>
-                <DialogDescription>Choose how you view this event.</DialogDescription>
-              </DialogHeader>
-              <div className="space-y-5 pt-2">
-                <div className="space-y-2">
-                  <p className="text-xs text-text-light">Display time zone</p>
-                  <TimeZoneDropdown
-                    error={false}
-                    gridDropdown
-                    onChange={setSelectedTimeZone}
-                    originalTimeZone={eventTimeZone}
-                    selected={isSupportedTimeZone(selectedTimeZone) ? selectedTimeZone : eventTimeZone}
-                  />
-                </div>
-                {!editing && <BestTimesAvailableSwitch />}
-                <div className="space-y-3">
-                  <h2 className="text-sm font-medium">Participants</h2>
-                  <AvailabilityParticipantFilters />
-                </div>
-                {editing && (
-                  <Button onClick={() => setSelectedTimeSlots([])} type="button" variant="ghost">
-                    Clear selected times
-                  </Button>
-                )}
-              </div>
-            </DialogContent>
-          </Dialog>
           <Button
             aria-label="Copy event link"
             className="h-10 w-10 shrink-0 rounded-lg p-0"

@@ -1,7 +1,6 @@
 import { memo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
-import ParticipantAvatar from "@/components/participant-avatar";
 import useAvailabilityGridStore, { isEditMode, isViewMode } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
 
@@ -45,10 +44,10 @@ const AvailbilityGridResponseFilterButton = ({ className, name }: AvailbilityGri
     <button
       aria-pressed={userFilter.includes(name)}
       className={cn(
-        "box-border inline-flex min-w-0 max-w-full items-center gap-1.5 rounded-md border border-dark-gray bg-input px-2 py-1 text-2xs font-normal text-black outline-none transition-colors hover:bg-light-gray focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+        "box-border inline-flex min-w-0 max-w-full items-center rounded-md border border-transparent bg-light-gray px-2.5 py-1 text-2xs font-normal text-black outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
         isEditMode(mode) && {
           "border-transparent bg-transparent line-through opacity-40 hover:bg-transparent": name !== loggedInUser,
-          "font-medium no-underline hover:bg-input": name === loggedInUser
+          "font-medium no-underline hover:bg-light-gray": name === loggedInUser
         },
         isViewMode(mode) &&
           userFilter.length !== 0 && {
@@ -68,7 +67,6 @@ const AvailbilityGridResponseFilterButton = ({ className, name }: AvailbilityGri
       title={name}
       type="button"
     >
-      <ParticipantAvatar className="h-5 w-5 text-[0.6rem]" name={name} />
       <span className="max-w-[10rem] truncate">{name}</span>
     </button>
   );
