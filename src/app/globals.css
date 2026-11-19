@@ -153,13 +153,27 @@
   /* start the scrollbar below the pinned day headers */
   margin-top: var(--grid-header-height, 0);
 }
+/* the thumb is invisible until you scroll (the `is-scrolling` class comes from useScrollingClass);
+   its space stays reserved so nothing shifts when it appears */
 .grid-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgb(var(--dark-gray));
+  background-color: transparent;
   border-radius: 9999px;
+}
+.grid-scrollbar.is-scrolling::-webkit-scrollbar-thumb {
+  background-color: rgb(var(--dark-gray));
 }
 @supports not selector(::-webkit-scrollbar) {
   .grid-scrollbar {
     scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+  .grid-scrollbar.is-scrolling {
     scrollbar-color: rgb(var(--dark-gray)) transparent;
   }
+}
+
+/* pause hover effects on the grid while it scrolls, so cells sliding under the cursor don't keep
+   re-highlighting rows and time labels */
+.is-scrolling #availability-grid-dates {
+  pointer-events: none;
 }

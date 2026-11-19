@@ -211,34 +211,37 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
               <BestTimesAvailableSwitch />
             )}
 
-            <Button
-              aria-label={copied ? "Link copied" : "Copy event link"}
-              className={cn(
-                "h-10 w-10 shrink-0 rounded-lg p-0 hover:bg-light-gray",
-                PRESSABLE,
-                copied && "bg-success hover:bg-success"
-              )}
-              onClick={onCopy}
-              title={copied ? "Link copied" : "Copy event link"}
-              type="button"
-              variant="ghost"
-            >
-              {copied ? (
-                <Check
-                  absoluteStrokeWidth
-                  aria-hidden="true"
-                  className="h-[15px] w-[15px] duration-200 animate-in fade-in-0 zoom-in-50"
-                  strokeWidth={1.75}
-                />
-              ) : (
-                <Link2
-                  absoluteStrokeWidth
-                  aria-hidden="true"
-                  className="h-[15px] w-[15px] duration-200 animate-in fade-in-0"
-                  strokeWidth={1.5}
-                />
-              )}
-            </Button>
+            {/* no copy link while editing */}
+            {!editing && (
+              <Button
+                aria-label={copied ? "Link copied" : "Copy event link"}
+                className={cn(
+                  "h-10 w-10 shrink-0 rounded-lg p-0 hover:bg-light-gray",
+                  PRESSABLE,
+                  copied && "bg-success hover:bg-success"
+                )}
+                onClick={onCopy}
+                title={copied ? "Link copied" : "Copy event link"}
+                type="button"
+                variant="ghost"
+              >
+                {copied ? (
+                  <Check
+                    absoluteStrokeWidth
+                    aria-hidden="true"
+                    className="h-[15px] w-[15px] duration-200 animate-in fade-in-0 zoom-in-50"
+                    strokeWidth={1.75}
+                  />
+                ) : (
+                  <Link2
+                    absoluteStrokeWidth
+                    aria-hidden="true"
+                    className="h-[15px] w-[15px] duration-200 animate-in fade-in-0"
+                    strokeWidth={1.5}
+                  />
+                )}
+              </Button>
+            )}
           </div>
         </div>
       </div>

@@ -5,6 +5,7 @@ import { Dispatch, KeyboardEvent, SetStateAction, useEffect, useMemo, useRef, us
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import useScrollingClass from "@/hooks/useScrollingClass";
 import useWheelStep from "@/hooks/useWheelStep";
 import { TIME_SLOT_INTERVAL_MINUTES } from "@/store/eventDataSlice";
 import { EVENT_TIME_FORMAT } from "@/types/Timeslot";
@@ -60,6 +61,9 @@ export default function NewEventFromTimeDropdown({
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   const timeOptions = useMemo(() => getTimeOptions(isStartTime), [isStartTime]);
+
+  // thin grey scrollbar shows only while the list is being scrolled
+  useScrollingClass(commandGroupRef, undefined, open);
 
   useEffect(() => {
     // need setTimeout here to allow for the DOM to render CommandGroup

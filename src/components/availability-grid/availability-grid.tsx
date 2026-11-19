@@ -12,6 +12,7 @@ import useUpdateAvailability, { UpdateAvailabilityRequest } from "@/hooks/reques
 import useGridDragSelect from "@/hooks/useGridDragSelect";
 import useGridScrollSync from "@/hooks/useGridScrollSync";
 import useScreenSize, { ScreenSize } from "@/hooks/useScreenSize";
+import useScrollingClass from "@/hooks/useScrollingClass";
 import useAvailabilityGridStore, { AvailabilityGridMode } from "@/store/availabilityGridStore";
 import { AvailabilityType, EventResponse, EventResponseSchema } from "@/types/Event";
 import { EventDate, EventTime, getTimeSlot, TimeSlot } from "@/types/Timeslot";
@@ -167,12 +168,25 @@ export default function AvailabilityGrid() {
     observer.observe(scroller);
     return () => observer.disconnect();
   }, []);
+  const leadingSpace = screenSize >= ScreenSize.XL ? 8 : 0;
+  // whole pixels only: fractional widths leave a sliver of sideways overflow and make the pinned
+  // time column jitter while scrolling
   const columnWidth =
-    scrollerWidth > 0 ? Math.max(48, (scrollerWidth - rowHeaderWidth - trailingSpace) / visibleColumnCount) : 0;
+    scrollerWidth > 0
+      ? Math.max(48, Math.floor((scrollerWidth - leadingSpace - rowHeaderWidth - trailingSpace) / visibleColumnCount))
+      : 0;
+  // when every date fits on screen there's nothing to scroll sideways to
+  const allDatesFit = dateCount <= availabilityGridViewWindowSize;
   const columnHeaderHeight = availabilityType === AvailabilityType.SPECIFIC_DATES ? "4.3rem" : "3rem";
   useGridScrollSync(scrollerRef, columnWidth);
-  // keeps the scrollbar beside the rows rather than beside the pinned day headers
-  const scrollerStyle = { "--grid-header-height": columnHeaderHeight, scrollbarGutter: "stable" } as CSSProperties;
+  const scrollerStyle = {
+    // keeps the scrollbar beside the rows rather than beside the pinned day headers
+    "--grid-header-height": columnHeaderHeight,
+    overflowX: allDatesFit ? "hidden" : undefined,
+    scrollbarGutter: "stable"
+  } as CSSProperties;
+  // the scrollbar only shows (and hover effects pause) while the grid is actually scrolling
+  useScrollingClass(scrollerRef, () => setHoveredTimeSlot(null));
 
   const gridNodes = useMemo(() => {
     const gridNodeCols: AvailabilityGridNode[][] = [];
@@ -226,7 +240,9 @@ export default function AvailabilityGrid() {
     <form
       aria-busy={isSavingAvailability}
       // the border stays the same size in every mode so entering edit mode never shifts the layout
-      className="card relative flex h-full w-full select-none flex-col overflow-hidden bg-white p-0"
+      // desktop: fills its fixed container. mobile: at least the screen's height and shows every time
+      // (the page scrolls instead of the calendar, so swiping on the cells is free for selecting)
+      className="card relative flex min-h-[calc(100dvh-8rem)] w-full select-none flex-col overflow-hidden bg-white p-0 lg:h-full lg:min-h-0"
       id="availability-grid"
       // mouseUp is cancelled when onContextMenu is triggered so we need to save the selection here as well
       onContextMenu={onMouseDragEnd}
@@ -258,13 +274,13 @@ export default function AvailabilityGrid() {
         {/* One scroll area for everything so the day headers and the rows always move together.
             The headers are pinned to the top (and bouncing is off) so they never move up or down. */}
         <div
-          className="grid-scrollbar min-h-0 flex-1 overflow-auto overscroll-none"
+          className="grid-scrollbar flex flex-1 flex-col overflow-x-auto overflow-y-hidden overscroll-x-none lg:min-h-0 lg:overflow-auto lg:overscroll-none"
           ref={scrollerRef}
           style={scrollerStyle}
         >
           <div
-            className="flex min-h-full w-max flex-col"
-            style={{ paddingLeft: screenSize >= ScreenSize.XL ? 8 : 0, paddingRight: trailingSpace }}
+            className="flex min-h-full w-max flex-1 flex-col"
+            style={{ paddingLeft: leadingSpace, paddingRight: trailingSpace }}
           >
             <div
               className="sticky top-0 z-20 grid shrink-0 bg-white"
@@ -272,7 +288,7 @@ export default function AvailabilityGrid() {
             >
               {gridNodes.map((columnNodes, colIndex) => (
                 <div
-                  className={cn(colIndex === 0 && "sticky left-0 z-10 bg-white")}
+                  className={cn(colIndex === 0 && "sticky left-0 z-10 bg-white will-change-transform")}
                   key={`availability-header-${columnNodes[0].offsettedColIndex}`}
                 >
                   <AvailabilityGridCell
@@ -297,7 +313,7 @@ export default function AvailabilityGrid() {
 
                 return (
                   <div
-                    className={cn("grid", displayColIndex === 0 && "sticky left-0 z-10 bg-white")}
+                    className={cn("grid", displayColIndex === 0 && "sticky left-0 z-10 bg-white will-change-transform")}
                     key={`availability-column-${displayColIndex}`}
                     style={{
                       gridTemplateRows: `${topBottomCellHeight} repeat(${sortedEventTimes.length - 1}, minmax(${timeSlotCellHeight}, 1fr)) ${topBottomCellHeight}`

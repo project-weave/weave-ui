@@ -6,6 +6,7 @@ import { KeyboardEvent, ReactNode, useEffect, useMemo, useRef, useState } from "
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import useScrollingClass from "@/hooks/useScrollingClass";
 import useWheelStep from "@/hooks/useWheelStep";
 import { cn } from "@/utils/cn";
 import { getGMTOffset, getTimeZoneAbbreviation, getTimeZoneCity } from "@/utils/timeZone";
@@ -90,6 +91,9 @@ export default function TimeZoneDropdown({
       .map((timeZone) => toTimeZoneObject(timeZone, gridDropdown, originalTimeZone))
       .sort((a, b) => a.city.localeCompare(b.city));
   }, [gridDropdown, originalTimeZone, selected]);
+
+  // thin grey scrollbar shows only while the list is being scrolled
+  useScrollingClass(commandGroupRef, undefined, open);
 
   useEffect(() => {
     setSelectedTimeZone(toTimeZoneObject(selected, gridDropdown, originalTimeZone));

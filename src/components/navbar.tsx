@@ -15,7 +15,7 @@ export default function NavBar() {
   if (!isEventPage) return null;
 
   return (
-    <nav aria-label="Main navigation" className="fixed left-0 right-0 top-6 z-50">
+    <nav aria-label="Main navigation" className="absolute left-0 right-0 top-6 z-50 lg:fixed">
       <div className="mx-auto w-full max-w-[85rem] px-4 sm:px-7">
         <div className="card flex h-auto w-fit items-center px-3 py-2.5">
           <Link
