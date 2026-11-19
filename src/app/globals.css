@@ -144,7 +144,7 @@
 /* Thin grey scrollbar (same grey as the grid lines) for the availability grid */
 .grid-scrollbar::-webkit-scrollbar {
   width: 5px;
-  /* sideways position is shown by the date indicator and edge blurs instead */
+  /* sideways position is shown by the date dots instead */
   height: 0;
 }
 .grid-scrollbar::-webkit-scrollbar-track {
