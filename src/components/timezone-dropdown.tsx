@@ -208,7 +208,7 @@ export default function TimeZoneDropdown({
             {NO_TIME_ZONES_FOUND}
           </CommandEmpty>
           <CommandGroup
-            className="scrollbar-primary my-1 max-h-[105px] overflow-y-scroll sm:max-h-[150px] xl:max-h-[180px]"
+            className="grid-scrollbar my-1 max-h-[105px] overflow-y-scroll sm:max-h-[150px] xl:max-h-[180px]"
             ref={commandGroupRef}
           >
             {allTimeZones.map((timeZone) => {

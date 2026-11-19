@@ -334,8 +334,10 @@ function DateButton({
               "rounded-r-sm": isPrevDaySelected && !isNextDaySelected
             },
         isDaySelected && {
+          // selected days in a row join into one continuous bar: no visible borders between them
+          "border-transparent": true,
           "ml-auto w-full rounded-r-none border-r-0": isNextDaySelected && day.getDay() !== 6,
-          "mr-auto w-full rounded-l-none": isPrevDaySelected && day.getDay() !== 0,
+          "mr-auto w-full rounded-l-none border-l-0": isPrevDaySelected && day.getDay() !== 0,
           "rounded-l-sm": isNextDaySelected && !isPrevDaySelected,
           "rounded-r-sm": isPrevDaySelected && !isNextDaySelected
         },
