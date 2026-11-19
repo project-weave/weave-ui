@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
+import { toast } from "@/components/ui/use-toast";
 import useAvailabilityEntry from "@/hooks/useAvailabilityEntry";
 import useAvailabilityGridStore, { isEditMode } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
@@ -80,6 +81,18 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
     setUnsavedPromptOpen(false);
     cancelEditing();
   }
+
+  // a toast confirms each switch between viewing and editing (saving shows its own toast instead)
+  useEffect(
+    () =>
+      useAvailabilityGridStore.subscribe((state, prev) => {
+        if (state.mode === prev.mode || state.isSavingAvailability) return;
+        toast({
+          description: isEditMode(state.mode) ? "Editing your availability" : "Viewing everyone's availability"
+        });
+      }),
+    []
+  );
 
   const contentRef = useRef<HTMLDivElement>(null);
   const [contentWidth, setContentWidth] = useState<null | number>(null);

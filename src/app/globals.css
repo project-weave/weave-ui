@@ -118,30 +118,20 @@
   background: transparent;
 }
 
-/* Animated border shown around the availability grid while editing */
-@property --editing-border-angle {
-  syntax: "<angle>";
-  initial-value: 0deg;
-  inherits: false;
-}
-
-@keyframes editing-border-spin {
-  to {
-    --editing-border-angle: 360deg;
+/* Yellow ring that gently pulses around the availability grid while editing */
+@keyframes editing-ring-pulse {
+  0%,
+  100% {
+    background-color: rgba(var(--yellow), 0.55);
+  }
+  50% {
+    background-color: rgb(250, 204, 21);
   }
 }
 
 .editing-border {
   padding: 3px;
-  /* a faint yellow ring with a bright yellow band that travels around it */
-  background: conic-gradient(
-    from var(--editing-border-angle),
-    rgba(var(--yellow), 0.6) 0deg,
-    rgba(var(--yellow), 0.6) 200deg,
-    rgb(250, 204, 21) 270deg,
-    rgb(245, 180, 0) 320deg,
-    rgba(var(--yellow), 0.6) 360deg
-  );
+  background-color: rgb(var(--yellow));
   /* only paint the 3px ring, not the inside of the container */
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
@@ -150,11 +140,31 @@
   mask:
     linear-gradient(#000 0 0) content-box exclude,
     linear-gradient(#000 0 0);
-  animation: editing-border-spin 4s linear infinite;
+  animation: editing-ring-pulse 2.4s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .editing-border {
     animation: none;
+  }
+}
+
+/* Thin grey scrollbar (same grey as the grid lines) for the availability grid */
+.grid-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  /* sideways position is shown by the date indicator and edge blurs instead */
+  height: 0;
+}
+.grid-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.grid-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgb(var(--dark-gray));
+  border-radius: 9999px;
+}
+@supports not selector(::-webkit-scrollbar) {
+  .grid-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--dark-gray)) transparent;
   }
 }

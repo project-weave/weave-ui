@@ -99,17 +99,20 @@ export default function Event() {
   }
 
   return (
-    // On desktop the page is locked to the viewport: the left panel and the calendar card never move,
-    // only the calendar grid scrolls inside its card. The control bar sits 50px below the containers.
-    <div className="mb-28 flex min-w-0 flex-col px-3 sm:px-5 lg:mb-0 lg:h-[calc(100dvh-3.75rem)] lg:min-h-[38rem] lg:overflow-hidden lg:pb-6">
-      <div className="mx-auto mt-9 grid w-full max-w-[82rem] grid-cols-1 gap-5 pb-4 lg:min-h-0 lg:flex-1 lg:grid-cols-[20rem_minmax(0,1fr)] lg:pb-0 xl:grid-cols-[22rem_minmax(0,1fr)]">
+    // The page is locked to the viewport on every screen size: the containers never move and only the
+    // calendar scrolls inside its card. On desktop the control bar sits 50px below the containers;
+    // on mobile it floats at the bottom, so the containers stop just above it.
+    <div className="flex h-[calc(100dvh-3.25rem)] min-w-0 flex-col overflow-hidden px-3 pb-[calc(1rem+54px+0.75rem+env(safe-area-inset-bottom))] sm:px-5 sm:pb-[calc(1.5rem+54px+0.75rem+env(safe-area-inset-bottom))] md:h-[calc(100dvh-3.75rem)] lg:min-h-[38rem] lg:pb-6">
+      <div className="mx-auto mt-9 flex min-h-0 w-full max-w-[82rem] flex-1 flex-col gap-3 lg:grid lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-5 xl:grid-cols-[22rem_minmax(0,1fr)]">
         <MediaQueryLG>
           <div className="hidden h-full min-h-0 min-w-0 lg:block">
             <AvailabilityGridLeftPanel />
           </div>
         </MediaQueryLG>
-        <div className="min-w-0 lg:h-full lg:min-h-0">
+        <div className="shrink-0 lg:hidden">
           <AvailabilityMobileHeader />
+        </div>
+        <div className="min-h-0 min-w-0 flex-1 lg:h-full">
           <AvailabilityGrid />
         </div>
       </div>

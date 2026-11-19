@@ -9,12 +9,13 @@ import EventDateCalendar from "@/components/no-ssr-event-date-calendar";
 import useAvailabilityGridStore from "@/store/availabilityGridStore";
 import { AvailabilityType } from "@/types/Event";
 import { EventDate } from "@/types/Timeslot";
+import { formatEventDateRange } from "@/utils/date";
 
 import AvailabilityParticipantFilters from "./availability-participant-filters";
 import AvailabilityResponsesCount from "./availability-responses-count";
 
 export default function AvailabilityGridLeftPanel() {
-  const { availabilityType, sortedEventDates } = useAvailabilityGridStore((state) => state.eventData);
+  const { availabilityType, eventName, sortedEventDates } = useAvailabilityGridStore((state) => state.eventData);
 
   const [leftMostColumnInView, setLeftMostColumnInView] = useAvailabilityGridStore(
     useShallow((state) => [state.leftMostColumnInView, state.setLeftMostColumnInView])
@@ -56,8 +57,12 @@ export default function AvailabilityGridLeftPanel() {
   const eventCalendarMonthOverride = format(parseISO(sortedEventDates[leftMostColumnInView]), MONTH_FORMAT);
 
   return (
-    <aside aria-label="Event participants" className="card flex h-full flex-col px-6 pb-6">
-      <div className="mt-1 flex items-center justify-between">
+    <aside aria-label="Event details" className="card flex h-full flex-col px-6 pb-6">
+      <h1 className="break-words text-xl font-medium [overflow-wrap:anywhere]">{eventName}</h1>
+      <p className="mt-1 text-sm text-text-light">
+        {formatEventDateRange(sortedEventDates, availabilityType === AvailabilityType.SPECIFIC_DATES)}
+      </p>
+      <div className="mt-5 flex items-center justify-between">
         <AvailabilityResponsesCount />
       </div>
 

@@ -1,17 +1,17 @@
 "use client";
 
+import ProgressiveBlur from "../ui/progressive-blur";
 import { toast } from "../ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { parseISO } from "date-fns";
 import { useAnimate } from "framer-motion";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useShallow } from "zustand/react/shallow";
 
 import useUpdateAvailability, { UpdateAvailabilityRequest } from "@/hooks/requests/useUpdateAvailability";
-import useAvailabilityGridHeight from "@/hooks/useAvailabilityGridHeight";
 import useGridDragSelect from "@/hooks/useGridDragSelect";
-import useHorizontalDateScroll from "@/hooks/useHorizontalDateScroll";
+import useGridScrollSync from "@/hooks/useGridScrollSync";
 import useScreenSize, { ScreenSize } from "@/hooks/useScreenSize";
 import useAvailabilityGridStore, { AvailabilityGridMode } from "@/store/availabilityGridStore";
 import { AvailabilityType, EventResponse, EventResponseSchema } from "@/types/Event";
@@ -38,7 +38,6 @@ export default function AvailabilityGrid() {
     useShallow((state) => [state.availabilityGridViewWindowSize, state.setAvailabilityGridViewWindowSize])
   );
   const setHoveredTimeSlot = useAvailabilityGridStore((state) => state.setHoveredTimeSlot);
-  const leftMostColumnInView = useAvailabilityGridStore(useShallow((state) => state.leftMostColumnInView));
   const [selectedTimeSlots, addSelectedTimeSlots, removeSelectedTimeSlots] = useAvailabilityGridStore(
     useShallow((state) => [state.selectedTimeSlots, state.addSelectedTimeSlots, state.removeSelectedTimeSlots])
   );
@@ -144,10 +143,6 @@ export default function AvailabilityGrid() {
 
   const [scope, animate] = useAnimate();
 
-  // horizontal swipes / shift + scroll on the grid move through the dates
-  const formRef = useRef<HTMLFormElement>(null);
-  useHorizontalDateScroll(formRef);
-
   function animateEditAvailabilityButton() {
     if (!scope.current) return;
     animate(scope.current, {
@@ -156,22 +151,41 @@ export default function AvailabilityGrid() {
     });
   }
 
-  const timeSlotColumnsCount = Math.min(sortedEventDates.length, availabilityGridViewWindowSize);
+  // Every date gets a column; the scroll area shows `availabilityGridViewWindowSize` of them at a time
+  // and you scroll (or use the arrows) to move through the rest.
+  const dateCount = sortedEventDates.length;
+  const visibleColumnCount = Math.max(1, Math.min(dateCount, availabilityGridViewWindowSize));
+  const rowHeaderWidth = screenSize <= ScreenSize.XS ? 78 : 82;
+  // space after the last column so it doesn't sit flush against the card edge
+  const trailingSpace = screenSize <= ScreenSize.SM ? 16 : 28;
+
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const [scrollerWidth, setScrollerWidth] = useState(0);
+  useEffect(() => {
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    const observer = new ResizeObserver(() => setScrollerWidth(scroller.clientWidth));
+    observer.observe(scroller);
+    return () => observer.disconnect();
+  }, []);
+  const columnWidth =
+    scrollerWidth > 0 ? Math.max(48, (scrollerWidth - rowHeaderWidth - trailingSpace) / visibleColumnCount) : 0;
+  const { edges } = useGridScrollSync(scrollerRef, columnWidth);
 
   const gridNodes = useMemo(() => {
     const gridNodeCols: AvailabilityGridNode[][] = [];
     // col header + placeholder + time slots + placeholder
     const gridRowNodeCount = sortedEventTimes.length + 2;
-    // row header + event dates5
-    const gridColNodeCount = timeSlotColumnsCount + 1;
+    // row header + every event date
+    const gridColNodeCount = dateCount + 1;
 
     for (let colIndex = 0; colIndex < gridColNodeCount; colIndex++) {
       const gridNodeCol: AvailabilityGridNode[] = [];
       for (let rowIndex = 0; rowIndex < gridRowNodeCount; rowIndex++) {
         const node = new AvailabilityGridNode();
 
-        node.offsettedColIndex = leftMostColumnInView + colIndex;
-        node.isNodeInLastActualCol = leftMostColumnInView + colIndex === sortedEventDates.length;
+        node.offsettedColIndex = colIndex;
+        node.isNodeInLastActualCol = colIndex === dateCount;
 
         node.displayedColIndex = colIndex;
         node.isNodeInLastDisplayedCol = colIndex === gridColNodeCount - 1;
@@ -184,11 +198,12 @@ export default function AvailabilityGrid() {
       gridNodeCols.push(gridNodeCol);
     }
     return gridNodeCols;
-  }, [sortedEventTimes, sortedEventDates, leftMostColumnInView, timeSlotColumnsCount]);
+  }, [sortedEventTimes, dateCount]);
 
-  const gridHeightStyle = useAvailabilityGridHeight();
-  const gridTemplateColumns = `${screenSize <= ScreenSize.XS ? "4.9rem" : "5.1rem"} repeat(${timeSlotColumnsCount}, minmax(1.3rem, 1fr))`;
+  const gridTemplateColumns = `${rowHeaderWidth}px repeat(${dateCount}, ${columnWidth > 0 ? `${columnWidth}px` : `minmax(3rem, 1fr)`})`;
   const columnHeaderHeight = availabilityType === AvailabilityType.SPECIFIC_DATES ? "4.3rem" : "3rem";
+  const topBottomCellHeight = "0.7rem";
+  const timeSlotCellHeight = screenSize <= ScreenSize.MD ? "1.5rem" : "1.45rem";
 
   function getDateGaps(columnNodes: AvailabilityGridNode[]) {
     const colHeaderNode = columnNodes[0];
@@ -209,10 +224,8 @@ export default function AvailabilityGrid() {
   return (
     <form
       aria-busy={isSavingAvailability}
-      className={cn(
-        // the border stays the same size in every mode so entering edit mode never shifts the layout
-        "card relative flex w-full select-none flex-col bg-white pl-0 pr-5 pt-1 sm:pr-8 lg:overflow-hidden lg:pt-0 xl:pl-2 xl:pr-10"
-      )}
+      // the border stays the same size in every mode so entering edit mode never shifts the layout
+      className="card relative flex h-full w-full select-none flex-col overflow-hidden bg-white p-0"
       id="availability-grid"
       // mouseUp is cancelled when onContextMenu is triggered so we need to save the selection here as well
       onContextMenu={onMouseDragEnd}
@@ -226,12 +239,8 @@ export default function AvailabilityGrid() {
         handleSubmit(onSubmit)();
       }}
       onTouchEnd={onTouchDragEnd}
-      ref={formRef}
-      style={{
-        height: screenSize <= ScreenSize.MD ? gridHeightStyle : "100%"
-      }}
     >
-      {/* yellow highlight that slowly circles the container while editing */}
+      {/* softly pulsing yellow ring while editing */}
       <div
         aria-hidden="true"
         className={cn(
@@ -239,68 +248,94 @@ export default function AvailabilityGrid() {
           mode === AvailabilityGridMode.EDIT && "opacity-100"
         )}
       />
-      {/* On desktop the header stays put and only the time slot rows below it scroll */}
-      <div className="sticky top-[4.5rem] z-30 shrink-0 bg-white pt-4 lg:static lg:pt-5">
-        <div className="pb-3 pl-5">
-          <AvailabilityGridHeader />
-        </div>
-        {/* same right overhang + reserved scrollbar gutter as the rows below, so the columns line up exactly */}
-        <div
-          className="grid scrollbar-thin lg:-mr-8 lg:overflow-y-hidden lg:pr-6 lg:[scrollbar-gutter:stable] xl:-mr-10 xl:pr-8"
-          style={{ gridTemplateColumns, height: columnHeaderHeight }}
-        >
-          {gridNodes.map((columnNodes) => (
-            <AvailabilityGridCell
-              animateEditAvailabilityButton={animateEditAvailabilityButton}
-              {...getDateGaps(columnNodes)}
-              key={`availability-header-${columnNodes[0].offsettedColIndex}`}
-              node={columnNodes[0]}
-              screenSize={screenSize}
-              timeSlotDragSelectionState={timeSlotDragSelectionState}
-            />
-          ))}
-        </div>
+      <div className="shrink-0 px-4 pb-2 pt-3 sm:px-6 lg:pt-4">
+        <AvailabilityGridHeader />
       </div>
-      {/* The rows stretch into the card's right padding so the (8px, black) scrollbar sits at the card's edge,
-          outside the calendar. Right padding = card padding - scrollbar width keeps columns aligned with the header. */}
-      <div className="flex w-full flex-1 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-black scrollbar-thumb-rounded-full lg:-mr-8 lg:min-h-0 lg:w-auto lg:overflow-y-auto lg:overscroll-contain lg:pr-6 lg:[scrollbar-gutter:stable] xl:-mr-10 xl:pr-8">
-        <div
-          className="grid min-h-full w-full"
-          id="availability-grid-dates"
-          onContextMenu={() => setHoveredTimeSlot(null)}
-          onMouseLeave={() => setHoveredTimeSlot(null)}
-          style={{ gridTemplateColumns }}
-        >
-          {gridNodes.map((columnNodes, displayColIndex) => {
-            const topBottomCellHeight = "0.7rem";
-            const timeSlotCellHeight = screenSize <= ScreenSize.MD ? "1.5rem" : "1.45rem";
-            const { hasDateGapLeft, hasDateGapRight } = getDateGaps(columnNodes);
 
-            return (
-              <div
-                className="grid"
-                key={`availability-column-${displayColIndex}`}
-                style={{
-                  gridTemplateRows: `${topBottomCellHeight} repeat(${sortedEventTimes.length - 1}, minmax(${timeSlotCellHeight}, 1fr)) ${topBottomCellHeight}`
-                }}
-              >
-                {columnNodes.slice(1).map((node) => {
-                  return (
-                    <AvailabilityGridCell
-                      animateEditAvailabilityButton={animateEditAvailabilityButton}
-                      hasDateGapLeft={hasDateGapLeft}
-                      hasDateGapRight={hasDateGapRight}
-                      key={`availability-cell-${node.offsettedColIndex}-${node.displayedRowIndex}`}
-                      node={node}
-                      screenSize={screenSize}
-                      timeSlotDragSelectionState={timeSlotDragSelectionState}
-                    />
-                  );
-                })}
-              </div>
-            );
-          })}
+      {/* The card itself never moves: the dates scroll sideways and the times scroll up and down inside it */}
+      <div className="relative min-h-0 flex-1">
+        <div
+          className="grid-scrollbar h-full overflow-auto overscroll-contain"
+          ref={scrollerRef}
+          style={{ scrollbarGutter: "stable" }}
+        >
+          <div
+            className="flex min-h-full w-max flex-col"
+            style={{ paddingRight: trailingSpace, paddingLeft: screenSize >= ScreenSize.XL ? 8 : 0 }}
+          >
+            <div
+              className="sticky top-0 z-20 grid shrink-0 bg-white"
+              style={{ gridTemplateColumns, height: columnHeaderHeight }}
+            >
+              {gridNodes.map((columnNodes, colIndex) => (
+                <div
+                  className={cn(colIndex === 0 && "sticky left-0 z-10 bg-white")}
+                  key={`availability-header-${columnNodes[0].offsettedColIndex}`}
+                >
+                  <AvailabilityGridCell
+                    animateEditAvailabilityButton={animateEditAvailabilityButton}
+                    {...getDateGaps(columnNodes)}
+                    node={columnNodes[0]}
+                    screenSize={screenSize}
+                    timeSlotDragSelectionState={timeSlotDragSelectionState}
+                  />
+                </div>
+              ))}
+            </div>
+            <div
+              className="grid flex-1 pb-2"
+              id="availability-grid-dates"
+              onContextMenu={() => setHoveredTimeSlot(null)}
+              onMouseLeave={() => setHoveredTimeSlot(null)}
+              style={{ gridTemplateColumns }}
+            >
+              {gridNodes.map((columnNodes, displayColIndex) => {
+                const { hasDateGapLeft, hasDateGapRight } = getDateGaps(columnNodes);
+
+                return (
+                  <div
+                    className={cn("grid", displayColIndex === 0 && "sticky left-0 z-10 bg-white")}
+                    key={`availability-column-${displayColIndex}`}
+                    style={{
+                      gridTemplateRows: `${topBottomCellHeight} repeat(${sortedEventTimes.length - 1}, minmax(${timeSlotCellHeight}, 1fr)) ${topBottomCellHeight}`
+                    }}
+                  >
+                    {columnNodes.slice(1).map((node) => {
+                      return (
+                        <AvailabilityGridCell
+                          animateEditAvailabilityButton={animateEditAvailabilityButton}
+                          hasDateGapLeft={hasDateGapLeft}
+                          hasDateGapRight={hasDateGapRight}
+                          key={`availability-cell-${node.offsettedColIndex}-${node.displayedRowIndex}`}
+                          node={node}
+                          screenSize={screenSize}
+                          timeSlotDragSelectionState={timeSlotDragSelectionState}
+                        />
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
+
+        {/* progressive blurs hint at more times above/below and more dates left/right; they touch the card edges */}
+        <ProgressiveBlur
+          className="inset-x-0 h-10"
+          edge="top"
+          style={{ top: columnHeaderHeight }}
+          visible={edges.top}
+        />
+        <ProgressiveBlur className="inset-x-0 bottom-0 h-12" edge="bottom" visible={edges.bottom} />
+        <ProgressiveBlur
+          className="bottom-0 top-0 w-10"
+          edge="left"
+          style={{ left: rowHeaderWidth + (screenSize >= ScreenSize.XL ? 8 : 0) }}
+          visible={edges.left}
+        />
+        {/* stops at the 5px vertical scrollbar so the scrollbar stays crisp at the card edge */}
+        <ProgressiveBlur className="bottom-0 right-[5px] top-0 w-12" edge="right" visible={edges.right} />
       </div>
       <ViewModeDragHint />
     </form>

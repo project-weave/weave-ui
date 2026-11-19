@@ -149,7 +149,8 @@ export default function AvailabilityGridTimeSlot({
 
   function handleTouchStart(e: TouchEvent) {
     if (isSaving) return;
-    if (e.cancelable) e.preventDefault();
+    // only block the browser's scrolling while editing (dragging selects times); in view mode swipes scroll the grid
+    if (isEditMode(mode) && e.cancelable) e.preventDefault();
     const [row, col] = extractRowCol(e);
 
     if (isEditMode(mode)) onTouchDragStart(row, col);
@@ -158,6 +159,7 @@ export default function AvailabilityGridTimeSlot({
 
   function handleTouchMove(e: TouchEvent) {
     if (isSaving) return;
+    if (!isEditMode(mode)) return;
     if (e.cancelable) e.preventDefault();
 
     const [row, col] = extractRowCol(e);
@@ -235,8 +237,9 @@ export default function AvailabilityGridTimeSlot({
       aria-label={`${format(parseISO(timeSlot), "EEEE, MMMM d, h:mm a")} (event time)`}
       aria-pressed={isEditMode(mode) ? isSelected : undefined}
       className={cn(
-        "h-full w-full cursor-pointer touch-none appearance-none border-b-0 border-t-[1px] border-dark-gray outline-none focus-visible:relative focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-primary",
+        "h-full w-full cursor-pointer appearance-none border-b-0 border-t-[1px] border-dark-gray outline-none focus-visible:relative focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-primary",
         borderXSizeStyles,
+        isEditMode(mode) ? "touch-none" : "touch-manipulation",
         {
           "bg-primary-purple hover:bg-primary-purple/60": (isSelected || isBeingAdded) && !isBeingRemoved,
           "border-r-2": hasDateGapRight,
