@@ -4,7 +4,7 @@ import { toast } from "../ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { parseISO } from "date-fns";
 import { useAnimate } from "framer-motion";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useShallow } from "zustand/react/shallow";
 
@@ -160,16 +160,32 @@ export default function AvailabilityGrid() {
 
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [scrollerWidth, setScrollerWidth] = useState(0);
+  const [scrollbarWidth, setScrollbarWidth] = useState(0);
   useEffect(() => {
     const scroller = scrollerRef.current;
     if (!scroller) return;
-    const observer = new ResizeObserver(() => setScrollerWidth(scroller.clientWidth));
+    const observer = new ResizeObserver(() => {
+      setScrollerWidth(scroller.clientWidth);
+      // 0 on phones / overlay scrollbars, 5px where the thin scrollbar takes up space
+      setScrollbarWidth(scroller.offsetWidth - scroller.clientWidth);
+    });
     observer.observe(scroller);
     return () => observer.disconnect();
   }, []);
   const columnWidth =
     scrollerWidth > 0 ? Math.max(48, (scrollerWidth - rowHeaderWidth - trailingSpace) / visibleColumnCount) : 0;
-  useGridScrollSync(scrollerRef, columnWidth);
+  const edges = useGridScrollSync(scrollerRef, columnWidth);
+  // the calendar's own content fades (lower opacity) towards any edge that has more beyond it
+  const FADE_SIZE = "40px";
+  const edgeFadeStyle = {
+    "--fade-bottom": edges.bottom ? FADE_SIZE : "0px",
+    "--fade-left": edges.left ? FADE_SIZE : "0px",
+    // the time column never fades; the left fade starts just after it
+    "--fade-left-start": `${rowHeaderWidth + (screenSize >= ScreenSize.XL ? 8 : 0)}px`,
+    "--fade-right": edges.right ? FADE_SIZE : "0px",
+    "--fade-scrollbar": `${scrollbarWidth}px`,
+    "--fade-top": edges.top ? FADE_SIZE : "0px"
+  } as CSSProperties;
 
   // keep the fixed day headers lined up with the rows as they scroll sideways, and let a sideways
   // swipe that starts on the headers scroll the rows
@@ -279,9 +295,9 @@ export default function AvailabilityGrid() {
         {/* Day headers live outside the scroll area so they never move up or down; they only follow the
             rows sideways. Same 5px scrollbar gutter as the rows keeps the columns aligned. */}
         <div
-          className="grid-scrollbar shrink-0 overflow-hidden"
+          className="grid-scrollbar grid-edge-fade-x shrink-0 overflow-hidden"
           ref={headerScrollerRef}
-          style={{ scrollbarGutter: "stable" }}
+          style={{ ...edgeFadeStyle, scrollbarGutter: "stable" }}
         >
           <div
             className="w-max"
@@ -306,9 +322,9 @@ export default function AvailabilityGrid() {
           </div>
         </div>
         <div
-          className="grid-scrollbar min-h-0 flex-1 overflow-auto overscroll-none"
+          className="grid-scrollbar grid-edge-fade min-h-0 flex-1 overflow-auto overscroll-none"
           ref={scrollerRef}
-          style={{ scrollbarGutter: "stable" }}
+          style={{ ...edgeFadeStyle, scrollbarGutter: "stable" }}
         >
           <div
             className="flex min-h-full w-max flex-col"

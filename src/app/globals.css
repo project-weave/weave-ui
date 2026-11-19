@@ -160,3 +160,73 @@
     scrollbar-color: rgb(var(--dark-gray)) transparent;
   }
 }
+
+/* Availability grid edge fades: the calendar's own content drops to low opacity towards an edge
+   that has more times or dates beyond it. The fade sizes are animatable custom properties, so a fade
+   eases in and out as you reach or leave an edge. */
+@property --fade-top {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fade-bottom {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fade-left {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fade-right {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+.grid-edge-fade-x,
+.grid-edge-fade {
+  /* sideways: the time column stays solid, then content fades in after it and out before the
+     scrollbar (if it takes up space), which itself stays solid */
+  --grid-fade-x: linear-gradient(
+    to right,
+    #000 var(--fade-left-start),
+    rgb(0 0 0 / 0.2) var(--fade-left-start),
+    #000 calc(var(--fade-left-start) + var(--fade-left)),
+    #000 calc(100% - var(--fade-scrollbar, 0px) - var(--fade-right)),
+    rgb(0 0 0 / 0.2) calc(100% - var(--fade-scrollbar, 0px)),
+    #000 calc(100% - var(--fade-scrollbar, 0px))
+  );
+  transition:
+    --fade-top 0.3s ease-out,
+    --fade-bottom 0.3s ease-out,
+    --fade-left 0.3s ease-out,
+    --fade-right 0.3s ease-out;
+}
+
+.grid-edge-fade-x {
+  -webkit-mask-image: var(--grid-fade-x);
+  mask-image: var(--grid-fade-x);
+}
+
+.grid-edge-fade {
+  --grid-fade-y: linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 0.2) 0,
+    #000 var(--fade-top),
+    #000 calc(100% - var(--fade-bottom)),
+    rgb(0 0 0 / 0.2) 100%
+  );
+  -webkit-mask-image: var(--grid-fade-x), var(--grid-fade-y);
+  -webkit-mask-composite: source-in;
+  mask-image: var(--grid-fade-x), var(--grid-fade-y);
+  mask-composite: intersect;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid-edge-fade-x,
+  .grid-edge-fade {
+    transition: none;
+  }
+}
