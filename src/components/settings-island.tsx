@@ -1,15 +1,33 @@
 "use client";
 
+import { Link2, Pencil } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
 import useAvailabilityEntry from "@/hooks/useAvailabilityEntry";
 import useAvailabilityGridStore, { isEditMode } from "@/store/availabilityGridStore";
 import { cn } from "@/utils/cn";
 
 import BestTimesAvailableSwitch from "./availability-grid/best-times-available-switch";
 import EditAvailabilityDialog from "./availability-grid/dialog/edit-availability-dialog";
+
+// true when the slots picked in edit mode differ from what the user last saved
+function hasUnsavedChanges() {
+  const { eventData, selectedTimeSlots, user } = useAvailabilityGridStore.getState();
+  const saved = eventData.eventResponses.find(({ alias }) => alias === user)?.availabilities ?? [];
+  if (saved.length !== selectedTimeSlots.length) return true;
+  const savedSet = new Set(saved);
+  return selectedTimeSlots.some((timeSlot) => !savedSet.has(timeSlot));
+}
 
 interface SettingsIslandProps {
   onCopyClick?: () => void;
@@ -27,6 +45,25 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
   // Before someone adds their availability they get a single "Add availability" button;
   // afterwards the control becomes a toggle between viewing and editing.
   const hasStarted = editing || hasSavedAvailability;
+
+  const [unsavedPromptOpen, setUnsavedPromptOpen] = useState(false);
+
+  function onViewClick() {
+    if (!editing) return;
+    if (hasUnsavedChanges()) setUnsavedPromptOpen(true);
+    else cancelEditing();
+  }
+
+  function saveAndView() {
+    setUnsavedPromptOpen(false);
+    // saving switches back to view mode once the request succeeds
+    (document.getElementById("availability-grid") as HTMLFormElement | null)?.requestSubmit();
+  }
+
+  function discardAndView() {
+    setUnsavedPromptOpen(false);
+    cancelEditing();
+  }
 
   const contentRef = useRef<HTMLDivElement>(null);
   const [contentWidth, setContentWidth] = useState<null | number>(null);
@@ -49,7 +86,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
           role="toolbar"
           style={{ width: contentWidth === null ? undefined : contentWidth + 2 }}
         >
-          <div className="flex w-max min-w-0 items-center gap-2 px-3 py-2.5 sm:gap-3 sm:px-4" ref={contentRef}>
+          <div className="flex w-max min-w-0 items-center gap-1.5 p-1.5 sm:gap-2" ref={contentRef}>
             {hasStarted ? (
               <div
                 aria-label="Availability mode"
@@ -63,7 +100,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
                     !editing && "bg-red hover:bg-red"
                   )}
                   disabled={isSaving}
-                  onClick={() => editing && cancelEditing()}
+                  onClick={onViewClick}
                   type="button"
                   variant="ghost"
                 >
@@ -73,7 +110,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
                 <Button
                   aria-pressed={editing}
                   className={cn(
-                    "h-8 gap-1 rounded-md bg-transparent px-2.5 text-sm text-black hover:bg-light-gray",
+                    "h-8 gap-1.5 rounded-md bg-transparent px-2.5 text-sm text-black hover:bg-light-gray",
                     editing && "bg-yellow hover:bg-yellow"
                   )}
                   disabled={isSaving}
@@ -81,7 +118,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
                   type="button"
                   variant="ghost"
                 >
-                  <Image alt="" height={20} src="/icons/weave/pencil.svg" width={20} />
+                  <Pencil absoluteStrokeWidth aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.5} />
                   <span className="hidden xs:inline">Edit</span>
                 </Button>
               </div>
@@ -103,7 +140,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
                 form="availability-grid"
                 type="submit"
               >
-                {isSaving ? "Saving…" : "Save"}
+                Save
               </Button>
             ) : (
               <BestTimesAvailableSwitch />
@@ -117,11 +154,27 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
               type="button"
               variant="ghost"
             >
-              <Image alt="" height={24} src="/icons/weave/link.svg" width={24} />
+              <Link2 absoluteStrokeWidth aria-hidden="true" className="h-[15px] w-[15px]" strokeWidth={1.5} />
             </Button>
           </div>
         </div>
       </div>
+      <Dialog onOpenChange={setUnsavedPromptOpen} open={unsavedPromptOpen}>
+        <DialogContent className="max-w-[min(24rem,calc(100vw-1.5rem))]" showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle>Save your availability?</DialogTitle>
+            <DialogDescription>You have changes that haven&apos;t been saved yet.</DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button onClick={discardAndView} type="button" variant="ghost">
+              Discard
+            </Button>
+            <Button autoFocus onClick={saveAndView} type="button">
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <EditAvailabilityDialog
         allowModeSelection={false}
         initialViewMode="add-new"

@@ -22,6 +22,7 @@ import AvailabilityGridCell from "./availability-grid-cells/availability-grid-ce
 import { TimeSlotDragSelectionState } from "./availability-grid-cells/availability-grid-time-slot";
 import AvailabilityGridHeader from "./availability-grid-header";
 import { AvailabilityGridNode } from "./availability-grid-node";
+import ViewModeDragHint from "./view-mode-drag-hint";
 
 export default function AvailabilityGrid() {
   const { availabilityType, eventId, eventResponses, sortedEventDates, sortedEventTimes } = useAvailabilityGridStore(
@@ -68,6 +69,8 @@ export default function AvailabilityGrid() {
     };
 
     setIsSavingAvailability(true);
+    // one toast shows progress: "Saving…" while the request runs, then the result
+    const savingToast = toast({ description: "Saving your availability…", duration: Infinity });
     try {
       await mutateAsync(req);
       if (useAvailabilityGridStore.getState().eventData.eventId === eventId) {
@@ -75,11 +78,11 @@ export default function AvailabilityGrid() {
         setSelectedTimeSlots([]);
         setHoveredTimeSlot(null);
       }
-      toast({ description: "Availability saved", variant: "success" });
+      savingToast.update({ description: "Availability saved", duration: 3000, variant: "success" });
     } catch {
-      toast({
-        description: "An error occurred while saving your availability. Please try again later.",
-        title: "Oh no! Something went wrong",
+      savingToast.update({
+        description: "Couldn't save your availability. Please try again.",
+        duration: 5000,
         variant: "failure"
       });
     } finally {
@@ -290,6 +293,7 @@ export default function AvailabilityGrid() {
           })}
         </div>
       </div>
+      <ViewModeDragHint />
     </form>
   );
 }

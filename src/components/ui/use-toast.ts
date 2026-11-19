@@ -12,6 +12,8 @@ type ToasterToast = {
   action?: ToastActionElement;
   description?: React.ReactNode;
   id: string;
+  // where the toast appears: above the control bar on event pages (default) or at the top of the page
+  placement?: "bottom" | "top";
   title?: React.ReactNode;
 } & ToastProps;
 
@@ -140,7 +142,7 @@ type Toast = Omit<ToasterToast, "id">;
 function toast({ ...props }: Toast) {
   const id = genId();
 
-  const update = (props: ToasterToast) =>
+  const update = (props: Partial<ToasterToast>) =>
     dispatch({
       toast: { ...props, id },
       type: "UPDATE_TOAST"

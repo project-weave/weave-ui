@@ -84,9 +84,10 @@ export default function BestTimesAvailableSwitch({ className }: BestTimesAvailab
       variant="ghost"
     >
       <Star
+        absoluteStrokeWidth
         aria-hidden="true"
-        className={cn("h-5 w-5", isBestTimesEnabled ? "fill-white text-white" : "text-black")}
-        strokeWidth={1.75}
+        className={cn("h-3.5 w-3.5", isBestTimesEnabled ? "fill-white text-white" : "text-black")}
+        strokeWidth={1.5}
       />
     </Button>
   );

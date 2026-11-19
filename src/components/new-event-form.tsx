@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, startOfToday } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { FieldErrors, FormProvider, useForm } from "react-hook-form";
 
@@ -149,13 +148,15 @@ export default function NewEventForm() {
       timeZone
     };
 
+    // progress is shown in a toast at the top of the page rather than inside the button
+    const creatingToast = toast({ description: "Creating your event…", duration: Infinity, placement: "top" });
     try {
       await mutateAsync(req);
-      toast({ description: "Your event has been created", variant: "success" });
+      creatingToast.update({ description: "Event created", duration: 3000, variant: "success" });
     } catch {
-      toast({
-        description: "An error occurred while creating your event. Please try again later.",
-        title: "Oh no! Something went wrong.",
+      creatingToast.update({
+        description: "Couldn't create your event. Please try again.",
+        duration: 5000,
         variant: "failure"
       });
     }
@@ -396,7 +397,7 @@ export default function NewEventForm() {
               form="new-event-form"
               type="submit"
             >
-              {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin text-white" /> : CONTINUE}
+              {CONTINUE}
             </Button>
           </motion.div>
         )}
@@ -407,7 +408,7 @@ export default function NewEventForm() {
         form="new-event-form"
         type="submit"
       >
-        {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin py-0 text-white" /> : CONTINUE}
+        {CONTINUE}
       </Button>
     </>
   );
