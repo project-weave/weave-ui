@@ -401,30 +401,34 @@ export default function NewEventForm() {
 
   return (
     <>
-      <div className="flex select-none flex-row justify-center">
-        <FormProvider {...form}>
-          <form
-            autoComplete="off"
-            className="card mx-auto flex h-full w-full min-w-0 max-w-[26rem] flex-col bg-white px-5 sm:min-h-[36rem] sm:max-w-[30rem] sm:px-8 md:mx-[1rem] xl:max-w-[26rem]"
-            id="new-event-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              isSubmitAttempted.current = true;
-              if (form.formState.isSubmitting || isPending || isSuccess) return;
-              form.handleSubmit(onSubmit, onInvalid)();
-            }}
-            ref={formRef}
-          >
-            <div className="mb-5 flex flex-col">{eventNameInput}</div>
-            <div className="mb-6 flex w-full flex-col">{startAndEndTimeInput}</div>
-            <div className="mb-6"> {timeZoneDropdown}</div>
-            <div className="mb-5 flex flex-col">{availabilityTypeInput}</div>
-            <div className="mb-6">{dateSelector}</div>
-            {formSubmissionButton}
-          </form>
-        </FormProvider>
-        <div className="hidden w-[47rem] xl:block">{largeDateSelector}</div>
+      {/* same layout as the event page: side padding outside an 82rem-wide grid with a 20rem (22rem on xl)
+          left column beside the calendar, 20px apart */}
+      <div className="w-full px-6 sm:px-8 lg:px-5">
+        <div className="mx-auto grid w-full max-w-[82rem] select-none grid-cols-1 gap-5 lg:grid-cols-[20rem_minmax(0,1fr)] xl:grid-cols-[22rem_minmax(0,1fr)]">
+          <FormProvider {...form}>
+            <form
+              autoComplete="off"
+              className="card flex h-full w-full min-w-0 flex-col bg-white px-6 pb-6 pt-5"
+              id="new-event-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                isSubmitAttempted.current = true;
+                if (form.formState.isSubmitting || isPending || isSuccess) return;
+                form.handleSubmit(onSubmit, onInvalid)();
+              }}
+              ref={formRef}
+            >
+              <div className="mb-5 flex flex-col">{eventNameInput}</div>
+              <div className="mb-6 flex w-full flex-col">{startAndEndTimeInput}</div>
+              <div className="mb-6"> {timeZoneDropdown}</div>
+              <div className="mb-5 flex flex-col">{availabilityTypeInput}</div>
+              <div className="mb-6">{dateSelector}</div>
+              {formSubmissionButton}
+            </form>
+          </FormProvider>
+          <div className="hidden min-w-0 lg:block">{largeDateSelector}</div>
+        </div>
       </div>
       {/* add spacing on the bottom when button is fixed to bottom of*/}
       <div className={cn(isFormInView && "h-16 xs:h-0")} />
