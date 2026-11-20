@@ -48,6 +48,12 @@ export default function Event() {
     if (data) setEventData(data);
   }, [data, setEventData]);
 
+  // once the event has loaded, start at the top of the page (on phones the page scrolls, and arriving from
+  // the create page could otherwise leave you part way down)
+  useEffect(() => {
+    if (loadedEventId) window.scrollTo(0, 0);
+  }, [loadedEventId]);
+
   if (isPending || (data && loadedEventId !== data.event.id)) {
     return (
       <div className="mx-auto mb-10 mt-9 grid h-fit w-full max-w-[82rem] grid-cols-1 gap-5 px-3 lg:grid-cols-[20rem_minmax(0,1fr)]">

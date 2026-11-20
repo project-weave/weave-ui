@@ -154,7 +154,7 @@ export default function NewEventFromTimeDropdown({
             matchesTimeSearch(convertValueToLabel(value), search, TIME_SLOT_INTERVAL_MINUTES) ? 1 : 0
           }
         >
-          <CommandInput className="py-5 text-sm" onBlur={onBlur} placeholder="Type a time" />
+          <CommandInput className="py-5 text-base sm:text-sm" onBlur={onBlur} placeholder="Type a time" />
           <CommandEmpty className="m-2 rounded-sm bg-gray-200 py-1.5 text-center text-xs">{INVALID_TIME} </CommandEmpty>
           <CommandGroup
             className="grid-scrollbar my-1 max-h-[105px] overflow-y-scroll sm:max-h-[150px] xl:max-h-[180px]"

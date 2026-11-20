@@ -414,6 +414,8 @@ export default function NewEventForm() {
                 e.preventDefault();
                 e.stopPropagation();
                 isSubmitAttempted.current = true;
+                // close the phone keyboard so the next page doesn't open zoomed/scrolled where the field was
+                (document.activeElement as HTMLElement | null)?.blur();
                 if (form.formState.isSubmitting || isPending || isSuccess) return;
                 form.handleSubmit(onSubmit, onInvalid)();
               }}

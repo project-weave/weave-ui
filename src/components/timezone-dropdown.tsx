@@ -207,7 +207,7 @@ export default function TimeZoneDropdown({
         )}
       >
         <Command filter={(value, search) => timeZoneFilter(value, search)}>
-          <CommandInput className="py-5 text-sm" placeholder="Search time zones" />
+          <CommandInput className="py-5 text-base sm:text-sm" placeholder="Search time zones" />
           <CommandEmpty className="m-2 rounded-sm bg-gray-200 py-1.5 text-center text-xs">
             {NO_TIME_ZONES_FOUND}
           </CommandEmpty>
