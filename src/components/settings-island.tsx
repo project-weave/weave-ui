@@ -70,7 +70,12 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
   function onViewClick() {
     if (!editing) return;
     if (hasUnsavedChanges()) setUnsavedPromptOpen(true);
-    else cancelEditing();
+    else switchToView();
+  }
+
+  function switchToView() {
+    cancelEditing();
+    toast({ description: "Viewing all availability" });
   }
 
   function saveAndView() {
@@ -81,17 +86,16 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
 
   function discardAndView() {
     setUnsavedPromptOpen(false);
-    cancelEditing();
+    switchToView();
   }
 
-  // a toast confirms each switch between viewing and editing (saving shows its own toast instead)
+  // a toast confirms switching into edit mode (however it happens: the toggle, Add availability, the name
+  // prompt). Switching back to view is toasted where the user does it, so page changes and saves (which
+  // also reset to view) don't produce a stray toast.
   useEffect(
     () =>
       useAvailabilityGridStore.subscribe((state, prev) => {
-        if (state.mode === prev.mode || state.isSavingAvailability) return;
-        toast({
-          description: isEditMode(state.mode) ? "Editing your availability" : "Viewing all availability"
-        });
+        if (state.mode !== prev.mode && isEditMode(state.mode)) toast({ description: "Editing your availability" });
       }),
     []
   );

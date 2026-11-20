@@ -151,7 +151,12 @@ export default function NewEventForm() {
     };
 
     // progress is shown in a toast at the top centre of the page rather than inside the button
-    const creatingToast = toast({ description: "Creating your event…", duration: Infinity, placement: "top" });
+    const creatingToast = toast({
+      description: "Creating your event…",
+      duration: Infinity,
+      keepOnPageChange: true,
+      placement: "top"
+    });
     try {
       await mutateAsync(req);
       creatingToast.update({ description: "Event created", duration: 3000, variant: "success" });
