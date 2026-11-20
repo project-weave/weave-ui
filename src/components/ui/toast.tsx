@@ -19,9 +19,10 @@ const ToastViewport = React.forwardRef<
       placement === "top"
         ? // top centre of the page (used when an event is created)
           "top-6 z-[60]"
-        : // just above the floating control bar (bar: 1rem/1.5rem from the bottom, 54px tall). It sits underneath
-          // the bar (z-30 < the bar's z-40) so toasts slide out from under it and back in.
-          "bottom-[calc(1rem+54px+0.5rem+env(safe-area-inset-bottom))] z-30 sm:bottom-[calc(1.5rem+54px+0.5rem+env(safe-area-inset-bottom))]",
+        : // just above the floating control bar (bar: 1rem/1.5rem from the bottom, 54px tall). Layering: above the
+          // calendar and its editing ring (z-40), below the control bar (z-[48]) so toasts slide out from under
+          // it, and below modals (z-50).
+          "bottom-[calc(1rem+54px+0.5rem+env(safe-area-inset-bottom))] z-[45] sm:bottom-[calc(1.5rem+54px+0.5rem+env(safe-area-inset-bottom))]",
       className
     )}
     data-placement={placement}

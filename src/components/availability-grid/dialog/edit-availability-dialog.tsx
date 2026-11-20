@@ -72,7 +72,12 @@ const EditAvailabilityDialog = ({
       )}
 
       {/* same layout and size as the "Save your availability?" modal */}
-      <DialogContent className={cn(MODAL_SIZE, "max-h-[calc(100dvh-2rem)] overflow-y-auto")} showCloseButton={false}>
+      <DialogContent
+        className={cn(MODAL_SIZE, "max-h-[calc(100dvh-2rem)] overflow-y-auto")}
+        // don't put a focus outline back on the button that opened it (e.g. the Edit toggle) when it closes
+        onCloseAutoFocus={(e) => e.preventDefault()}
+        showCloseButton={false}
+      >
         <DialogHeader>
           <div className="flex items-center gap-2">
             {allowModeSelection && viewMode !== "initial" && (

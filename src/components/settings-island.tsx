@@ -124,7 +124,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
   return (
     <>
       {/* Floats over the page on mobile; on desktop it sits in the page flow, just below the event container */}
-      <div className="fixed bottom-4 left-1/2 z-40 w-max max-w-[calc(100vw-1.5rem)] -translate-x-1/2 pb-[env(safe-area-inset-bottom)] sm:bottom-6 lg:relative lg:bottom-auto lg:left-auto lg:mx-auto lg:mt-5 lg:shrink-0 lg:translate-x-0">
+      <div className="fixed bottom-4 left-1/2 z-[48] w-max max-w-[calc(100vw-1.5rem)] -translate-x-1/2 pb-[env(safe-area-inset-bottom)] sm:bottom-6 lg:relative lg:bottom-auto lg:left-auto lg:mx-auto lg:mt-5 lg:shrink-0 lg:translate-x-0">
         {/* The card's width follows its contents with an ease-out transition so switching modes isn't jumpy */}
         <div
           aria-label="Availability controls"
@@ -155,7 +155,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
                 <Button
                   aria-pressed={!editing}
                   className={cn(
-                    "relative h-10 gap-1.5 rounded-lg bg-transparent px-3 text-sm text-black hover:bg-black/5",
+                    "relative h-10 gap-1.5 rounded-lg bg-transparent px-3 text-sm text-black hover:bg-black/5 focus-visible:ring-inset focus-visible:ring-offset-0",
                     PRESSABLE,
                     !editing && "hover:bg-transparent"
                   )}
@@ -171,7 +171,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
                 <Button
                   aria-pressed={editing}
                   className={cn(
-                    "relative h-10 gap-1.5 rounded-lg bg-transparent px-3 text-sm text-black hover:bg-black/5",
+                    "relative h-10 gap-1.5 rounded-lg bg-transparent px-3 text-sm text-black hover:bg-black/5 focus-visible:ring-inset focus-visible:ring-offset-0",
                     PRESSABLE,
                     editing && "hover:bg-transparent"
                   )}
@@ -247,7 +247,12 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
         </div>
       </div>
       <Dialog onOpenChange={setUnsavedPromptOpen} open={unsavedPromptOpen}>
-        <DialogContent className={MODAL_SIZE} showCloseButton={false}>
+        <DialogContent
+          className={MODAL_SIZE}
+          // don't put a focus outline back on the View/Edit toggle when this closes
+          onCloseAutoFocus={(e) => e.preventDefault()}
+          showCloseButton={false}
+        >
           <DialogHeader>
             <DialogTitle>Save your availability?</DialogTitle>
             <DialogDescription className="text-sm text-text-light">
