@@ -12,6 +12,8 @@ type ToasterToast = {
   action?: ToastActionElement;
   description?: React.ReactNode;
   id: string;
+  // where the toast appears: above the control bar (default) or top centre of the page
+  placement?: "bottom" | "top";
   title?: React.ReactNode;
 } & ToastProps;
 

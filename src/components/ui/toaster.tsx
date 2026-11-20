@@ -8,7 +8,8 @@ export function Toaster() {
 
   return (
     <ToastProvider swipeDirection="right">
-      {toasts.map(function ({ action, description, id, title, variant, ...props }) {
+      {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
+      {toasts.map(function ({ action, description, id, placement, title, variant, ...props }) {
         return (
           <Toast
             key={id}
@@ -19,7 +20,7 @@ export function Toaster() {
             duration={Infinity}
             variant={variant}
           >
-            <div className="min-w-0 truncate text-sm text-white">
+            <div className="min-w-0 truncate text-sm text-black">
               {title && <ToastTitle>{title}</ToastTitle>}
               {description && <ToastDescription>{description}</ToastDescription>}
             </div>
@@ -27,7 +28,7 @@ export function Toaster() {
           </Toast>
         );
       })}
-      <ToastViewport />
+      <ToastViewport placement={toasts[0]?.placement ?? "bottom"} />
     </ToastProvider>
   );
 }

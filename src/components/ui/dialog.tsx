@@ -29,6 +29,9 @@ const DialogOverlay = React.forwardRef<
 ));
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
+// Shared modal size: narrower than the page content on phones, compact (24rem) on larger screens
+export const MODAL_SIZE = "w-[calc(100vw-5rem)] max-w-[24rem]";
+
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   { showCloseButton?: boolean } & React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
@@ -70,7 +73,7 @@ const DialogTitle = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
-    className={cn("text-lg font-semibold leading-none tracking-tight", className)}
+    className={cn("text-lg font-normal leading-none tracking-tight", className)}
     ref={ref}
     {...props}
   />
