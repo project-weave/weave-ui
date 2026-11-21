@@ -110,7 +110,7 @@ export default function Event() {
     // Mobile: the calendar is at least screen height and shows every time, and the page itself scrolls
     // (swipe on the margins outside the card) so dragging on the cells only ever selects times. The
     // control bar floats over the bottom; the bottom padding lets the last rows scroll clear of it.
-    <div className="flex min-w-0 flex-col px-6 pb-[calc(1rem+54px+1.5rem+env(safe-area-inset-bottom))] sm:px-8 sm:pb-[calc(1.5rem+54px+1.5rem+env(safe-area-inset-bottom))] lg:h-[calc(100dvh-3.75rem)] lg:min-h-[38rem] lg:overflow-hidden lg:px-5 lg:pb-6">
+    <div className="flex min-w-0 flex-col px-6 pb-[calc(1rem+54px+1.5rem+env(safe-area-inset-bottom))] sm:px-8 sm:pb-[calc(1.5rem+54px+1.5rem+env(safe-area-inset-bottom))] lg:h-[calc(100dvh-3.75rem)] lg:min-h-[38rem] lg:px-5 lg:pb-6">
       <div className="mx-auto mt-9 flex min-h-0 w-full max-w-[82rem] flex-1 flex-col gap-3 lg:grid lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-5 xl:grid-cols-[22rem_minmax(0,1fr)]">
         <MediaQueryLG>
           <div className="hidden h-full min-h-0 min-w-0 lg:block">
