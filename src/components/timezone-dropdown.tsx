@@ -1,11 +1,13 @@
 "use client";
 
 import { Check, ChevronDown } from "lucide-react";
-import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { KeyboardEvent, ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import useScrollingClass from "@/hooks/useScrollingClass";
+import useWheelStep from "@/hooks/useWheelStep";
 import { cn } from "@/utils/cn";
 import { getGMTOffset, getTimeZoneAbbreviation, getTimeZoneCity } from "@/utils/timeZone";
 
@@ -20,6 +22,8 @@ interface TimeZone {
 }
 
 export interface TimeZoneDropdownProps {
+  // compact shows only the abbreviation (e.g. "PT") in a small trigger, used above the grid's time column
+  compact?: boolean;
   error: boolean;
   gridDropdown?: boolean;
   onChange: (timeZone: string) => void;
@@ -61,6 +65,7 @@ function toTimeZoneObject(timeZone: string, gridDropdown?: boolean, originalTime
 }
 
 export default function TimeZoneDropdown({
+  compact,
   error,
   gridDropdown,
   onChange,
@@ -87,6 +92,9 @@ export default function TimeZoneDropdown({
       .sort((a, b) => a.city.localeCompare(b.city));
   }, [gridDropdown, originalTimeZone, selected]);
 
+  // thin grey scrollbar shows only while the list is being scrolled
+  useScrollingClass(commandGroupRef, undefined, open);
+
   useEffect(() => {
     setSelectedTimeZone(toTimeZoneObject(selected, gridDropdown, originalTimeZone));
   }, [gridDropdown, originalTimeZone, selected]);
@@ -105,20 +113,18 @@ export default function TimeZoneDropdown({
     return () => clearTimeout(timeout);
   }, [open, selectedTimeZone.value]);
 
-  function getTimeZoneJSX(timeZone: TimeZone): ReactNode {
-    let info: ReactNode = null;
+  function getTimeZoneJSX(timeZone: TimeZone, isSelected = false): ReactNode {
+    let info = "";
     if (gridDropdown) {
-      if (timeZone.value === originalTimeZone) {
-        info = <span className="ml-2 text-[0.7rem] text-text-light ">(Event Default)</span>;
-      }
+      if (timeZone.value === originalTimeZone) info = "(Event Default)";
     } else {
-      info = <span className="ml-2 text-[0.85rem] text-text-light ">({timeZone.offset})</span>;
+      info = `(${timeZone.offset})`;
     }
 
     return (
-      <span className="mb-1 flex h-full items-center lg:mb-0">
-        <span>{`${timeZone.abbreviation} - ${timeZone.value.replaceAll("_", " ").split("/").pop() ?? ""}`}</span>
-        <span>{info}</span>
+      <span className="flex min-w-0 items-center">
+        <span className="truncate">{`${timeZone.abbreviation} - ${timeZone.city}`}</span>
+        {info && <span className={cn("ml-2 shrink-0", isSelected ? "text-white/80" : "text-text-light")}>{info}</span>}
       </span>
     );
   }
@@ -131,64 +137,93 @@ export default function TimeZoneDropdown({
       : 0;
   }
 
-  const popoverDisplay = (
-    <Button
-      aria-label={gridDropdown ? "Display time zone" : "Event time zone"}
-      className={cn(
-        "peer box-border flex h-auto transform-none cursor-pointer items-center rounded-xl bg-input px-4 py-2.5",
-        {
-          "px-2.5 py-2 text-xs": gridDropdown,
-          "outline-primary": open,
-          "outline-red-500/40 focus-within:outline-red-500 hover:outline-red-500": error
-        },
-        {
-          "outline-red-500": error && open
-        }
-      )}
-      type="button"
-      variant="ghost"
-    >
-      <span className="flex w-full items-center justify-between">
-        {getTimeZoneJSX(selectedTimeZone)}
-        <ChevronDown className="ml-2 text-black" height={15} width={15} />
-      </span>
-    </Button>
+  // same behaviour as the time picker: scroll over the closed dropdown or use the arrow keys to step through
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  function stepSelectedTimeZone(direction: -1 | 1) {
+    const currentIndex = allTimeZones.findIndex(({ value }) => value === selectedTimeZone.value);
+    const nextIndex = Math.min(Math.max(currentIndex + direction, 0), allTimeZones.length - 1);
+    if (currentIndex === -1 || nextIndex === currentIndex) return;
+    setSelectedTimeZone(allTimeZones[nextIndex]);
+    onChange(allTimeZones[nextIndex].value);
+  }
+  useWheelStep(triggerRef, stepSelectedTimeZone, !open);
+  function onTriggerKeyDown(e: KeyboardEvent<HTMLButtonElement>) {
+    if (open || (e.key !== "ArrowDown" && e.key !== "ArrowUp")) return;
+    e.preventDefault();
+    stepSelectedTimeZone(e.key === "ArrowDown" ? 1 : -1);
+  }
+
+  const chevron = (
+    <ChevronDown
+      aria-hidden="true"
+      className={cn("shrink-0 text-black transition-transform duration-200", open && "rotate-180")}
+      height={compact ? 12 : 15}
+      width={compact ? 12 : 15}
+    />
   );
 
   return (
     <Popover onOpenChange={setOpen} open={open}>
-      <PopoverTrigger asChild>{popoverDisplay}</PopoverTrigger>
+      <PopoverTrigger asChild>
+        <Button
+          aria-label={`${gridDropdown ? "Display time zone" : "Event time zone"}: ${selectedTimeZone.queryLabel}. Scroll or use arrow keys to change.`}
+          className={cn("relative h-auto p-0", compact ? "w-auto" : "w-full")}
+          onKeyDown={onTriggerKeyDown}
+          ref={triggerRef}
+          type="button"
+          variant="ghost"
+        >
+          {compact ? (
+            // small version above the grid's time column: just the code, e.g. "PT"
+            <span className="flex items-center gap-0.5 rounded-md bg-input px-1.5 py-1 text-2xs font-medium">
+              {selectedTimeZone.abbreviation}
+              {chevron}
+            </span>
+          ) : (
+            <div
+              className={cn(
+                "peer box-border flex h-10 w-full min-w-0 cursor-pointer items-center rounded-xl bg-input px-4 text-left text-sm",
+                {
+                  "outline-red-500/40 focus-within:outline-red-500 hover:outline-red-500": error
+                },
+                {
+                  "outline-red-500": error && open
+                }
+              )}
+            >
+              <span className="flex w-full min-w-0 items-center justify-between gap-2">
+                {getTimeZoneJSX(selectedTimeZone)}
+                {chevron}
+              </span>
+            </div>
+          )}
+        </Button>
+      </PopoverTrigger>
       <PopoverContent
         align={gridDropdown ? "start" : "center"}
         className={cn(
-          "mb-2 min-w-[20rem] p-0 sm:min-w-[22rem]",
-          gridDropdown && "mb-1 w-[16rem] min-w-[16rem] border-[1px] border-primary sm:min-w-[16rem]"
+          "mb-2 bg-background p-0",
+          gridDropdown ? "w-[18rem]" : "w-[var(--radix-popover-trigger-width)] min-w-[18rem]"
         )}
       >
-        <Command className="bg-background" filter={(value, search) => timeZoneFilter(value, search)}>
-          <CommandInput className={cn("py-5 text-sm", gridDropdown && "h-7 py-0 text-2xs")} />
-          <CommandList
-            className={cn(
-              "scrollbar-primary my-1 max-h-[11rem] overflow-y-scroll sm:max-h-[14rem]",
-              gridDropdown && "max-h-[7rem] sm:max-h-[10rem]"
-            )}
+        <Command filter={(value, search) => timeZoneFilter(value, search)}>
+          <CommandInput className="py-5 text-base sm:text-sm" placeholder="Search time zones" />
+          <CommandEmpty className="m-2 rounded-sm bg-gray-200 py-1.5 text-center text-xs">
+            {NO_TIME_ZONES_FOUND}
+          </CommandEmpty>
+          <CommandGroup
+            className="grid-scrollbar my-1 max-h-[105px] overflow-y-scroll sm:max-h-[150px] xl:max-h-[180px]"
+            ref={commandGroupRef}
           >
-            <CommandEmpty
-              className={cn("mx-2 my-1 rounded-sm bg-gray-200 py-1.5 text-center text-xs", gridDropdown && "text-2xs")}
-            >
-              {NO_TIME_ZONES_FOUND}
-            </CommandEmpty>
-            <CommandGroup ref={commandGroupRef}>
-              {allTimeZones.map((timeZone) => (
+            {allTimeZones.map((timeZone) => {
+              const isSelected = selectedTimeZone.value === timeZone.value;
+              return (
                 <CommandItem
                   className={cn(
-                    "my-[1px] mb-1 mr-2 flex cursor-pointer items-center justify-between border-[1px] border-transparent text-xs hover:bg-primary/20 sm:text-sm md:border-[1.5px]",
-                    {
-                      "border-primary": selectedTimeZone.value === timeZone.value
-                    },
-                    {
-                      "ml-[1px] py-[2px] text-2xs sm:text-2xs md:border-[1px]": gridDropdown
-                    }
+                    "my-[1px] mb-1 mr-2 flex cursor-pointer items-center justify-between text-sm",
+                    isSelected
+                      ? "bg-primary text-white aria-selected:bg-primary"
+                      : "aria-selected:bg-primary/20 hover:bg-primary/20"
                   )}
                   data-value={timeZone.value}
                   key={timeZone.value}
@@ -199,18 +234,15 @@ export default function TimeZoneDropdown({
                   }}
                   value={timeZone.value}
                 >
-                  {getTimeZoneJSX(timeZone)}
+                  {getTimeZoneJSX(timeZone, isSelected)}
                   <Check
-                    className={cn(
-                      "h-5 w-5",
-                      selectedTimeZone.value === timeZone.value ? "opacity-100" : "opacity-0",
-                      gridDropdown && "h-3 w-3"
-                    )}
+                    aria-hidden="true"
+                    className={cn("h-4 w-4 shrink-0 text-white", isSelected ? "opacity-100" : "opacity-0")}
                   />
                 </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
+              );
+            })}
+          </CommandGroup>
         </Command>
       </PopoverContent>
     </Popover>

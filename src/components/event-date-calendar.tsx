@@ -14,7 +14,6 @@ import {
   startOfToday,
   sub
 } from "date-fns";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Dispatch, LegacyRef, MouseEvent, SetStateAction, useEffect, useRef, useState } from "react";
 
 import useDragSelect, { extractDragSelectData } from "@/hooks/useDragSelect";
@@ -24,6 +23,7 @@ import { cn } from "@/utils/cn";
 import { isLeftClick } from "@/utils/mouseEvent";
 
 import { Button } from "./ui/button";
+import NavArrowButton from "./ui/nav-arrow-button";
 
 type EventDateCalendarViewModeProps = {
   currentMonthOverride?: string;
@@ -179,46 +179,22 @@ const EventDateCalendar = ({
 
           {isNextAndPrevButtonsVisible && (
             <>
-              <Button
-                className={cn("mb-0.5 h-[1.6rem] w-[1.6rem] rounded-[0.45rem] border-none px-[1px]", {
-                  "h-5 w-5": isViewMode,
-                  "ml-2 h-7 w-7": size === "large"
-                })}
+              <NavArrowButton
+                direction="previous"
                 disabled={isCurrentMonthEarliest}
+                label="Previous month"
                 onClick={setPrevMonth}
-                type="button"
-                variant={
-                  !isCurrentMonthEarliest ? "default" : size === "large" ? "default-disabled-white" : "default-disabled"
-                }
-              >
-                <span className="sr-only">Previous month</span>
-                <ChevronLeft
-                  className={cn("h-[1.2rem] w-[1.2rem] stroke-[3px] pr-[1px]", {
-                    "h-6 w-6": isViewMode || size === "large"
-                  })}
-                />
-              </Button>
-              <Button
-                className={cn("mb-0.5 ml-[5px] mr-1 h-[1.6rem] w-[1.6rem] rounded-[0.45rem] border-none px-[1px]", {
-                  "h-5 w-5": isViewMode,
-                  "ml-2 h-7 w-7": size === "large"
-                })}
+              />
+              <NavArrowButton
+                className="ml-1.5"
+                direction="next"
                 disabled={isCurrentMonthLatest}
+                label="Next month"
                 onClick={setNextMonth}
-                type="button"
-                variant={isCurrentMonthLatest ? "default-disabled" : "default"}
-              >
-                <span className="sr-only">Next month</span>
-                <ChevronRight
-                  className={cn("h-[1.2rem] w-[1.2rem] stroke-[3px] pl-[1px] ", {
-                    "h-6 w-6": isViewMode || size === "large"
-                  })}
-                />
-              </Button>
+              />
             </>
           )}
         </div>
-        <hr className="mt-[0.1rem] h-[0.05rem] bg-text-light" />
         <div className="mt-3 grid grid-cols-7 text-center font-normal leading-4 text-text-light">
           {weekDays.map((weekDay) => {
             return (
@@ -346,7 +322,7 @@ function DateButton({
               "border-transparent bg-input": true,
               "bg-white": size === "large",
               "text-black": isSameMonth(day, firstDayCurrentMonth),
-              "bg-success text-black hover:bg-success/70 ": isToday(day),
+              "bg-red text-black hover:bg-red/70": isToday(day),
               "hover:text-light/80 text-text-light": !isToday(day) && !isSameMonth(day, firstDayCurrentMonth)
             }
           : {
@@ -357,15 +333,17 @@ function DateButton({
               "rounded-r-sm": isPrevDaySelected && !isNextDaySelected
             },
         isDaySelected && {
+          // selected days in a row join into one continuous bar: no visible borders between them
+          "border-transparent": true,
           "ml-auto w-full rounded-r-none border-r-0": isNextDaySelected && day.getDay() !== 6,
-          "mr-auto w-full rounded-l-none": isPrevDaySelected && day.getDay() !== 0,
+          "mr-auto w-full rounded-l-none border-l-0": isPrevDaySelected && day.getDay() !== 0,
           "rounded-l-sm": isNextDaySelected && !isPrevDaySelected,
           "rounded-r-sm": isPrevDaySelected && !isNextDaySelected
         },
         isViewMode && {
           "bg-primary": isDaySelected,
           "pointer-events-none opacity-20 hover:bg-background": !isDaySelected,
-          "bg-transparent text-black opacity-100": isToday(day) && !isDaySelected,
+          "bg-red text-black opacity-100 disabled:bg-red disabled:text-black": isToday(day) && !isDaySelected,
           "text-xs": true
         },
         isViewMode &&

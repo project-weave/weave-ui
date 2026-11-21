@@ -1,49 +1,48 @@
 "use client";
 
-import { CheckCircle2, XCircle } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 
-import { Toast, ToastClose, ToastDescription, ToastProvider, ToastTitle, ToastViewport } from "@/components/ui/toast";
+import { Toast, ToastDescription, ToastProvider, ToastTitle, ToastViewport } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
 
 export function Toaster() {
-  const { toasts } = useToast();
+  const { dismiss, toasts } = useToast();
+  const pathname = usePathname();
+  const previousPathname = useRef(pathname);
+
+  // switching pages clears any toasts from the previous page (unless they asked to stay)
+  useEffect(() => {
+    if (previousPathname.current === pathname) return;
+    previousPathname.current = pathname;
+    toasts.filter((t) => !t.keepOnPageChange).forEach((t) => dismiss(t.id));
+    // only react to page changes, not to toasts being added
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   return (
     <ToastProvider swipeDirection="right">
-      {toasts.map(function ({ action, description, id, title, variant, ...props }) {
-        let icon;
-        switch (variant) {
-          case "success":
-            icon = <CheckCircle2 className="h-5 w-5" />;
-            break;
-          case "failure":
-            icon = <XCircle className="h-5 w-5" />;
-            break;
-          default:
-            icon = <></>;
-        }
+      {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
+      {toasts.map(function ({ action, description, id, keepOnPageChange, placement, title, variant, ...props }) {
         return (
           <Toast
-            duration={4000}
             key={id}
             onPointerDown={(e) => e.preventDefault()}
             onPointerMove={(e) => e.preventDefault()}
             {...props}
+            // timing is handled in use-toast so hovering can't keep a toast open
+            duration={Infinity}
             variant={variant}
           >
-            <div className="grid grid-flow-col items-center gap-1 text-sm 2xl:text-base">
-              <div className="mr-1.5 mt-[.2px]">{icon}</div>
-              <div>
-                {title && <ToastTitle>{title}</ToastTitle>}
-                {description && <ToastDescription>{description}</ToastDescription>}
-              </div>
+            <div className="min-w-0 truncate text-sm text-black">
+              {title && <ToastTitle>{title}</ToastTitle>}
+              {description && <ToastDescription>{description}</ToastDescription>}
             </div>
             {action}
-            <ToastClose />
           </Toast>
         );
       })}
-      <ToastViewport />
+      <ToastViewport placement={toasts[0]?.placement ?? "bottom"} />
     </ToastProvider>
   );
 }

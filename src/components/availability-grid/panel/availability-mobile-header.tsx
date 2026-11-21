@@ -13,29 +13,13 @@ import AvailabilityResponsesCount from "./availability-responses-count";
 
 export default function AvailabilityMobileHeader() {
   const { availabilityType, eventName, sortedEventDates } = useAvailabilityGridStore((state) => state.eventData);
-  const [expanded, setExpanded] = useState(false);
+  // participants are shown by default
+  const [expanded, setExpanded] = useState(true);
   const detailsId = useId();
 
   return (
-    <section aria-label="Event details" className="card mb-4 h-auto px-4 py-3 lg:hidden">
-      <h1>
-        <button
-          aria-controls={detailsId}
-          aria-expanded={expanded}
-          className="flex w-full items-center justify-between gap-3 rounded-sm text-left text-lg font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          onClick={() => setExpanded(!expanded)}
-          type="button"
-        >
-          <span className="min-w-0 break-words [overflow-wrap:anywhere]">{eventName}</span>
-          <Image
-            alt=""
-            className={cn("shrink-0 transition-transform", expanded && "rotate-180")}
-            height={24}
-            src="/icons/weave/chevron.svg"
-            width={24}
-          />
-        </button>
-      </h1>
+    <section aria-label="Event details" className="card h-auto overflow-hidden px-4 py-3 lg:hidden">
+      <h1 className="break-words text-lg font-medium [overflow-wrap:anywhere]">{eventName}</h1>
       <p className="mt-1 text-xs text-text-light">
         {formatEventDateRange(sortedEventDates, availabilityType === AvailabilityType.SPECIFIC_DATES)}
       </p>
@@ -44,15 +28,25 @@ export default function AvailabilityMobileHeader() {
         <button
           aria-controls={detailsId}
           aria-expanded={expanded}
-          className="rounded-sm text-xs text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label={expanded ? "Hide participants" : "Show participants"}
+          className="-mr-1 rounded-sm p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           onClick={() => setExpanded(!expanded)}
+          title={expanded ? "Hide participants" : "Show participants"}
           type="button"
         >
-          {expanded ? "Hide participants" : "Show participants"}
+          {/* points up while the participants are showing */}
+          <Image
+            alt=""
+            className={cn("shrink-0 transition-transform duration-200", expanded && "rotate-180")}
+            height={20}
+            src="/icons/weave/chevron.svg"
+            width={20}
+          />
         </button>
       </div>
-      <div className="mt-4 border-t pt-3" hidden={!expanded} id={detailsId}>
-        <AvailabilityParticipantFilters />
+      {/* one row of names; swipe sideways to see the rest */}
+      <div className="mt-3" hidden={!expanded} id={detailsId}>
+        <AvailabilityParticipantFilters layout="row" />
       </div>
     </section>
   );

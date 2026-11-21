@@ -1,20 +1,21 @@
 "use client";
 
 import { AnimationScope } from "framer-motion";
-import { ChevronLeft, X } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { memo, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
+  DialogTrigger,
+  MODAL_SIZE
 } from "@/components/ui/dialog";
 import useAvailabilityGridStore from "@/store/availabilityGridStore";
+import { cn } from "@/utils/cn";
 
 import EditAvailabilityForm from "./edit-availability-form";
 
@@ -70,48 +71,41 @@ const EditAvailabilityDialog = ({
         </DialogTrigger>
       )}
 
+      {/* same layout and size as the "Save your availability?" modal */}
       <DialogContent
-        className="top-1/2 max-h-[calc(100dvh-2rem)] max-w-[min(32rem,calc(100vw-1.5rem))] gap-6 overflow-y-auto p-6"
+        className={cn(MODAL_SIZE, "max-h-[calc(100dvh-2rem)] overflow-y-auto")}
+        // don't put a focus outline back on the button that opened it (e.g. the Edit toggle) when it closes
+        onCloseAutoFocus={(e) => e.preventDefault()}
         showCloseButton={false}
       >
-        <div className="grid grid-cols-[2rem_minmax(0,1fr)_2rem] items-center gap-2">
-          {allowModeSelection && viewMode !== "initial" ? (
-            <Button
-              aria-label="Back"
-              className="h-8 w-8 bg-transparent p-0 hover:bg-accent"
-              onClick={() => setViewMode("initial")}
-              type="button"
-              variant="ghost"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-          ) : (
-            <span aria-hidden="true" />
-          )}
-          <DialogHeader className="space-y-0">
-            <DialogTitle className="text-center text-lg font-medium leading-snug">{title}</DialogTitle>
-            <DialogDescription className="sr-only">
-              {allowModeSelection
-                ? "Choose a participant or enter your name to add availability."
-                : "Enter your name to add your availability."}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogClose asChild>
-            <Button
-              aria-label="Close"
-              className="h-8 w-8 bg-transparent p-0 hover:bg-accent"
-              type="button"
-              variant="ghost"
-            >
-              <X className="h-5 w-5" />
-            </Button>
-          </DialogClose>
-        </div>
+        <DialogHeader>
+          <div className="flex items-center gap-2">
+            {allowModeSelection && viewMode !== "initial" && (
+              <Button
+                aria-label="Back"
+                className="-ml-2 h-8 w-8 shrink-0 bg-transparent p-0 hover:bg-input"
+                onClick={() => setViewMode("initial")}
+                type="button"
+                variant="ghost"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+            )}
+            <DialogTitle>{title}</DialogTitle>
+          </div>
+          <DialogDescription className="text-sm text-text-light">
+            {viewMode === "edit-existing"
+              ? "Choose your name from the list."
+              : viewMode === "initial"
+                ? "Add a new name or pick yours from the list."
+                : "Enter your name so others know whose times these are."}
+          </DialogDescription>
+        </DialogHeader>
 
         {viewMode === "initial" && (
-          <div className="space-y-3">
+          <div className="space-y-2">
             <Button
-              className="h-12 w-full text-base hover:bg-light-gray"
+              className="h-10 w-full text-sm hover:bg-light-gray"
               onClick={() => setViewMode("add-new")}
               type="button"
               variant="ghost"
@@ -120,7 +114,7 @@ const EditAvailabilityDialog = ({
             </Button>
             {allUserNames.length > 0 && (
               <Button
-                className="h-12 w-full text-base hover:bg-light-gray"
+                className="h-10 w-full text-sm hover:bg-light-gray"
                 onClick={() => setViewMode("edit-existing")}
                 type="button"
                 variant="ghost"

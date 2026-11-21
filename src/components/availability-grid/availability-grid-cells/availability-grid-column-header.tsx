@@ -4,7 +4,7 @@ import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
 import useAvailabilityGridStore, { isViewMode } from "@/store/availabilityGridStore";
 import { AvailabilityType } from "@/types/Event";
-import { EventDate, getDateFromTimeSlot, getTimeSlot } from "@/types/Timeslot";
+import { EventDate, getTimeSlot } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
 
 type AvailabilityGridColumnHeaderProps = {
@@ -27,11 +27,9 @@ export default function AvailabilityGridColumnHeader({
     useShallow((state) => [state.selectedTimeSlots, state.addSelectedTimeSlots, state.removeSelectedTimeSlots])
   );
 
-  const isDateHovered = useAvailabilityGridStore((state) => eventDate === getDateFromTimeSlot(state.hoveredTimeSlot));
+  // briefly underline a date after it's picked in the mini calendar (but not on hover)
   const isDateFocused = useAvailabilityGridStore(
-    (state) =>
-      eventDate === state.focusedDate &&
-      (state.hoveredTimeSlot === null || eventDate === getDateFromTimeSlot(state.hoveredTimeSlot))
+    (state) => eventDate === state.focusedDate && state.hoveredTimeSlot === null
   );
 
   const parsedDate = isValid(parseISO(eventDate)) ? parseISO(eventDate) : startOfToday();
@@ -82,7 +80,7 @@ export default function AvailabilityGridColumnHeader({
       )}
       <div
         className={cn("border-b-2 border-transparent pb-2 text-center xl:w-16", {
-          "border-b-2 border-primary-purple": isDateHovered || isDateFocused
+          "border-primary-purple": isDateFocused
         })}
       >
         {availabilityType === AvailabilityType.DAYS_OF_WEEK && (

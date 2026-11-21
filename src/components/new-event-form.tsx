@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, startOfToday } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { FieldErrors, FormProvider, useForm } from "react-hook-form";
 
@@ -13,7 +12,7 @@ import TimeDropdown from "@/components/new-event-from-time-dropdown";
 import { Button } from "@/components/ui/button";
 import { FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import SlidingToggle from "@/components/ui/sliding-toggle";
 import { useToast } from "@/components/ui/use-toast";
 import useCreateEvent, { CreateEventRequest } from "@/hooks/requests/useCreateEvent";
 import useElementInView from "@/hooks/useElementInView";
@@ -33,6 +32,8 @@ const WHAT_AVAILABILITY = "What availability do you want to know?";
 const WHAT_TIME_ZONE = "What time zone works for you?";
 const CONTINUE = "Continue";
 const TO = "to";
+// same as the --primary-purple colour token, for the sliding toggle animation
+const PRIMARY_PURPLE = "rgb(151, 71, 255)";
 
 export default function NewEventForm() {
   const [currentCalendarMonth, setCurrentCalendarMonth] = useState(format(startOfToday(), MONTH_FORMAT));
@@ -149,13 +150,20 @@ export default function NewEventForm() {
       timeZone
     };
 
+    // progress is shown in a toast at the top centre of the page rather than inside the button
+    const creatingToast = toast({
+      description: "Creating your event…",
+      duration: Infinity,
+      keepOnPageChange: true,
+      placement: "top"
+    });
     try {
       await mutateAsync(req);
-      toast({ description: "Your event has been created", variant: "success" });
+      creatingToast.update({ description: "Event created", duration: 3000, variant: "success" });
     } catch {
-      toast({
-        description: "An error occurred while creating your event. Please try again later.",
-        title: "Oh no! Something went wrong.",
+      creatingToast.update({
+        description: "Couldn't create event. Try again.",
+        duration: 3000,
         variant: "failure"
       });
     }
@@ -191,10 +199,7 @@ export default function NewEventForm() {
       render={() => (
         <FormItem>
           <FormLabel>{WHAT_TIMES}</FormLabel>
-          <div
-            className="mb-0.5 mt-2 flex w-full scroll-m-24 items-center justify-between space-y-1"
-            ref={timeRangeDropdownsRef}
-          >
+          <div className="mb-0.5 mt-2 flex w-full scroll-m-24 items-center justify-between" ref={timeRangeDropdownsRef}>
             <FormField
               control={form.control}
               name="timeRange.startTime"
@@ -242,48 +247,27 @@ export default function NewEventForm() {
   const availabilityTypeInput = (
     <>
       <p className="mb-3 text-xs font-normal text-text-light">{WHAT_AVAILABILITY}</p>
-      <fieldset className="flex w-full items-center justify-between rounded-md bg-input p-1">
-        <div className="h-full w-full">
-          <Input
-            className="peer hidden"
-            defaultChecked={true}
-            id="specific-dates"
-            name="availabilityType"
-            onChange={() => form.setValue("availabilityType", AvailabilityType.SPECIFIC_DATES)}
-            type="radio"
-            value={AvailabilityType.SPECIFIC_DATES}
-          />
-          <Label
-            className="text-light flex w-full cursor-pointer items-center justify-center rounded-sm py-1.5 text-sm peer-checked:bg-primary peer-checked:text-white peer-checked:hover:bg-primary"
-            htmlFor="specific-dates"
-          >
-            <span className="flex flex-col items-center">
-              <div>Specific dates</div>
-            </span>
-          </Label>
-        </div>
-        {/* <p className="mx-6 text-xs text-secondary"> {OR} </p> */}
-        <div className="h-full w-full">
-          <Input
-            className="peer hidden"
-            id="dow"
-            name="availabilityType"
-            onChange={() => {
-              form.setValue("availabilityType", AvailabilityType.DAYS_OF_WEEK);
-            }}
-            type="radio"
-            value={AvailabilityType.DAYS_OF_WEEK}
-          />
-          <Label
-            className="flex w-full cursor-pointer items-center justify-center rounded-sm py-1.5 text-sm font-medium text-text-light peer-checked:bg-primary peer-checked:text-white peer-checked:hover:bg-primary"
-            htmlFor="dow"
-          >
-            <span className="flex flex-col items-center">
-              <div>Days of the week</div>
-            </span>
-          </Label>
-        </div>
-      </fieldset>
+      {/* the purple pill fills the selected option edge to edge and slides across when switching */}
+      <SlidingToggle
+        ariaLabel={WHAT_AVAILABILITY}
+        className="w-full"
+        onChange={(value) => form.setValue("availabilityType", value)}
+        options={[
+          {
+            activeColor: PRIMARY_PURPLE,
+            activeTextClassName: "text-white",
+            label: "Specific dates",
+            value: AvailabilityType.SPECIFIC_DATES
+          },
+          {
+            activeColor: PRIMARY_PURPLE,
+            activeTextClassName: "text-white",
+            label: "Days of the week",
+            value: AvailabilityType.DAYS_OF_WEEK
+          }
+        ]}
+        value={availabilityType}
+      />
     </>
   );
 
@@ -399,7 +383,7 @@ export default function NewEventForm() {
               form="new-event-form"
               type="submit"
             >
-              {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin text-white" /> : CONTINUE}
+              {CONTINUE}
             </Button>
           </motion.div>
         )}
@@ -410,37 +394,43 @@ export default function NewEventForm() {
         form="new-event-form"
         type="submit"
       >
-        {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin py-0 text-white" /> : CONTINUE}
+        {CONTINUE}
       </Button>
     </>
   );
 
   return (
     <>
-      <div className="flex select-none flex-row justify-center">
-        <FormProvider {...form}>
-          <form
-            autoComplete="off"
-            className="card mx-auto flex h-full w-full min-w-0 max-w-[26rem] flex-col bg-white px-5 sm:min-h-[36rem] sm:max-w-[30rem] sm:px-8 md:mx-[1rem] xl:max-w-[26rem]"
-            id="new-event-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              isSubmitAttempted.current = true;
-              if (form.formState.isSubmitting || isPending || isSuccess) return;
-              form.handleSubmit(onSubmit, onInvalid)();
-            }}
-            ref={formRef}
-          >
-            <div className="mb-5 flex flex-col">{eventNameInput}</div>
-            <div className="mb-6 flex w-full flex-col">{startAndEndTimeInput}</div>
-            <div className="mb-6"> {timeZoneDropdown}</div>
-            <div className="mb-5 flex flex-col">{availabilityTypeInput}</div>
-            <div className="mb-6">{dateSelector}</div>
-            {formSubmissionButton}
-          </form>
-        </FormProvider>
-        <div className="hidden w-[47rem] xl:block">{largeDateSelector}</div>
+      {/* same layout as the event page: side padding outside an 82rem-wide grid with a 20rem (22rem on xl)
+          left column beside the calendar, 20px apart */}
+      <div className="w-full px-6 sm:px-8 lg:px-5">
+        <div className="mx-auto grid w-full max-w-[82rem] select-none grid-cols-1 gap-5 lg:grid-cols-[20rem_minmax(0,1fr)] xl:grid-cols-[22rem_minmax(0,1fr)]">
+          <FormProvider {...form}>
+            <form
+              autoComplete="off"
+              className="card flex h-full w-full min-w-0 flex-col bg-white px-6 pb-6 pt-5"
+              id="new-event-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                isSubmitAttempted.current = true;
+                // close the phone keyboard so the next page doesn't open zoomed/scrolled where the field was
+                (document.activeElement as HTMLElement | null)?.blur();
+                if (form.formState.isSubmitting || isPending || isSuccess) return;
+                form.handleSubmit(onSubmit, onInvalid)();
+              }}
+              ref={formRef}
+            >
+              <div className="mb-5 flex flex-col">{eventNameInput}</div>
+              <div className="mb-6 flex w-full flex-col">{startAndEndTimeInput}</div>
+              <div className="mb-6"> {timeZoneDropdown}</div>
+              <div className="mb-5 flex flex-col">{availabilityTypeInput}</div>
+              <div className="mb-6">{dateSelector}</div>
+              {formSubmissionButton}
+            </form>
+          </FormProvider>
+          <div className="hidden min-w-0 lg:block">{largeDateSelector}</div>
+        </div>
       </div>
       {/* add spacing on the bottom when button is fixed to bottom of*/}
       <div className={cn(isFormInView && "h-16 xs:h-0")} />

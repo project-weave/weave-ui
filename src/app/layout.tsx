@@ -37,7 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <div className="mx-auto flex w-full max-w-[85rem]">
             <MainNav />
-            <div className="z-0 w-full pt-[3.25rem] md:pt-[3.75rem] ">{children}</div>
+            <div className="w-full pt-[3.25rem] md:pt-[3.75rem]">{children}</div>
           </div>
           <Toaster />
         </Providers>

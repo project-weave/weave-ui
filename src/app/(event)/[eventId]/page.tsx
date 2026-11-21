@@ -30,9 +30,11 @@ export default function Event() {
   const handleCopyClick = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      toast({ variant: "success", description: "Event link copied" });
+      toast({ description: "Link copied", duration: 3000, variant: "success" });
+      return true;
     } catch {
-      toast({ variant: "failure", description: "Unable to copy the link. Copy it from your browser’s address bar." });
+      toast({ description: "Couldn't copy link", variant: "failure" });
+      return false;
     }
   };
 
@@ -45,6 +47,12 @@ export default function Event() {
   useEffect(() => {
     if (data) setEventData(data);
   }, [data, setEventData]);
+
+  // once the event has loaded, start at the top of the page (on phones the page scrolls, and arriving from
+  // the create page could otherwise leave you part way down)
+  useEffect(() => {
+    if (loadedEventId) window.scrollTo(0, 0);
+  }, [loadedEventId]);
 
   if (isPending || (data && loadedEventId !== data.event.id)) {
     return (
@@ -97,15 +105,22 @@ export default function Event() {
   }
 
   return (
-    <div className="mb-28 flex min-w-0 flex-col px-3 sm:px-5">
-      <div className="mx-auto mt-9 grid w-full max-w-[82rem] grid-cols-1 gap-5 pb-4 lg:grid-cols-[20rem_minmax(0,1fr)] xl:grid-cols-[22rem_minmax(0,1fr)]">
+    // Desktop: the page is locked to the viewport, the containers never move and only the calendar
+    // scrolls inside its card; the control bar sits 50px below the containers.
+    // Mobile: the calendar is at least screen height and shows every time, and the page itself scrolls
+    // (swipe on the margins outside the card) so dragging on the cells only ever selects times. The
+    // control bar floats over the bottom; the bottom padding lets the last rows scroll clear of it.
+    <div className="flex min-w-0 flex-col px-6 pb-[calc(1rem+54px+1.5rem+env(safe-area-inset-bottom))] sm:px-8 sm:pb-[calc(1.5rem+54px+1.5rem+env(safe-area-inset-bottom))] lg:h-[calc(100dvh-3.75rem)] lg:min-h-[38rem] lg:px-5 lg:pb-6">
+      <div className="mx-auto mt-9 flex min-h-0 w-full max-w-[82rem] flex-1 flex-col gap-3 lg:grid lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-5 xl:grid-cols-[22rem_minmax(0,1fr)]">
         <MediaQueryLG>
-          <div className="sticky top-[4.5rem] hidden h-[85vh] max-h-[50rem] min-h-[28rem] min-w-0 lg:block">
+          <div className="hidden h-full min-h-0 min-w-0 lg:block">
             <AvailabilityGridLeftPanel />
           </div>
         </MediaQueryLG>
-        <div className="min-w-0">
+        <div className="shrink-0 lg:hidden">
           <AvailabilityMobileHeader />
+        </div>
+        <div className="min-h-0 min-w-0 flex-1 lg:h-full">
           <AvailabilityGrid />
         </div>
       </div>
