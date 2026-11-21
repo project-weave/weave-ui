@@ -195,7 +195,6 @@ const EventDateCalendar = ({
             </>
           )}
         </div>
-        <hr className="mt-[0.1rem] h-[0.05rem] bg-text-light" />
         <div className="mt-3 grid grid-cols-7 text-center font-normal leading-4 text-text-light">
           {weekDays.map((weekDay) => {
             return (
