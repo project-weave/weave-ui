@@ -1,218 +1,94 @@
 "use client";
 
-import { Check, ChevronDown } from "lucide-react";
-import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { Check, History } from "lucide-react";
+import { useCallback, useMemo } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { POPULAR_TIME_ZONES } from "@/components/time-zone-list";
+import Combobox, { ComboboxOption } from "@/components/ui/combobox";
 import { cn } from "@/utils/cn";
-import { getGMTOffset, getTimeZoneAbbreviation, getTimeZoneCity } from "@/utils/timeZone";
-
-const NO_TIME_ZONES_FOUND = "No Time Zones Found";
-
-interface TimeZone {
-  abbreviation: string;
-  city: string;
-  offset: string;
-  queryLabel: string;
-  value: string;
-}
+import {
+  addRecentTimeZone,
+  getAllTimeZoneOptions,
+  getRecentTimeZones,
+  getTimeZoneOption,
+  isSupportedTimeZone,
+  searchTimeZones,
+  TimeZoneOption
+} from "@/utils/timeZone";
 
 export interface TimeZoneDropdownProps {
   error: boolean;
-  gridDropdown?: boolean;
   onChange: (timeZone: string) => void;
-  originalTimeZone?: string;
   selected: string;
 }
 
-function toTimeZoneObject(timeZone: string, gridDropdown?: boolean, originalTimeZone?: string): TimeZone {
-  if (timeZone === "") {
-    return {
-      abbreviation: "",
-      city: "",
-      offset: "",
-      queryLabel: "",
-      value: ""
-    };
-  }
+type TimeZoneComboboxOption = { isRecent: boolean; zone: TimeZoneOption } & ComboboxOption;
 
-  function getTimeZoneLabel(timeZone: string): string {
-    let info = "";
-    if (gridDropdown) {
-      if (timeZone === originalTimeZone) {
-        info = "(Event Default)";
-      }
-    } else {
-      info = `(${getGMTOffset(timeZone)})`;
-    }
-
-    return `${getTimeZoneAbbreviation(timeZone)} - ${timeZone.replaceAll("_", " ").split("/").pop() ?? ""} ${info}`;
-  }
-
-  return {
-    abbreviation: getTimeZoneAbbreviation(timeZone),
-    city: getTimeZoneCity(timeZone),
-    offset: getGMTOffset(timeZone),
-    queryLabel: getTimeZoneLabel(timeZone),
-    value: timeZone
-  };
+function toComboboxOption(zone: TimeZoneOption, group: string, isRecent = false): TimeZoneComboboxOption {
+  return { group, isRecent, key: `${group}:${zone.value}`, value: zone.value, zone };
 }
 
-export default function TimeZoneDropdown({
-  error,
-  gridDropdown,
-  onChange,
-  originalTimeZone,
-  selected
-}: TimeZoneDropdownProps) {
-  const commandGroupRef = useRef<HTMLDivElement>(null);
-  const [open, setOpen] = useState(false);
-  const [selectedTimeZone, setSelectedTimeZone] = useState<TimeZone>(
-    toTimeZoneObject(selected, gridDropdown, originalTimeZone)
-  );
+// The event time zone field on the create page: type to search ("p" lists PST, PDT…) or pick from the list.
+export default function TimeZoneDropdown({ error, onChange, selected }: TimeZoneDropdownProps) {
+  const allZones = useMemo(() => {
+    const zones = getAllTimeZoneOptions();
+    if (!selected || !isSupportedTimeZone(selected) || zones.some((zone) => zone.value === selected)) return zones;
+    return [...zones, getTimeZoneOption(selected)];
+  }, [selected]);
 
-  const allTimeZones = useMemo<TimeZone[]>(() => {
-    const timeZones = [
-      ...new Set(
-        ["UTC", ...Intl.supportedValuesOf("timeZone"), selected, originalTimeZone].filter(
-          (zone): zone is string => !!zone
-        )
-      )
-    ];
-
-    return timeZones
-      .map((timeZone) => toTimeZoneObject(timeZone, gridDropdown, originalTimeZone))
-      .sort((a, b) => a.city.localeCompare(b.city));
-  }, [gridDropdown, originalTimeZone, selected]);
-
-  useEffect(() => {
-    setSelectedTimeZone(toTimeZoneObject(selected, gridDropdown, originalTimeZone));
-  }, [gridDropdown, originalTimeZone, selected]);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (commandGroupRef.current && open) {
-        const selectedItem = commandGroupRef.current.querySelector(
-          `[data-value="${selectedTimeZone.value.toLowerCase()}"]`
-        );
-        if (selectedItem) {
-          selectedItem.scrollIntoView({ block: "center", inline: "start" });
-        }
-      }
-    });
-    return () => clearTimeout(timeout);
-  }, [open, selectedTimeZone.value]);
-
-  function getTimeZoneJSX(timeZone: TimeZone): ReactNode {
-    let info: ReactNode = null;
-    if (gridDropdown) {
-      if (timeZone.value === originalTimeZone) {
-        info = <span className="ml-2 text-[0.7rem] text-text-light ">(Event Default)</span>;
-      }
-    } else {
-      info = <span className="ml-2 text-[0.85rem] text-text-light ">({timeZone.offset})</span>;
-    }
-
-    return (
-      <span className="mb-1 flex h-full items-center lg:mb-0">
-        <span>{`${timeZone.abbreviation} - ${timeZone.value.replaceAll("_", " ").split("/").pop() ?? ""}`}</span>
-        <span>{info}</span>
-      </span>
-    );
-  }
-
-  function timeZoneFilter(value: string, search: string): number {
-    return toTimeZoneObject(value, gridDropdown, originalTimeZone)
-      .queryLabel.toLowerCase()
-      .includes(search.toLowerCase())
-      ? 1
-      : 0;
-  }
-
-  const popoverDisplay = (
-    <Button
-      aria-label={gridDropdown ? "Display time zone" : "Event time zone"}
-      className={cn(
-        "peer box-border flex h-auto transform-none cursor-pointer items-center rounded-xl bg-input px-4 py-2.5",
-        {
-          "px-2.5 py-2 text-xs": gridDropdown,
-          "outline-primary": open,
-          "outline-red-500/40 focus-within:outline-red-500 hover:outline-red-500": error
-        },
-        {
-          "outline-red-500": error && open
-        }
-      )}
-      type="button"
-      variant="ghost"
-    >
-      <span className="flex w-full items-center justify-between">
-        {getTimeZoneJSX(selectedTimeZone)}
-        <ChevronDown className="ml-2 text-black" height={15} width={15} />
-      </span>
-    </Button>
+  const getOptions = useCallback(
+    (query: string): TimeZoneComboboxOption[] => {
+      if (query.trim() !== "") return searchTimeZones(allZones, query).map((zone) => toComboboxOption(zone, "Results"));
+      const recent = getRecentTimeZones();
+      const popular = POPULAR_TIME_ZONES.filter((zone) => isSupportedTimeZone(zone) && !recent.includes(zone));
+      return [
+        ...recent.map((zone) => toComboboxOption(getTimeZoneOption(zone), "Recent", true)),
+        ...popular.map((zone) => toComboboxOption(getTimeZoneOption(zone), "Popular")),
+        ...allZones.map((zone) => toComboboxOption(zone, "All time zones"))
+      ];
+    },
+    [allZones]
   );
 
   return (
-    <Popover onOpenChange={setOpen} open={open}>
-      <PopoverTrigger asChild>{popoverDisplay}</PopoverTrigger>
-      <PopoverContent
-        align={gridDropdown ? "start" : "center"}
-        className={cn(
-          "mb-2 min-w-[20rem] p-0 sm:min-w-[22rem]",
-          gridDropdown && "mb-1 w-[16rem] min-w-[16rem] border-[1px] border-primary sm:min-w-[16rem]"
-        )}
-      >
-        <Command className="bg-background" filter={(value, search) => timeZoneFilter(value, search)}>
-          <CommandInput className={cn("py-5 text-sm", gridDropdown && "h-7 py-0 text-2xs")} />
-          <CommandList
+    <Combobox<TimeZoneComboboxOption>
+      ariaLabel="Event time zone. Type to search."
+      displayValue={(value) => {
+        if (!value) return "";
+        const zone = getTimeZoneOption(value);
+        return `${zone.name} – ${zone.city}`;
+      }}
+      emptyMessage="No time zones found"
+      error={error}
+      getOptions={getOptions}
+      onChange={(timeZone) => {
+        addRecentTimeZone(timeZone);
+        onChange(timeZone);
+      }}
+      placeholder="Search time zones"
+      renderOption={({ isRecent, zone }, { isSelected }) => (
+        <span className="flex w-full min-w-0 items-center gap-2">
+          <span
             className={cn(
-              "scrollbar-primary my-1 max-h-[11rem] overflow-y-scroll sm:max-h-[14rem]",
-              gridDropdown && "max-h-[7rem] sm:max-h-[10rem]"
+              "w-[4.3rem] shrink-0 whitespace-nowrap text-xs tabular-nums",
+              isSelected ? "text-white/75" : "text-text-light"
             )}
           >
-            <CommandEmpty
-              className={cn("mx-2 my-1 rounded-sm bg-gray-200 py-1.5 text-center text-xs", gridDropdown && "text-2xs")}
-            >
-              {NO_TIME_ZONES_FOUND}
-            </CommandEmpty>
-            <CommandGroup ref={commandGroupRef}>
-              {allTimeZones.map((timeZone) => (
-                <CommandItem
-                  className={cn(
-                    "my-[1px] mb-1 mr-2 flex cursor-pointer items-center justify-between border-[1px] border-transparent text-xs hover:bg-primary/20 sm:text-sm md:border-[1.5px]",
-                    {
-                      "border-primary": selectedTimeZone.value === timeZone.value
-                    },
-                    {
-                      "ml-[1px] py-[2px] text-2xs sm:text-2xs md:border-[1px]": gridDropdown
-                    }
-                  )}
-                  data-value={timeZone.value}
-                  key={timeZone.value}
-                  onSelect={() => {
-                    setSelectedTimeZone(timeZone);
-                    onChange(timeZone.value);
-                    setOpen(false);
-                  }}
-                  value={timeZone.value}
-                >
-                  {getTimeZoneJSX(timeZone)}
-                  <Check
-                    className={cn(
-                      "h-5 w-5",
-                      selectedTimeZone.value === timeZone.value ? "opacity-100" : "opacity-0",
-                      gridDropdown && "h-3 w-3"
-                    )}
-                  />
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+            {zone.offsetLabel}
+          </span>
+          <span className="min-w-0 flex-1 truncate">
+            {zone.name}
+            <span className={isSelected ? "text-white/75" : "text-text-light"}> – {zone.city}</span>
+          </span>
+          {isSelected ? (
+            <Check aria-hidden="true" className="h-4 w-4 shrink-0" />
+          ) : (
+            isRecent && <History aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-text-light" />
+          )}
+        </span>
+      )}
+      showChevron
+      value={selected}
+    />
   );
 }

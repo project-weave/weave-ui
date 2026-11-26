@@ -4,14 +4,15 @@
 
 @layer base {
   :root {
-    --background: 256, 252, 252;
-    --foreground: 13, 14, 15;
+    /* no pure black or white: dark grey text on soft off-white surfaces */
+    --background: 250, 250, 248;
+    --foreground: 38, 38, 38;
 
-    --card: 255, 255, 255;
-    --card-foreground: 13, 14, 15;
+    --card: 253, 253, 252;
+    --card-foreground: 38, 38, 38;
 
-    --popover: 255, 255, 255;
-    --popover-foreground: 13, 14, 15;
+    --popover: 253, 253, 252;
+    --popover-foreground: 38, 38, 38;
 
     /* primary purple */ 
     --primary: 151, 71, 255;
@@ -44,6 +45,8 @@
 
     --border: 234, 236, 238;
     --input: 247, 247, 247;
+    /* inputs, dropdowns and the mini calendar */
+    --field: 248, 248, 248;
     --ring: 159, 110, 249;
 
     --radius: 0.8rem;
@@ -53,15 +56,16 @@
     --primary-purple: 151, 71, 255;
     --medium-purple: 227, 214, 249;
     --light-purple: 251, 248, 253;
-    --black: 16, 16, 16;
+    --black: 38, 38, 38;
     --dark-gray: 157, 157, 157;
     --green: 200, 240, 202;
-    --red: 255, 175, 175;
+    --red: 236, 62, 61;
+    --salmon: 255, 175, 175;
     --yellow: 255, 241, 170;
     --light-gray: 231, 231, 231;
     --light-gray-2: 229, 229, 229;
     --off-white: 247, 247, 247;
-    --white: 255, 255, 255;
+    --white: 253, 253, 252;
   }
 
   .dark {
@@ -100,13 +104,14 @@
     @apply border-border;
   }
   body {
-    @apply bg-white text-foreground;
+    /* the page is a slightly deeper off-white than the cards sitting on it */
+    @apply bg-background text-foreground;
   }
 }
 
 @layer components {
   .card {
-    @apply h-full w-full rounded-xl border-[1px] border-[#E5E5E5] px-8 py-5 bg-white shadow-[0px_0px_50px_10px_rgba(0,0,0,0.05)];
+    @apply h-full w-full rounded-xl border-[1px] border-[#E5E5E5] px-8 py-5 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.03),0_6px_20px_rgba(0,0,0,0.03)];
   }
 
   .scrollbar-primary {
@@ -116,4 +121,98 @@
 
 .selection-transparent::selection {
   background: transparent;
+}
+
+/* Yellow ring around the availability grid while editing: the colour stays the same,
+   the ring just gently grows and shrinks */
+@keyframes editing-ring-pulse {
+  0%,
+  100% {
+    box-shadow: inset 0 0 0 3px rgb(var(--yellow));
+  }
+  50% {
+    box-shadow: inset 0 0 0 4px rgb(var(--yellow));
+  }
+}
+
+.editing-border {
+  box-shadow: inset 0 0 0 3px rgb(var(--yellow));
+  /* a very subtle, slow breath */
+  animation: editing-ring-pulse 4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editing-border {
+    animation: none;
+  }
+}
+
+/* "Thinking" text while an event is being created: a soft highlight sweeps across grey text */
+@keyframes shimmer-text {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+.shimmer-text {
+  color: transparent;
+  background-image: linear-gradient(
+    90deg,
+    rgb(var(--dark-gray)) 0%,
+    rgb(var(--dark-gray)) 35%,
+    rgb(var(--black)) 50%,
+    rgb(var(--dark-gray)) 65%,
+    rgb(var(--dark-gray)) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: shimmer-text 1.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer-text {
+    animation: none;
+    color: rgb(var(--dark-gray));
+    background-image: none;
+  }
+}
+
+/* Thin grey scrollbar (same grey as the grid lines) for the availability grid */
+.grid-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  /* sideways position is shown by the date dots instead */
+  height: 0;
+}
+.grid-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  /* start the scrollbar below the pinned day headers */
+  margin-top: var(--grid-header-height, 0);
+}
+/* the thumb is invisible until you scroll (the `is-scrolling` class comes from useScrollingClass);
+   its space stays reserved so nothing shifts when it appears */
+.grid-scrollbar::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 9999px;
+}
+.grid-scrollbar.is-scrolling::-webkit-scrollbar-thumb {
+  background-color: rgb(var(--dark-gray));
+}
+@supports not selector(::-webkit-scrollbar) {
+  .grid-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+  .grid-scrollbar.is-scrolling {
+    scrollbar-color: rgb(var(--dark-gray)) transparent;
+  }
+}
+
+/* pause hover effects on the grid while it scrolls, so cells sliding under the cursor don't keep
+   re-highlighting rows and time labels */
+.is-scrolling #availability-grid-dates {
+  pointer-events: none;
 }

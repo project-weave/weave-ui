@@ -4,7 +4,7 @@ import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
 import useAvailabilityGridStore, { isViewMode } from "@/store/availabilityGridStore";
 import { AvailabilityType } from "@/types/Event";
-import { EventDate, getDateFromTimeSlot, getTimeSlot } from "@/types/Timeslot";
+import { EventDate, getTimeSlot } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
 
 type AvailabilityGridColumnHeaderProps = {
@@ -27,11 +27,9 @@ export default function AvailabilityGridColumnHeader({
     useShallow((state) => [state.selectedTimeSlots, state.addSelectedTimeSlots, state.removeSelectedTimeSlots])
   );
 
-  const isDateHovered = useAvailabilityGridStore((state) => eventDate === getDateFromTimeSlot(state.hoveredTimeSlot));
+  // briefly underline a date after it's picked in the mini calendar (but not on hover)
   const isDateFocused = useAvailabilityGridStore(
-    (state) =>
-      eventDate === state.focusedDate &&
-      (state.hoveredTimeSlot === null || eventDate === getDateFromTimeSlot(state.hoveredTimeSlot))
+    (state) => eventDate === state.focusedDate && state.hoveredTimeSlot === null
   );
 
   const parsedDate = isValid(parseISO(eventDate)) ? parseISO(eventDate) : startOfToday();
@@ -56,7 +54,9 @@ export default function AvailabilityGridColumnHeader({
     <div
       className={cn("flex h-full flex-col items-center justify-center border-transparent bg-white", borderXSizeStyles, {
         "pt-2": availabilityType === AvailabilityType.DAYS_OF_WEEK,
-        "border-r-2 border-r-dark-gray": hasDateGapRight
+        "border-r-2 border-r-dark-gray": hasDateGapRight,
+        // while editing, the dotted divider is drawn once for the whole column (see DateGapDivider)
+        "border-r-transparent": hasDateGapRight && !isViewMode(mode)
       })}
       onMouseEnter={onMouseEnter}
     >
@@ -82,13 +82,13 @@ export default function AvailabilityGridColumnHeader({
       )}
       <div
         className={cn("border-b-2 border-transparent pb-2 text-center xl:w-16", {
-          "border-b-2 border-primary-purple": isDateHovered || isDateFocused
+          "border-primary-purple": isDateFocused
         })}
       >
         {availabilityType === AvailabilityType.DAYS_OF_WEEK && (
           <Button
             className={cn(
-              "text-transition-all mb-0.5 w-14 rounded-xl border-2 border-transparent bg-input text-lg font-normal tracking-wide hover:opacity-80",
+              "text-transition-all mb-0.5 w-14 rounded-md border-2 border-transparent bg-input text-lg font-normal tracking-wide hover:opacity-80",
               {
                 "bg-primary text-white hover:bg-primary-hover": isAllTimeSlotForDateSelected,
                 "cursor-default bg-white text-sm text-secondary hover:bg-white lg:text-base": isViewMode(mode)

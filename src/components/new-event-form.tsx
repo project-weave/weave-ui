@@ -1,26 +1,29 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format, startOfToday } from "date-fns";
+import { format, parse, parseISO, startOfToday } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { FieldErrors, FormProvider, useForm } from "react-hook-form";
 
+import CreatingEventDialog, { CreatingEventStep } from "@/components/creating-event-dialog";
 import DaysOfWeekPicker from "@/components/days-of-week-picker";
 import { MONTH_FORMAT } from "@/components/event-date-calendar";
 import TimeDropdown from "@/components/new-event-from-time-dropdown";
 import { Button } from "@/components/ui/button";
 import { FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import SlidingToggle from "@/components/ui/sliding-toggle";
 import { useToast } from "@/components/ui/use-toast";
 import useCreateEvent, { CreateEventRequest } from "@/hooks/requests/useCreateEvent";
 import useElementInView from "@/hooks/useElementInView";
 import { AvailabilityType, EventForm, EventFormSchema } from "@/types/Event";
 import { EventDate } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
-import { isSupportedTimeZone } from "@/utils/timeZone";
+import { formatEventDateRange } from "@/utils/date";
+import { markEventJustCreated } from "@/utils/justCreatedEvent";
+import { getTimeZoneOption, isSupportedTimeZone } from "@/utils/timeZone";
 
 import EventDateCalendar from "./no-ssr-event-date-calendar";
 import TimeZoneDropdown from "./timezone-dropdown";
@@ -31,8 +34,11 @@ const EVENT_NAME = "What is the name of your event?";
 const WHAT_TIMES = "What times work for you?";
 const WHAT_AVAILABILITY = "What availability do you want to know?";
 const WHAT_TIME_ZONE = "What time zone works for you?";
-const CONTINUE = "Continue";
-const TO = "to";
+const CONTINUE = "Create Weave";
+const CREATING = "Creating…";
+const TO = "–";
+// same as the --primary-purple colour token, for the sliding toggle animation
+const PRIMARY_PURPLE = "rgb(151, 71, 255)";
 
 export default function NewEventForm() {
   const [currentCalendarMonth, setCurrentCalendarMonth] = useState(format(startOfToday(), MONTH_FORMAT));
@@ -106,7 +112,15 @@ export default function NewEventForm() {
   const isFormInView = useElementInView(formRef);
 
   const { toast } = useToast();
+  const router = useRouter();
   const { isPending, isSuccess, mutateAsync } = useCreateEvent();
+  // the "creating your Weave" animation: which details have been read back so far, then "Event created"
+  const [creating, setCreating] = useState<{
+    completedSteps: number;
+    isCreated: boolean;
+    open: boolean;
+    steps: CreatingEventStep[];
+  }>({ completedSteps: 0, isCreated: false, open: false, steps: [] });
 
   function onInvalid(errors: FieldErrors) {
     if (errors.name && nameInputRef.current)
@@ -149,15 +163,46 @@ export default function NewEventForm() {
       timeZone
     };
 
+    const steps: CreatingEventStep[] = [
+      { activeLabel: "Reading event name", doneLabel: "Event name", value: name },
+      { activeLabel: "Setting times", doneLabel: "Times", value: formatTimeRange(startTime, endTime) },
+      {
+        activeLabel: "Setting time zone",
+        doneLabel: "Time zone",
+        value: `${getTimeZoneOption(timeZone).name} – ${getTimeZoneOption(timeZone).city}`
+      },
+      {
+        activeLabel: availabilityType === AvailabilityType.SPECIFIC_DATES ? "Adding dates" : "Adding days",
+        doneLabel: availabilityType === AvailabilityType.SPECIFIC_DATES ? "Dates" : "Days",
+        value: formatDates([...dates].sort(), availabilityType === AvailabilityType.SPECIFIC_DATES)
+      }
+    ];
+    setCreating({ completedSteps: 0, isCreated: false, open: true, steps });
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const stepDelay = reduceMotion ? 120 : 480;
+    let failed = false;
+    const request = mutateAsync(req);
+    request.catch(() => (failed = true));
+    // read the details back one at a time while the event is being created
+    const readBack = (async () => {
+      for (let step = 1; step <= steps.length; step++) {
+        await wait(stepDelay);
+        if (failed) return;
+        setCreating((prev) => ({ ...prev, completedSteps: step }));
+      }
+    })();
+
     try {
-      await mutateAsync(req);
-      toast({ description: "Your event has been created", variant: "success" });
+      const [{ eventId }] = await Promise.all([request, readBack]);
+      setCreating((prev) => ({ ...prev, isCreated: true }));
+      await wait(reduceMotion ? 300 : 900);
+      // "Event created" is shown again above the control bar once the event's page has loaded
+      markEventJustCreated(eventId);
+      router.push(`/${eventId}`);
     } catch {
-      toast({
-        description: "An error occurred while creating your event. Please try again later.",
-        title: "Oh no! Something went wrong.",
-        variant: "failure"
-      });
+      setCreating((prev) => ({ ...prev, open: false }));
+      toast({ description: "Couldn't create event. Try again.", duration: 3000, variant: "failure" });
     }
   }
 
@@ -191,10 +236,7 @@ export default function NewEventForm() {
       render={() => (
         <FormItem>
           <FormLabel>{WHAT_TIMES}</FormLabel>
-          <div
-            className="mb-0.5 mt-2 flex w-full scroll-m-24 items-center justify-between space-y-1"
-            ref={timeRangeDropdownsRef}
-          >
+          <div className="mb-0.5 mt-2 flex w-full scroll-m-24 items-center justify-between" ref={timeRangeDropdownsRef}>
             <FormField
               control={form.control}
               name="timeRange.startTime"
@@ -213,7 +255,7 @@ export default function NewEventForm() {
                 </FormItem>
               )}
             />
-            <p className="mx-4 text-xs text-text-light"> {TO} </p>
+            <p className="mx-3 text-sm text-text-light">{TO}</p>
             <FormField
               control={form.control}
               name="timeRange.endTime"
@@ -242,48 +284,27 @@ export default function NewEventForm() {
   const availabilityTypeInput = (
     <>
       <p className="mb-3 text-xs font-normal text-text-light">{WHAT_AVAILABILITY}</p>
-      <fieldset className="flex w-full items-center justify-between rounded-md bg-input p-1">
-        <div className="h-full w-full">
-          <Input
-            className="peer hidden"
-            defaultChecked={true}
-            id="specific-dates"
-            name="availabilityType"
-            onChange={() => form.setValue("availabilityType", AvailabilityType.SPECIFIC_DATES)}
-            type="radio"
-            value={AvailabilityType.SPECIFIC_DATES}
-          />
-          <Label
-            className="text-light flex w-full cursor-pointer items-center justify-center rounded-sm py-1.5 text-sm peer-checked:bg-primary peer-checked:text-white peer-checked:hover:bg-primary"
-            htmlFor="specific-dates"
-          >
-            <span className="flex flex-col items-center">
-              <div>Specific dates</div>
-            </span>
-          </Label>
-        </div>
-        {/* <p className="mx-6 text-xs text-secondary"> {OR} </p> */}
-        <div className="h-full w-full">
-          <Input
-            className="peer hidden"
-            id="dow"
-            name="availabilityType"
-            onChange={() => {
-              form.setValue("availabilityType", AvailabilityType.DAYS_OF_WEEK);
-            }}
-            type="radio"
-            value={AvailabilityType.DAYS_OF_WEEK}
-          />
-          <Label
-            className="flex w-full cursor-pointer items-center justify-center rounded-sm py-1.5 text-sm font-medium text-text-light peer-checked:bg-primary peer-checked:text-white peer-checked:hover:bg-primary"
-            htmlFor="dow"
-          >
-            <span className="flex flex-col items-center">
-              <div>Days of the week</div>
-            </span>
-          </Label>
-        </div>
-      </fieldset>
+      {/* the purple pill fills the selected option edge to edge and slides across when switching */}
+      <SlidingToggle
+        ariaLabel={WHAT_AVAILABILITY}
+        className="w-full"
+        onChange={(value) => form.setValue("availabilityType", value)}
+        options={[
+          {
+            activeColor: PRIMARY_PURPLE,
+            activeTextClassName: "text-white",
+            label: "Specific dates",
+            value: AvailabilityType.SPECIFIC_DATES
+          },
+          {
+            activeColor: PRIMARY_PURPLE,
+            activeTextClassName: "text-white",
+            label: "Days of the week",
+            value: AvailabilityType.DAYS_OF_WEEK
+          }
+        ]}
+        value={availabilityType}
+      />
     </>
   );
 
@@ -394,56 +415,85 @@ export default function NewEventForm() {
             }}
           >
             <Button
-              className="h-12 w-full max-w-[26rem] rounded-xl text-sm"
+              className="h-10 w-full max-w-[26rem]"
               disabled={!isFormValid || isPending || isSuccess}
               form="new-event-form"
               type="submit"
             >
-              {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin text-white" /> : CONTINUE}
+              {isPending || isSuccess ? CREATING : CONTINUE}
             </Button>
           </motion.div>
         )}
       </AnimatePresence>
       <Button
-        className="z-[999] hidden h-12 w-full rounded-xl border-[1px] align-bottom text-sm xs:block"
+        className="z-[999] hidden w-full align-bottom xs:block"
         disabled={!isFormValid || isPending || isSuccess}
         form="new-event-form"
         type="submit"
       >
-        {isPending ? <Loader2 className="m-auto h-7 w-7 animate-spin py-0 text-white" /> : CONTINUE}
+        {isPending || isSuccess ? CREATING : CONTINUE}
       </Button>
     </>
   );
 
   return (
     <>
-      <div className="flex select-none flex-row justify-center">
-        <FormProvider {...form}>
-          <form
-            autoComplete="off"
-            className="card mx-auto flex h-full w-full min-w-0 max-w-[26rem] flex-col bg-white px-5 sm:min-h-[36rem] sm:max-w-[30rem] sm:px-8 md:mx-[1rem] xl:max-w-[26rem]"
-            id="new-event-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              isSubmitAttempted.current = true;
-              if (form.formState.isSubmitting || isPending || isSuccess) return;
-              form.handleSubmit(onSubmit, onInvalid)();
-            }}
-            ref={formRef}
-          >
-            <div className="mb-5 flex flex-col">{eventNameInput}</div>
-            <div className="mb-6 flex w-full flex-col">{startAndEndTimeInput}</div>
-            <div className="mb-6"> {timeZoneDropdown}</div>
-            <div className="mb-5 flex flex-col">{availabilityTypeInput}</div>
-            <div className="mb-6">{dateSelector}</div>
-            {formSubmissionButton}
-          </form>
-        </FormProvider>
-        <div className="hidden w-[47rem] xl:block">{largeDateSelector}</div>
+      {/* same layout as the event page: side padding outside an 82rem-wide grid with a 20rem (22rem on xl)
+          left column beside the calendar, 20px apart */}
+      <div className="w-full px-6 sm:px-8 lg:px-5">
+        <div className="mx-auto grid w-full max-w-[82rem] select-none grid-cols-1 gap-5 lg:grid-cols-[20rem_minmax(0,1fr)] xl:grid-cols-[22rem_minmax(0,1fr)]">
+          <FormProvider {...form}>
+            <form
+              autoComplete="off"
+              className="card flex h-full w-full min-w-0 flex-col bg-white px-6 pb-6 pt-5"
+              id="new-event-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                isSubmitAttempted.current = true;
+                // close the phone keyboard so the next page doesn't open zoomed/scrolled where the field was
+                (document.activeElement as HTMLElement | null)?.blur();
+                if (form.formState.isSubmitting || isPending || isSuccess) return;
+                form.handleSubmit(onSubmit, onInvalid)();
+              }}
+              ref={formRef}
+            >
+              <div className="mb-5 flex flex-col">{eventNameInput}</div>
+              <div className="mb-6 flex w-full flex-col">{startAndEndTimeInput}</div>
+              <div className="mb-6"> {timeZoneDropdown}</div>
+              <div className="mb-5 flex flex-col">{availabilityTypeInput}</div>
+              <div className="mb-6">{dateSelector}</div>
+              {formSubmissionButton}
+            </form>
+          </FormProvider>
+          <div className="hidden min-w-0 lg:block">{largeDateSelector}</div>
+        </div>
       </div>
       {/* add spacing on the bottom when button is fixed to bottom of*/}
       <div className={cn(isFormInView && "h-16 xs:h-0")} />
+      <CreatingEventDialog
+        completedSteps={creating.completedSteps}
+        isCreated={creating.isCreated}
+        open={creating.open}
+        steps={creating.steps}
+      />
     </>
   );
+}
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// "9:00 AM – 9:00 PM", with "(next day)" when the event runs until midnight
+function formatTimeRange(startTime: string, endTime: string) {
+  const toLabel = (time: string) => format(parse(time, "HH:mm:ss", new Date()), "h:mm a");
+  const end = endTime === "00:00:00" ? "12:00 AM (next day)" : toLabel(endTime);
+  return `${toLabel(startTime)} – ${end}`;
+}
+
+// "Nov 26 – Nov 30, 2026 · 3 dates" or "Mon, Wed, Fri"
+function formatDates(dates: string[], isSpecificDates: boolean) {
+  if (!isSpecificDates) return dates.map((date) => format(parseISO(date), "EEE")).join(", ");
+  return `${formatEventDateRange(dates)} · ${dates.length} ${dates.length === 1 ? "date" : "dates"}`;
 }

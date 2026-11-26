@@ -1,114 +1,119 @@
 "use client";
 
-import { ChevronDown, UserCircle } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-import EditAvailabilityDialog from "@/components/availability-grid/dialog/edit-availability-dialog";
-import ParticipantAvatar from "@/components/participant-avatar";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import useAvailabilityGridStore, { isEditMode } from "@/store/availabilityGridStore";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useToast } from "@/components/ui/use-toast";
 
+const LINK =
+  "rounded-md text-[13px] text-text-light transition-colors hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+const MENU_ITEM =
+  "w-full rounded-sm px-3 py-2.5 text-left text-sm text-black transition-colors hover:bg-light-gray/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+
+/**
+ * Top bar on every page: the Weave logo and wordmark, two info links and
+ * Log in (not built yet: they say "Coming soon"), and Create a Weave. On phones everything but the
+ * wordmark sits in a menu behind the button on the right.
+ */
 export default function NavBar() {
-  const eventId = useAvailabilityGridStore((state) => state.eventData.eventId);
-  const user = useAvailabilityGridStore((state) => state.user);
-  const mode = useAvailabilityGridStore((state) => state.mode);
-  const isSaving = useAvailabilityGridStore((state) => state.isSavingAvailability);
-  const setUserFilter = useAvailabilityGridStore((state) => state.setUserFilter);
-  const clearUser = useAvailabilityGridStore((state) => state.clearUser);
-  const hasSavedAvailability = useAvailabilityGridStore((state) =>
-    state.eventData.eventResponses.some(({ alias }) => alias === state.user)
-  );
-  const editing = isEditMode(mode);
-  const pathName = usePathname();
-  const isEventPage = eventId !== "" && pathName === `/${eventId}`;
-  const [participantOpen, setParticipantOpen] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const isHome = pathname === "/";
+
+  // close the phone menu when the page changes
+  useEffect(() => setMenuOpen(false), [pathname]);
+
+  function comingSoon() {
+    setMenuOpen(false);
+    toast({ description: "Coming soon", duration: 2000 });
+  }
+
+  // on the home page it jumps to the form; anywhere else it goes home
+  function createAWeave() {
+    setMenuOpen(false);
+    if (!isHome) return router.push("/");
+    const form = document.getElementById("new-event-form");
+    form?.scrollIntoView({ behavior: "smooth", block: "center" });
+    form?.querySelector<HTMLInputElement>("input[name=name]")?.focus({ preventScroll: true });
+  }
 
   return (
-    <>
-      <nav aria-label="Main navigation" className={`${isEventPage ? "fixed" : "absolute"} left-0 right-0 top-6 z-50`}>
-        <div className="mx-auto w-full max-w-[85rem] px-4 sm:px-7">
-          <div className="card flex h-auto w-fit max-w-full items-center gap-4 px-5 py-2.5">
+    <nav aria-label="Main navigation" className="absolute inset-x-0 top-0 z-50 h-[3.25rem] md:h-[3.75rem]">
+      {/* same side padding and 82rem width as the page content, so the wordmark lines up with the cards */}
+      <div className="h-full w-full px-6 sm:px-8 lg:px-5">
+        <div className="mx-auto flex h-full w-full max-w-[82rem] items-center justify-between">
+          <div className="flex items-center gap-6">
             <Link
               aria-label="Weave home"
-              className="flex shrink-0 items-center rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex items-center gap-1.5 rounded-md text-lg font-medium tracking-tight text-[#3d3d3f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               href="/"
             >
-              <span className="flex items-center gap-1.5">
-                <Image alt="" className="h-6 w-6" height={24} priority src="/logo-mark.svg" width={24} />
-                <span className="text-lg font-medium leading-none tracking-tight text-[#3d3d3f]">Weave</span>
-              </span>
+              <Image alt="" className="h-6 w-6" height={24} priority src="/logo-mark.svg" width={24} />
+              Weave
             </Link>
-            {isEventPage && (
-              <DropdownMenu modal={false}>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    aria-label={`Participant profile: ${user || "Guest"}`}
-                    className="h-auto min-w-0 gap-2 rounded-sm bg-light-purple p-1.5 text-black"
-                    disabled={isSaving}
-                    type="button"
-                    variant="ghost"
-                  >
-                    {user ? (
-                      <ParticipantAvatar className="h-5 w-5 text-[0.6rem]" name={user} />
-                    ) : (
-                      <UserCircle aria-hidden="true" className="h-5 w-5 shrink-0" />
-                    )}
-                    <span className="max-w-[8rem] truncate text-sm font-medium" title={user || "Guest"}>
-                      {user || "Guest"}
-                    </span>
-                    <ChevronDown aria-hidden="true" className="h-3 w-3 shrink-0" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-56 max-w-[calc(100vw-1.5rem)]">
-                  <DropdownMenuLabel className="break-words font-medium">
-                    {user || "Guest participant"}
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {user && hasSavedAvailability && (
-                    <DropdownMenuItem disabled={editing} onSelect={() => setUserFilter([user])}>
-                      View my availability
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem disabled={editing} onSelect={() => setParticipantOpen(true)}>
-                    Switch participant
-                  </DropdownMenuItem>
-                  {user && (
-                    <DropdownMenuItem disabled={editing} onSelect={clearUser}>
-                      Clear my name
-                    </DropdownMenuItem>
-                  )}
-                  {editing && (
-                    <DropdownMenuItem onSelect={() => useAvailabilityGridStore.getState().cancelEditing()}>
-                      Discard changes and view
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild disabled={editing}>
-                    <Link href="/">Create a Weave</Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+            <div className="hidden items-center gap-5 sm:flex">
+              <button className={LINK} onClick={comingSoon} type="button">
+                Our story
+              </button>
+              <button className={LINK} onClick={comingSoon} type="button">
+                How it works
+              </button>
+            </div>
           </div>
+
+          <div className="hidden items-center gap-4 sm:flex">
+            <button className={LINK} onClick={comingSoon} type="button">
+              Log in
+            </button>
+            <Button onClick={createAWeave} type="button">
+              Create a Weave
+            </Button>
+          </div>
+
+          {/* phones: one menu button, opening a left-aligned list */}
+          <Popover onOpenChange={setMenuOpen} open={menuOpen}>
+            <PopoverTrigger asChild>
+              <button
+                aria-label={menuOpen ? "Close menu" : "Open menu"}
+                className="-mr-2 flex h-9 w-9 items-center justify-center rounded-md text-black transition-colors hover:bg-light-gray/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:hidden"
+                type="button"
+              >
+                {menuOpen ? (
+                  <X aria-hidden="true" className="h-5 w-5" />
+                ) : (
+                  <Menu aria-hidden="true" className="h-5 w-5" />
+                )}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              align="end"
+              className="flex w-[calc(100vw-3rem)] flex-col items-stretch gap-0.5 rounded-xl bg-white p-1.5 sm:hidden"
+              sideOffset={6}
+            >
+              <button className={MENU_ITEM} onClick={comingSoon} type="button">
+                Our story
+              </button>
+              <button className={MENU_ITEM} onClick={comingSoon} type="button">
+                How it works
+              </button>
+              <button className={MENU_ITEM} onClick={comingSoon} type="button">
+                Log in
+              </button>
+              <div className="mx-3 my-1 h-px bg-light-gray" />
+              <Button className="justify-start" onClick={createAWeave} type="button">
+                Create a Weave
+              </Button>
+            </PopoverContent>
+          </Popover>
         </div>
-      </nav>
-      <EditAvailabilityDialog
-        onOpenChange={setParticipantOpen}
-        open={participantOpen}
-        title="Switch participant"
-        trigger={null}
-      />
-    </>
+      </div>
+    </nav>
   );
 }

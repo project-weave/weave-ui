@@ -13,7 +13,8 @@ const buttonVariants = cva(
     },
     variants: {
       size: {
-        default: "h-10 px-4 py-2 rounded-lg",
+        // matches the buttons in the floating control dock
+        default: "h-10 px-4 py-2 rounded-xl text-sm",
         icon: "h-10 w-10",
         lg: "h-11 rounded-lg px-8",
         sm: "h-9 rounded-lg px-3"
