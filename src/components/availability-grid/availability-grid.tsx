@@ -16,6 +16,7 @@ import useScrollingClass from "@/hooks/useScrollingClass";
 import useAvailabilityGridStore, {
   AvailabilityGridMode,
   getDisplayTimeZones,
+  isEditMode,
   MAX_DISPLAY_TIME_ZONES
 } from "@/store/availabilityGridStore";
 import { AvailabilityType, EventResponse, EventResponseSchema } from "@/types/Event";
@@ -298,9 +299,10 @@ export default function AvailabilityGrid() {
             >
               {gridNodes.map((columnNodes, colIndex) => (
                 <div
-                  className={cn(colIndex === 0 && "sticky left-0 z-10 bg-white will-change-transform")}
+                  className={cn("relative", colIndex === 0 && "sticky left-0 z-10 bg-white will-change-transform")}
                   key={`availability-header-${columnNodes[0].offsettedColIndex}`}
                 >
+                  {isEditMode(mode) && getDateGaps(columnNodes).hasDateGapRight && <DateGapDivider anchor="bottom" />}
                   <AvailabilityGridCell
                     animateEditAvailabilityButton={animateEditAvailabilityButton}
                     {...getDateGaps(columnNodes)}
@@ -323,12 +325,16 @@ export default function AvailabilityGrid() {
 
                 return (
                   <div
-                    className={cn("grid", displayColIndex === 0 && "sticky left-0 z-10 bg-white will-change-transform")}
+                    className={cn(
+                      "relative grid",
+                      displayColIndex === 0 && "sticky left-0 z-10 bg-white will-change-transform"
+                    )}
                     key={`availability-column-${displayColIndex}`}
                     style={{
                       gridTemplateRows: `${topBottomCellHeight} repeat(${sortedEventTimes.length - 1}, minmax(${timeSlotCellHeight}, 1fr)) ${topBottomCellHeight}`
                     }}
                   >
+                    {isEditMode(mode) && hasDateGapRight && <DateGapDivider anchor="top" />}
                     {columnNodes.slice(1).map((node) => {
                       return (
                         <AvailabilityGridCell
@@ -351,5 +357,24 @@ export default function AvailabilityGrid() {
       </div>
       <ViewModeDragHint />
     </form>
+  );
+}
+
+// While editing, the line between dates that aren't next to each other is dotted. It's drawn as one
+// continuous line down the whole column (instead of a border on every cell) so the dots stay evenly spaced
+// and the dashed row lines don't break it up. The header's line is anchored to its bottom and the rows' line
+// to their top, so the dots carry on across the join.
+function DateGapDivider({ anchor }: { anchor: "bottom" | "top" }) {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-y-0 right-0 z-[5] w-[2px]"
+      style={{
+        backgroundImage: "linear-gradient(to bottom, rgb(var(--dark-gray)) 0 2px, transparent 2px 4px)",
+        backgroundPosition: anchor === "bottom" ? "0 100%" : "0 0",
+        backgroundRepeat: "repeat-y",
+        backgroundSize: "2px 4px"
+      }}
+    />
   );
 }

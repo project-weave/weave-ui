@@ -31,6 +31,7 @@ const WHAT_TIMES = "What times work for you?";
 const WHAT_AVAILABILITY = "What availability do you want to know?";
 const WHAT_TIME_ZONE = "What time zone works for you?";
 const CONTINUE = "Create Weave";
+const CREATING = "Creating…";
 const TO = "to";
 // same as the --primary-purple colour token, for the sliding toggle animation
 const PRIMARY_PURPLE = "rgb(151, 71, 255)";
@@ -150,21 +151,11 @@ export default function NewEventForm() {
       timeZone
     };
 
-    // progress is shown in a toast rather than inside the button
-    const creatingToast = toast({
-      description: "Creating your event…",
-      duration: Infinity,
-      keepOnPageChange: true
-    });
+    // "Event created" is shown on the event's page once it has loaded (see the event page)
     try {
       await mutateAsync(req);
-      creatingToast.update({ description: "Event created", duration: 3000, variant: "success" });
     } catch {
-      creatingToast.update({
-        description: "Couldn't create event. Try again.",
-        duration: 3000,
-        variant: "failure"
-      });
+      toast({ description: "Couldn't create event. Try again.", duration: 3000, variant: "failure" });
     }
   }
 
@@ -377,23 +368,23 @@ export default function NewEventForm() {
             }}
           >
             <Button
-              className="h-12 w-full max-w-[26rem] rounded-xl text-sm"
+              className="h-12 w-full max-w-[26rem] rounded-md text-sm"
               disabled={!isFormValid || isPending || isSuccess}
               form="new-event-form"
               type="submit"
             >
-              {CONTINUE}
+              {isPending || isSuccess ? CREATING : CONTINUE}
             </Button>
           </motion.div>
         )}
       </AnimatePresence>
       <Button
-        className="z-[999] hidden h-12 w-full rounded-xl border-[1px] align-bottom text-sm xs:block"
+        className="z-[999] hidden h-12 w-full rounded-md border-[1px] align-bottom text-sm xs:block"
         disabled={!isFormValid || isPending || isSuccess}
         form="new-event-form"
         type="submit"
       >
-        {CONTINUE}
+        {isPending || isSuccess ? CREATING : CONTINUE}
       </Button>
     </>
   );

@@ -17,10 +17,17 @@ export default {
       padding: "2rem"
     },
     extend: {
+      fontFamily: {
+        sans: ['"Helvetica Neue"', "Helvetica", "Arial", "sans-serif"]
+      },
+      // three corner sizes: 10px for big surfaces (cards, dock, modals), 8px for controls (buttons, inputs,
+      // dropdowns, toggles, arrows, menus), 6px for small items (chips, list rows, calendar days, dock buttons)
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)"
+        "2xl": "10px",
+        lg: "8px",
+        md: "8px",
+        sm: "6px",
+        xl: "10px"
       },
       colors: {
         "primary-purple": "rgb(var(--primary-purple), <alpha-value>)",

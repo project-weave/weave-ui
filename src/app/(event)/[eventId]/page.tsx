@@ -16,6 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import useGetEvent from "@/hooks/requests/useGetEvent";
 import useAvailabilityGridStore from "@/store/availabilityGridStore";
+import { consumeEventJustCreated } from "@/utils/justCreatedEvent";
 
 export default function Event() {
   const params = useParams<{ eventId: string }>();
@@ -53,6 +54,15 @@ export default function Event() {
   useEffect(() => {
     if (loadedEventId) window.scrollTo(0, 0);
   }, [loadedEventId]);
+
+  // arriving straight from the create page: confirm once the event (and the control bar) is on screen
+  useEffect(() => {
+    if (loadedEventId && loadedEventId === params.eventId && consumeEventJustCreated(loadedEventId)) {
+      // keepOnPageChange: the page can finish loading a moment before the URL changes, which would otherwise
+      // clear this straight away
+      toast({ description: "Event created", duration: 3000, keepOnPageChange: true, variant: "success" });
+    }
+  }, [loadedEventId, params.eventId, toast]);
 
   if (isPending || (data && loadedEventId !== data.event.id)) {
     return (

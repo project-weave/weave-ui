@@ -50,7 +50,7 @@ export default function TimeZoneDropdown({ error, onChange, selected }: TimeZone
         >
           <div
             className={cn(
-              "peer box-border flex h-10 w-full min-w-0 cursor-pointer items-center rounded-xl bg-input px-4 text-left text-sm",
+              "peer box-border flex h-10 w-full min-w-0 cursor-pointer items-center rounded-md bg-input px-4 text-left text-sm",
               { "outline-red-500/40 focus-within:outline-red-500 hover:outline-red-500": error },
               { "outline-red-500": error && open }
             )}

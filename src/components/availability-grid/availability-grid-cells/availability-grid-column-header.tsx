@@ -55,8 +55,8 @@ export default function AvailabilityGridColumnHeader({
       className={cn("flex h-full flex-col items-center justify-center border-transparent bg-white", borderXSizeStyles, {
         "pt-2": availabilityType === AvailabilityType.DAYS_OF_WEEK,
         "border-r-2 border-r-dark-gray": hasDateGapRight,
-        // while editing, the divider between dates that aren't next to each other is dotted
-        "border-dotted": hasDateGapRight && !isViewMode(mode)
+        // while editing, the dotted divider is drawn once for the whole column (see DateGapDivider)
+        "border-r-transparent": hasDateGapRight && !isViewMode(mode)
       })}
       onMouseEnter={onMouseEnter}
     >
@@ -88,7 +88,7 @@ export default function AvailabilityGridColumnHeader({
         {availabilityType === AvailabilityType.DAYS_OF_WEEK && (
           <Button
             className={cn(
-              "text-transition-all mb-0.5 w-14 rounded-xl border-2 border-transparent bg-input text-lg font-normal tracking-wide hover:opacity-80",
+              "text-transition-all mb-0.5 w-14 rounded-md border-2 border-transparent bg-input text-lg font-normal tracking-wide hover:opacity-80",
               {
                 "bg-primary text-white hover:bg-primary-hover": isAllTimeSlotForDateSelected,
                 "cursor-default bg-white text-sm text-secondary hover:bg-white lg:text-base": isViewMode(mode)

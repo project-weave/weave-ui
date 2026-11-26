@@ -244,6 +244,8 @@ export default function AvailabilityGridTimeSlot({
         {
           "bg-primary-purple hover:bg-primary-purple/60": (isSelected || isBeingAdded) && !isBeingRemoved,
           "border-r-2": hasDateGapRight,
+          // while editing, the dotted divider is drawn once for the whole column (see DateGapDivider)
+          "border-r-transparent": hasDateGapRight && isEditMode(mode) && !isRightBorder,
           "border-t-2 border-t-black": isTimeHovered,
           "border-t-0": !shouldDisplayBorder && !isTimeHovered
         },

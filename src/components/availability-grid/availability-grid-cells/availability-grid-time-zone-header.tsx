@@ -159,7 +159,7 @@ function MenuItem({ destructive, hint, icon, label, onClick }: MenuItemProps) {
   return (
     <button
       className={cn(
-        "flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-left transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "flex w-full items-center gap-2.5 rounded-sm px-2 py-2 text-left transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         destructive ? "text-red-500 hover:bg-red-50" : "hover:bg-primary/20"
       )}
       onClick={onClick}

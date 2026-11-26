@@ -104,7 +104,7 @@ export default function TimeZoneList({ disabledTimeZones = [], eventTimeZone, on
     return (
       <CommandItem
         className={cn(
-          "mr-2 flex cursor-pointer items-center gap-3 rounded-md px-2 py-1.5 text-sm",
+          "mr-2 flex cursor-pointer items-center gap-3 rounded-sm px-2 py-1.5 text-sm",
           isSelected
             ? "bg-primary text-white aria-selected:bg-primary aria-selected:text-white"
             : "aria-selected:bg-primary/20 hover:bg-primary/20",

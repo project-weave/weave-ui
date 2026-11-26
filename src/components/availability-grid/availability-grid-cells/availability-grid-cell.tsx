@@ -104,7 +104,9 @@ export default function AvailabilityGridCell({
       return (
         <div
           className={cn("h-full w-full border-t-0 border-text-light", {
-            "border-r-2 border-r-dark-gray": hasDateGapRight
+            "border-r-2 border-r-dark-gray": hasDateGapRight,
+            // while editing, the dotted divider is drawn once for the whole column (see DateGapDivider)
+            "border-r-transparent": hasDateGapRight && !isViewMode(mode)
           })}
           onMouseEnter={() => setHoveredTimeSlot(null)}
           style={{ borderStyle: getFirstAndLastCellBorderStyle() }}

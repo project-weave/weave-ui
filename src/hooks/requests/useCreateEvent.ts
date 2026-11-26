@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 
 import { EventDate, EventTime } from "@/types/Timeslot";
 import axios from "@/utils/axios";
+import { markEventJustCreated } from "@/utils/justCreatedEvent";
 
 import { getEvent } from "./useGetEvent";
 
@@ -33,6 +34,7 @@ const useCreateEvent = () => {
 
     onSuccess: async (data) => {
       await queryClient.prefetchQuery({ queryFn: () => getEvent(data.eventId), queryKey: ["event", data.eventId] });
+      markEventJustCreated(data.eventId);
       router.push(`/${data.eventId}`);
     }
   });

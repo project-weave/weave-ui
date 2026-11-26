@@ -45,7 +45,7 @@ const AvailbilityGridResponseFilterButton = ({ className, name }: AvailbilityGri
       aria-pressed={userFilter.includes(name)}
       className={cn(
         // same grey as the mini calendar; selected names turn purple
-        "box-border inline-flex min-w-0 max-w-full items-center rounded-md bg-input px-2.5 py-1 text-2xs font-normal text-black outline-none transition-[background-color,color,opacity] duration-150 hover:bg-light-gray focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+        "box-border inline-flex min-w-0 max-w-full items-center rounded-sm bg-input px-2.5 py-1 text-2xs font-normal text-black outline-none transition-[background-color,color,opacity] duration-150 hover:bg-light-gray focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
         isViewMode(mode) && userFilter.includes(name) && "bg-primary text-white hover:bg-primary-hover",
         // while hovering a time slot, names that aren't available then fade back
         isViewMode(mode) && !isUserHighlighted && "opacity-50",

@@ -168,7 +168,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
         {/* The card's width follows its contents with an ease-out transition so switching modes isn't jumpy */}
         <div
           aria-label="Availability controls"
-          className="card h-auto w-auto overflow-hidden rounded-2xl p-0 transition-[width] duration-300 ease-out motion-reduce:transition-none"
+          className="card h-auto w-auto overflow-hidden rounded-xl p-0 transition-[width] duration-300 ease-out motion-reduce:transition-none"
           role="toolbar"
           style={{ width: contentWidth === null ? undefined : contentWidth + 2 }}
         >
@@ -176,18 +176,18 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
             {hasStarted ? (
               <div
                 aria-label="Availability mode"
-                className="relative flex h-10 shrink-0 items-stretch overflow-hidden rounded-lg bg-input"
+                className="relative flex h-10 shrink-0 items-stretch overflow-hidden rounded-sm bg-input"
                 role="group"
               >
                 {/* one pill slides between View and Edit, changing from red to yellow as it goes */}
                 <motion.span
                   animate={{
                     // same as the --yellow / --red colour tokens
-                    backgroundColor: editing ? "rgb(255, 241, 170)" : "rgb(255, 130, 130)",
+                    backgroundColor: editing ? "rgb(255, 241, 170)" : "rgb(236, 62, 61)",
                     x: modePillRect.left
                   }}
                   aria-hidden="true"
-                  className="absolute inset-y-0 left-0 rounded-lg"
+                  className="absolute inset-y-0 left-0 rounded-sm"
                   initial={false}
                   style={{ width: modePillRect.width }}
                   transition={{ duration: reduceMotion ? 0 : 0.3, ease: "easeOut" }}
@@ -195,9 +195,10 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
                 <Button
                   aria-pressed={!editing}
                   className={cn(
-                    "relative h-10 gap-1.5 rounded-lg bg-transparent px-3 text-sm text-black hover:bg-black/5 focus-visible:ring-inset focus-visible:ring-offset-0",
+                    "relative h-10 gap-1.5 rounded-sm bg-transparent px-3 text-sm text-black hover:bg-black/5 focus-visible:ring-inset focus-visible:ring-offset-0",
                     PRESSABLE,
-                    !editing && "hover:bg-transparent"
+                    // white on the red pill
+                    !editing && "text-white hover:bg-transparent"
                   )}
                   disabled={isSaving}
                   onClick={onViewClick}
@@ -205,13 +206,19 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
                   type="button"
                   variant="ghost"
                 >
-                  <Image alt="" height={15} src="/icons/weave/eye.svg" width={15} />
+                  <Image
+                    alt=""
+                    className={cn("transition-[filter] duration-300", !editing && "brightness-0 invert")}
+                    height={15}
+                    src="/icons/weave/eye.svg"
+                    width={15}
+                  />
                   <span className="hidden xs:inline">View</span>
                 </Button>
                 <Button
                   aria-pressed={editing}
                   className={cn(
-                    "relative h-10 gap-1.5 rounded-lg bg-transparent px-3 text-sm text-black hover:bg-black/5 focus-visible:ring-inset focus-visible:ring-offset-0",
+                    "relative h-10 gap-1.5 rounded-sm bg-transparent px-3 text-sm text-black hover:bg-black/5 focus-visible:ring-inset focus-visible:ring-offset-0",
                     PRESSABLE,
                     editing && "hover:bg-transparent"
                   )}
@@ -227,7 +234,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
               </div>
             ) : (
               <Button
-                className={cn("h-10 shrink-0 rounded-lg px-4 text-sm", PRESSABLE)}
+                className={cn("h-10 shrink-0 rounded-sm px-4 text-sm", PRESSABLE)}
                 disabled={isSaving}
                 onClick={openAvailability}
                 type="button"
@@ -239,7 +246,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
             {editing ? (
               <Button
                 className={cn(
-                  "h-10 shrink-0 rounded-lg bg-success px-3 text-sm text-black hover:bg-success/70",
+                  "h-10 shrink-0 rounded-sm bg-success px-3 text-sm text-black hover:bg-success/70",
                   PRESSABLE
                 )}
                 disabled={isSaving}
@@ -257,7 +264,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
               <Button
                 aria-label={copied ? "Link copied" : "Copy event link"}
                 className={cn(
-                  "h-10 w-10 shrink-0 rounded-lg p-0 hover:bg-light-gray",
+                  "h-10 w-10 shrink-0 rounded-sm p-0 hover:bg-light-gray",
                   PRESSABLE,
                   copied && "bg-success hover:bg-success"
                 )}

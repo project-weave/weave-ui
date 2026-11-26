@@ -9,14 +9,15 @@ import { cn } from "@/utils/cn";
 
 const ToastProvider = ToastPrimitives.Provider;
 
-// Every toast slides down from the top centre of the page, above everything except the drag hint.
+// Toasts sit just above the floating control bar (1rem/1.5rem from the bottom, 54px tall) and slide up from
+// under it. Layering: above the calendar and its editing ring (z-40), below the control bar (z-[48]) and modals.
 const ToastViewport = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Viewport>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Viewport>
 >(({ className, ...props }, ref) => (
   <ToastPrimitives.Viewport
     className={cn(
-      "pointer-events-none fixed left-1/2 top-[calc(1.5rem+env(safe-area-inset-top))] z-[60] flex max-w-[calc(100vw-2rem)] -translate-x-1/2 flex-col items-center",
+      "pointer-events-none fixed bottom-[calc(1rem+54px+0.5rem+env(safe-area-inset-bottom))] left-1/2 z-[45] flex max-w-[calc(100vw-2rem)] -translate-x-1/2 flex-col items-center sm:bottom-[calc(1.5rem+54px+0.5rem+env(safe-area-inset-bottom))]",
       className
     )}
     ref={ref}
@@ -26,7 +27,7 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName;
 
 const toastVariants = cva(
-  "group pointer-events-none relative flex max-w-full items-center overflow-hidden whitespace-nowrap rounded-full border px-5 py-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.08)] data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:duration-300 data-[state=closed]:duration-300 data-[state=open]:ease-out data-[state=closed]:ease-in data-[state=open]:animate-in data-[state=open]:slide-in-from-top-[calc(100%+1.5rem)] data-[state=closed]:animate-out data-[state=closed]:slide-out-to-top-[calc(100%+1.5rem)]",
+  "group pointer-events-none relative flex max-w-full items-center overflow-hidden whitespace-nowrap rounded-full border px-5 py-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.08)] data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:duration-300 data-[state=closed]:duration-300 data-[state=open]:ease-out data-[state=closed]:ease-in data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-[calc(100%+0.75rem)] data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom-[calc(100%+0.75rem)]",
   {
     defaultVariants: {
       variant: "default"
