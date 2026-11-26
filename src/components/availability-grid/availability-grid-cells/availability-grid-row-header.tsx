@@ -1,12 +1,12 @@
 import { addMinutes, differenceInCalendarDays, format, parse, parseISO } from "date-fns";
 import { utcToZonedTime, zonedTimeToUtc } from "date-fns-tz";
 import { ReactNode } from "react";
+import { useShallow } from "zustand/react/shallow";
 
-import useAvailabilityGridStore, { isViewMode } from "@/store/availabilityGridStore";
+import useAvailabilityGridStore, { getDisplayTimeZones } from "@/store/availabilityGridStore";
 import { TIME_SLOT_INTERVAL_MINUTES } from "@/store/eventDataSlice";
 import { EVENT_TIME_FORMAT, getTimeFromTimeSlot, getTimeSlot } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
-import { isSupportedTimeZone } from "@/utils/timeZone";
 
 type AvailabilityGridRowHeaderProps = {
   eventTime: string;
@@ -21,11 +21,9 @@ export default function AvailabilityGridRowHeader({
 }: AvailabilityGridRowHeaderProps) {
   const firstEventDate = useAvailabilityGridStore((state) => state.eventData.sortedEventDates[0] ?? "");
   const eventTimeZone = useAvailabilityGridStore((state) => state.eventData.timeZone);
-  const selectedTimeZone = useAvailabilityGridStore((state) =>
-    isSupportedTimeZone(state.selectedTimeZone) ? state.selectedTimeZone : state.eventData.timeZone
-  );
+  // left to right; the last one (next to the grid) is the primary
+  const displayTimeZones = useAvailabilityGridStore(useShallow(getDisplayTimeZones));
   const hoveredTimeSlot = useAvailabilityGridStore((state) => state.hoveredTimeSlot);
-  const mode = useAvailabilityGridStore((state) => state.mode);
   const isHoveredTimeSlot = eventTime === getTimeFromTimeSlot(hoveredTimeSlot);
 
   const originalDateTime = parseISO(getTimeSlot(eventTime, firstEventDate));
@@ -36,7 +34,7 @@ export default function AvailabilityGridRowHeader({
 
   const isNextDayMidnight = isLastEventTime && eventTime === "00:00:00";
 
-  function getTimezoneConveredTimeAndDayDifference(): [string, number] {
+  function getTimezoneConveredTimeAndDayDifference(selectedTimeZone: string): [string, number] {
     const originalDateTimeInUTC = zonedTimeToUtc(originalDateTime, eventTimeZone);
 
     const originalZonedDateTime = utcToZonedTime(originalDateTimeInUTC, eventTimeZone);
@@ -54,11 +52,13 @@ export default function AvailabilityGridRowHeader({
     let dayDifference = isNextDayMidnight ? 1 : 0;
     dayDifference += differenceInCalendarDays(targetParsedDate, originalParsedDate);
 
-    return [format(targetZoneDateTime, "h:mm a"), dayDifference];
+    // "9 AM", or "9:30 AM" for zones that are offset by half an hour
+    const timeFormat = targetZoneDateTime.getMinutes() === 0 ? "h a" : "h:mm a";
+    return [format(targetZoneDateTime, timeFormat), dayDifference];
   }
 
-  function getTranslatedTimeJSX(): ReactNode {
-    const [convertedFormattedTime, dayDifference] = getTimezoneConveredTimeAndDayDifference();
+  function getTranslatedTimeJSX(timeZone: string): ReactNode {
+    const [convertedFormattedTime, dayDifference] = getTimezoneConveredTimeAndDayDifference(timeZone);
     let dayOffsetJSX: ReactNode = null;
     if (dayDifference > 0) {
       dayOffsetJSX = <sup className="ml-[0.5px] text-3xs">+1</sup>;
@@ -74,19 +74,32 @@ export default function AvailabilityGridRowHeader({
     );
   }
 
+  const isHighlighted = isHoveredTimeSlot || isPrevTimeSlotHovered;
+
   return (
-    <span
+    <div
       className={cn(
-        "-translate-y-1.5 pr-2 text-right text-2xs font-normal text-dark-gray duration-300 sm:-translate-y-2",
+        "flex -translate-y-1.5 justify-end whitespace-nowrap text-2xs font-normal duration-300 sm:-translate-y-2",
         { "opacity-0": originalDateTime.getMinutes() !== 0 },
-        {
-          "font-semibold text-black opacity-100": isHoveredTimeSlot || isPrevTimeSlotHovered,
-          "text-black": isViewMode(mode) && (isHoveredTimeSlot || isPrevTimeSlotHovered)
-        }
+        { "font-semibold opacity-100": isHighlighted }
       )}
       onMouseEnter={onMouseEnter}
     >
-      {getTranslatedTimeJSX()}
-    </span>
+      {displayTimeZones.map((timeZone, index) => {
+        const isPrimary = index === displayTimeZones.length - 1;
+        return (
+          <span
+            className={cn(
+              "w-[var(--time-zone-column-width)] shrink-0 pr-1.5 text-right",
+              isPrimary ? "text-dark-gray" : "text-dark-gray/70",
+              { "text-black": isHighlighted }
+            )}
+            key={timeZone}
+          >
+            {getTranslatedTimeJSX(timeZone)}
+          </span>
+        );
+      })}
+    </div>
   );
 }
