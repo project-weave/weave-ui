@@ -1,12 +1,11 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
-import { KeyboardEvent, useMemo, useRef, useState } from "react";
+import { KeyboardEvent, useMemo, useState } from "react";
 
 import TimeZoneList from "@/components/time-zone-list";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import useWheelStep from "@/hooks/useWheelStep";
 import { cn } from "@/utils/cn";
 import { getAllTimeZoneOptions, getTimeZoneOption } from "@/utils/timeZone";
 
@@ -21,8 +20,7 @@ export default function TimeZoneDropdown({ error, onChange, selected }: TimeZone
   const [open, setOpen] = useState(false);
   const selectedOption = useMemo(() => (selected ? getTimeZoneOption(selected) : null), [selected]);
 
-  // same behaviour as the time picker: scroll over the closed dropdown or use the arrow keys to step through
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  // same behaviour as the time picker: the arrow keys step through while the dropdown is closed
   function stepSelectedTimeZone(direction: -1 | 1) {
     const options = getAllTimeZoneOptions();
     const currentIndex = options.findIndex(({ value }) => value === selected);
@@ -30,7 +28,6 @@ export default function TimeZoneDropdown({ error, onChange, selected }: TimeZone
     if (currentIndex === -1 || nextIndex === currentIndex) return;
     onChange(options[nextIndex].value);
   }
-  useWheelStep(triggerRef, stepSelectedTimeZone, !open);
   function onTriggerKeyDown(e: KeyboardEvent<HTMLButtonElement>) {
     if (open || (e.key !== "ArrowDown" && e.key !== "ArrowUp")) return;
     e.preventDefault();
@@ -41,16 +38,15 @@ export default function TimeZoneDropdown({ error, onChange, selected }: TimeZone
     <Popover onOpenChange={setOpen} open={open}>
       <PopoverTrigger asChild>
         <Button
-          aria-label={`Event time zone: ${selectedOption ? `${selectedOption.name}, ${selectedOption.city}` : "none"}. Scroll or use arrow keys to change.`}
+          aria-label={`Event time zone: ${selectedOption ? `${selectedOption.name}, ${selectedOption.city}` : "none"}. Use the arrow keys to change.`}
           className="relative h-auto w-full p-0"
           onKeyDown={onTriggerKeyDown}
-          ref={triggerRef}
           type="button"
           variant="ghost"
         >
           <div
             className={cn(
-              "peer box-border flex h-10 w-full min-w-0 cursor-pointer items-center rounded-md bg-input px-4 text-left text-sm",
+              "peer box-border flex h-10 w-full min-w-0 cursor-pointer items-center rounded-md border border-[#E5E5E5] bg-white px-4 text-left text-sm",
               { "outline-red-500/40 focus-within:outline-red-500 hover:outline-red-500": error },
               { "outline-red-500": error && open }
             )}

@@ -18,7 +18,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['"Helvetica Neue"', "Helvetica", "Arial", "sans-serif"]
+        sans: ["var(--font-sans)", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"]
       },
       // three corner sizes: 10px for big surfaces (cards, dock, modals), 8px for controls (buttons, inputs,
       // dropdowns, toggles, arrows, menus), 6px for small items (chips, list rows, calendar days, dock buttons)

@@ -150,11 +150,15 @@ const EventDateCalendar = ({
     start: getFirstDayOfCalendar(currentMonth)
   });
   const weekDays: string[] = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const weekDayClassName = cn("text-sm sm:text-[0.95rem]", {
+    "text-2xl sm:text-2xl": size === "large",
+    "text-xs sm:text-xs": isViewMode
+  });
 
   return (
     <div
       aria-invalid={error || undefined}
-      className={cn("h-fit select-none scroll-m-24 rounded-xl bg-input p-5 pt-3", {
+      className={cn("h-fit select-none scroll-m-24 rounded-xl border border-[#E5E5E5] bg-white p-5 pt-3", {
         "card h-full w-full border-[1px] bg-white px-12 pb-5 pt-8": size === "large"
       })}
       onContextMenu={handleMouseUp}
@@ -163,48 +167,53 @@ const EventDateCalendar = ({
       ref={forwardedRef}
     >
       <div className="mx-auto w-full">
-        <div
-          className={cn("flex items-center py-0.5 pl-[3px]", {
-            "mb-3": size === "large"
-          })}
-        >
-          <h2
-            className={cn("text-md flex-auto text-black ", {
-              "text-2xl": size === "large",
-              "text-md": isViewMode
-            })}
-          >
-            {format(firstDayCurrentMonth, "MMMM yyyy")}
-          </h2>
-
-          {isNextAndPrevButtonsVisible && (
-            <>
-              <NavArrowButton
-                direction="previous"
-                disabled={isCurrentMonthEarliest}
-                label="Previous month"
-                onClick={setPrevMonth}
-              />
-              <NavArrowButton
-                className="ml-1.5"
-                direction="next"
-                disabled={isCurrentMonthLatest}
-                label="Next month"
-                onClick={setNextMonth}
-              />
-            </>
-          )}
+        {/* The month title starts exactly where "Sun" starts and the arrows end exactly where "Sat" ends:
+            the header uses the same 7 columns as the days, with an invisible "Sun"/"Sat" to measure against. */}
+        <div className={cn("grid h-8 grid-cols-7 items-center", { "mb-3": size === "large" })}>
+          <div className="flex justify-center">
+            <span className="relative">
+              <span aria-hidden="true" className={cn(weekDayClassName, "invisible")}>
+                Sun
+              </span>
+              <h2
+                className={cn(
+                  "absolute left-0 top-1/2 -translate-y-1/2 whitespace-nowrap text-base text-black",
+                  size === "large" && "text-2xl",
+                  isViewMode && "text-md"
+                )}
+              >
+                {format(firstDayCurrentMonth, "MMMM yyyy")}
+              </h2>
+            </span>
+          </div>
+          <div className="col-start-7 flex justify-center">
+            <span className="relative">
+              <span aria-hidden="true" className={cn(weekDayClassName, "invisible")}>
+                Sat
+              </span>
+              {isNextAndPrevButtonsVisible && (
+                <span className="absolute right-0 top-1/2 flex -translate-y-1/2 gap-1.5">
+                  <NavArrowButton
+                    direction="previous"
+                    disabled={isCurrentMonthEarliest}
+                    label="Previous month"
+                    onClick={setPrevMonth}
+                  />
+                  <NavArrowButton
+                    direction="next"
+                    disabled={isCurrentMonthLatest}
+                    label="Next month"
+                    onClick={setNextMonth}
+                  />
+                </span>
+              )}
+            </span>
+          </div>
         </div>
         <div className="mt-3 grid grid-cols-7 text-center font-normal leading-4 text-text-light">
           {weekDays.map((weekDay) => {
             return (
-              <p
-                className={cn("text-sm sm:text-[0.95rem]", {
-                  "mb-1 mt-6 text-2xl sm:text-2xl": size === "large",
-                  "text-xs sm:text-xs": isViewMode
-                })}
-                key={`calendar-weekday-${weekDay}`}
-              >
+              <p className={cn(weekDayClassName, size === "large" && "mb-1 mt-6")} key={`calendar-weekday-${weekDay}`}>
                 {weekDay}
               </p>
             );
@@ -319,8 +328,7 @@ function DateButton({
         "my-[3px] flex h-[1.7rem] cursor-pointer touch-none items-center justify-center rounded-sm p-[1px] text-sm font-normal outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
         !isDaySelected
           ? {
-              "border-transparent bg-input": true,
-              "bg-white": size === "large",
+              "border-transparent bg-white": true,
               "text-black": isSameMonth(day, firstDayCurrentMonth),
               "bg-red text-white hover:bg-red/80": isToday(day),
               "hover:text-light/80 text-text-light": !isToday(day) && !isSameMonth(day, firstDayCurrentMonth)

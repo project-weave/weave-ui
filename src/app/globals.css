@@ -57,6 +57,7 @@
     --dark-gray: 157, 157, 157;
     --green: 200, 240, 202;
     --red: 236, 62, 61;
+    --salmon: 255, 175, 175;
     --yellow: 255, 241, 170;
     --light-gray: 231, 231, 231;
     --light-gray-2: 229, 229, 229;
@@ -106,7 +107,7 @@
 
 @layer components {
   .card {
-    @apply h-full w-full rounded-xl border-[1px] border-[#E5E5E5] px-8 py-5 bg-white shadow-[0px_0px_50px_10px_rgba(0,0,0,0.05)];
+    @apply h-full w-full rounded-xl border-[1px] border-[#E5E5E5] px-8 py-5 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.03),0_6px_20px_rgba(0,0,0,0.03)];
   }
 
   .scrollbar-primary {

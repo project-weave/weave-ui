@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import useScrollingClass from "@/hooks/useScrollingClass";
-import useWheelStep from "@/hooks/useWheelStep";
 import { TIME_SLOT_INTERVAL_MINUTES } from "@/store/eventDataSlice";
 import { EVENT_TIME_FORMAT } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
@@ -58,7 +57,6 @@ export default function NewEventFromTimeDropdown({
 }: NewEventFromTimeDropdownProps) {
   const [open, setOpen] = useState(false);
   const commandGroupRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const timeOptions = useMemo(() => getTimeOptions(isStartTime), [isStartTime]);
 
@@ -84,9 +82,6 @@ export default function NewEventFromTimeDropdown({
     if (currentIndex === -1 || nextIndex === currentIndex) return;
     onChange(timeOptions[nextIndex].value);
   }
-
-  // scrolling over the closed picker steps through the times without opening the dropdown
-  useWheelStep(triggerRef, stepSelectedTime, !open);
 
   function onTriggerKeyDown(e: KeyboardEvent<HTMLButtonElement>) {
     if (open) return;
@@ -118,16 +113,15 @@ export default function NewEventFromTimeDropdown({
     <Popover onOpenChange={setOpen} open={open}>
       <PopoverTrigger asChild>
         <Button
-          aria-label={`${isStartTime ? "Start time" : "End time"}: ${convertValueToLabel(selected)}. Scroll or use arrow keys to change.`}
+          aria-label={`${isStartTime ? "Start time" : "End time"}: ${convertValueToLabel(selected)}. Use the arrow keys to change.`}
           className="relative h-auto w-full p-0"
           onKeyDown={onTriggerKeyDown}
-          ref={triggerRef}
           type="button"
           variant="ghost"
         >
           <div
             className={cn(
-              "peer box-border flex h-10 w-full min-w-0 cursor-pointer items-center rounded-md bg-input px-4 text-left text-sm",
+              "peer box-border flex h-10 w-full min-w-0 cursor-pointer items-center rounded-md border border-[#E5E5E5] bg-white px-4 text-left text-sm",
               {
                 "outline-red-500/40 focus-within:outline-red-500 hover:outline-red-500": error
               },

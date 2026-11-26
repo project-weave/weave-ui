@@ -182,8 +182,8 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
                 {/* one pill slides between View and Edit, changing from red to yellow as it goes */}
                 <motion.span
                   animate={{
-                    // same as the --yellow / --red colour tokens
-                    backgroundColor: editing ? "rgb(255, 241, 170)" : "rgb(236, 62, 61)",
+                    // same as the --yellow / --salmon colour tokens
+                    backgroundColor: editing ? "rgb(255, 241, 170)" : "rgb(255, 175, 175)",
                     x: modePillRect.left
                   }}
                   aria-hidden="true"
@@ -197,8 +197,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
                   className={cn(
                     "relative h-10 gap-1.5 rounded-sm bg-transparent px-3 text-sm text-black hover:bg-black/5 focus-visible:ring-inset focus-visible:ring-offset-0",
                     PRESSABLE,
-                    // white on the red pill
-                    !editing && "text-white hover:bg-transparent"
+                    !editing && "hover:bg-transparent"
                   )}
                   disabled={isSaving}
                   onClick={onViewClick}
@@ -206,13 +205,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
                   type="button"
                   variant="ghost"
                 >
-                  <Image
-                    alt=""
-                    className={cn("transition-[filter] duration-300", !editing && "brightness-0 invert")}
-                    height={15}
-                    src="/icons/weave/eye.svg"
-                    width={15}
-                  />
+                  <Image alt="" height={15} src="/icons/weave/eye.svg" width={15} />
                   <span className="hidden xs:inline">View</span>
                 </Button>
                 <Button
