@@ -1,30 +1,42 @@
 "use client";
 
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/components/ui/use-toast";
 
 const LINK =
   "rounded-md text-[13px] text-text-light transition-colors hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+const MENU_ITEM =
+  "w-full rounded-sm px-3 py-2.5 text-left text-sm text-black transition-colors hover:bg-light-gray/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 /**
  * Top bar on every page: the Weave wordmark (stand-in until there's a new logo), two info links and
- * Log in (not built yet: they say "Coming soon"), and Create a Weave.
+ * Log in (not built yet: they say "Coming soon"), and Create a Weave. On phones everything but the
+ * wordmark sits in a menu behind the button on the right.
  */
 export default function NavBar() {
   const pathname = usePathname();
   const router = useRouter();
   const { toast } = useToast();
+  const [menuOpen, setMenuOpen] = useState(false);
   const isHome = pathname === "/";
 
+  // close the phone menu when the page changes
+  useEffect(() => setMenuOpen(false), [pathname]);
+
   function comingSoon() {
+    setMenuOpen(false);
     toast({ description: "Coming soon", duration: 2000 });
   }
 
   // on the home page it jumps to the form; anywhere else it goes home
   function createAWeave() {
+    setMenuOpen(false);
     if (!isHome) return router.push("/");
     const form = document.getElementById("new-event-form");
     form?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -39,7 +51,7 @@ export default function NavBar() {
           <div className="flex items-center gap-6">
             <Link
               aria-label="Weave home"
-              className="rounded-md text-lg font-semibold tracking-tight text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="rounded-md text-lg font-medium tracking-tight text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               href="/"
             >
               Weave
@@ -53,6 +65,7 @@ export default function NavBar() {
               </button>
             </div>
           </div>
+
           <div className="hidden items-center gap-4 sm:flex">
             <button className={LINK} onClick={comingSoon} type="button">
               Log in
@@ -61,6 +74,42 @@ export default function NavBar() {
               Create a Weave
             </Button>
           </div>
+
+          {/* phones: one menu button, opening a left-aligned list */}
+          <Popover onOpenChange={setMenuOpen} open={menuOpen}>
+            <PopoverTrigger asChild>
+              <button
+                aria-label={menuOpen ? "Close menu" : "Open menu"}
+                className="-mr-2 flex h-9 w-9 items-center justify-center rounded-md text-black transition-colors hover:bg-light-gray/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:hidden"
+                type="button"
+              >
+                {menuOpen ? (
+                  <X aria-hidden="true" className="h-5 w-5" />
+                ) : (
+                  <Menu aria-hidden="true" className="h-5 w-5" />
+                )}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              align="end"
+              className="flex w-[calc(100vw-3rem)] flex-col items-stretch gap-0.5 rounded-xl bg-white p-1.5 sm:hidden"
+              sideOffset={6}
+            >
+              <button className={MENU_ITEM} onClick={comingSoon} type="button">
+                Our story
+              </button>
+              <button className={MENU_ITEM} onClick={comingSoon} type="button">
+                How it works
+              </button>
+              <button className={MENU_ITEM} onClick={comingSoon} type="button">
+                Log in
+              </button>
+              <div className="mx-3 my-1 h-px bg-light-gray" />
+              <Button className="justify-start" onClick={createAWeave} type="button">
+                Create a Weave
+              </Button>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
     </nav>

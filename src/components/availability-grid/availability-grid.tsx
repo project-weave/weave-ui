@@ -169,10 +169,12 @@ export default function AvailabilityGrid() {
   // one narrow column of times per time zone (up to three), plus room for the "+" that adds one
   const displayTimeZoneCount = useAvailabilityGridStore((state) => getDisplayTimeZones(state).length);
   const timeZoneColumnWidth = screenSize <= ScreenSize.XS ? 52 : 58;
-  const timeZoneAddSlot = displayTimeZoneCount < MAX_DISPLAY_TIME_ZONES ? 24 : 6;
+  // the same 16px (24px from sm up) gutter as the header row above the grid, on both sides. The left one is
+  // part of the pinned time column, so the "+" never touches the card edge, even while scrolling sideways.
+  const gridGutter = screenSize >= ScreenSize.SM ? 24 : 16;
+  const timeZoneAddSlot = gridGutter + (displayTimeZoneCount < MAX_DISPLAY_TIME_ZONES ? 24 : 6);
   const rowHeaderWidth = timeZoneAddSlot + Math.max(1, displayTimeZoneCount) * timeZoneColumnWidth;
-  // space after the last column so it doesn't sit flush against the card edge
-  const trailingSpace = screenSize <= ScreenSize.SM ? 16 : 28;
+  const trailingSpace = gridGutter;
 
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [scrollerWidth, setScrollerWidth] = useState(0);
@@ -183,7 +185,8 @@ export default function AvailabilityGrid() {
     observer.observe(scroller);
     return () => observer.disconnect();
   }, []);
-  const leadingSpace = screenSize >= ScreenSize.XL ? 8 : 0;
+  // the left gutter lives inside the pinned time column (see gridGutter)
+  const leadingSpace = 0;
   // whole pixels only: fractional widths leave a sliver of sideways overflow and make the pinned
   // time column jitter while scrolling
   const columnWidth =
@@ -197,6 +200,7 @@ export default function AvailabilityGrid() {
   const scrollerStyle = {
     // keeps the scrollbar beside the rows rather than beside the pinned day headers
     "--grid-header-height": columnHeaderHeight,
+    "--grid-gutter": `${gridGutter}px`,
     "--time-zone-add-slot": `${timeZoneAddSlot}px`,
     "--time-zone-column-width": `${timeZoneColumnWidth}px`,
     overflowX: allDatesFit ? "hidden" : undefined,

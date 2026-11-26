@@ -25,7 +25,8 @@ export default function AvailabilityGridTimeZoneHeader() {
 
   return (
     <div className="flex h-full w-full items-end bg-white pb-2">
-      <div className="flex w-[var(--time-zone-add-slot)] shrink-0 justify-center">
+      {/* starts after the grid's gutter so the "+" lines up with the header row and never touches the edge */}
+      <div className="flex w-[var(--time-zone-add-slot)] shrink-0 justify-start pl-[var(--grid-gutter)]">
         {canAdd && (
           <Popover onOpenChange={setAddOpen} open={addOpen}>
             <PopoverTrigger asChild>
