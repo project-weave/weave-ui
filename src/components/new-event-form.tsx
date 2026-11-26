@@ -36,7 +36,7 @@ const WHAT_AVAILABILITY = "What availability do you want to know?";
 const WHAT_TIME_ZONE = "What time zone works for you?";
 const CONTINUE = "Create Weave";
 const CREATING = "Creating…";
-const TO = "to";
+const TO = "–";
 // same as the --primary-purple colour token, for the sliding toggle animation
 const PRIMARY_PURPLE = "rgb(151, 71, 255)";
 
@@ -255,7 +255,7 @@ export default function NewEventForm() {
                 </FormItem>
               )}
             />
-            <p className="mx-4 text-xs text-text-light"> {TO} </p>
+            <p className="mx-3 text-sm text-text-light">{TO}</p>
             <FormField
               control={form.control}
               name="timeRange.endTime"

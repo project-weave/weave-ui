@@ -34,10 +34,13 @@ export default function CreatingEventDialog({ completedSteps, isCreated, open, s
   return (
     <Dialog open={open}>
       <DialogContent
-        className={cn(MODAL_SIZE, "gap-0 p-5")}
+        // a plain white page behind it rather than the dimmed, blurred backdrop other popups use
+        className={cn(MODAL_SIZE, "z-[1001] gap-0 border-0 p-5 shadow-none")}
         onEscapeKeyDown={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
         onOpenAutoFocus={(e) => e.preventDefault()}
+        // above everything on the page, including the phone's pinned Create Weave button
+        overlayClassName="z-[1000] bg-white backdrop-blur-none"
         showCloseButton={false}
       >
         <div className="flex items-center gap-3">

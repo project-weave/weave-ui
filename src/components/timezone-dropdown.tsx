@@ -1,13 +1,20 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
-import { KeyboardEvent, useMemo, useState } from "react";
+import { Check, History } from "lucide-react";
+import { useCallback, useMemo } from "react";
 
-import TimeZoneList from "@/components/time-zone-list";
-import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { POPULAR_TIME_ZONES } from "@/components/time-zone-list";
+import Combobox, { ComboboxOption } from "@/components/ui/combobox";
 import { cn } from "@/utils/cn";
-import { getAllTimeZoneOptions, getTimeZoneOption } from "@/utils/timeZone";
+import {
+  addRecentTimeZone,
+  getAllTimeZoneOptions,
+  getRecentTimeZones,
+  getTimeZoneOption,
+  isSupportedTimeZone,
+  searchTimeZones,
+  TimeZoneOption
+} from "@/utils/timeZone";
 
 export interface TimeZoneDropdownProps {
   error: boolean;
@@ -15,71 +22,72 @@ export interface TimeZoneDropdownProps {
   selected: string;
 }
 
-// The event time zone picker on the create event page.
-export default function TimeZoneDropdown({ error, onChange, selected }: TimeZoneDropdownProps) {
-  const [open, setOpen] = useState(false);
-  const selectedOption = useMemo(() => (selected ? getTimeZoneOption(selected) : null), [selected]);
+type TimeZoneComboboxOption = { isRecent: boolean; zone: TimeZoneOption } & ComboboxOption;
 
-  // same behaviour as the time picker: the arrow keys step through while the dropdown is closed
-  function stepSelectedTimeZone(direction: -1 | 1) {
-    const options = getAllTimeZoneOptions();
-    const currentIndex = options.findIndex(({ value }) => value === selected);
-    const nextIndex = Math.min(Math.max(currentIndex + direction, 0), options.length - 1);
-    if (currentIndex === -1 || nextIndex === currentIndex) return;
-    onChange(options[nextIndex].value);
-  }
-  function onTriggerKeyDown(e: KeyboardEvent<HTMLButtonElement>) {
-    if (open || (e.key !== "ArrowDown" && e.key !== "ArrowUp")) return;
-    e.preventDefault();
-    stepSelectedTimeZone(e.key === "ArrowDown" ? 1 : -1);
-  }
+function toComboboxOption(zone: TimeZoneOption, group: string, isRecent = false): TimeZoneComboboxOption {
+  return { group, isRecent, key: `${group}:${zone.value}`, value: zone.value, zone };
+}
+
+// The event time zone field on the create page: type to search ("p" lists PST, PDT…) or pick from the list.
+export default function TimeZoneDropdown({ error, onChange, selected }: TimeZoneDropdownProps) {
+  const allZones = useMemo(() => {
+    const zones = getAllTimeZoneOptions();
+    if (!selected || !isSupportedTimeZone(selected) || zones.some((zone) => zone.value === selected)) return zones;
+    return [...zones, getTimeZoneOption(selected)];
+  }, [selected]);
+
+  const getOptions = useCallback(
+    (query: string): TimeZoneComboboxOption[] => {
+      if (query.trim() !== "") return searchTimeZones(allZones, query).map((zone) => toComboboxOption(zone, "Results"));
+      const recent = getRecentTimeZones();
+      const popular = POPULAR_TIME_ZONES.filter((zone) => isSupportedTimeZone(zone) && !recent.includes(zone));
+      return [
+        ...recent.map((zone) => toComboboxOption(getTimeZoneOption(zone), "Recent", true)),
+        ...popular.map((zone) => toComboboxOption(getTimeZoneOption(zone), "Popular")),
+        ...allZones.map((zone) => toComboboxOption(zone, "All time zones"))
+      ];
+    },
+    [allZones]
+  );
 
   return (
-    <Popover onOpenChange={setOpen} open={open}>
-      <PopoverTrigger asChild>
-        <Button
-          aria-label={`Event time zone: ${selectedOption ? `${selectedOption.name}, ${selectedOption.city}` : "none"}. Use the arrow keys to change.`}
-          className="relative h-auto w-full p-0"
-          onKeyDown={onTriggerKeyDown}
-          type="button"
-          variant="ghost"
-        >
-          <div
+    <Combobox<TimeZoneComboboxOption>
+      ariaLabel="Event time zone. Type to search."
+      displayValue={(value) => {
+        if (!value) return "";
+        const zone = getTimeZoneOption(value);
+        return `${zone.name} – ${zone.city}`;
+      }}
+      emptyMessage="No time zones found"
+      error={error}
+      getOptions={getOptions}
+      onChange={(timeZone) => {
+        addRecentTimeZone(timeZone);
+        onChange(timeZone);
+      }}
+      placeholder="Search time zones"
+      renderOption={({ isRecent, zone }, { isSelected }) => (
+        <span className="flex w-full min-w-0 items-center gap-2">
+          <span
             className={cn(
-              "peer box-border flex h-10 w-full min-w-0 cursor-pointer items-center rounded-md bg-field px-4 text-left text-sm",
-              { "outline-red-500/40 focus-within:outline-red-500 hover:outline-red-500": error },
-              { "outline-red-500": error && open }
+              "w-[4.3rem] shrink-0 whitespace-nowrap text-xs tabular-nums",
+              isSelected ? "text-white/75" : "text-text-light"
             )}
           >
-            <span className="flex w-full min-w-0 items-center justify-between gap-2">
-              {selectedOption && (
-                <span className="flex min-w-0 items-center gap-3">
-                  <span className="shrink-0 tabular-nums text-text-light">{selectedOption.offsetLabel}</span>
-                  <span className="truncate">
-                    {selectedOption.name}
-                    <span className="text-text-light"> – {selectedOption.city}</span>
-                  </span>
-                </span>
-              )}
-              <ChevronDown
-                aria-hidden="true"
-                className={cn("shrink-0 text-black transition-transform duration-200", open && "rotate-180")}
-                height={15}
-                width={15}
-              />
-            </span>
-          </div>
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent align="start" className="mb-2 w-[var(--radix-popover-trigger-width)] bg-white p-0">
-        <TimeZoneList
-          onSelect={(timeZone) => {
-            onChange(timeZone);
-            setOpen(false);
-          }}
-          selected={selected}
-        />
-      </PopoverContent>
-    </Popover>
+            {zone.offsetLabel}
+          </span>
+          <span className="min-w-0 flex-1 truncate">
+            {zone.name}
+            <span className={isSelected ? "text-white/75" : "text-text-light"}> – {zone.city}</span>
+          </span>
+          {isSelected ? (
+            <Check aria-hidden="true" className="h-4 w-4 shrink-0" />
+          ) : (
+            isRecent && <History aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-text-light" />
+          )}
+        </span>
+      )}
+      value={selected}
+    />
   );
 }

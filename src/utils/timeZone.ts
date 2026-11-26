@@ -127,12 +127,42 @@ export function getTimeZoneOption(timeZone: string): TimeZoneOption {
     option.name,
     option.offsetLabel,
     option.offsetLabel.replace(":00", ""),
+    // "gmt+9" as well as "gmt+09:00"
+    option.offsetLabel.replace(":00", "").replace(/([+-])0/, "$1"),
     timeZone.replaceAll("_", " ")
   ]
     .join(" ")
     .toLowerCase();
   timeZoneOptionCache.set(timeZone, option);
   return option;
+}
+
+/**
+ * How well a time zone matches what was typed (0 = not at all). Abbreviations come first, so "p" lists PST,
+ * PDT and PT before Paris or Phoenix; then names and cities that start with it; then anything containing it.
+ */
+export function scoreTimeZone(option: TimeZoneOption, query: string): number {
+  const search = query.trim().toLowerCase();
+  if (!search) return 1;
+  const words = search.split(/\s+/);
+  if (!words.every((word) => option.searchText.includes(word))) return 0;
+  if (option.abbreviation.toLowerCase().startsWith(search)) return 3;
+  const startsAWord = (text: string) =>
+    text
+      .toLowerCase()
+      .split(/[\s/–-]+/)
+      .some((word) => word.startsWith(search));
+  if (startsAWord(option.name) || startsAWord(option.city)) return 2;
+  return 1;
+}
+
+// the time zones matching what was typed, best match first
+export function searchTimeZones(options: TimeZoneOption[], query: string): TimeZoneOption[] {
+  return options
+    .map((option, index) => ({ index, option, score: scoreTimeZone(option, query) }))
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .map(({ option }) => option);
 }
 
 let allTimeZoneOptions: null | TimeZoneOption[] = null;

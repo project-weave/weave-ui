@@ -1,14 +1,10 @@
 import { addMinutes, format, isValid, parse } from "date-fns";
-import { Check, ChevronDown } from "lucide-react";
-import { Dispatch, KeyboardEvent, SetStateAction, useEffect, useMemo, useRef, useState } from "react";
+import { Check } from "lucide-react";
+import { useCallback, useMemo } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import useScrollingClass from "@/hooks/useScrollingClass";
+import Combobox, { ComboboxOption } from "@/components/ui/combobox";
 import { TIME_SLOT_INTERVAL_MINUTES } from "@/store/eventDataSlice";
 import { EVENT_TIME_FORMAT } from "@/types/Timeslot";
-import { cn } from "@/utils/cn";
 import { matchesTimeSearch } from "@/utils/timeSearch";
 
 export const TIME_LABEL_FORMAT = "h:mm aa";
@@ -17,18 +13,13 @@ export const NEXT_DAY_MIDNIGHT_OPTION = {
   value: "00:00:00"
 };
 
-const INVALID_TIME = "Invalid time";
-
-type TimeOption = {
-  label: string;
-  value: string;
-};
+type TimeOption = { label: string } & ComboboxOption;
 
 export interface NewEventFromTimeDropdownProps {
   error: boolean;
   isStartTime: boolean;
   onBlur: () => void;
-  onChange: Dispatch<SetStateAction<string>>;
+  onChange: (value: string) => void;
   selected: string;
 }
 
@@ -38,16 +29,37 @@ function getTimeOptions(isStartTime: boolean): TimeOption[] {
 
   const timeOptions: TimeOption[] = [];
   for (let currentTime = startTime; currentTime <= endTime;) {
-    timeOptions.push({
-      label: format(currentTime, TIME_LABEL_FORMAT).toLowerCase(),
-      value: format(currentTime, EVENT_TIME_FORMAT)
-    });
+    const value = format(currentTime, EVENT_TIME_FORMAT);
+    timeOptions.push({ key: value, label: format(currentTime, TIME_LABEL_FORMAT).toUpperCase(), value });
     currentTime = addMinutes(currentTime, TIME_SLOT_INTERVAL_MINUTES);
   }
-  if (!isStartTime) timeOptions.push(NEXT_DAY_MIDNIGHT_OPTION);
+  if (!isStartTime) timeOptions.push({ key: "next-day", label: "12:00 AM (+1 day)", value: "00:00:00" });
   return timeOptions;
 }
 
+// "9", "9pm", "930", "9:30 pm", "21:00" → "21:00:00" (only times the list offers)
+function parseTypedTime(text: string, options: TimeOption[]): null | string {
+  const match = text
+    .trim()
+    .toLowerCase()
+    .match(/^(\d{1,2})(?::?(\d{2}))?\s*(a|p)?\.?m?\.?$/);
+  if (!match) return null;
+  let hours = Number(match[1]);
+  const minutes = Number(match[2] ?? 0);
+  const meridiem = match[3];
+  if (minutes > 59 || hours > 23) return null;
+  if (meridiem) {
+    if (hours < 1 || hours > 12) return null;
+    hours = (hours % 12) + (meridiem === "p" ? 12 : 0);
+  } else if (hours < 13 && match[1].length === 1) {
+    // "9" alone is ambiguous: let the list's first match (AM before PM) decide
+    return null;
+  }
+  const value = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00`;
+  return options.some((option) => option.value === value) ? value : null;
+}
+
+// Start / end time on the create page: type a time ("9:30pm") or pick one from the list.
 export default function NewEventFromTimeDropdown({
   error,
   isStartTime,
@@ -55,134 +67,37 @@ export default function NewEventFromTimeDropdown({
   onChange,
   selected
 }: NewEventFromTimeDropdownProps) {
-  const [open, setOpen] = useState(false);
-  const commandGroupRef = useRef<HTMLDivElement>(null);
-
   const timeOptions = useMemo(() => getTimeOptions(isStartTime), [isStartTime]);
 
-  // thin grey scrollbar shows only while the list is being scrolled
-  useScrollingClass(commandGroupRef, undefined, open);
-
-  useEffect(() => {
-    // need setTimeout here to allow for the DOM to render CommandGroup
-    const timeout = setTimeout(() => {
-      if (commandGroupRef.current && open) {
-        const selectedItem = commandGroupRef.current.querySelector(`[data-value="${selected}"]`);
-        if (selectedItem) {
-          selectedItem.scrollIntoView({ block: "center", inline: "start" });
-        }
-      }
-    });
-    return () => clearTimeout(timeout);
-  }, [open, selected]);
-
-  function stepSelectedTime(direction: -1 | 1) {
-    const currentIndex = timeOptions.findIndex(({ value }) => value === selected);
-    const nextIndex = Math.min(Math.max(currentIndex + direction, 0), timeOptions.length - 1);
-    if (currentIndex === -1 || nextIndex === currentIndex) return;
-    onChange(timeOptions[nextIndex].value);
-  }
-
-  function onTriggerKeyDown(e: KeyboardEvent<HTMLButtonElement>) {
-    if (open) return;
-    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-      e.preventDefault();
-      stepSelectedTime(e.key === "ArrowDown" ? 1 : -1);
-    }
-  }
-
-  const nextDayMidnight = (
-    <span>
-      12:00 AM <sup className="text-3xs">+1</sup>
-    </span>
+  const getOptions = useCallback(
+    (query: string) => timeOptions.filter(({ label }) => matchesTimeSearch(label, query, TIME_SLOT_INTERVAL_MINUTES)),
+    [timeOptions]
   );
 
-  function isNextDayMidnight(value: string) {
-    return value === NEXT_DAY_MIDNIGHT_OPTION.value && !isStartTime;
-  }
-
-  function convertValueToLabel(value: string) {
-    if (isNextDayMidnight(value)) return NEXT_DAY_MIDNIGHT_OPTION.label;
-
-    const parsedTime = parse(value, EVENT_TIME_FORMAT, new Date());
-    if (!isValid(parsedTime)) return "";
-    return format(parsedTime, TIME_LABEL_FORMAT).toUpperCase();
+  function displayValue(value: string) {
+    if (!isStartTime && value === "00:00:00") return "12:00 AM (+1 day)";
+    const parsed = parse(value, EVENT_TIME_FORMAT, new Date());
+    return isValid(parsed) ? format(parsed, TIME_LABEL_FORMAT).toUpperCase() : "";
   }
 
   return (
-    <Popover onOpenChange={setOpen} open={open}>
-      <PopoverTrigger asChild>
-        <Button
-          aria-label={`${isStartTime ? "Start time" : "End time"}: ${convertValueToLabel(selected)}. Use the arrow keys to change.`}
-          className="relative h-auto w-full p-0"
-          onKeyDown={onTriggerKeyDown}
-          type="button"
-          variant="ghost"
-        >
-          <div
-            className={cn(
-              "peer box-border flex h-10 w-full min-w-0 cursor-pointer items-center rounded-md bg-field px-4 text-left text-sm",
-              {
-                "outline-red-500/40 focus-within:outline-red-500 hover:outline-red-500": error
-              },
-              {
-                "outline-red-500": error && open
-              }
-            )}
-          >
-            <span className="flex w-full items-center justify-between">
-              {isNextDayMidnight(selected) ? nextDayMidnight : convertValueToLabel(selected)}
-              <ChevronDown
-                aria-hidden="true"
-                className={cn("shrink-0 text-black transition-transform duration-200", open && "rotate-180")}
-                height={15}
-                width={15}
-              />
-            </span>
-          </div>
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent align="start" className="mb-2 w-[var(--radix-popover-trigger-width)] bg-white p-0">
-        <Command
-          filter={(value, search) =>
-            matchesTimeSearch(convertValueToLabel(value), search, TIME_SLOT_INTERVAL_MINUTES) ? 1 : 0
-          }
-        >
-          <CommandInput className="py-5 text-base sm:text-sm" onBlur={onBlur} placeholder="Type a time" />
-          <CommandEmpty className="m-2 rounded-sm bg-gray-200 py-1.5 text-center text-xs">{INVALID_TIME} </CommandEmpty>
-          <CommandGroup
-            className="grid-scrollbar my-1 max-h-[105px] overflow-y-scroll sm:max-h-[150px] xl:max-h-[180px]"
-            ref={commandGroupRef}
-          >
-            {timeOptions.map(({ label, value }) => {
-              const isSelected = selected === value;
-              return (
-                <CommandItem
-                  className={cn(
-                    "my-[1px] mb-1 mr-2 flex cursor-pointer items-center justify-between text-sm",
-                    isSelected
-                      ? "bg-primary text-white aria-selected:bg-primary"
-                      : "aria-selected:bg-primary/20 hover:bg-primary/20"
-                  )}
-                  data-value={value}
-                  key={label}
-                  onSelect={(v) => {
-                    onChange(v);
-                    setOpen(false);
-                  }}
-                  value={value}
-                >
-                  {isNextDayMidnight(value) ? nextDayMidnight : <span>{convertValueToLabel(value)}</span>}
-                  <Check
-                    aria-hidden="true"
-                    className={cn("h-4 w-4 text-white", isSelected ? "opacity-100" : "opacity-0")}
-                  />
-                </CommandItem>
-              );
-            })}
-          </CommandGroup>
-        </Command>
-      </PopoverContent>
-    </Popover>
+    <Combobox<TimeOption>
+      ariaLabel={isStartTime ? "Start time" : "End time"}
+      displayValue={displayValue}
+      emptyMessage="Invalid time"
+      error={error}
+      getOptions={getOptions}
+      onBlur={onBlur}
+      onChange={onChange}
+      parseTyped={(text) => parseTypedTime(text, timeOptions)}
+      placeholder={isStartTime ? "Start" : "End"}
+      renderOption={({ label }, { isSelected }) => (
+        <span className="flex w-full items-center justify-between">
+          {label}
+          {isSelected && <Check aria-hidden="true" className="h-4 w-4 shrink-0" />}
+        </span>
+      )}
+      value={selected}
+    />
   );
 }

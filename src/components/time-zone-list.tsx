@@ -12,12 +12,13 @@ import {
   getRecentTimeZones,
   getTimeZoneOption,
   isSupportedTimeZone,
+  scoreTimeZone,
   TimeZoneOption
 } from "@/utils/timeZone";
 
 const RECENT_PREFIX = "recent:";
 const POPULAR_PREFIX = "popular:";
-const POPULAR_TIME_ZONES = [
+export const POPULAR_TIME_ZONES = [
   "America/Vancouver",
   "America/Los_Angeles",
   "America/Chicago",
@@ -87,8 +88,8 @@ export default function TimeZoneList({ disabledTimeZones = [], eventTimeZone, on
   function filter(value: string, query: string) {
     const option = optionsByValue.get(value.replace(RECENT_PREFIX, "").replace(POPULAR_PREFIX, ""));
     if (!option) return 0;
-    const words = query.toLowerCase().trim().split(/\s+/);
-    return words.every((word) => option.searchText.includes(word)) ? 1 : 0;
+    // cmdk sorts by this score: abbreviations first, then names and cities starting with what was typed
+    return scoreTimeZone(option, query) / 3;
   }
 
   function choose(timeZone: string) {

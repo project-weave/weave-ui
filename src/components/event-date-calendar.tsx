@@ -150,26 +150,39 @@ const EventDateCalendar = ({
     start: getFirstDayOfCalendar(currentMonth)
   });
   const weekDays: string[] = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const weekDayClassName = cn("text-sm sm:text-[0.95rem]", {
-    "text-2xl sm:text-2xl": size === "large",
+  // Every size below is a multiple of --u. The small calendar uses --u = 16px; the large one is the very same
+  // calendar scaled up to fit its card (same proportions, same square-ish days), using container units.
+  const weekDayClassName = cn("text-[calc(var(--u)*0.875)] sm:text-[calc(var(--u)*0.95)]", {
     "text-xs sm:text-xs": isViewMode
   });
+  const isLarge = size === "large";
 
   return (
     <div
       aria-invalid={error || undefined}
-      className={cn("h-fit select-none scroll-m-24 rounded-xl bg-field p-5 pt-3", {
-        "card h-full w-full border-[1px] bg-white px-12 pb-5 pt-8": size === "large"
-      })}
+      className={cn(
+        "select-none scroll-m-24",
+        isLarge
+          ? "card flex h-full w-full items-center justify-center bg-white p-0 [container-type:size]"
+          : "h-fit rounded-xl bg-field"
+      )}
       onContextMenu={handleMouseUp}
       onMouseLeave={handleMouseUp}
       onMouseUp={handleMouseUp}
       ref={forwardedRef}
     >
-      <div className="mx-auto w-full">
+      <div
+        className={cn(
+          "w-full px-[calc(var(--u)*1.25)] pb-[calc(var(--u)*1.25)] pt-[calc(var(--u)*0.75)]",
+          isLarge
+            ? // the small calendar is about 18.9 x 18.7 units: scale it to the largest size that fits the card
+              "w-[calc(var(--u)*18.9)] [--u:min(calc(100cqw/18.9),calc(100cqh/18.7))]"
+            : "[--u:1rem]"
+        )}
+      >
         {/* The month title starts exactly where "Sun" starts and the arrows end exactly where "Sat" ends:
             the header uses the same 7 columns as the days, with an invisible "Sun"/"Sat" to measure against. */}
-        <div className={cn("grid h-8 grid-cols-7 items-center", { "mb-3": size === "large" })}>
+        <div className="grid h-[calc(var(--u)*2)] grid-cols-7 items-center">
           <div className="flex justify-center">
             <span className="relative">
               <span aria-hidden="true" className={cn(weekDayClassName, "invisible")}>
@@ -177,8 +190,7 @@ const EventDateCalendar = ({
               </span>
               <h2
                 className={cn(
-                  "absolute left-0 top-1/2 -translate-y-1/2 whitespace-nowrap text-base text-black",
-                  size === "large" && "text-2xl",
+                  "absolute left-0 top-1/2 -translate-y-1/2 whitespace-nowrap text-[length:var(--u)] text-black",
                   isViewMode && "text-md"
                 )}
               >
@@ -192,14 +204,16 @@ const EventDateCalendar = ({
                 Sat
               </span>
               {isNextAndPrevButtonsVisible && (
-                <span className="absolute right-0 top-1/2 flex -translate-y-1/2 gap-1.5">
+                <span className="absolute right-0 top-1/2 flex -translate-y-1/2 gap-[calc(var(--u)*0.375)]">
                   <NavArrowButton
+                    className={NAV_ARROW_SIZE}
                     direction="previous"
                     disabled={isCurrentMonthEarliest}
                     label="Previous month"
                     onClick={setPrevMonth}
                   />
                   <NavArrowButton
+                    className={NAV_ARROW_SIZE}
                     direction="next"
                     disabled={isCurrentMonthLatest}
                     label="Next month"
@@ -210,17 +224,17 @@ const EventDateCalendar = ({
             </span>
           </div>
         </div>
-        <div className="mt-3 grid grid-cols-7 text-center font-normal leading-4 text-text-light">
+        <div className="mt-[calc(var(--u)*0.75)] grid grid-cols-7 text-center font-normal leading-[var(--u)] text-text-light">
           {weekDays.map((weekDay) => {
             return (
-              <p className={cn(weekDayClassName, size === "large" && "mb-1 mt-6")} key={`calendar-weekday-${weekDay}`}>
+              <p className={weekDayClassName} key={`calendar-weekday-${weekDay}`}>
                 {weekDay}
               </p>
             );
           })}
         </div>
 
-        <div className="mt-2 grid touch-none grid-cols-7">
+        <div className="mt-[calc(var(--u)*0.5)] grid touch-none grid-cols-7">
           {days.map((day) => (
             <DateButton
               day={day}
@@ -247,6 +261,10 @@ const EventDateCalendar = ({
 };
 
 export default EventDateCalendar;
+
+// month arrows scale with the calendar too
+const NAV_ARROW_SIZE =
+  "h-[calc(var(--u)*2)] w-[calc(var(--u)*2)] rounded-[calc(var(--u)*0.625)] [&_svg]:h-[var(--u)] [&_svg]:w-[var(--u)]";
 
 function DateButton({
   day,
@@ -325,7 +343,7 @@ function DateButton({
       aria-label={format(day, "EEEE, MMMM d, yyyy")}
       aria-pressed={isViewMode ? !!isDayVisible : isDaySelected}
       className={cn(
-        "my-[3px] flex h-[1.7rem] cursor-pointer touch-none items-center justify-center rounded-sm p-[1px] text-sm font-normal outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
+        "my-[calc(var(--u)*0.1875)] flex h-[calc(var(--u)*1.7)] cursor-pointer touch-none items-center justify-center rounded-[calc(var(--u)*0.5)] p-[1px] text-[calc(var(--u)*0.875)] font-normal outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
         !isDaySelected
           ? {
               "border-transparent": true,
@@ -341,16 +359,16 @@ function DateButton({
               "bg-primary/70": !isSameMonth(day, firstDayCurrentMonth),
               "ml-auto w-full rounded-r-none border-r-0": isNextDaySelected && day.getDay() !== 6,
               "mr-auto w-full rounded-l-none": isPrevDaySelected && day.getDay() !== 0,
-              "rounded-l-sm": isNextDaySelected && !isPrevDaySelected,
-              "rounded-r-sm": isPrevDaySelected && !isNextDaySelected
+              "rounded-l-[calc(var(--u)*0.5)]": isNextDaySelected && !isPrevDaySelected,
+              "rounded-r-[calc(var(--u)*0.5)]": isPrevDaySelected && !isNextDaySelected
             },
         isDaySelected && {
           // selected days in a row join into one continuous bar: no visible borders between them
           "border-transparent": true,
           "ml-auto w-full rounded-r-none border-r-0": isNextDaySelected && day.getDay() !== 6,
           "mr-auto w-full rounded-l-none border-l-0": isPrevDaySelected && day.getDay() !== 0,
-          "rounded-l-sm": isNextDaySelected && !isPrevDaySelected,
-          "rounded-r-sm": isPrevDaySelected && !isNextDaySelected
+          "rounded-l-[calc(var(--u)*0.5)]": isNextDaySelected && !isPrevDaySelected,
+          "rounded-r-[calc(var(--u)*0.5)]": isPrevDaySelected && !isNextDaySelected
         },
         isViewMode && {
           "bg-primary": isDaySelected,
@@ -365,7 +383,6 @@ function DateButton({
             "border-r-0": !isNextDayVisible && isNextDaySelected && day.getDay() !== 6
           },
         {
-          "mt-8 border-[1px] px-10 py-7 text-2xl font-normal sm:text-2xl xl:h-[3.1rem]": size === "large",
           "pointer-events-none opacity-20": !isViewMode && isBeforeToday(day) && !selectedDates.has(formattedDay)
         }
       )}
