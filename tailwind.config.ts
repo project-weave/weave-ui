@@ -20,14 +20,15 @@ export default {
       fontFamily: {
         sans: ["var(--font-sans)", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"]
       },
-      // three corner sizes: 10px for big surfaces (cards, dock, modals), 8px for controls (buttons, inputs,
-      // dropdowns, toggles, arrows, menus), 6px for small items (chips, list rows, calendar days, dock buttons)
+      // corner sizes: 12px for big surfaces (cards, modals), 10px for controls (buttons, inputs, dropdowns,
+      // toggles, arrows, menus), 8px for small items (chips, list rows, calendar days). The floating control
+      // dock is 16px with 12px buttons inside.
       borderRadius: {
-        "2xl": "10px",
-        lg: "8px",
-        md: "8px",
-        sm: "6px",
-        xl: "10px"
+        "2xl": "16px",
+        lg: "10px",
+        md: "10px",
+        sm: "8px",
+        xl: "12px"
       },
       colors: {
         "primary-purple": "rgb(var(--primary-purple), <alpha-value>)",

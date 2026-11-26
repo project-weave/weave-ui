@@ -1,11 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format, startOfToday } from "date-fns";
+import { format, parse, parseISO, startOfToday } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { FieldErrors, FormProvider, useForm } from "react-hook-form";
 
+import CreatingEventDialog, { CreatingEventStep } from "@/components/creating-event-dialog";
 import DaysOfWeekPicker from "@/components/days-of-week-picker";
 import { MONTH_FORMAT } from "@/components/event-date-calendar";
 import TimeDropdown from "@/components/new-event-from-time-dropdown";
@@ -19,7 +21,9 @@ import useElementInView from "@/hooks/useElementInView";
 import { AvailabilityType, EventForm, EventFormSchema } from "@/types/Event";
 import { EventDate } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
-import { isSupportedTimeZone } from "@/utils/timeZone";
+import { formatEventDateRange } from "@/utils/date";
+import { markEventJustCreated } from "@/utils/justCreatedEvent";
+import { getTimeZoneOption, isSupportedTimeZone } from "@/utils/timeZone";
 
 import EventDateCalendar from "./no-ssr-event-date-calendar";
 import TimeZoneDropdown from "./timezone-dropdown";
@@ -108,7 +112,15 @@ export default function NewEventForm() {
   const isFormInView = useElementInView(formRef);
 
   const { toast } = useToast();
+  const router = useRouter();
   const { isPending, isSuccess, mutateAsync } = useCreateEvent();
+  // the "creating your Weave" animation: which details have been read back so far, then "Event created"
+  const [creating, setCreating] = useState<{
+    completedSteps: number;
+    isCreated: boolean;
+    open: boolean;
+    steps: CreatingEventStep[];
+  }>({ completedSteps: 0, isCreated: false, open: false, steps: [] });
 
   function onInvalid(errors: FieldErrors) {
     if (errors.name && nameInputRef.current)
@@ -151,10 +163,45 @@ export default function NewEventForm() {
       timeZone
     };
 
-    // "Event created" is shown on the event's page once it has loaded (see the event page)
+    const steps: CreatingEventStep[] = [
+      { activeLabel: "Reading event name", doneLabel: "Event name", value: name },
+      { activeLabel: "Setting times", doneLabel: "Times", value: formatTimeRange(startTime, endTime) },
+      {
+        activeLabel: "Setting time zone",
+        doneLabel: "Time zone",
+        value: `${getTimeZoneOption(timeZone).name} – ${getTimeZoneOption(timeZone).city}`
+      },
+      {
+        activeLabel: availabilityType === AvailabilityType.SPECIFIC_DATES ? "Adding dates" : "Adding days",
+        doneLabel: availabilityType === AvailabilityType.SPECIFIC_DATES ? "Dates" : "Days",
+        value: formatDates([...dates].sort(), availabilityType === AvailabilityType.SPECIFIC_DATES)
+      }
+    ];
+    setCreating({ completedSteps: 0, isCreated: false, open: true, steps });
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const stepDelay = reduceMotion ? 120 : 480;
+    let failed = false;
+    const request = mutateAsync(req);
+    request.catch(() => (failed = true));
+    // read the details back one at a time while the event is being created
+    const readBack = (async () => {
+      for (let step = 1; step <= steps.length; step++) {
+        await wait(stepDelay);
+        if (failed) return;
+        setCreating((prev) => ({ ...prev, completedSteps: step }));
+      }
+    })();
+
     try {
-      await mutateAsync(req);
+      const [{ eventId }] = await Promise.all([request, readBack]);
+      setCreating((prev) => ({ ...prev, isCreated: true }));
+      await wait(reduceMotion ? 300 : 900);
+      // "Event created" is shown again above the control bar once the event's page has loaded
+      markEventJustCreated(eventId);
+      router.push(`/${eventId}`);
     } catch {
+      setCreating((prev) => ({ ...prev, open: false }));
       toast({ description: "Couldn't create event. Try again.", duration: 3000, variant: "failure" });
     }
   }
@@ -424,6 +471,29 @@ export default function NewEventForm() {
       </div>
       {/* add spacing on the bottom when button is fixed to bottom of*/}
       <div className={cn(isFormInView && "h-16 xs:h-0")} />
+      <CreatingEventDialog
+        completedSteps={creating.completedSteps}
+        isCreated={creating.isCreated}
+        open={creating.open}
+        steps={creating.steps}
+      />
     </>
   );
+}
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// "9:00 AM – 9:00 PM", with "(next day)" when the event runs until midnight
+function formatTimeRange(startTime: string, endTime: string) {
+  const toLabel = (time: string) => format(parse(time, "HH:mm:ss", new Date()), "h:mm a");
+  const end = endTime === "00:00:00" ? "12:00 AM (next day)" : toLabel(endTime);
+  return `${toLabel(startTime)} – ${end}`;
+}
+
+// "Nov 26 – Nov 30, 2026 · 3 dates" or "Mon, Wed, Fri"
+function formatDates(dates: string[], isSpecificDates: boolean) {
+  if (!isSpecificDates) return dates.map((date) => format(parseISO(date), "EEE")).join(", ");
+  return `${formatEventDateRange(dates)} · ${dates.length} ${dates.length === 1 ? "date" : "dates"}`;
 }

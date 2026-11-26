@@ -1,9 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 
 import { EventDate, EventTime } from "@/types/Timeslot";
 import axios from "@/utils/axios";
-import { markEventJustCreated } from "@/utils/justCreatedEvent";
 
 import { getEvent } from "./useGetEvent";
 
@@ -27,15 +25,13 @@ async function createEvent(request: CreateEventRequest): Promise<CreateEventResp
 
 const useCreateEvent = () => {
   const queryClient = useQueryClient();
-  const router = useRouter();
 
   return useMutation({
     mutationFn: createEvent,
 
     onSuccess: async (data) => {
+      // load the new event ahead of time; the create form moves to its page once its animation finishes
       await queryClient.prefetchQuery({ queryFn: () => getEvent(data.eventId), queryKey: ["event", data.eventId] });
-      markEventJustCreated(data.eventId);
-      router.push(`/${data.eventId}`);
     }
   });
 };

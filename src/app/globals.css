@@ -143,6 +143,57 @@
   }
 }
 
+/* "Thinking" text while an event is being created: a soft highlight sweeps across grey text */
+@keyframes shimmer-text {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+.shimmer-text {
+  color: transparent;
+  background-image: linear-gradient(
+    90deg,
+    rgb(var(--dark-gray)) 0%,
+    rgb(var(--dark-gray)) 35%,
+    #111 50%,
+    rgb(var(--dark-gray)) 65%,
+    rgb(var(--dark-gray)) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: shimmer-text 1.6s linear infinite;
+}
+
+/* the Weave logo gently breathes while it works */
+@keyframes weave-breathe {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.88);
+  }
+}
+
+.animate-weave-breathe {
+  animation: weave-breathe 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer-text {
+    animation: none;
+    color: rgb(var(--dark-gray));
+    background-image: none;
+  }
+}
+
 /* Thin grey scrollbar (same grey as the grid lines) for the availability grid */
 .grid-scrollbar::-webkit-scrollbar {
   width: 5px;
