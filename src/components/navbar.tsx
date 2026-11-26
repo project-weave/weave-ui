@@ -41,10 +41,13 @@ export default function NavBar() {
           <div className="card flex h-auto w-fit max-w-full items-center gap-4 px-5 py-2.5">
             <Link
               aria-label="Weave home"
-              className="shrink-0 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex shrink-0 items-center rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               href="/"
             >
-              <Image alt="Weave" className="h-5 w-5 opacity-70" height={20} priority src="/favicon.ico" width={20} />
+              <span className="flex items-center gap-1.5">
+                <Image alt="" className="h-6 w-6" height={24} priority src="/logo-mark.svg" width={24} />
+                <span className="text-lg font-medium leading-none tracking-tight text-[#3d3d3f]">Weave</span>
+              </span>
             </Link>
             {isEventPage && (
               <DropdownMenu modal={false}>
