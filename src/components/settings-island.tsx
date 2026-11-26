@@ -183,7 +183,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
                 <motion.span
                   animate={{
                     // same as the --yellow / --red colour tokens
-                    backgroundColor: editing ? "rgb(255, 241, 170)" : "rgb(255, 175, 175)",
+                    backgroundColor: editing ? "rgb(255, 241, 170)" : "rgb(255, 130, 130)",
                     x: modePillRect.left
                   }}
                   aria-hidden="true"

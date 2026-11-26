@@ -15,8 +15,6 @@ type ToasterToast = {
   // app moves from the create page to the new event's page)
   keepOnPageChange?: boolean;
   // toasts close when you switch pages unless this is set (e.g. "Event created", which is shown while the
-  // where the toast appears: above the control bar (default) or top centre of the page
-  placement?: "bottom" | "top";
   title?: React.ReactNode;
 } & ToastProps;
 

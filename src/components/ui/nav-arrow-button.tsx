@@ -11,14 +11,17 @@ type NavArrowButtonProps = {
 
 /**
  * The square previous/next arrow used everywhere dates are paged (calendar grid, create page calendar,
- * mini calendar): purple when it can be used, light grey when there's nothing further that way.
+ * mini calendar): purple when it can be used, just a grey arrow (no square) when there's nothing further that way.
  */
 export default function NavArrowButton({ className, direction, label, ...props }: NavArrowButtonProps) {
   const Icon = direction === "next" ? ChevronRight : ChevronLeft;
   return (
     <Button
       aria-label={label}
-      className={cn("h-8 w-8 shrink-0 rounded-md p-0 transition-transform active:scale-95", className)}
+      className={cn(
+        "h-8 w-8 shrink-0 rounded-md p-0 transition-transform active:scale-95 disabled:bg-transparent disabled:text-dark-gray",
+        className
+      )}
       title={label}
       type="button"
       {...props}

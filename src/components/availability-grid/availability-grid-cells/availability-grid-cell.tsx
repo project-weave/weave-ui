@@ -57,8 +57,8 @@ export default function AvailabilityGridCell({
 
   function getFirstAndLastCellBorderStyle() {
     if (isViewMode(mode)) return "solid";
-    const rightStyle = hasDateGapRight ? "solid" : "dashed";
-    const leftStyle = hasDateGapLeft ? "solid" : "dashed";
+    const rightStyle = hasDateGapRight ? "dotted" : "dashed";
+    const leftStyle = hasDateGapLeft ? "dotted" : "dashed";
     const bottomStyle = "dashed";
     const topStyle = "dashed";
     return `${topStyle} ${rightStyle} ${bottomStyle} ${leftStyle}`;

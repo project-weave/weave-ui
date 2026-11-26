@@ -30,7 +30,7 @@ const EVENT_NAME = "What is the name of your event?";
 const WHAT_TIMES = "What times work for you?";
 const WHAT_AVAILABILITY = "What availability do you want to know?";
 const WHAT_TIME_ZONE = "What time zone works for you?";
-const CONTINUE = "Continue";
+const CONTINUE = "Create Weave";
 const TO = "to";
 // same as the --primary-purple colour token, for the sliding toggle animation
 const PRIMARY_PURPLE = "rgb(151, 71, 255)";
@@ -150,12 +150,11 @@ export default function NewEventForm() {
       timeZone
     };
 
-    // progress is shown in a toast at the top centre of the page rather than inside the button
+    // progress is shown in a toast rather than inside the button
     const creatingToast = toast({
       description: "Creating your event…",
       duration: Infinity,
-      keepOnPageChange: true,
-      placement: "top"
+      keepOnPageChange: true
     });
     try {
       await mutateAsync(req);

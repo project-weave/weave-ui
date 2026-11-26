@@ -9,23 +9,16 @@ import { cn } from "@/utils/cn";
 
 const ToastProvider = ToastPrimitives.Provider;
 
+// Every toast slides down from the top centre of the page, above everything except the drag hint.
 const ToastViewport = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Viewport>,
-  { placement?: "bottom" | "top" } & React.ComponentPropsWithoutRef<typeof ToastPrimitives.Viewport>
->(({ className, placement = "bottom", ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof ToastPrimitives.Viewport>
+>(({ className, ...props }, ref) => (
   <ToastPrimitives.Viewport
     className={cn(
-      "group/viewport pointer-events-none fixed left-1/2 flex max-w-[calc(100vw-2rem)] -translate-x-1/2 flex-col items-center",
-      placement === "top"
-        ? // top centre of the page (used when an event is created)
-          "top-6 z-[60]"
-        : // just above the floating control bar (bar: 1rem/1.5rem from the bottom, 54px tall). Layering: above the
-          // calendar and its editing ring (z-40), below the control bar (z-[48]) so toasts slide out from under
-          // it, and below modals (z-50).
-          "bottom-[calc(1rem+54px+0.5rem+env(safe-area-inset-bottom))] z-[45] sm:bottom-[calc(1.5rem+54px+0.5rem+env(safe-area-inset-bottom))]",
+      "pointer-events-none fixed left-1/2 top-[calc(1.5rem+env(safe-area-inset-top))] z-[60] flex max-w-[calc(100vw-2rem)] -translate-x-1/2 flex-col items-center",
       className
     )}
-    data-placement={placement}
     ref={ref}
     {...props}
   />
@@ -33,7 +26,7 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName;
 
 const toastVariants = cva(
-  "group pointer-events-none relative flex max-w-full items-center overflow-hidden whitespace-nowrap rounded-full border px-5 py-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.08)] data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:duration-300 data-[state=closed]:duration-300 data-[state=open]:ease-out data-[state=closed]:ease-in data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-[calc(100%+0.75rem)] data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom-[calc(100%+0.75rem)] group-data-[placement=top]/viewport:data-[state=open]:slide-in-from-top-[calc(100%+1.5rem)] group-data-[placement=top]/viewport:data-[state=closed]:slide-out-to-top-[calc(100%+1.5rem)]",
+  "group pointer-events-none relative flex max-w-full items-center overflow-hidden whitespace-nowrap rounded-full border px-5 py-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.08)] data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:duration-300 data-[state=closed]:duration-300 data-[state=open]:ease-out data-[state=closed]:ease-in data-[state=open]:animate-in data-[state=open]:slide-in-from-top-[calc(100%+1.5rem)] data-[state=closed]:animate-out data-[state=closed]:slide-out-to-top-[calc(100%+1.5rem)]",
   {
     defaultVariants: {
       variant: "default"

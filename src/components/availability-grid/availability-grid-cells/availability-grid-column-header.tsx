@@ -54,7 +54,9 @@ export default function AvailabilityGridColumnHeader({
     <div
       className={cn("flex h-full flex-col items-center justify-center border-transparent bg-white", borderXSizeStyles, {
         "pt-2": availabilityType === AvailabilityType.DAYS_OF_WEEK,
-        "border-r-2 border-r-dark-gray": hasDateGapRight
+        "border-r-2 border-r-dark-gray": hasDateGapRight,
+        // while editing, the divider between dates that aren't next to each other is dotted
+        "border-dotted": hasDateGapRight && !isViewMode(mode)
       })}
       onMouseEnter={onMouseEnter}
     >

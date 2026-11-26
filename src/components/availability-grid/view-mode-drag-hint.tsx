@@ -65,7 +65,7 @@ export default function ViewModeDragHint() {
     <div
       aria-hidden="true"
       className={cn(
-        "pointer-events-none fixed z-[1000] -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-full bg-[#2D2D2D] px-4 py-2 text-sm text-white shadow-lg transition-opacity duration-200",
+        "pointer-events-none fixed z-[1000] -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-md border border-light-gray bg-input px-3 py-1.5 text-xs font-normal text-black shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-opacity duration-200",
         visible ? "opacity-100" : "opacity-0"
       )}
       style={{ left: position.x, top: position.y - 14 }}

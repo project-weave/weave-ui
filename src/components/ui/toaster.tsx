@@ -23,7 +23,7 @@ export function Toaster() {
   return (
     <ToastProvider swipeDirection="right">
       {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
-      {toasts.map(function ({ action, description, id, keepOnPageChange, placement, title, variant, ...props }) {
+      {toasts.map(function ({ action, description, id, keepOnPageChange, title, variant, ...props }) {
         return (
           <Toast
             key={id}
@@ -42,7 +42,7 @@ export function Toaster() {
           </Toast>
         );
       })}
-      <ToastViewport placement={toasts[0]?.placement ?? "bottom"} />
+      <ToastViewport />
     </ToastProvider>
   );
 }
