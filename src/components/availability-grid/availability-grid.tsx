@@ -8,6 +8,7 @@ import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useShallow } from "zustand/react/shallow";
 
+import { TOAST_ICONS } from "@/components/ui/toast-icons";
 import useUpdateAvailability, { UpdateAvailabilityRequest } from "@/hooks/requests/useUpdateAvailability";
 import useGridDragSelect from "@/hooks/useGridDragSelect";
 import useGridScrollSync from "@/hooks/useGridScrollSync";
@@ -83,7 +84,12 @@ export default function AvailabilityGrid() {
         setSelectedTimeSlots([]);
         setHoveredTimeSlot(null);
       }
-      savingToast.update({ description: "Availability saved", duration: 3000, variant: "success" });
+      savingToast.update({
+        description: "Availability saved",
+        duration: 3000,
+        icon: TOAST_ICONS.done,
+        variant: "success"
+      });
     } catch {
       savingToast.update({
         description: "Couldn't save. Try again.",

@@ -11,6 +11,8 @@ const TOAST_REMOVE_DELAY = 1000;
 type ToasterToast = {
   action?: ToastActionElement;
   description?: React.ReactNode;
+  // small icon in front of the text (pencil, eye, star, check…)
+  icon?: React.ReactNode;
   id: string;
   // app moves from the create page to the new event's page)
   keepOnPageChange?: boolean;

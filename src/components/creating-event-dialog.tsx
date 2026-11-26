@@ -2,7 +2,6 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Check } from "lucide-react";
-import Image from "next/image";
 
 import { Dialog, DialogContent, DialogDescription, DialogTitle, MODAL_SIZE } from "@/components/ui/dialog";
 import { cn } from "@/utils/cn";
@@ -35,7 +34,7 @@ export default function CreatingEventDialog({ completedSteps, isCreated, open, s
     <Dialog open={open}>
       <DialogContent
         // a plain white page behind it rather than the dimmed, blurred backdrop other popups use
-        className={cn(MODAL_SIZE, "z-[1001] gap-0 border-0 p-5 shadow-none")}
+        className={cn(MODAL_SIZE, "z-[1001] gap-0 border-0 p-5 shadow-none outline-none focus:outline-none")}
         onEscapeKeyDown={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
         onOpenAutoFocus={(e) => e.preventDefault()}
@@ -43,27 +42,12 @@ export default function CreatingEventDialog({ completedSteps, isCreated, open, s
         overlayClassName="z-[1000] bg-white backdrop-blur-none"
         showCloseButton={false}
       >
-        <div className="flex items-center gap-3">
-          <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#E5E5E5] bg-white">
-            <Image
-              alt=""
-              className={cn("h-5 w-5", !isCreated && !reduceMotion && "animate-weave-breathe")}
-              height={20}
-              src="/favicon.ico"
-              width={20}
-            />
-          </span>
-          <div className="min-w-0">
-            <DialogTitle className={cn("text-base font-normal", !isCreated && "shimmer-text")}>
-              {isCreated ? "Your Weave is ready" : "Creating your Weave"}
-            </DialogTitle>
-            <DialogDescription className="text-xs text-text-light">
-              {isCreated ? "Taking you to your event…" : "Setting up your event"}
-            </DialogDescription>
-          </div>
-        </div>
+        <DialogTitle className="sr-only">{isCreated ? "Event created" : "Creating your event"}</DialogTitle>
+        <DialogDescription className="sr-only">
+          {isCreated ? "Taking you to your event" : "Setting up your event"}
+        </DialogDescription>
 
-        <ol aria-live="polite" className="mt-4 flex flex-col gap-2.5 border-t border-[#E5E5E5] pt-4">
+        <ol aria-live="polite" className="flex flex-col gap-2.5">
           <AnimatePresence initial={false}>
             {visibleSteps.map((step, index) => {
               const isDone = index < completedSteps;
@@ -85,22 +69,24 @@ export default function CreatingEventDialog({ completedSteps, isCreated, open, s
                 </motion.li>
               );
             })}
-            {isCreated && (
-              <motion.li
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-2.5"
-                initial={reduceMotion ? false : { opacity: 0, y: 4 }}
-                key="created"
-                transition={{ duration: 0.25, ease: "easeOut" }}
-              >
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-white">
-                  <Check aria-hidden="true" className="h-3 w-3" strokeWidth={3} />
-                </span>
-                <p className="text-sm text-black">Event created</p>
-              </motion.li>
-            )}
           </AnimatePresence>
         </ol>
+        {/* the finish looks like the app's toasts: a light grey pill with a check */}
+        <AnimatePresence>
+          {isCreated && (
+            <motion.div
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-5 flex justify-center"
+              initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+            >
+              <span className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-light-gray bg-input px-5 py-2.5 text-sm text-black shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+                <Check aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
+                Event created
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </DialogContent>
     </Dialog>
   );
@@ -113,7 +99,7 @@ function StepIcon({ isDone }: { isDone: boolean }) {
         {isDone ? (
           <motion.span
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-primary/15 flex h-5 w-5 items-center justify-center rounded-full text-primary"
+            className="flex h-5 w-5 items-center justify-center text-primary"
             initial={{ opacity: 0, scale: 0.6 }}
             key="done"
             transition={{ duration: 0.2, ease: "easeOut" }}
@@ -124,7 +110,7 @@ function StepIcon({ isDone }: { isDone: boolean }) {
           <motion.span
             animate={{ opacity: 1 }}
             aria-hidden="true"
-            className="h-4 w-4 animate-spin rounded-full border-2 border-primary/20 border-t-primary motion-reduce:animate-none"
+            className="h-4 w-4 animate-spin rounded-full border-2 border-light-gray border-t-primary motion-reduce:animate-none"
             exit={{ opacity: 0 }}
             initial={{ opacity: 0 }}
             key="working"

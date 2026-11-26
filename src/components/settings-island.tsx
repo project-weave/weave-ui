@@ -15,6 +15,7 @@ import {
   DialogTitle,
   MODAL_SIZE
 } from "@/components/ui/dialog";
+import { TOAST_ICONS } from "@/components/ui/toast-icons";
 import { toast } from "@/components/ui/use-toast";
 import useAvailabilityEntry from "@/hooks/useAvailabilityEntry";
 import useAvailabilityGridStore, { isEditMode } from "@/store/availabilityGridStore";
@@ -90,7 +91,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
 
   function switchToView() {
     cancelEditing();
-    toast({ description: "Viewing all availability" });
+    toast({ description: "Viewing all availability", icon: TOAST_ICONS.viewing });
   }
 
   // every save goes through here so first-time responders get the unseen-dates reminder
@@ -131,7 +132,8 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
   useEffect(
     () =>
       useAvailabilityGridStore.subscribe((state, prev) => {
-        if (state.mode !== prev.mode && isEditMode(state.mode)) toast({ description: "Editing your availability" });
+        if (state.mode !== prev.mode && isEditMode(state.mode))
+          toast({ description: "Editing your availability", icon: TOAST_ICONS.editing });
       }),
     []
   );

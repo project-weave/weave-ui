@@ -23,7 +23,7 @@ export function Toaster() {
   return (
     <ToastProvider swipeDirection="right">
       {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
-      {toasts.map(function ({ action, description, id, keepOnPageChange, title, variant, ...props }) {
+      {toasts.map(function ({ action, description, icon, id, keepOnPageChange, title, variant, ...props }) {
         return (
           <Toast
             key={id}
@@ -34,9 +34,16 @@ export function Toaster() {
             duration={Infinity}
             variant={variant}
           >
-            <div className="min-w-0 truncate text-sm text-black">
-              {title && <ToastTitle>{title}</ToastTitle>}
-              {description && <ToastDescription>{description}</ToastDescription>}
+            <div className="flex min-w-0 items-center gap-2 text-sm text-black">
+              {icon && (
+                <span aria-hidden="true" className="flex shrink-0 [&_svg]:h-4 [&_svg]:w-4">
+                  {icon}
+                </span>
+              )}
+              <div className="min-w-0 truncate">
+                {title && <ToastTitle>{title}</ToastTitle>}
+                {description && <ToastDescription>{description}</ToastDescription>}
+              </div>
             </div>
             {action}
           </Toast>

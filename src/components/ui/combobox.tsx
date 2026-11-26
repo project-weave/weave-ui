@@ -1,6 +1,7 @@
 "use client";
 
 import * as PopoverPrimitive from "@radix-ui/react-popover";
+import { ChevronDown } from "lucide-react";
 import { KeyboardEvent, ReactNode, useEffect, useId, useMemo, useRef, useState } from "react";
 
 import useScrollingClass from "@/hooks/useScrollingClass";
@@ -29,6 +30,8 @@ type ComboboxProps<T extends ComboboxOption> = {
   parseTyped?: (text: string) => null | string;
   placeholder?: string;
   renderOption: (option: T, state: { isHighlighted: boolean; isSelected: boolean }) => ReactNode;
+  // a chevron on the right that flips while the list is open
+  showChevron?: boolean;
   value: string;
 };
 
@@ -48,6 +51,7 @@ export default function Combobox<T extends ComboboxOption>({
   parseTyped,
   placeholder,
   renderOption,
+  showChevron,
   value
 }: ComboboxProps<T>) {
   const listId = useId();
@@ -134,36 +138,48 @@ export default function Combobox<T extends ComboboxOption>({
       open={open}
     >
       <PopoverPrimitive.Anchor asChild>
-        <input
-          aria-activedescendant={open && options[highlighted] ? `${listId}-${highlighted}` : undefined}
-          aria-autocomplete="list"
-          aria-controls={listId}
-          aria-expanded={open}
-          aria-invalid={error || undefined}
-          aria-label={ariaLabel}
-          autoComplete="off"
-          className={cn(
-            "h-10 w-full min-w-0 rounded-md bg-field px-4 text-base text-black outline-none placeholder:text-text-light focus-visible:ring-2 focus-visible:ring-primary/40 sm:text-sm",
-            error && "ring-2 ring-red/60",
-            className
+        <div className="relative w-full">
+          <input
+            aria-activedescendant={open && options[highlighted] ? `${listId}-${highlighted}` : undefined}
+            aria-autocomplete="list"
+            aria-controls={listId}
+            aria-expanded={open}
+            aria-invalid={error || undefined}
+            aria-label={ariaLabel}
+            autoComplete="off"
+            className={cn(
+              "h-10 w-full min-w-0 rounded-md bg-field px-4 text-base text-black outline-none placeholder:text-text-light sm:text-sm",
+              error && "ring-2 ring-red/60",
+              showChevron && "pr-10",
+              className
+            )}
+            onBlur={() => onBlur?.()}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setOpen(true);
+            }}
+            onClick={() => setOpen(true)}
+            onFocus={(e) => {
+              e.target.select();
+              setOpen(true);
+            }}
+            onKeyDown={onKeyDown}
+            placeholder={placeholder}
+            ref={inputRef}
+            role="combobox"
+            spellCheck={false}
+            value={query ?? displayValue(value)}
+          />
+          {showChevron && (
+            <ChevronDown
+              aria-hidden="true"
+              className={cn(
+                "pointer-events-none absolute right-4 top-1/2 h-[15px] w-[15px] -translate-y-1/2 text-black transition-transform duration-200",
+                open && "rotate-180"
+              )}
+            />
           )}
-          onBlur={() => onBlur?.()}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setOpen(true);
-          }}
-          onClick={() => setOpen(true)}
-          onFocus={(e) => {
-            e.target.select();
-            setOpen(true);
-          }}
-          onKeyDown={onKeyDown}
-          placeholder={placeholder}
-          ref={inputRef}
-          role="combobox"
-          spellCheck={false}
-          value={query ?? displayValue(value)}
-        />
+        </div>
       </PopoverPrimitive.Anchor>
       <PopoverPrimitive.Portal>
         <PopoverPrimitive.Content
@@ -207,7 +223,7 @@ export default function Combobox<T extends ComboboxOption>({
                     aria-selected={isSelected}
                     className={cn(
                       "mr-1 flex cursor-pointer items-center rounded-sm px-2 py-1.5 text-sm",
-                      isSelected ? "bg-primary text-white" : isHighlighted && "bg-primary/20"
+                      isSelected ? "bg-primary text-white" : isHighlighted && "bg-light-gray/60"
                     )}
                     data-index={index}
                     id={`${listId}-${index}`}

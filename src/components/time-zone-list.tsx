@@ -108,7 +108,7 @@ export default function TimeZoneList({ disabledTimeZones = [], eventTimeZone, on
           "mr-2 flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm",
           isSelected
             ? "bg-primary text-white aria-selected:bg-primary aria-selected:text-white"
-            : "aria-selected:bg-primary/20 hover:bg-primary/20",
+            : "aria-selected:bg-light-gray/60 hover:bg-light-gray/60",
           isDisabled && "cursor-default opacity-50 aria-selected:bg-transparent hover:bg-transparent"
         )}
         data-zone={group === "all" ? option.value : undefined}

@@ -242,7 +242,7 @@ export default function AvailabilityGridTimeSlot({
         borderXSizeStyles,
         isEditMode(mode) ? "touch-none" : "touch-manipulation",
         {
-          "bg-primary-purple hover:bg-primary-purple/60": (isSelected || isBeingAdded) && !isBeingRemoved,
+          "bg-primary-purple": (isSelected || isBeingAdded) && !isBeingRemoved,
           "border-r-2": hasDateGapRight,
           // while editing, the dotted divider is drawn once for the whole column (see DateGapDivider)
           "border-r-transparent": hasDateGapRight && isEditMode(mode) && !isRightBorder,

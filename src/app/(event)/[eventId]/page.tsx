@@ -13,6 +13,7 @@ import { MediaQueryLG } from "@/components/media-query";
 import { SettingsIsland } from "@/components/settings-island";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TOAST_ICONS } from "@/components/ui/toast-icons";
 import { useToast } from "@/components/ui/use-toast";
 import useGetEvent from "@/hooks/requests/useGetEvent";
 import useAvailabilityGridStore from "@/store/availabilityGridStore";
@@ -31,7 +32,7 @@ export default function Event() {
   const handleCopyClick = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      toast({ description: "Link copied", duration: 3000, variant: "success" });
+      toast({ description: "Link copied", duration: 3000, icon: TOAST_ICONS.done, variant: "success" });
       return true;
     } catch {
       toast({ description: "Couldn't copy link", variant: "failure" });
@@ -60,7 +61,13 @@ export default function Event() {
     if (loadedEventId && loadedEventId === params.eventId && consumeEventJustCreated(loadedEventId)) {
       // keepOnPageChange: the page can finish loading a moment before the URL changes, which would otherwise
       // clear this straight away
-      toast({ description: "Event created", duration: 3000, keepOnPageChange: true, variant: "success" });
+      toast({
+        description: "Event created",
+        duration: 3000,
+        icon: TOAST_ICONS.done,
+        keepOnPageChange: true,
+        variant: "success"
+      });
     }
   }, [loadedEventId, params.eventId, toast]);
 

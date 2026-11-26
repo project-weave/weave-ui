@@ -2,6 +2,7 @@ import { Star } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
 import { Button } from "@/components/ui/button";
+import { TOAST_ICONS } from "@/components/ui/toast-icons";
 import { toast } from "@/components/ui/use-toast";
 import useAvailabilityGridStore, { isEditMode } from "@/store/availabilityGridStore";
 import { getDateFromTimeSlot } from "@/types/Timeslot";
@@ -65,7 +66,11 @@ export default function BestTimesAvailableSwitch({ className }: BestTimesAvailab
       }
     }
     toggleIsBestTimesEnabled();
-    toast({ description: isBestTimesEnabled ? "Showing all times" : "Showing best times" });
+    toast(
+      isBestTimesEnabled
+        ? { description: "Showing all times", icon: TOAST_ICONS.allTimes }
+        : { description: "Showing best times", icon: TOAST_ICONS.bestTimes }
+    );
   }
 
   return (
@@ -73,7 +78,7 @@ export default function BestTimesAvailableSwitch({ className }: BestTimesAvailab
       aria-label="Best times"
       aria-pressed={isBestTimesEnabled}
       className={cn(
-        "h-10 w-10 shrink-0 rounded-lg p-0 transition-[background-color,transform] duration-150 hover:bg-light-gray active:scale-95 motion-reduce:transition-none",
+        "h-10 w-10 shrink-0 rounded-xl p-0 transition-[background-color,transform] duration-150 hover:bg-light-gray active:scale-95 motion-reduce:transition-none",
         isBestTimesEnabled && "bg-primary hover:bg-primary-hover",
         isEditMode(mode) && "invisible",
         className

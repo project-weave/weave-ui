@@ -87,6 +87,7 @@ export default function TimeZoneDropdown({ error, onChange, selected }: TimeZone
           )}
         </span>
       )}
+      showChevron
       value={selected}
     />
   );

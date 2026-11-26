@@ -171,23 +171,6 @@
   animation: shimmer-text 1.6s linear infinite;
 }
 
-/* the Weave logo gently breathes while it works */
-@keyframes weave-breathe {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.55;
-    transform: scale(0.88);
-  }
-}
-
-.animate-weave-breathe {
-  animation: weave-breathe 1.4s ease-in-out infinite;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .shimmer-text {
     animation: none;
