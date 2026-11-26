@@ -39,7 +39,7 @@ export default function CreatingEventDialog({ completedSteps, isCreated, open, s
         onInteractOutside={(e) => e.preventDefault()}
         onOpenAutoFocus={(e) => e.preventDefault()}
         // above everything on the page, including the phone's pinned Create Weave button
-        overlayClassName="z-[1000] bg-white backdrop-blur-none"
+        overlayClassName="z-[1000] bg-background backdrop-blur-none"
         showCloseButton={false}
       >
         <DialogTitle className="sr-only">{isCreated ? "Event created" : "Creating your event"}</DialogTitle>

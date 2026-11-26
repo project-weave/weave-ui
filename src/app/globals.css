@@ -4,14 +4,15 @@
 
 @layer base {
   :root {
-    --background: 256, 252, 252;
-    --foreground: 13, 14, 15;
+    /* no pure black or white: dark grey text on soft off-white surfaces */
+    --background: 250, 250, 248;
+    --foreground: 38, 38, 38;
 
-    --card: 255, 255, 255;
-    --card-foreground: 13, 14, 15;
+    --card: 253, 253, 252;
+    --card-foreground: 38, 38, 38;
 
-    --popover: 255, 255, 255;
-    --popover-foreground: 13, 14, 15;
+    --popover: 253, 253, 252;
+    --popover-foreground: 38, 38, 38;
 
     /* primary purple */ 
     --primary: 151, 71, 255;
@@ -55,7 +56,7 @@
     --primary-purple: 151, 71, 255;
     --medium-purple: 227, 214, 249;
     --light-purple: 251, 248, 253;
-    --black: 16, 16, 16;
+    --black: 38, 38, 38;
     --dark-gray: 157, 157, 157;
     --green: 200, 240, 202;
     --red: 236, 62, 61;
@@ -64,7 +65,7 @@
     --light-gray: 231, 231, 231;
     --light-gray-2: 229, 229, 229;
     --off-white: 247, 247, 247;
-    --white: 255, 255, 255;
+    --white: 253, 253, 252;
   }
 
   .dark {
@@ -103,7 +104,8 @@
     @apply border-border;
   }
   body {
-    @apply bg-white text-foreground;
+    /* the page is a slightly deeper off-white than the cards sitting on it */
+    @apply bg-background text-foreground;
   }
 }
 
@@ -161,7 +163,7 @@
     90deg,
     rgb(var(--dark-gray)) 0%,
     rgb(var(--dark-gray)) 35%,
-    #111 50%,
+    rgb(var(--black)) 50%,
     rgb(var(--dark-gray)) 65%,
     rgb(var(--dark-gray)) 100%
   );

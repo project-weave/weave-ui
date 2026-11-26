@@ -1,30 +1,66 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
-import useAvailabilityGridStore from "@/store/availabilityGridStore";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 
+const LINK =
+  "rounded-md text-[13px] text-text-light transition-colors hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+
+/**
+ * Top bar on every page: the Weave wordmark (stand-in until there's a new logo), two info links and
+ * Log in (not built yet: they say "Coming soon"), and Create a Weave.
+ */
 export default function NavBar() {
-  const eventId = useAvailabilityGridStore((state) => state.eventData.eventId);
-  const pathName = usePathname();
-  const isEventPage = eventId !== "" && pathName === `/${eventId}`;
+  const pathname = usePathname();
+  const router = useRouter();
+  const { toast } = useToast();
+  const isHome = pathname === "/";
 
-  // The create event (home) page has no navbar; event pages only show the logo.
-  if (!isEventPage) return null;
+  function comingSoon() {
+    toast({ description: "Coming soon", duration: 2000 });
+  }
+
+  // on the home page it jumps to the form; anywhere else it goes home
+  function createAWeave() {
+    if (!isHome) return router.push("/");
+    const form = document.getElementById("new-event-form");
+    form?.scrollIntoView({ behavior: "smooth", block: "center" });
+    form?.querySelector<HTMLInputElement>("input[name=name]")?.focus({ preventScroll: true });
+  }
 
   return (
-    <nav aria-label="Main navigation" className="absolute left-0 right-0 top-6 z-50 lg:fixed">
-      <div className="mx-auto w-full max-w-[85rem] px-4 sm:px-7">
-        <div className="card flex h-auto w-fit items-center px-3 py-2.5">
-          <Link
-            aria-label="Weave home"
-            className="shrink-0 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            href="/"
-          >
-            <Image alt="Weave" className="h-5 w-5 opacity-70" height={20} priority src="/favicon.ico" width={20} />
-          </Link>
+    <nav aria-label="Main navigation" className="absolute inset-x-0 top-0 z-50 h-[3.25rem] md:h-[3.75rem]">
+      {/* same side padding and 82rem width as the page content, so the wordmark lines up with the cards */}
+      <div className="h-full w-full px-6 sm:px-8 lg:px-5">
+        <div className="mx-auto flex h-full w-full max-w-[82rem] items-center justify-between">
+          <div className="flex items-center gap-6">
+            <Link
+              aria-label="Weave home"
+              className="rounded-md text-lg font-semibold tracking-tight text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              href="/"
+            >
+              Weave
+            </Link>
+            <div className="hidden items-center gap-5 sm:flex">
+              <button className={LINK} onClick={comingSoon} type="button">
+                Our story
+              </button>
+              <button className={LINK} onClick={comingSoon} type="button">
+                How it works
+              </button>
+            </div>
+          </div>
+          <div className="hidden items-center gap-4 sm:flex">
+            <button className={LINK} onClick={comingSoon} type="button">
+              Log in
+            </button>
+            <Button onClick={createAWeave} type="button">
+              Create a Weave
+            </Button>
+          </div>
         </div>
       </div>
     </nav>

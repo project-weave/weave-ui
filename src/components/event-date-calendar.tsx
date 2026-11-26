@@ -153,7 +153,7 @@ const EventDateCalendar = ({
   // sizes are multiples of --u (16px). The large calendar fills its card with bigger text, but its days keep
   // the small calendar's shape (37 x 27) instead of stretching into long bars.
   const weekDayClassName = cn("text-[calc(var(--u)*0.875)] sm:text-[calc(var(--u)*0.95)]", {
-    "text-2xl sm:text-2xl": size === "large",
+    "text-lg sm:text-lg": size === "large",
     "text-xs sm:text-xs": isViewMode
   });
   const isLarge = size === "large";
@@ -163,7 +163,8 @@ const EventDateCalendar = ({
       aria-invalid={error || undefined}
       className={cn(
         "select-none scroll-m-24",
-        isLarge ? "card h-full w-full bg-white px-12 pb-5 pt-8" : "h-fit rounded-xl bg-field"
+        // the large calendar has the same padding on every side
+        isLarge ? "card h-full w-full bg-white p-7" : "h-fit rounded-xl bg-field"
       )}
       onContextMenu={handleMouseUp}
       onMouseLeave={handleMouseUp}
@@ -187,7 +188,7 @@ const EventDateCalendar = ({
               <h2
                 className={cn(
                   "absolute left-0 top-1/2 -translate-y-1/2 whitespace-nowrap text-[length:var(--u)] text-black",
-                  isLarge && "text-2xl",
+                  isLarge && "text-xl",
                   isViewMode && "text-md"
                 )}
               >
@@ -224,7 +225,7 @@ const EventDateCalendar = ({
         <div className="mt-[calc(var(--u)*0.75)] grid grid-cols-7 text-center font-normal leading-[var(--u)] text-text-light">
           {weekDays.map((weekDay) => {
             return (
-              <p className={cn(weekDayClassName, isLarge && "mb-1 mt-6")} key={`calendar-weekday-${weekDay}`}>
+              <p className={cn(weekDayClassName, isLarge && "mb-1 mt-3")} key={`calendar-weekday-${weekDay}`}>
                 {weekDay}
               </p>
             );
@@ -378,7 +379,7 @@ function DateButton({
           },
         {
           // same shape as the small calendar's days, just bigger
-          "my-1.5 aspect-[37/27] h-auto text-2xl sm:text-2xl": size === "large",
+          "my-1 aspect-[37/27] h-auto text-xl sm:text-xl": size === "large",
           "pointer-events-none opacity-20": !isViewMode && isBeforeToday(day) && !selectedDates.has(formattedDay)
         }
       )}
@@ -403,9 +404,9 @@ function DateButton({
         <span
           aria-hidden="true"
           className={cn(
-            "absolute left-1/2 top-[2px] h-1 w-1 -translate-x-1/2 rounded-full",
+            "absolute left-1/2 top-[1px] h-[3px] w-[3px] -translate-x-1/2 rounded-full",
             isDaySelected ? "bg-white" : "bg-red",
-            size === "large" && "top-1.5 h-1.5 w-1.5"
+            size === "large" && "top-[12%] h-1.5 w-1.5"
           )}
         />
       )}
