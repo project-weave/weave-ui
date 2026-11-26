@@ -16,9 +16,9 @@ const MENU_ITEM =
   "w-full rounded-sm px-3 py-2.5 text-left text-sm text-black transition-colors hover:bg-light-gray/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 /**
- * Top bar on every page: the Weave logo and wordmark, two info links and
+ * Top bar on every page: the Weave logo, two info links and
  * Log in (not built yet: they say "Coming soon"), and Create a Weave. On phones everything but the
- * wordmark sits in a menu behind the button on the right.
+ * logo sits in a menu behind the button on the right.
  */
 export default function NavBar() {
   const pathname = usePathname();
@@ -52,11 +52,10 @@ export default function NavBar() {
           <div className="flex items-center gap-6">
             <Link
               aria-label="Weave home"
-              className="flex items-center gap-1.5 rounded-md text-lg font-medium tracking-tight text-[#3d3d3f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               href="/"
             >
-              <Image alt="" className="h-6 w-6" height={24} priority src="/logo-mark.svg" width={24} />
-              Weave
+              <Image alt="Weave" className="h-7 w-auto" height={28} priority src="/logo-mark.svg" width={34} />
             </Link>
             <div className="hidden items-center gap-5 sm:flex">
               <button className={LINK} onClick={comingSoon} type="button">
