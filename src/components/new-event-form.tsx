@@ -326,7 +326,7 @@ export default function NewEventForm() {
           setSelectedDates={setSelectedDates}
           size="large"
         />
-        <div className="text-red-600 ml-3 h-2 whitespace-nowrap text-2xs font-medium">
+        <div className="text-red-600 ml-3 h-2 whitespace-nowrap text-xs">
           {form.formState.errors.specificDates?.message}
         </div>
       </>
@@ -338,7 +338,7 @@ export default function NewEventForm() {
           setSelectedDaysOfWeek={setSelectedDaysOfWeek}
           size="large"
         />
-        <div className="text-red-600 ml-3 h-2 whitespace-nowrap text-2xs font-medium">
+        <div className="text-red-600 ml-3 h-2 whitespace-nowrap text-xs">
           {form.formState.errors.specificDates?.message}
         </div>
       </>

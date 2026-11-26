@@ -51,7 +51,7 @@ const AvailbilityGridResponseFilterButton = ({ className, name }: AvailbilityGri
         isViewMode(mode) && !isUserHighlighted && "opacity-50",
         isEditMode(mode) && {
           "bg-transparent opacity-40 hover:bg-transparent": name !== loggedInUser,
-          "bg-primary font-medium text-white hover:bg-primary": name === loggedInUser
+          "bg-primary text-white hover:bg-primary": name === loggedInUser
         },
         className
       )}

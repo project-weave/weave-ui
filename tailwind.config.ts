@@ -82,13 +82,23 @@ export default {
           light: "rgb(var(--dark-gray), <alpha-value>)"
         }
       },
+      // Type scale. Weights: 400 for everything, 500 only for titles (and the hovered grid time label).
+      // xs and sm are intentionally larger than Tailwind's defaults (12px / 14px).
       fontSize: {
-        "2xs": "0.7rem",
-        "3xs": "0.6rem",
-        "4xs": "0.55rem",
-        base: "1rem",
-        sm: "0.9rem",
-        xs: "0.8rem"
+        // micro: "+1" superscripts and initials in small avatars only
+        "3xs": ["0.6rem", { lineHeight: "0.75rem" }],
+        // caption: grid time labels, participant chips, grid time zone chip
+        "2xs": ["0.7rem", { lineHeight: "1rem" }],
+        // label: form labels, helper and empty-state text, field errors, response count, mini calendar
+        xs: ["0.8rem", { lineHeight: "1.125rem" }],
+        // body: buttons, inputs from sm up, dropdown rows, toasts, dialog descriptions, dates
+        sm: ["0.9rem", { lineHeight: "1.25rem" }],
+        // text inputs below sm only (16px stops iOS zooming in on focus)
+        base: ["1rem", { lineHeight: "1.5rem" }],
+        // title (500): event name, dialog titles, calendar month titles, error page title
+        lg: ["1.125rem", { lineHeight: "1.5rem" }],
+        // display: the large create-page calendar and day-of-week labels
+        "2xl": ["1.5rem", { lineHeight: "2rem" }]
       }
     },
     screens: {

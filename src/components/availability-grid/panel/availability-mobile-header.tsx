@@ -20,7 +20,7 @@ export default function AvailabilityMobileHeader() {
   return (
     <section aria-label="Event details" className="card h-auto overflow-hidden px-4 py-3 lg:hidden">
       <h1 className="break-words text-lg font-medium [overflow-wrap:anywhere]">{eventName}</h1>
-      <p className="mt-1 text-xs text-text-light">
+      <p className="mt-1 text-sm text-text-light">
         {formatEventDateRange(sortedEventDates, availabilityType === AvailabilityType.SPECIFIC_DATES)}
       </p>
       <div className="mt-3 flex items-center justify-between gap-3">

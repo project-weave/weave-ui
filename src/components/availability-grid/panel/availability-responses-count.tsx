@@ -20,7 +20,7 @@ export default function AvailabilityResponsesCount({ className }: { className?: 
     return [hoveredTimeSlotResponses, totalResponseCount];
   });
   return (
-    <div className={cn(className, "flex items-center text-xs font-medium")}>
+    <div className={cn(className, "flex items-center text-xs")}>
       <p>{RESPONSES_TITLE}</p>
       <p className="ml-2">
         {hoveredTimeSlotResponsesCount}/{totalResponseCount}

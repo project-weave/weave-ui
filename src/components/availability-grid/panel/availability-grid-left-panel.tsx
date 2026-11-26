@@ -58,7 +58,7 @@ export default function AvailabilityGridLeftPanel() {
 
   return (
     <aside aria-label="Event details" className="card flex h-full flex-col px-6 pb-6">
-      <h1 className="break-words text-xl font-medium [overflow-wrap:anywhere]">{eventName}</h1>
+      <h1 className="break-words text-lg font-medium [overflow-wrap:anywhere]">{eventName}</h1>
       <p className="mt-1 text-sm text-text-light">
         {formatEventDateRange(sortedEventDates, availabilityType === AvailabilityType.SPECIFIC_DATES)}
       </p>

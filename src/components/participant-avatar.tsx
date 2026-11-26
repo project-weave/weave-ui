@@ -12,7 +12,7 @@ export default function ParticipantAvatar({ className, name }: { className?: str
     <span
       aria-hidden="true"
       className={cn(
-        "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-secondary text-2xs font-medium text-black",
+        "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-secondary text-2xs text-black",
         className
       )}
     >

@@ -101,7 +101,7 @@ function DayOfWeekButton({
     <div className="flex min-w-0 flex-1 flex-col items-center text-text-light" key={`days-of-weeks-picker-${date}`}>
       <label
         className={cn("mb-2 text-sm font-normal", {
-          "text-xl font-normal md:mb-5 md:text-xl": size === "large"
+          "text-2xl font-normal md:mb-5": size === "large"
         })}
         htmlFor={buttonId}
       >
@@ -113,7 +113,7 @@ function DayOfWeekButton({
           aria-pressed={selected}
           className={cn("h-full w-full min-w-0 touch-none rounded-sm bg-primary px-0", {
             "bg-[#E7E7E7] hover:scale-[1.02]": !selected,
-            "text-md mx-2 w-[5rem] rounded-xl sm:w-[5rem]": size === "large"
+            "mx-2 w-[5rem] rounded-xl sm:w-[5rem]": size === "large"
           })}
           drag-select-attr={date}
           id={buttonId}

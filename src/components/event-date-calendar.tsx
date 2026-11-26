@@ -168,14 +168,7 @@ const EventDateCalendar = ({
             "mb-3": size === "large"
           })}
         >
-          <h2
-            className={cn("text-md flex-auto text-black ", {
-              "text-2xl": size === "large",
-              "text-md": isViewMode
-            })}
-          >
-            {format(firstDayCurrentMonth, "MMMM yyyy")}
-          </h2>
+          <h2 className="flex-auto text-lg font-medium text-black">{format(firstDayCurrentMonth, "MMMM yyyy")}</h2>
 
           {isNextAndPrevButtonsVisible && (
             <>
@@ -199,9 +192,9 @@ const EventDateCalendar = ({
           {weekDays.map((weekDay) => {
             return (
               <p
-                className={cn("text-sm sm:text-[0.95rem]", {
-                  "mb-1 mt-6 text-2xl sm:text-2xl": size === "large",
-                  "text-xs sm:text-xs": isViewMode
+                className={cn("text-sm", {
+                  "mb-1 mt-6 text-2xl": size === "large",
+                  "text-xs": isViewMode
                 })}
                 key={`calendar-weekday-${weekDay}`}
               >
@@ -354,7 +347,7 @@ function DateButton({
             "border-r-0": !isNextDayVisible && isNextDaySelected && day.getDay() !== 6
           },
         {
-          "mt-8 border-[1px] px-10 py-7 text-2xl font-normal sm:text-2xl xl:h-[3.1rem]": size === "large",
+          "mt-8 border-[1px] px-10 py-7 text-2xl font-normal xl:h-[3.1rem]": size === "large",
           "pointer-events-none opacity-20": !isViewMode && isBeforeToday(day) && !selectedDates.has(formattedDay)
         }
       )}

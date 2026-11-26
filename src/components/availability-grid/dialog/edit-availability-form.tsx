@@ -74,14 +74,14 @@ export default function EditAvailabilityForm({
           <FormControl>
             <Input
               {...field}
-              // 16px text on phones so iOS doesn't zoom in when the field is tapped
-              className="h-11 text-base placeholder:text-base sm:text-sm sm:placeholder:text-sm"
+              // Input already uses 16px text on phones so iOS doesn't zoom in when the field is tapped
+              className="h-11"
               error={invalid}
               placeholder={WHAT_IS_YOUR_NAME}
               type="text"
             />
           </FormControl>
-          <FormMessage className="static m-0 whitespace-normal text-xs font-normal text-red" />
+          <FormMessage className="static m-0 whitespace-normal text-red" />
         </FormItem>
       )}
       rules={{
@@ -124,7 +124,7 @@ export default function EditAvailabilityForm({
                 title={userName}
                 type="button"
               >
-                <ParticipantAvatar className="h-5 w-5 text-[0.6rem]" name={userName} />
+                <ParticipantAvatar className="h-5 w-5 text-3xs" name={userName} />
                 <span className="truncate text-2xs">{userName}</span>
               </button>
             ))}

@@ -175,7 +175,7 @@ export default function TimeZoneDropdown({
         >
           {compact ? (
             // small version above the grid's time column: just the code, e.g. "PT"
-            <span className="flex items-center gap-0.5 rounded-md bg-input px-1.5 py-1 text-2xs font-medium">
+            <span className="flex items-center gap-0.5 rounded-md bg-input px-1.5 py-1 text-2xs">
               {selectedTimeZone.abbreviation}
               {chevron}
             </span>

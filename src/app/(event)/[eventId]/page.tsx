@@ -87,7 +87,7 @@ export default function Event() {
     return (
       <div className="mx-auto mt-16 w-full max-w-lg px-5">
         <section aria-labelledby="event-error-title" className="card space-y-4" role="alert">
-          <h1 className="text-xl font-medium" id="event-error-title">
+          <h1 className="text-lg font-medium" id="event-error-title">
             {title}
           </h1>
           <p className="text-sm text-text-light">{message}</p>
