@@ -398,13 +398,14 @@ function DateButton({
       variant={isDaySelected ? "default" : "outline"}
     >
       {format(day, "d")}
-      {/* today gets a small red dot above its number when picking dates (not on the event page) */}
-      {isToday(day) && !isViewMode && (
+      {/* today gets a small red dot above its number when picking dates (not on the event page, and not
+          once it's selected: then it's just purple like any other selected day) */}
+      {isToday(day) && !isViewMode && !isDaySelected && (
         <span
           aria-hidden="true"
           className={cn(
             "absolute -top-[2px] left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full",
-            isDaySelected ? "bg-white" : "bg-red",
+            "bg-red",
             size === "large" && "top-[8%] h-1.5 w-1.5"
           )}
         />
