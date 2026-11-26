@@ -7,7 +7,7 @@ import { cn } from "@/utils/cn";
 import AvailabilityGridColumnHeader from "./availability-grid-column-header";
 import AvailabilityGridRowHeader from "./availability-grid-row-header";
 import AvailabilityGridTimeSlot, { TimeSlotDragSelectionState } from "./availability-grid-time-slot";
-import AvailabilityGridTimeZoneSelect from "./availability-grid-time-zone-select";
+import AvailabilityGridTimeZoneHeader from "./availability-grid-time-zone-header";
 
 type AvailabilityGridCellProps = {
   animateEditAvailabilityButton: () => void;
@@ -75,7 +75,7 @@ export default function AvailabilityGridCell({
 
   switch (node.getRenderType()) {
     case NodeType.COLUMN_HEADER_PLACEHOLDER:
-      return <AvailabilityGridTimeZoneSelect />;
+      return <AvailabilityGridTimeZoneHeader />;
     case NodeType.PLACEHOLDER:
       return (
         <div className="h-full w-full" onMouseEnter={() => setHoveredTimeSlot(null)}>

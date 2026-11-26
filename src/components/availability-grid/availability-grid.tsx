@@ -13,7 +13,11 @@ import useGridDragSelect from "@/hooks/useGridDragSelect";
 import useGridScrollSync from "@/hooks/useGridScrollSync";
 import useScreenSize, { ScreenSize } from "@/hooks/useScreenSize";
 import useScrollingClass from "@/hooks/useScrollingClass";
-import useAvailabilityGridStore, { AvailabilityGridMode } from "@/store/availabilityGridStore";
+import useAvailabilityGridStore, {
+  AvailabilityGridMode,
+  getDisplayTimeZones,
+  MAX_DISPLAY_TIME_ZONES
+} from "@/store/availabilityGridStore";
 import { AvailabilityType, EventResponse, EventResponseSchema } from "@/types/Event";
 import { EventDate, EventTime, getTimeSlot, TimeSlot } from "@/types/Timeslot";
 import { cn } from "@/utils/cn";
@@ -155,7 +159,11 @@ export default function AvailabilityGrid() {
   // and you scroll (or use the arrows) to move through the rest.
   const dateCount = sortedEventDates.length;
   const visibleColumnCount = Math.max(1, Math.min(dateCount, availabilityGridViewWindowSize));
-  const rowHeaderWidth = screenSize <= ScreenSize.XS ? 78 : 82;
+  // one narrow column of times per time zone (up to three), plus room for the "+" that adds one
+  const displayTimeZoneCount = useAvailabilityGridStore((state) => getDisplayTimeZones(state).length);
+  const timeZoneColumnWidth = screenSize <= ScreenSize.XS ? 52 : 58;
+  const timeZoneAddSlot = displayTimeZoneCount < MAX_DISPLAY_TIME_ZONES ? 24 : 6;
+  const rowHeaderWidth = timeZoneAddSlot + Math.max(1, displayTimeZoneCount) * timeZoneColumnWidth;
   // space after the last column so it doesn't sit flush against the card edge
   const trailingSpace = screenSize <= ScreenSize.SM ? 16 : 28;
 
@@ -182,6 +190,8 @@ export default function AvailabilityGrid() {
   const scrollerStyle = {
     // keeps the scrollbar beside the rows rather than beside the pinned day headers
     "--grid-header-height": columnHeaderHeight,
+    "--time-zone-add-slot": `${timeZoneAddSlot}px`,
+    "--time-zone-column-width": `${timeZoneColumnWidth}px`,
     overflowX: allDatesFit ? "hidden" : undefined,
     scrollbarGutter: "stable"
   } as CSSProperties;
