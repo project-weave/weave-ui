@@ -14,7 +14,6 @@ import {
   startOfToday,
   sub
 } from "date-fns";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Dispatch, LegacyRef, MouseEvent, SetStateAction, useEffect, useRef, useState } from "react";
 
 import useDragSelect, { extractDragSelectData } from "@/hooks/useDragSelect";
@@ -24,6 +23,7 @@ import { cn } from "@/utils/cn";
 import { isLeftClick } from "@/utils/mouseEvent";
 
 import { Button } from "./ui/button";
+import NavArrowButton from "./ui/nav-arrow-button";
 
 type EventDateCalendarViewModeProps = {
   currentMonthOverride?: string;
@@ -150,92 +150,89 @@ const EventDateCalendar = ({
     start: getFirstDayOfCalendar(currentMonth)
   });
   const weekDays: string[] = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  // sizes are multiples of --u (16px). The large calendar fills its card with bigger text, but its days keep
+  // the small calendar's shape (37 x 27) instead of stretching into long bars.
+  const weekDayClassName = cn("text-[calc(var(--u)*0.875)] sm:text-[calc(var(--u)*0.95)]", {
+    "text-lg sm:text-lg": size === "large",
+    "text-xs sm:text-xs": isViewMode
+  });
+  const isLarge = size === "large";
 
   return (
     <div
       aria-invalid={error || undefined}
-      className={cn("h-fit select-none scroll-m-24 rounded-xl bg-input p-5 pt-3", {
-        "card h-full w-full border-[1px] bg-white px-12 pb-5 pt-8": size === "large"
-      })}
+      className={cn(
+        "select-none scroll-m-24",
+        // the large calendar has the same padding on every side
+        isLarge ? "card h-full w-full bg-white p-7" : "h-fit rounded-xl bg-field"
+      )}
       onContextMenu={handleMouseUp}
       onMouseLeave={handleMouseUp}
       onMouseUp={handleMouseUp}
       ref={forwardedRef}
     >
-      <div className="mx-auto w-full">
-        <div
-          className={cn("flex items-center py-0.5 pl-[3px]", {
-            "mb-3": size === "large"
-          })}
-        >
-          <h2
-            className={cn("text-md flex-auto text-black ", {
-              "text-2xl": size === "large",
-              "text-md": isViewMode
-            })}
-          >
-            {format(firstDayCurrentMonth, "MMMM yyyy")}
-          </h2>
-
-          {isNextAndPrevButtonsVisible && (
-            <>
-              <Button
-                className={cn("mb-0.5 h-[1.6rem] w-[1.6rem] rounded-[0.45rem] border-none px-[1px]", {
-                  "h-5 w-5": isViewMode,
-                  "ml-2 h-7 w-7": size === "large"
-                })}
-                disabled={isCurrentMonthEarliest}
-                onClick={setPrevMonth}
-                type="button"
-                variant={
-                  !isCurrentMonthEarliest ? "default" : size === "large" ? "default-disabled-white" : "default-disabled"
-                }
+      <div
+        className={cn(
+          "w-full [--u:1rem]",
+          !isLarge && "px-[calc(var(--u)*1.25)] pb-[calc(var(--u)*1.25)] pt-[calc(var(--u)*0.75)]"
+        )}
+      >
+        {/* The month title starts exactly where "Sun" starts and the arrows end exactly where "Sat" ends:
+            the header uses the same 7 columns as the days, with an invisible "Sun"/"Sat" to measure against. */}
+        <div className={cn("grid h-[calc(var(--u)*2)] grid-cols-7 items-center", isLarge && "mb-3")}>
+          <div className="flex justify-center">
+            <span className="relative">
+              <span aria-hidden="true" className={cn(weekDayClassName, "invisible")}>
+                Sun
+              </span>
+              <h2
+                className={cn(
+                  "absolute left-0 top-1/2 -translate-y-1/2 whitespace-nowrap text-[length:var(--u)] text-black",
+                  isLarge && "text-xl",
+                  isViewMode && "text-md"
+                )}
               >
-                <span className="sr-only">Previous month</span>
-                <ChevronLeft
-                  className={cn("h-[1.2rem] w-[1.2rem] stroke-[3px] pr-[1px]", {
-                    "h-6 w-6": isViewMode || size === "large"
-                  })}
-                />
-              </Button>
-              <Button
-                className={cn("mb-0.5 ml-[5px] mr-1 h-[1.6rem] w-[1.6rem] rounded-[0.45rem] border-none px-[1px]", {
-                  "h-5 w-5": isViewMode,
-                  "ml-2 h-7 w-7": size === "large"
-                })}
-                disabled={isCurrentMonthLatest}
-                onClick={setNextMonth}
-                type="button"
-                variant={isCurrentMonthLatest ? "default-disabled" : "default"}
-              >
-                <span className="sr-only">Next month</span>
-                <ChevronRight
-                  className={cn("h-[1.2rem] w-[1.2rem] stroke-[3px] pl-[1px] ", {
-                    "h-6 w-6": isViewMode || size === "large"
-                  })}
-                />
-              </Button>
-            </>
-          )}
+                {format(firstDayCurrentMonth, "MMMM yyyy")}
+              </h2>
+            </span>
+          </div>
+          <div className="col-start-7 flex justify-center">
+            <span className="relative">
+              <span aria-hidden="true" className={cn(weekDayClassName, "invisible")}>
+                Sat
+              </span>
+              {isNextAndPrevButtonsVisible && (
+                <span className="absolute right-0 top-1/2 flex -translate-y-1/2 gap-[calc(var(--u)*0.375)]">
+                  <NavArrowButton
+                    className={NAV_ARROW_SIZE}
+                    direction="previous"
+                    disabled={isCurrentMonthEarliest}
+                    label="Previous month"
+                    onClick={setPrevMonth}
+                  />
+                  <NavArrowButton
+                    className={NAV_ARROW_SIZE}
+                    direction="next"
+                    disabled={isCurrentMonthLatest}
+                    label="Next month"
+                    onClick={setNextMonth}
+                  />
+                </span>
+              )}
+            </span>
+          </div>
         </div>
-        <hr className="mt-[0.1rem] h-[0.05rem] bg-text-light" />
-        <div className="mt-3 grid grid-cols-7 text-center font-normal leading-4 text-text-light">
+        <div className="mt-[calc(var(--u)*0.75)] grid grid-cols-7 text-center font-normal leading-[var(--u)] text-text-light">
           {weekDays.map((weekDay) => {
             return (
-              <p
-                className={cn("text-sm sm:text-[0.95rem]", {
-                  "mb-1 mt-6 text-2xl sm:text-2xl": size === "large",
-                  "text-xs sm:text-xs": isViewMode
-                })}
-                key={`calendar-weekday-${weekDay}`}
-              >
+              <p className={cn(weekDayClassName, isLarge && "mb-1 mt-3")} key={`calendar-weekday-${weekDay}`}>
                 {weekDay}
               </p>
             );
           })}
         </div>
 
-        <div className="mt-2 grid touch-none grid-cols-7">
+        <div className="mt-[calc(var(--u)*0.5)] grid touch-none grid-cols-7">
           {days.map((day) => (
             <DateButton
               day={day}
@@ -262,6 +259,9 @@ const EventDateCalendar = ({
 };
 
 export default EventDateCalendar;
+
+// month arrows scale with the calendar too
+const NAV_ARROW_SIZE = "h-8 w-8 rounded-[5px] [&_svg]:h-[var(--u)] [&_svg]:w-[var(--u)]";
 
 function DateButton({
   day,
@@ -340,43 +340,45 @@ function DateButton({
       aria-label={format(day, "EEEE, MMMM d, yyyy")}
       aria-pressed={isViewMode ? !!isDayVisible : isDaySelected}
       className={cn(
-        "my-[3px] flex h-[1.7rem] cursor-pointer touch-none items-center justify-center rounded-sm p-[1px] text-sm font-normal outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
+        "relative my-[calc(var(--u)*0.1875)] flex h-[calc(var(--u)*1.7)] cursor-pointer touch-none items-center justify-center rounded-[calc(var(--u)*0.5)] p-[1px] text-[calc(var(--u)*0.875)] font-normal outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
         !isDaySelected
           ? {
-              "border-transparent bg-input": true,
+              "border-transparent hover:bg-light-gray": true,
+              "bg-field": size !== "large",
               "bg-white": size === "large",
               "text-black": isSameMonth(day, firstDayCurrentMonth),
-              "bg-success text-black hover:bg-success/70 ": isToday(day),
-              "hover:text-light/80 text-text-light": !isToday(day) && !isSameMonth(day, firstDayCurrentMonth)
+              "hover:text-light/80 text-text-light": !isSameMonth(day, firstDayCurrentMonth)
             }
           : {
-              "bg-primary/70": !isSameMonth(day, firstDayCurrentMonth),
               "ml-auto w-full rounded-r-none border-r-0": isNextDaySelected && day.getDay() !== 6,
               "mr-auto w-full rounded-l-none": isPrevDaySelected && day.getDay() !== 0,
-              "rounded-l-sm": isNextDaySelected && !isPrevDaySelected,
-              "rounded-r-sm": isPrevDaySelected && !isNextDaySelected
+              "rounded-l-[calc(var(--u)*0.5)]": isNextDaySelected && !isPrevDaySelected,
+              "rounded-r-[calc(var(--u)*0.5)]": isPrevDaySelected && !isNextDaySelected
             },
         isDaySelected && {
+          // selected days in a row join into one continuous bar: no visible borders between them
+          // (and they stay solid purple on hover rather than turning pale)
+          "border-transparent hover:bg-primary": true,
           "ml-auto w-full rounded-r-none border-r-0": isNextDaySelected && day.getDay() !== 6,
-          "mr-auto w-full rounded-l-none": isPrevDaySelected && day.getDay() !== 0,
-          "rounded-l-sm": isNextDaySelected && !isPrevDaySelected,
-          "rounded-r-sm": isPrevDaySelected && !isNextDaySelected
+          "mr-auto w-full rounded-l-none border-l-0": isPrevDaySelected && day.getDay() !== 0,
+          "rounded-l-[calc(var(--u)*0.5)]": isNextDaySelected && !isPrevDaySelected,
+          "rounded-r-[calc(var(--u)*0.5)]": isPrevDaySelected && !isNextDaySelected
         },
         isViewMode && {
           "bg-primary": isDaySelected,
           "pointer-events-none opacity-20 hover:bg-background": !isDaySelected,
-          "bg-transparent text-black opacity-100": isToday(day) && !isDaySelected,
           "text-xs": true
         },
         isViewMode &&
           !isDayVisible &&
           isDaySelected && {
             "border-l-0": !isPrevDayVisible && isPrevDaySelected && day.getDay() !== 0,
-            "bg-secondary text-black hover:bg-secondary hover:opacity-80": true,
+            "bg-light-gray text-black hover:bg-light-gray hover:opacity-80": true,
             "border-r-0": !isNextDayVisible && isNextDaySelected && day.getDay() !== 6
           },
         {
-          "mt-8 border-[1px] px-10 py-7 text-2xl font-normal sm:text-2xl xl:h-[3.1rem]": size === "large",
+          // same shape as the small calendar's days, just bigger
+          "my-1 aspect-[37/27] h-auto text-xl sm:text-xl": size === "large",
           "pointer-events-none opacity-20": !isViewMode && isBeforeToday(day) && !selectedDates.has(formattedDay)
         }
       )}
@@ -396,6 +398,18 @@ function DateButton({
       variant={isDaySelected ? "default" : "outline"}
     >
       {format(day, "d")}
+      {/* today gets a small red dot above its number when picking dates (not on the event page, and not
+          once it's selected: then it's just purple like any other selected day) */}
+      {isToday(day) && !isViewMode && !isDaySelected && (
+        <span
+          aria-hidden="true"
+          className={cn(
+            "absolute -top-[2px] left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full",
+            "bg-red",
+            size === "large" && "top-[8%] h-1.5 w-1.5"
+          )}
+        />
+      )}
     </Button>
   );
 }

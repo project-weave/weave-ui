@@ -20,10 +20,12 @@ const CONTINUE = "Continue";
 export default function EditAvailabilityForm({
   isDialogOpen,
   mode,
+  onCancel,
   onComplete
 }: {
   isDialogOpen: boolean;
   mode: "add-new" | "edit-existing";
+  onCancel?: () => void;
   onComplete?: () => void;
 }) {
   const form = useForm<EditAvailabiltyFormType>({
@@ -70,17 +72,18 @@ export default function EditAvailabilityForm({
       name="enteredUserName"
       render={({ field, fieldState: { invalid } }) => (
         <FormItem className="space-y-2">
-          <FormLabel className="mb-0 block">Your name</FormLabel>
+          <FormLabel className="sr-only">Your name</FormLabel>
           <FormControl>
             <Input
               {...field}
-              className="h-11 text-sm placeholder:text-sm"
+              // 16px text on phones so iOS doesn't zoom in when the field is tapped
+              className="text-base placeholder:text-base sm:text-sm sm:placeholder:text-sm"
               error={invalid}
               placeholder={WHAT_IS_YOUR_NAME}
               type="text"
             />
           </FormControl>
-          <FormMessage className="static m-0 whitespace-normal text-xs text-red" />
+          <FormMessage className="static m-0 whitespace-normal text-xs font-normal text-red" />
         </FormItem>
       )}
       rules={{
@@ -103,14 +106,14 @@ export default function EditAvailabilityForm({
       name="selectedUserName"
       render={({ field }) => (
         <div className="space-y-2">
-          <div className="scrollbar-primary grid max-h-48 grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-3">
+          <div className="grid-scrollbar grid max-h-48 grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-3">
             {allUserNames.map((userName, index) => (
               <button
                 aria-pressed={field.value === userName}
                 className={cn(
                   "inline-flex min-h-[2.5rem] w-full min-w-0 items-center gap-1.5 rounded-lg border border-transparent bg-input px-2 py-2 font-normal outline-none duration-100 focus-visible:ring-2 focus-visible:ring-ring",
                   {
-                    "border-black font-medium": userName === field.value
+                    "border-black": userName === field.value
                   }
                 )}
                 key={`edit-availability-button-${userName}`}
@@ -129,7 +132,7 @@ export default function EditAvailabilityForm({
             ))}
           </div>
           {form.formState.errors.selectedUserName && (
-            <p className="text-xs font-medium text-red">{form.formState.errors.selectedUserName.message}</p>
+            <p className="text-xs text-red">{form.formState.errors.selectedUserName.message}</p>
           )}
         </div>
       )}
@@ -146,7 +149,7 @@ export default function EditAvailabilityForm({
   return (
     <FormProvider {...form}>
       <form
-        className="space-y-6"
+        className="space-y-4"
         id="edit-availability-dialog"
         onSubmit={(e) => {
           e.preventDefault();
@@ -160,9 +163,12 @@ export default function EditAvailabilityForm({
         }}
       >
         {mode === "add-new" ? nameInput : existingUserSelection}
-        <Button className="h-12 w-full rounded-lg bg-primary text-base text-white hover:bg-primary/90" type="submit">
-          {CONTINUE}
-        </Button>
+        <div className="flex justify-end gap-2">
+          <Button onClick={onCancel} type="button" variant="ghost">
+            Close
+          </Button>
+          <Button type="submit">{CONTINUE}</Button>
+        </div>
       </form>
     </FormProvider>
   );

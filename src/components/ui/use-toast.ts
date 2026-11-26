@@ -11,7 +11,12 @@ const TOAST_REMOVE_DELAY = 1000;
 type ToasterToast = {
   action?: ToastActionElement;
   description?: React.ReactNode;
+  // small icon in front of the text (pencil, eye, star, check…)
+  icon?: React.ReactNode;
   id: string;
+  // app moves from the create page to the new event's page)
+  keepOnPageChange?: boolean;
+  // toasts close when you switch pages unless this is set (e.g. "Event created", which is shown while the
   title?: React.ReactNode;
 } & ToastProps;
 
@@ -137,15 +142,41 @@ function dispatch(action: Action) {
 
 type Toast = Omit<ToasterToast, "id">;
 
+// every toast closes on its own after this long unless it asks to stay (duration: Infinity, e.g. "Saving…")
+export const TOAST_DURATION_MS = 3000;
+const autoDismissTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
+
+// We time toasts ourselves instead of relying on Radix, which pauses its timer while the pointer is over
+// the toasts (they sit right above the control bar) and doesn't restart it when a toast is updated.
+function scheduleAutoDismiss(id: string, duration: number | undefined, dismiss: () => void) {
+  clearTimeout(autoDismissTimeouts.get(id));
+  autoDismissTimeouts.delete(id);
+  const ms = duration ?? TOAST_DURATION_MS;
+  if (!Number.isFinite(ms)) return;
+  autoDismissTimeouts.set(
+    id,
+    setTimeout(() => {
+      autoDismissTimeouts.delete(id);
+      dismiss();
+    }, ms)
+  );
+}
+
 function toast({ ...props }: Toast) {
   const id = genId();
 
-  const update = (props: ToasterToast) =>
+  const dismiss = () => {
+    clearTimeout(autoDismissTimeouts.get(id));
+    autoDismissTimeouts.delete(id);
+    dispatch({ toastId: id, type: "DISMISS_TOAST" });
+  };
+  const update = (props: Partial<ToasterToast>) => {
     dispatch({
       toast: { ...props, id },
       type: "UPDATE_TOAST"
     });
-  const dismiss = () => dispatch({ toastId: id, type: "DISMISS_TOAST" });
+    scheduleAutoDismiss(id, props.duration, dismiss);
+  };
 
   dispatch({
     toast: {
@@ -158,6 +189,7 @@ function toast({ ...props }: Toast) {
     },
     type: "ADD_TOAST"
   });
+  scheduleAutoDismiss(id, props.duration, dismiss);
 
   return {
     dismiss,

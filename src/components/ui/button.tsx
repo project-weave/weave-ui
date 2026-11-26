@@ -13,7 +13,13 @@ const buttonVariants = cva(
     },
     variants: {
       size: {
-        default: "h-10 px-4 py-2 rounded-lg",
+        // based on the Figma "New Weave" button, 5px taller: 32px tall (8px above, below and beside the text),
+        // 5px corners, 5px icon gap, 14px regular text.
+        // Inputs, dropdowns and the sliding toggle use the same height and corners.
+        // DM Sans text sits a little high in its line, so the content is nudged down 1px and icons up 1px
+        // to put text and icon on the button's centre line
+        default:
+          "h-8 gap-[5px] rounded-[5px] px-2 py-0 pt-[2px] text-sm font-normal leading-[1.105] [&_svg]:-translate-y-[1.4px]",
         icon: "h-10 w-10",
         lg: "h-11 rounded-lg px-8",
         sm: "h-9 rounded-lg px-3"

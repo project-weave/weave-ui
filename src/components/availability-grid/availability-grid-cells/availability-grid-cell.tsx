@@ -7,6 +7,7 @@ import { cn } from "@/utils/cn";
 import AvailabilityGridColumnHeader from "./availability-grid-column-header";
 import AvailabilityGridRowHeader from "./availability-grid-row-header";
 import AvailabilityGridTimeSlot, { TimeSlotDragSelectionState } from "./availability-grid-time-slot";
+import AvailabilityGridTimeZoneHeader from "./availability-grid-time-zone-header";
 
 type AvailabilityGridCellProps = {
   animateEditAvailabilityButton: () => void;
@@ -56,8 +57,8 @@ export default function AvailabilityGridCell({
 
   function getFirstAndLastCellBorderStyle() {
     if (isViewMode(mode)) return "solid";
-    const rightStyle = hasDateGapRight ? "solid" : "dashed";
-    const leftStyle = hasDateGapLeft ? "solid" : "dashed";
+    const rightStyle = hasDateGapRight ? "dotted" : "dashed";
+    const leftStyle = hasDateGapLeft ? "dotted" : "dashed";
     const bottomStyle = "dashed";
     const topStyle = "dashed";
     return `${topStyle} ${rightStyle} ${bottomStyle} ${leftStyle}`;
@@ -74,7 +75,7 @@ export default function AvailabilityGridCell({
 
   switch (node.getRenderType()) {
     case NodeType.COLUMN_HEADER_PLACEHOLDER:
-      return <div className="m-0 h-full w-full bg-white">&nbsp;</div>;
+      return <AvailabilityGridTimeZoneHeader />;
     case NodeType.PLACEHOLDER:
       return (
         <div className="h-full w-full" onMouseEnter={() => setHoveredTimeSlot(null)}>
@@ -103,7 +104,9 @@ export default function AvailabilityGridCell({
       return (
         <div
           className={cn("h-full w-full border-t-0 border-text-light", {
-            "border-r-2 border-r-dark-gray": hasDateGapRight
+            "border-r-2 border-r-dark-gray": hasDateGapRight,
+            // while editing, the dotted divider is drawn once for the whole column (see DateGapDivider)
+            "border-r-transparent": hasDateGapRight && !isViewMode(mode)
           })}
           onMouseEnter={() => setHoveredTimeSlot(null)}
           style={{ borderStyle: getFirstAndLastCellBorderStyle() }}

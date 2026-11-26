@@ -149,7 +149,8 @@ export default function AvailabilityGridTimeSlot({
 
   function handleTouchStart(e: TouchEvent) {
     if (isSaving) return;
-    if (e.cancelable) e.preventDefault();
+    // only block the browser's scrolling while editing (dragging selects times); in view mode swipes scroll the grid
+    if (isEditMode(mode) && e.cancelable) e.preventDefault();
     const [row, col] = extractRowCol(e);
 
     if (isEditMode(mode)) onTouchDragStart(row, col);
@@ -158,6 +159,7 @@ export default function AvailabilityGridTimeSlot({
 
   function handleTouchMove(e: TouchEvent) {
     if (isSaving) return;
+    if (!isEditMode(mode)) return;
     if (e.cancelable) e.preventDefault();
 
     const [row, col] = extractRowCol(e);
@@ -219,11 +221,13 @@ export default function AvailabilityGridTimeSlot({
   }
 
   function getBorderStyle() {
-    if (isViewMode(mode)) return "solid";
-    const rightStyle = hasDateGapRight || isRightBorder ? "solid" : "dashed";
-    const leftStyle = hasDateGapLeft || isLeftBorder ? "solid" : "dashed";
+    // the line marking the hovered time is dotted so it's easier on the eye than a solid black rule
+    if (isViewMode(mode)) return isTimeHovered && !isTimeSlotHovered ? "dotted solid solid solid" : "solid";
+    // while editing, the divider between dates that aren't next to each other is dotted
+    const rightStyle = isRightBorder ? "solid" : hasDateGapRight ? "dotted" : "dashed";
+    const leftStyle = isLeftBorder ? "solid" : hasDateGapLeft ? "dotted" : "dashed";
     const bottomStyle = isBottomBorder ? "solid" : "dashed";
-    const topStyle = isTimeHovered || isTopBorder ? "solid" : "dashed";
+    const topStyle = isTopBorder ? "solid" : isTimeHovered ? "dotted" : "dashed";
     return `${topStyle} ${rightStyle} ${bottomStyle} ${leftStyle}`;
   }
 
@@ -234,11 +238,14 @@ export default function AvailabilityGridTimeSlot({
       aria-label={`${format(parseISO(timeSlot), "EEEE, MMMM d, h:mm a")} (event time)`}
       aria-pressed={isEditMode(mode) ? isSelected : undefined}
       className={cn(
-        "h-full w-full cursor-pointer touch-none appearance-none border-b-0 border-t-[1px] border-dark-gray outline-none focus-visible:relative focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-primary",
+        "h-full w-full cursor-pointer appearance-none border-b-0 border-t-[1px] border-dark-gray outline-none focus-visible:relative focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-primary",
         borderXSizeStyles,
+        isEditMode(mode) ? "touch-none" : "touch-manipulation",
         {
-          "bg-primary-purple hover:bg-primary-purple/60": (isSelected || isBeingAdded) && !isBeingRemoved,
+          "bg-primary-purple": (isSelected || isBeingAdded) && !isBeingRemoved,
           "border-r-2": hasDateGapRight,
+          // while editing, the dotted divider is drawn once for the whole column (see DateGapDivider)
+          "border-r-transparent": hasDateGapRight && isEditMode(mode) && !isRightBorder,
           "border-t-2 border-t-black": isTimeHovered,
           "border-t-0": !shouldDisplayBorder && !isTimeHovered
         },

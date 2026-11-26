@@ -17,10 +17,15 @@ export default {
       padding: "2rem"
     },
     extend: {
+      // corner sizes: 12px for big surfaces (cards, modals), 10px for controls (buttons, inputs, dropdowns,
+      // toggles, arrows, menus), 8px for small items (chips, list rows, calendar days). The floating control
+      // dock is 16px with 12px buttons inside.
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)"
+        "2xl": "16px",
+        lg: "10px",
+        md: "10px",
+        sm: "8px",
+        xl: "12px"
       },
       colors: {
         "primary-purple": "rgb(var(--primary-purple), <alpha-value>)",
@@ -29,6 +34,7 @@ export default {
         black: "rgb(var(--black), <alpha-value>)",
         "dark-gray": "rgb(var(--dark-gray), <alpha-value>)",
         green: "rgb(var(--green), <alpha-value>)",
+        field: "rgb(var(--field), <alpha-value>)",
         red: "rgb(var(--red), <alpha-value>)",
         yellow: "rgb(var(--yellow), <alpha-value>)",
         "light-gray": "rgb(var(--light-gray), <alpha-value>)",
