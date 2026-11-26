@@ -32,6 +32,20 @@ function hasUnsavedChanges() {
   return selectedTimeSlots.some((timeSlot) => !savedSet.has(timeSlot));
 }
 
+// true for someone adding their availability for the first time who hasn't yet had every date on screen
+// (the reminder is only shown once per visit)
+function shouldRemindAboutUnseenDates() {
+  const { eventData, getFirstUnseenColumn, unseenDatesPromptShown, user } = useAvailabilityGridStore.getState();
+  if (unseenDatesPromptShown) return false;
+  const hasSavedAvailability = eventData.eventResponses.some(({ alias }) => alias === user);
+  return !hasSavedAvailability && getFirstUnseenColumn() !== null;
+}
+
+function submitAvailability() {
+  // saving switches back to view mode once the request succeeds
+  (document.getElementById("availability-grid") as HTMLFormElement | null)?.requestSubmit();
+}
+
 interface SettingsIslandProps {
   // resolves to true when the link was copied
   onCopyClick?: () => Promise<boolean>;
@@ -56,6 +70,7 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
   const hasStarted = editing || hasSavedAvailability;
 
   const [unsavedPromptOpen, setUnsavedPromptOpen] = useState(false);
+  const [unseenDatesPromptOpen, setUnseenDatesPromptOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const copiedTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   useEffect(() => () => clearTimeout(copiedTimeoutRef.current), []);
@@ -78,10 +93,31 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
     toast({ description: "Viewing all availability" });
   }
 
+  // every save goes through here so first-time responders get the unseen-dates reminder
+  function save() {
+    if (shouldRemindAboutUnseenDates()) {
+      useAvailabilityGridStore.getState().setUnseenDatesPromptShown(true);
+      setUnseenDatesPromptOpen(true);
+      return;
+    }
+    submitAvailability();
+  }
+
   function saveAndView() {
     setUnsavedPromptOpen(false);
-    // saving switches back to view mode once the request succeeds
-    (document.getElementById("availability-grid") as HTMLFormElement | null)?.requestSubmit();
+    save();
+  }
+
+  function seeUnseenDates() {
+    setUnseenDatesPromptOpen(false);
+    const { getFirstUnseenColumn, setLeftMostColumnInView } = useAvailabilityGridStore.getState();
+    const firstUnseenColumn = getFirstUnseenColumn();
+    if (firstUnseenColumn !== null) setLeftMostColumnInView(firstUnseenColumn);
+  }
+
+  function saveAnyway() {
+    setUnseenDatesPromptOpen(false);
+    submitAvailability();
   }
 
   function discardAndView() {
@@ -207,8 +243,8 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
                   PRESSABLE
                 )}
                 disabled={isSaving}
-                form="availability-grid"
-                type="submit"
+                onClick={save}
+                type="button"
               >
                 Save
               </Button>
@@ -269,6 +305,30 @@ export function SettingsIsland({ onCopyClick }: SettingsIslandProps) {
             </Button>
             <Button autoFocus onClick={saveAndView} type="button">
               Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog onOpenChange={setUnseenDatesPromptOpen} open={unseenDatesPromptOpen}>
+        <DialogContent
+          className={MODAL_SIZE}
+          // don't put a focus outline back on the Save button when this closes
+          onCloseAutoFocus={(e) => e.preventDefault()}
+          showCloseButton={false}
+        >
+          <DialogHeader>
+            <DialogTitle>There are more days</DialogTitle>
+            <DialogDescription className="text-sm text-text-light">
+              There are more days you haven&apos;t seen yet. Do you want to save anyway?
+            </DialogDescription>
+          </DialogHeader>
+          {/* side by side from sm up; on phones the labels don't fit in one row, so the buttons stack full width */}
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button onClick={saveAnyway} type="button" variant="ghost">
+              Save anyway
+            </Button>
+            <Button autoFocus onClick={seeUnseenDates} type="button">
+              See other days
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -6,9 +6,11 @@ import useAvailabilityGridStore from "@/store/availabilityGridStore";
  * Keeps the availability grid's scroll position and the store's `leftMostColumnInView` in sync:
  * - scrolling sideways (trackpad, shift + wheel, scrollbar) updates which dates count as "in view"
  * - changing the column from elsewhere (arrows, mini calendar, best times) smoothly scrolls the grid there
+ * It also records the furthest date column that has been on screen, so saving can tell whether every date was seen.
  */
 export default function useGridScrollSync(scrollerRef: RefObject<HTMLElement>, columnWidth: number) {
   const leftMostColumnInView = useAvailabilityGridStore((state) => state.leftMostColumnInView);
+  const viewWindowSize = useAvailabilityGridStore((state) => state.availabilityGridViewWindowSize);
   // the column index most recently derived from the scroll position itself
   const columnFromScrollRef = useRef(leftMostColumnInView);
   useEffect(() => {
@@ -53,4 +55,11 @@ export default function useGridScrollSync(scrollerRef: RefObject<HTMLElement>, c
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     scroller.scrollTo({ behavior: reduceMotion ? "auto" : "smooth", left: leftMostColumnInView * columnWidth });
   }, [columnWidth, leftMostColumnInView, scrollerRef]);
+
+  // only count columns as seen once the grid has real column widths, so the placeholder window size used
+  // before layout doesn't mark dates the person never actually had on screen
+  useEffect(() => {
+    if (columnWidth <= 0) return;
+    useAvailabilityGridStore.getState().markColumnsInViewSeen();
+  }, [columnWidth, leftMostColumnInView, viewWindowSize]);
 }

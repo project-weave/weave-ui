@@ -39,10 +39,13 @@ type AvailabilityGridState = {
   setIsSavingAvailability: (isSavingAvailability: boolean) => void;
   setMode: (mode: AvailabilityGridMode) => void;
   setSelectedTimeZone: (timeZone: string) => void;
+  setUnseenDatesPromptShown: (unseenDatesPromptShown: boolean) => void;
   setUser: (user: string) => void;
   setUserFilter: (filteredUsers: string[]) => void;
   setUserGridState: (user: string) => void;
   toggleIsBestTimesEnabled: () => void;
+  // whether the "there are more days you haven't seen" reminder has already been shown this visit
+  unseenDatesPromptShown: boolean;
   user: string;
   userFilter: string[];
 } & EventDataSlice &
@@ -81,12 +84,14 @@ const useAvailabilityGridStore = create<AvailabilityGridState>()(
         resetGridState: () => {
           set({
             focusedDate: null,
+            furthestColumnSeen: -1,
             hoveredTimeSlot: null,
             isBestTimesEnabled: false,
             isSavingAvailability: false,
             leftMostColumnInView: 0,
             mode: AvailabilityGridMode.VIEW,
             selectedTimeSlots: [],
+            unseenDatesPromptShown: false,
             user: "",
             userFilter: []
           });
@@ -98,6 +103,7 @@ const useAvailabilityGridStore = create<AvailabilityGridState>()(
         setIsSavingAvailability: (isSavingAvailability: boolean) => set({ isSavingAvailability }),
         setMode: (mode: AvailabilityGridMode) => set({ mode }),
         setSelectedTimeZone: (timeZone: string) => set({ selectedTimeZone: timeZone }),
+        setUnseenDatesPromptShown: (unseenDatesPromptShown: boolean) => set({ unseenDatesPromptShown }),
         setUser: (user: string) => set({ user }),
         setUserFilter: (userFilter: string[]) => set({ userFilter }),
         setUserGridState: (user: string) => {
@@ -118,6 +124,7 @@ const useAvailabilityGridStore = create<AvailabilityGridState>()(
           set((prev) => {
             return { ...prev, hoveredTimeSlot: null, isBestTimesEnabled: !prev.isBestTimesEnabled };
           }),
+        unseenDatesPromptShown: false,
         user: "",
         userFilter: []
       }),
