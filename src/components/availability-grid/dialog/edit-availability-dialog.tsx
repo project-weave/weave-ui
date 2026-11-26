@@ -105,7 +105,7 @@ const EditAvailabilityDialog = ({
         {viewMode === "initial" && (
           <div className="space-y-2">
             <Button
-              className="h-10 w-full text-sm hover:bg-light-gray"
+              className="w-full hover:bg-light-gray"
               onClick={() => setViewMode("add-new")}
               type="button"
               variant="ghost"
@@ -114,7 +114,7 @@ const EditAvailabilityDialog = ({
             </Button>
             {allUserNames.length > 0 && (
               <Button
-                className="h-10 w-full text-sm hover:bg-light-gray"
+                className="w-full hover:bg-light-gray"
                 onClick={() => setViewMode("edit-existing")}
                 type="button"
                 variant="ghost"

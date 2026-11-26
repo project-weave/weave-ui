@@ -19,7 +19,7 @@ export default function NavArrowButton({ className, direction, label, ...props }
     <Button
       aria-label={label}
       className={cn(
-        "h-8 w-8 shrink-0 rounded-md p-0 transition-transform active:scale-95 disabled:bg-transparent disabled:text-dark-gray",
+        "h-[27px] w-[27px] shrink-0 rounded-[5px] p-0 transition-transform active:scale-95 disabled:bg-transparent disabled:text-dark-gray",
         className
       )}
       title={label}

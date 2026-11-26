@@ -148,9 +148,9 @@ export default function Combobox<T extends ComboboxOption>({
             aria-label={ariaLabel}
             autoComplete="off"
             className={cn(
-              "h-10 w-full min-w-0 rounded-md bg-field px-4 text-base text-black outline-none placeholder:text-text-light sm:text-sm",
+              "h-[27px] w-full min-w-0 rounded-[5px] bg-field px-2 text-base text-black outline-none placeholder:text-text-light sm:text-sm",
               error && "ring-2 ring-red/60",
-              showChevron && "pr-10",
+              showChevron && "pr-7",
               className
             )}
             onBlur={() => onBlur?.()}
@@ -174,7 +174,7 @@ export default function Combobox<T extends ComboboxOption>({
             <ChevronDown
               aria-hidden="true"
               className={cn(
-                "pointer-events-none absolute right-4 top-1/2 h-[15px] w-[15px] -translate-y-1/2 text-black transition-transform duration-200",
+                "pointer-events-none absolute right-2 top-1/2 h-[13px] w-[13px] -translate-y-1/2 text-black transition-transform duration-200",
                 open && "rotate-180"
               )}
             />

@@ -261,8 +261,7 @@ const EventDateCalendar = ({
 export default EventDateCalendar;
 
 // month arrows scale with the calendar too
-const NAV_ARROW_SIZE =
-  "h-[calc(var(--u)*2)] w-[calc(var(--u)*2)] rounded-[calc(var(--u)*0.625)] [&_svg]:h-[var(--u)] [&_svg]:w-[var(--u)]";
+const NAV_ARROW_SIZE = "h-[27px] w-[27px] rounded-[5px] [&_svg]:h-[var(--u)] [&_svg]:w-[var(--u)]";
 
 function DateButton({
   day,

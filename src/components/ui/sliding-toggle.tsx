@@ -60,13 +60,13 @@ export default function SlidingToggle<T extends number | string>({
   return (
     <div
       aria-label={ariaLabel}
-      className={cn("relative flex h-10 shrink-0 items-stretch overflow-hidden rounded-lg bg-input", className)}
+      className={cn("relative flex h-[27px] shrink-0 items-stretch overflow-hidden rounded-[5px] bg-input", className)}
       role="radiogroup"
     >
       <motion.span
         animate={{ backgroundColor: options[selectedIndex].activeColor, x: pill.left }}
         aria-hidden="true"
-        className="absolute inset-y-0 left-0 rounded-lg"
+        className="absolute inset-y-0 left-0 rounded-[5px]"
         initial={false}
         style={{ width: pill.width }}
         transition={{ duration: reduceMotion ? 0 : 0.3, ease: "easeOut" }}
@@ -77,7 +77,7 @@ export default function SlidingToggle<T extends number | string>({
           <button
             aria-checked={isSelected}
             className={cn(
-              "relative flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 text-sm outline-none transition-[color,background-color,transform] duration-300 focus-visible:ring-2 focus-visible:ring-ring active:scale-95 disabled:pointer-events-none disabled:opacity-60 motion-reduce:transition-none",
+              "relative flex flex-1 items-center justify-center gap-[5px] whitespace-nowrap rounded-[5px] px-2 text-sm font-normal leading-[1.105] outline-none transition-[color,background-color,transform] duration-300 focus-visible:ring-2 focus-visible:ring-ring active:scale-95 disabled:pointer-events-none disabled:opacity-60 motion-reduce:transition-none",
               isSelected ? (option.activeTextClassName ?? "text-black") : "text-text-light hover:bg-black/5"
             )}
             disabled={disabled}

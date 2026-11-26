@@ -415,7 +415,7 @@ export default function NewEventForm() {
             }}
           >
             <Button
-              className="h-10 w-full max-w-[26rem]"
+              className="w-full max-w-[26rem]"
               disabled={!isFormValid || isPending || isSuccess}
               form="new-event-form"
               type="submit"

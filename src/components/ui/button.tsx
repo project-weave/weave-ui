@@ -13,8 +13,9 @@ const buttonVariants = cva(
     },
     variants: {
       size: {
-        // matches the buttons in the floating control dock
-        default: "h-10 px-4 py-2 rounded-xl text-sm",
+        // the Figma "New Weave" button: 27px tall, 5px corners, 8px padding, 5px icon gap, 14px regular text.
+        // Inputs, dropdowns and the sliding toggle use the same height and corners.
+        default: "h-[27px] gap-[5px] rounded-[5px] px-2 py-0 text-sm font-normal leading-[1.105]",
         icon: "h-10 w-10",
         lg: "h-11 rounded-lg px-8",
         sm: "h-9 rounded-lg px-3"

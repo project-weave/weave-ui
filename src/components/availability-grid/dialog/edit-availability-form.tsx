@@ -77,7 +77,7 @@ export default function EditAvailabilityForm({
             <Input
               {...field}
               // 16px text on phones so iOS doesn't zoom in when the field is tapped
-              className="h-11 text-base placeholder:text-base sm:text-sm sm:placeholder:text-sm"
+              className="text-base placeholder:text-base sm:text-sm sm:placeholder:text-sm"
               error={invalid}
               placeholder={WHAT_IS_YOUR_NAME}
               type="text"
