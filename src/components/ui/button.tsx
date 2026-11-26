@@ -13,9 +13,10 @@ const buttonVariants = cva(
     },
     variants: {
       size: {
-        // the Figma "New Weave" button: 27px tall, 5px corners, 8px padding, 5px icon gap, 14px regular text.
+        // based on the Figma "New Weave" button, 5px taller: 32px tall (8px above, below and beside the text),
+        // 5px corners, 5px icon gap, 14px regular text.
         // Inputs, dropdowns and the sliding toggle use the same height and corners.
-        default: "h-[27px] gap-[5px] rounded-[5px] px-2 py-0 text-sm font-normal leading-[1.105]",
+        default: "h-8 gap-[5px] rounded-[5px] px-2 py-0 text-sm font-normal leading-[1.105]",
         icon: "h-10 w-10",
         lg: "h-11 rounded-lg px-8",
         sm: "h-9 rounded-lg px-3"

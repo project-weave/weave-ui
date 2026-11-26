@@ -261,7 +261,7 @@ const EventDateCalendar = ({
 export default EventDateCalendar;
 
 // month arrows scale with the calendar too
-const NAV_ARROW_SIZE = "h-[27px] w-[27px] rounded-[5px] [&_svg]:h-[var(--u)] [&_svg]:w-[var(--u)]";
+const NAV_ARROW_SIZE = "h-8 w-8 rounded-[5px] [&_svg]:h-[var(--u)] [&_svg]:w-[var(--u)]";
 
 function DateButton({
   day,
@@ -403,9 +403,9 @@ function DateButton({
         <span
           aria-hidden="true"
           className={cn(
-            "absolute left-1/2 top-[1px] h-[3px] w-[3px] -translate-x-1/2 rounded-full",
+            "absolute -top-[2px] left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full",
             isDaySelected ? "bg-white" : "bg-red",
-            size === "large" && "top-[12%] h-1.5 w-1.5"
+            size === "large" && "top-[8%] h-1.5 w-1.5"
           )}
         />
       )}

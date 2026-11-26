@@ -148,7 +148,7 @@ export default function Combobox<T extends ComboboxOption>({
             aria-label={ariaLabel}
             autoComplete="off"
             className={cn(
-              "h-[27px] w-full min-w-0 rounded-[5px] bg-field px-2 text-base text-black outline-none placeholder:text-text-light sm:text-sm",
+              "h-8 w-full min-w-0 rounded-[5px] bg-field px-2 text-base text-black outline-none placeholder:text-text-light sm:text-sm",
               error && "ring-2 ring-red/60",
               showChevron && "pr-7",
               className

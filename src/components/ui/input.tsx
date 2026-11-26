@@ -13,7 +13,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, error
   return (
     <input
       className={cn(
-        "peer flex h-[27px] w-full rounded-[5px] bg-field px-2 py-0 text-base file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-text-light focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm",
+        "peer flex h-8 w-full rounded-[5px] bg-field px-2 py-0 text-base file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-text-light focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm",
         className
       )}
       ref={ref}

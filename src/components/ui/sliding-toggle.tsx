@@ -60,7 +60,7 @@ export default function SlidingToggle<T extends number | string>({
   return (
     <div
       aria-label={ariaLabel}
-      className={cn("relative flex h-[27px] shrink-0 items-stretch overflow-hidden rounded-[5px] bg-input", className)}
+      className={cn("relative flex h-8 shrink-0 items-stretch overflow-hidden rounded-[5px] bg-input", className)}
       role="radiogroup"
     >
       <motion.span

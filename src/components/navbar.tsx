@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
+import { Menu, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -16,7 +16,7 @@ const MENU_ITEM =
 
 /**
  * Top bar on every page: the Weave wordmark (stand-in until there's a new logo), two info links and
- * Log in (not built yet: they say "Coming soon"), and Create a Weave. On phones everything but the
+ * Log in (not built yet: they say "Coming soon"), and "+ New Weave". On phones everything but the
  * wordmark sits in a menu behind the button on the right.
  */
 export default function NavBar() {
@@ -71,7 +71,8 @@ export default function NavBar() {
               Log in
             </button>
             <Button onClick={createAWeave} type="button">
-              Create a Weave
+              <Plus aria-hidden="true" className="h-[17px] w-[17px]" strokeWidth={1.75} />
+              New Weave
             </Button>
           </div>
 
@@ -106,7 +107,8 @@ export default function NavBar() {
               </button>
               <div className="mx-3 my-1 h-px bg-light-gray" />
               <Button className="justify-start" onClick={createAWeave} type="button">
-                Create a Weave
+                <Plus aria-hidden="true" className="h-[17px] w-[17px]" strokeWidth={1.75} />
+                New Weave
               </Button>
             </PopoverContent>
           </Popover>
