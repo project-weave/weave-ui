@@ -1,6 +1,7 @@
 "use client";
 
 import { Menu, Plus, X } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -15,7 +16,7 @@ const MENU_ITEM =
   "w-full rounded-sm px-3 py-2.5 text-left text-sm text-black transition-colors hover:bg-light-gray/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 /**
- * Top bar on every page: the Weave wordmark (stand-in until there's a new logo), two info links and
+ * Top bar on every page: the Weave logo mark and wordmark in purple, two info links and
  * Log in (not built yet: they say "Coming soon"), and "+ New Weave". On phones everything but the
  * wordmark sits in a menu behind the button on the right.
  */
@@ -51,9 +52,18 @@ export default function NavBar() {
           <div className="flex items-center gap-6">
             <Link
               aria-label="Weave home"
-              className="rounded-md text-lg font-medium tracking-tight text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex items-center gap-1.5 rounded-md text-lg font-medium tracking-tight text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               href="/"
             >
+              <Image
+                alt=""
+                aria-hidden="true"
+                className="h-[18px] w-auto"
+                height={52}
+                priority
+                src="/logo-mark.svg"
+                width={63}
+              />
               Weave
             </Link>
             <div className="hidden items-center gap-5 sm:flex">
