@@ -340,17 +340,14 @@ function DateButton({
       aria-label={format(day, "EEEE, MMMM d, yyyy")}
       aria-pressed={isViewMode ? !!isDayVisible : isDaySelected}
       className={cn(
-        "my-[calc(var(--u)*0.1875)] flex h-[calc(var(--u)*1.7)] cursor-pointer touch-none items-center justify-center rounded-[calc(var(--u)*0.5)] p-[1px] text-[calc(var(--u)*0.875)] font-normal outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
+        "relative my-[calc(var(--u)*0.1875)] flex h-[calc(var(--u)*1.7)] cursor-pointer touch-none items-center justify-center rounded-[calc(var(--u)*0.5)] p-[1px] text-[calc(var(--u)*0.875)] font-normal outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
         !isDaySelected
           ? {
               "border-transparent hover:bg-light-gray": true,
               "bg-field": size !== "large",
               "bg-white": size === "large",
               "text-black": isSameMonth(day, firstDayCurrentMonth),
-              // today is marked in red when picking dates, but not on the event page where it's just a distraction
-              "bg-red text-white hover:bg-red/80": isToday(day) && !isViewMode,
-              "hover:text-light/80 text-text-light":
-                (isViewMode || !isToday(day)) && !isSameMonth(day, firstDayCurrentMonth)
+              "hover:text-light/80 text-text-light": !isSameMonth(day, firstDayCurrentMonth)
             }
           : {
               "ml-auto w-full rounded-r-none border-r-0": isNextDaySelected && day.getDay() !== 6,
@@ -401,6 +398,17 @@ function DateButton({
       variant={isDaySelected ? "default" : "outline"}
     >
       {format(day, "d")}
+      {/* today gets a small red dot above its number when picking dates (not on the event page) */}
+      {isToday(day) && !isViewMode && (
+        <span
+          aria-hidden="true"
+          className={cn(
+            "absolute left-1/2 top-[2px] h-1 w-1 -translate-x-1/2 rounded-full",
+            isDaySelected ? "bg-white" : "bg-red",
+            size === "large" && "top-1.5 h-1.5 w-1.5"
+          )}
+        />
+      )}
     </Button>
   );
 }
