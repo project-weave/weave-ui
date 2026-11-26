@@ -46,7 +46,7 @@ export default function TimeZoneDropdown({ error, onChange, selected }: TimeZone
         >
           <div
             className={cn(
-              "peer box-border flex h-10 w-full min-w-0 cursor-pointer items-center rounded-md border border-[#E5E5E5] bg-white px-4 text-left text-sm",
+              "peer box-border flex h-10 w-full min-w-0 cursor-pointer items-center rounded-md bg-field px-4 text-left text-sm",
               { "outline-red-500/40 focus-within:outline-red-500 hover:outline-red-500": error },
               { "outline-red-500": error && open }
             )}
@@ -71,7 +71,7 @@ export default function TimeZoneDropdown({ error, onChange, selected }: TimeZone
           </div>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="mb-2 w-[min(26rem,calc(100vw-2rem))] min-w-[var(--radix-popover-trigger-width)] bg-background p-0">
+      <PopoverContent align="start" className="mb-2 w-[var(--radix-popover-trigger-width)] bg-white p-0">
         <TimeZoneList
           onSelect={(timeZone) => {
             onChange(timeZone);

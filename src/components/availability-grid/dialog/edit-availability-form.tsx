@@ -20,10 +20,12 @@ const CONTINUE = "Continue";
 export default function EditAvailabilityForm({
   isDialogOpen,
   mode,
+  onCancel,
   onComplete
 }: {
   isDialogOpen: boolean;
   mode: "add-new" | "edit-existing";
+  onCancel?: () => void;
   onComplete?: () => void;
 }) {
   const form = useForm<EditAvailabiltyFormType>({
@@ -161,7 +163,10 @@ export default function EditAvailabilityForm({
         }}
       >
         {mode === "add-new" ? nameInput : existingUserSelection}
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          <Button onClick={onCancel} type="button" variant="ghost">
+            Close
+          </Button>
           <Button type="submit">{CONTINUE}</Button>
         </div>
       </form>

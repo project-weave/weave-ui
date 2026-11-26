@@ -158,7 +158,7 @@ const EventDateCalendar = ({
   return (
     <div
       aria-invalid={error || undefined}
-      className={cn("h-fit select-none scroll-m-24 rounded-xl border border-[#E5E5E5] bg-white p-5 pt-3", {
+      className={cn("h-fit select-none scroll-m-24 rounded-xl bg-field p-5 pt-3", {
         "card h-full w-full border-[1px] bg-white px-12 pb-5 pt-8": size === "large"
       })}
       onContextMenu={handleMouseUp}
@@ -328,10 +328,14 @@ function DateButton({
         "my-[3px] flex h-[1.7rem] cursor-pointer touch-none items-center justify-center rounded-sm p-[1px] text-sm font-normal outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
         !isDaySelected
           ? {
-              "border-transparent bg-white": true,
+              "border-transparent": true,
+              "bg-field": size !== "large",
+              "bg-white": size === "large",
               "text-black": isSameMonth(day, firstDayCurrentMonth),
-              "bg-red text-white hover:bg-red/80": isToday(day),
-              "hover:text-light/80 text-text-light": !isToday(day) && !isSameMonth(day, firstDayCurrentMonth)
+              // today is marked in red when picking dates, but not on the event page where it's just a distraction
+              "bg-red text-white hover:bg-red/80": isToday(day) && !isViewMode,
+              "hover:text-light/80 text-text-light":
+                (isViewMode || !isToday(day)) && !isSameMonth(day, firstDayCurrentMonth)
             }
           : {
               "bg-primary/70": !isSameMonth(day, firstDayCurrentMonth),
@@ -351,7 +355,6 @@ function DateButton({
         isViewMode && {
           "bg-primary": isDaySelected,
           "pointer-events-none opacity-20 hover:bg-background": !isDaySelected,
-          "bg-red text-white opacity-100 disabled:bg-red disabled:text-white": isToday(day) && !isDaySelected,
           "text-xs": true
         },
         isViewMode &&

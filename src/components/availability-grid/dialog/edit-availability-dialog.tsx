@@ -126,10 +126,20 @@ const EditAvailabilityDialog = ({
         )}
 
         {viewMode === "add-new" && (
-          <EditAvailabilityForm isDialogOpen={isOpen} mode="add-new" onComplete={() => changeOpen(false)} />
+          <EditAvailabilityForm
+            isDialogOpen={isOpen}
+            mode="add-new"
+            onCancel={() => changeOpen(false)}
+            onComplete={() => changeOpen(false)}
+          />
         )}
         {viewMode === "edit-existing" && (
-          <EditAvailabilityForm isDialogOpen={isOpen} mode="edit-existing" onComplete={() => changeOpen(false)} />
+          <EditAvailabilityForm
+            isDialogOpen={isOpen}
+            mode="edit-existing"
+            onCancel={() => changeOpen(false)}
+            onComplete={() => changeOpen(false)}
+          />
         )}
       </DialogContent>
     </Dialog>

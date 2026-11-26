@@ -44,6 +44,8 @@
 
     --border: 234, 236, 238;
     --input: 247, 247, 247;
+    /* inputs, dropdowns and the mini calendar */
+    --field: 248, 248, 248;
     --ring: 159, 110, 249;
 
     --radius: 0.8rem;

@@ -415,7 +415,7 @@ export default function NewEventForm() {
             }}
           >
             <Button
-              className="h-12 w-full max-w-[26rem] rounded-md text-sm"
+              className="h-10 w-full max-w-[26rem]"
               disabled={!isFormValid || isPending || isSuccess}
               form="new-event-form"
               type="submit"
@@ -426,7 +426,7 @@ export default function NewEventForm() {
         )}
       </AnimatePresence>
       <Button
-        className="z-[999] hidden h-12 w-full rounded-md border-[1px] align-bottom text-sm xs:block"
+        className="z-[999] hidden w-full align-bottom xs:block"
         disabled={!isFormValid || isPending || isSuccess}
         form="new-event-form"
         type="submit"

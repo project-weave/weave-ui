@@ -121,7 +121,7 @@ export default function NewEventFromTimeDropdown({
         >
           <div
             className={cn(
-              "peer box-border flex h-10 w-full min-w-0 cursor-pointer items-center rounded-md border border-[#E5E5E5] bg-white px-4 text-left text-sm",
+              "peer box-border flex h-10 w-full min-w-0 cursor-pointer items-center rounded-md bg-field px-4 text-left text-sm",
               {
                 "outline-red-500/40 focus-within:outline-red-500 hover:outline-red-500": error
               },
@@ -142,7 +142,7 @@ export default function NewEventFromTimeDropdown({
           </div>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="mb-2 w-[140px] bg-background p-0 sm:w-[154px]">
+      <PopoverContent align="start" className="mb-2 w-[var(--radix-popover-trigger-width)] bg-white p-0">
         <Command
           filter={(value, search) =>
             matchesTimeSearch(convertValueToLabel(value), search, TIME_SLOT_INTERVAL_MINUTES) ? 1 : 0
