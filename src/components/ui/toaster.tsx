@@ -34,9 +34,13 @@ export function Toaster() {
             duration={Infinity}
             variant={variant}
           >
-            <div className="flex min-w-0 items-center gap-2 text-sm text-black">
+            {/* icon and text share one 16px line so they sit on the same centre line */}
+            <div className="flex min-w-0 items-center justify-center gap-2 text-sm leading-4 text-black">
               {icon && (
-                <span aria-hidden="true" className="flex shrink-0 [&_svg]:h-4 [&_svg]:w-4">
+                <span
+                  aria-hidden="true"
+                  className="flex h-4 w-4 shrink-0 items-center justify-center [&_svg]:h-4 [&_svg]:w-4"
+                >
                   {icon}
                 </span>
               )}

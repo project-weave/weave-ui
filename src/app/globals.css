@@ -179,6 +179,25 @@
   }
 }
 
+/* typing cursor on the landing page */
+@keyframes cursor-blink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  50%,
+  95% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.animate-cursor-blink {
+  animation: cursor-blink 1s step-end infinite;
+}
+
 /* Thin grey scrollbar (same grey as the grid lines) for the availability grid */
 .grid-scrollbar::-webkit-scrollbar {
   width: 5px;

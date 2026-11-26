@@ -349,38 +349,6 @@ export default function NewEventForm() {
       />
     );
 
-  const largeDateSelector =
-    availabilityType.toString() === AvailabilityType.SPECIFIC_DATES.toString() ? (
-      <>
-        <EventDateCalendar
-          currentMonthOverride={currentCalendarMonth}
-          error={form.getFieldState("specificDates").invalid}
-          id="create-event-calendar-lg"
-          isViewMode={false}
-          key="create-event-calendar-lg"
-          selectedDates={selectedDates}
-          setCurrentMonthOverride={setCurrentCalendarMonth}
-          setSelectedDates={setSelectedDates}
-          size="large"
-        />
-        <div className="text-red-600 ml-3 h-2 whitespace-nowrap text-2xs font-medium">
-          {form.formState.errors.specificDates?.message}
-        </div>
-      </>
-    ) : (
-      <>
-        <DaysOfWeekPicker
-          error={form.getFieldState("daysOfTheWeek").invalid}
-          selectedDaysOfWeek={selectedDaysOfWeek}
-          setSelectedDaysOfWeek={setSelectedDaysOfWeek}
-          size="large"
-        />
-        <div className="text-red-600 ml-3 h-2 whitespace-nowrap text-2xs font-medium">
-          {form.formState.errors.specificDates?.message}
-        </div>
-      </>
-    );
-
   const timeZoneDropdown = (
     <FormField
       control={form.control}
@@ -438,37 +406,31 @@ export default function NewEventForm() {
 
   return (
     <>
-      {/* same layout as the event page: side padding outside an 82rem-wide grid with a 20rem (22rem on xl)
-          left column beside the calendar, 20px apart */}
-      <div className="w-full px-6 sm:px-8 lg:px-5">
-        <div className="mx-auto grid w-full max-w-[82rem] select-none grid-cols-1 gap-5 lg:grid-cols-[20rem_minmax(0,1fr)] xl:grid-cols-[22rem_minmax(0,1fr)]">
-          <FormProvider {...form}>
-            <form
-              autoComplete="off"
-              className="card flex h-full w-full min-w-0 flex-col bg-white px-6 pb-6 pt-5"
-              id="new-event-form"
-              onSubmit={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                isSubmitAttempted.current = true;
-                // close the phone keyboard so the next page doesn't open zoomed/scrolled where the field was
-                (document.activeElement as HTMLElement | null)?.blur();
-                if (form.formState.isSubmitting || isPending || isSuccess) return;
-                form.handleSubmit(onSubmit, onInvalid)();
-              }}
-              ref={formRef}
-            >
-              <div className="mb-5 flex flex-col">{eventNameInput}</div>
-              <div className="mb-6 flex w-full flex-col">{startAndEndTimeInput}</div>
-              <div className="mb-6"> {timeZoneDropdown}</div>
-              <div className="mb-5 flex flex-col">{availabilityTypeInput}</div>
-              <div className="mb-6">{dateSelector}</div>
-              {formSubmissionButton}
-            </form>
-          </FormProvider>
-          <div className="hidden min-w-0 lg:block">{largeDateSelector}</div>
-        </div>
-      </div>
+      {/* just the form card: the landing page decides where it sits */}
+      <FormProvider {...form}>
+        <form
+          autoComplete="off"
+          className="card flex h-full w-full min-w-0 flex-col bg-white px-6 pb-6 pt-5"
+          id="new-event-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            isSubmitAttempted.current = true;
+            // close the phone keyboard so the next page doesn't open zoomed/scrolled where the field was
+            (document.activeElement as HTMLElement | null)?.blur();
+            if (form.formState.isSubmitting || isPending || isSuccess) return;
+            form.handleSubmit(onSubmit, onInvalid)();
+          }}
+          ref={formRef}
+        >
+          <div className="mb-5 flex flex-col">{eventNameInput}</div>
+          <div className="mb-6 flex w-full flex-col">{startAndEndTimeInput}</div>
+          <div className="mb-6"> {timeZoneDropdown}</div>
+          <div className="mb-5 flex flex-col">{availabilityTypeInput}</div>
+          <div className="mb-6">{dateSelector}</div>
+          {formSubmissionButton}
+        </form>
+      </FormProvider>
       {/* add spacing on the bottom when button is fixed to bottom of*/}
       <div className={cn(isFormInView && "h-16 xs:h-0")} />
       <CreatingEventDialog

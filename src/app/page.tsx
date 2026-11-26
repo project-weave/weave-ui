@@ -1,67 +1,33 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useRef } from "react";
-
 import NewEventForm from "@/components/new-event-form";
-import { Button } from "@/components/ui/button";
+import TypingWords from "@/components/typing-words";
 
-// const SUBTITLE =
-//   "The hardest part about getting together is finding time for it. With Weave, you'll be able to schedule group events with ease, and enjoy doing so.";
-const CREATE_A_WEAVE = "Create a Weave";
+const WORDS = ["friends", "family", "colleagues", "you"];
 
+/**
+ * Landing page: "find time for ___" (typed out, one word after another) on the left, vertically centred,
+ * with the create event form beside it. On phones the heading sits at the top left with the form right under it.
+ */
+// (the page pulls itself up over the space the layout keeps for the navbar, which the landing page doesn't have)
 export default function LandingPage() {
-  const eventFormRef = useRef<HTMLDivElement | null>(null);
-
-  const words = ["friends", "family", "colleagues", "you"];
-  const wordHeight = 77;
-
   return (
-    <div className="mt-48 flex flex-col items-center">
-      <div className="grid h-full w-full px-6 sm:px-0">
-        <h1 className="flex flex-col text-center text-[2.6rem] font-semibold leading-[3.2rem] sm:mt-8 sm:leading-[3rem] md:text-[3.7rem] md:leading-[4rem] xl:text-[4.3rem] xl:leading-[4.3rem]">
-          <div>find time for</div>
-          <div className="relative h-[50px] overflow-hidden sm:mt-0 sm:h-[50px] md:h-[68px] xl:h-[75px] ">
-            <motion.div
-              animate={{
-                y: [
-                  0,
-                  0,
-                  -wordHeight,
-                  -wordHeight,
-                  -2 * wordHeight,
-                  -2 * wordHeight,
-                  -3 * wordHeight,
-                  -3 * wordHeight,
-                  0
-                ]
-              }}
-              className="flex flex-col align-top"
-              transition={{ duration: 10, ease: "anticipate", repeat: Infinity }}
-            >
-              {words.map((word, index) => (
-                <div className="relative mb-[26px] flex h-[50px] justify-center text-start text-primary" key={index}>
-                  <p>{word}</p>
-                </div>
-              ))}
-            </motion.div>
-          </div>
-        </h1>
-      </div>
-
-      <Button
-        className="mt-8 h-auto px-10 py-3 text-sm md:mt-16 md:px-16  md:text-lg"
-        onClick={() => {
-          eventFormRef?.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-        }}
+    <div className="mx-auto -mt-[3.25rem] flex w-full max-w-[64rem] flex-col gap-6 px-6 pb-10 pt-10 sm:px-8 md:-mt-[3.75rem] lg:min-h-[100dvh] lg:flex-row lg:items-center lg:justify-between lg:gap-16 lg:px-5 lg:py-12">
+      <h1
+        aria-label={`find time for ${WORDS.join(", ")}`}
+        className="text-left text-[2.6rem] font-semibold leading-[3.1rem] md:text-[3.7rem] md:leading-[4.2rem] xl:text-[4.3rem] xl:leading-[4.8rem]"
       >
-        {CREATE_A_WEAVE}
-      </Button>
+        <span aria-hidden="true" className="block">
+          find time for
+        </span>
+        {/* fixed height so the form doesn't jump while letters are typed and deleted */}
+        <span className="block h-[3.1rem] md:h-[4.2rem] xl:h-[4.8rem]">
+          <TypingWords words={WORDS} />
+        </span>
+      </h1>
 
-      <div className="mt-28 h-full min-h-screen w-full pb-10 sm:pb-0">
-        <div className="pt-20" ref={eventFormRef}>
-          <NewEventForm />
-        </div>
+      <div className="w-full min-w-0 sm:max-w-[24rem] lg:w-[22rem] lg:shrink-0">
+        <NewEventForm />
       </div>
     </div>
   );
