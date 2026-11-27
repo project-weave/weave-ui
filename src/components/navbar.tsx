@@ -18,8 +18,8 @@ const MENU_ITEM =
 
 /**
  * Top bar on every page: the Weave logo and wordmark, two info links and Log in (not built yet: they say
- * "Coming soon"). Away from the home page it also has a "New Weave" button on the right; on the home page
- * that button lives in the hero instead. On phones everything but the logo sits in a menu.
+ * "Coming soon"). On phones everything but the logo sits in a menu, which also offers "New Weave" away
+ * from the home page (on the home page that button lives in the hero).
  */
 export default function NavBar() {
   const pathname = usePathname();
@@ -53,8 +53,15 @@ export default function NavBar() {
               className="flex items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               href="/"
             >
-              <Image alt="" className="h-6 w-auto" height={24} priority src="/logo-mark.svg" width={29} />
-              <span className="ml-2 text-lg font-medium leading-none tracking-tight text-black">Weave</span>
+              {/* the purple mark with the wordmark, the mark exactly as tall as the W */}
+              <Image
+                alt="Weave"
+                className="h-[17px] w-auto"
+                height={17}
+                priority
+                src="/logo-wordmark.svg"
+                width={100}
+              />
             </Link>
             <div className="hidden items-center gap-5 sm:flex">
               <button className={LINK} onClick={comingSoon} type="button">
@@ -70,7 +77,6 @@ export default function NavBar() {
             <button className={LINK} onClick={comingSoon} type="button">
               Log in
             </button>
-            {!isHome && <NewWeaveButton onClick={newWeave} />}
           </div>
 
           {/* phones: one menu button, opening a left-aligned list */}

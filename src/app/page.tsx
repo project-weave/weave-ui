@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+
 import { NewWeaveButton } from "@/components/navbar";
 import NewEventForm from "@/components/new-event-form";
 
@@ -11,15 +13,44 @@ const SUBTITLE =
  * the create event form beside the big calendar, laid out like the event page.
  */
 export default function LandingPage() {
+  const cardsRef = useRef<HTMLDivElement>(null);
+  // room below the cards: the same as the gap above them once they're centred on screen, so jumping to the
+  // form centres it with even space top and bottom (at least 3rem, e.g. on phones where the form is tall)
+  const [bottomSpace, setBottomSpace] = useState(48);
+
+  // the two cards themselves (the form's row), not the wrapper around the form component
+  function getCards() {
+    return cardsRef.current?.querySelector<HTMLElement>("#new-event-form")?.parentElement ?? cardsRef.current;
+  }
+
+  useEffect(() => {
+    const cards = getCards();
+    if (!cards) return;
+    function measure() {
+      if (!cards) return;
+      setBottomSpace(Math.max(48, Math.round((window.innerHeight - cards.offsetHeight) / 2)));
+    }
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(cards);
+    window.addEventListener("resize", measure);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, []);
+
   function jumpToForm() {
-    const form = document.getElementById("new-event-form");
+    const cards = getCards();
+    if (!cards) return;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    form?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
-    form?.querySelector<HTMLInputElement>("input[name=name]")?.focus({ preventScroll: true });
+    const fitsOnScreen = cards.offsetHeight <= window.innerHeight;
+    cards.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: fitsOnScreen ? "center" : "start" });
+    cards.querySelector<HTMLInputElement>("input[name=name]")?.focus({ preventScroll: true });
   }
 
   return (
-    <div className="flex w-full flex-col pb-12">
+    <div className="flex w-full flex-col" style={{ paddingBottom: bottomSpace }}>
       {/* same side padding and width as the cards below, so the heading lines up with the form. The hero takes
           most of the first screen, with the top of the form showing below it */}
       <div className="flex min-h-[calc(100svh-9rem)] w-full flex-col justify-center px-6 py-20 sm:px-8 md:min-h-[calc(100svh-12rem)] lg:px-5">
@@ -31,7 +62,9 @@ export default function LandingPage() {
           <NewWeaveButton className="mt-6" onClick={jumpToForm} />
         </div>
       </div>
-      <NewEventForm />
+      <div ref={cardsRef}>
+        <NewEventForm />
+      </div>
     </div>
   );
 }
