@@ -33,13 +33,16 @@ export default function CreatingEventDialog({ completedSteps, isCreated, open, s
   return (
     <Dialog open={open}>
       <DialogContent
-        // a plain white page behind it rather than the dimmed, blurred backdrop other popups use
-        className={cn(MODAL_SIZE, "z-[1001] gap-0 border-0 p-5 shadow-none outline-none focus:outline-none")}
+        // the steps sit straight on a plain white page: no card behind them, no dimmed or blurred backdrop
+        className={cn(
+          MODAL_SIZE,
+          "z-[1001] gap-0 border-0 bg-transparent p-5 shadow-none outline-none focus:outline-none"
+        )}
         onEscapeKeyDown={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
         onOpenAutoFocus={(e) => e.preventDefault()}
         // above everything on the page, including the phone's pinned Create Weave button
-        overlayClassName="z-[1000] bg-background backdrop-blur-none"
+        overlayClassName="z-[1000] bg-white backdrop-blur-none"
         showCloseButton={false}
       >
         <DialogTitle className="sr-only">{isCreated ? "Event created" : "Creating your event"}</DialogTitle>
@@ -71,19 +74,17 @@ export default function CreatingEventDialog({ completedSteps, isCreated, open, s
             })}
           </AnimatePresence>
         </ol>
-        {/* the finish looks like the app's toasts: a light grey pill with a check */}
+        {/* the finish is one more line in the same list style: a check and "Event created" */}
         <AnimatePresence>
           {isCreated && (
             <motion.div
               animate={{ opacity: 1, y: 0 }}
-              className="mt-5 flex justify-center"
-              initial={reduceMotion ? false : { opacity: 0, y: 12 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="mt-2.5 flex items-center gap-2.5"
+              initial={reduceMotion ? false : { opacity: 0, y: 4 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
             >
-              <span className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-light-gray bg-input px-5 py-2.5 text-sm text-black shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
-                <Check aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
-                Event created
-              </span>
+              <StepIcon isDone />
+              <p className="text-sm font-medium text-black">Event created</p>
             </motion.div>
           )}
         </AnimatePresence>

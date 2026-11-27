@@ -33,6 +33,8 @@ type useGridDragSelectReturn = {
   onMouseDragEnd: GridDragEndHandler;
   onMouseDragMove: GridDragMoveHandler;
   onMouseDragStart: GridDragStartHandler;
+  // drops a touch selection that was just started without saving it (the touch turned out to be a swipe)
+  onTouchDragCancel: () => void;
   onTouchDragEnd: GridDragEndHandler;
   onTouchDragMove: GridDragMoveHandler;
   onTouchDragStart: GridDragStartHandler;
@@ -96,6 +98,12 @@ export default function useGridDragSelect<T, U, V>(
     if (!isDragging || !startCellPositionRef.current || !endCellPositionRef.current) onTouchDragStart(row, col);
 
     endCellPositionRef.current = { col, row };
+  };
+
+  const onTouchDragCancel = () => {
+    startCellPositionRef.current = null;
+    endCellPositionRef.current = null;
+    setDragMode(DragMode.NONE);
   };
 
   const onTouchDragEnd: GridDragEndHandler = () => {
@@ -192,6 +200,7 @@ export default function useGridDragSelect<T, U, V>(
     onMouseDragEnd,
     onMouseDragMove,
     onMouseDragStart,
+    onTouchDragCancel,
     onTouchDragEnd,
     onTouchDragMove,
     onTouchDragStart

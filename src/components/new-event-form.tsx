@@ -445,7 +445,7 @@ export default function NewEventForm() {
           <FormProvider {...form}>
             <form
               autoComplete="off"
-              className="card flex h-full w-full min-w-0 flex-col bg-white px-6 pb-6 pt-5"
+              className="card flex h-full w-full min-w-0 scroll-mt-6 flex-col bg-white px-6 pb-6 pt-5"
               id="new-event-form"
               onSubmit={(e) => {
                 e.preventDefault();

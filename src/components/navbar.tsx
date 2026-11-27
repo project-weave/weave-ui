@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
+import { Menu, Plus, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/components/ui/use-toast";
+import { cn } from "@/utils/cn";
 
 const LINK =
   "rounded-md text-[13px] text-text-light transition-colors hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
@@ -16,9 +17,9 @@ const MENU_ITEM =
   "w-full rounded-sm px-3 py-2.5 text-left text-sm text-black transition-colors hover:bg-light-gray/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 /**
- * Top bar on every page: the Weave logo, two info links and
- * Log in (not built yet: they say "Coming soon"), and Create a Weave. On phones everything but the
- * logo sits in a menu behind the button on the right.
+ * Top bar on every page: the Weave logo and wordmark, two info links and Log in (not built yet: they say
+ * "Coming soon"). Away from the home page it also has a "New Weave" button on the right; on the home page
+ * that button lives in the hero instead. On phones everything but the logo sits in a menu.
  */
 export default function NavBar() {
   const pathname = usePathname();
@@ -35,13 +36,10 @@ export default function NavBar() {
     toast({ description: "Coming soon", duration: 2000 });
   }
 
-  // on the home page it jumps to the form; anywhere else it goes home
-  function createAWeave() {
+  // goes home to the new event form
+  function newWeave() {
     setMenuOpen(false);
-    if (!isHome) return router.push("/");
-    const form = document.getElementById("new-event-form");
-    form?.scrollIntoView({ behavior: "smooth", block: "center" });
-    form?.querySelector<HTMLInputElement>("input[name=name]")?.focus({ preventScroll: true });
+    router.push("/");
   }
 
   return (
@@ -55,7 +53,8 @@ export default function NavBar() {
               className="flex items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               href="/"
             >
-              <Image alt="Weave" className="h-7 w-auto" height={28} priority src="/logo-mark.svg" width={34} />
+              <Image alt="" className="h-6 w-auto" height={24} priority src="/logo-mark.svg" width={29} />
+              <span className="ml-2 text-lg font-medium leading-none tracking-tight text-black">Weave</span>
             </Link>
             <div className="hidden items-center gap-5 sm:flex">
               <button className={LINK} onClick={comingSoon} type="button">
@@ -71,9 +70,7 @@ export default function NavBar() {
             <button className={LINK} onClick={comingSoon} type="button">
               Log in
             </button>
-            <Button onClick={createAWeave} type="button">
-              Create a Weave
-            </Button>
+            {!isHome && <NewWeaveButton onClick={newWeave} />}
           </div>
 
           {/* phones: one menu button, opening a left-aligned list */}
@@ -105,14 +102,26 @@ export default function NavBar() {
               <button className={MENU_ITEM} onClick={comingSoon} type="button">
                 Log in
               </button>
-              <div className="mx-3 my-1 h-px bg-light-gray" />
-              <Button className="justify-start" onClick={createAWeave} type="button">
-                Create a Weave
-              </Button>
+              {!isHome && (
+                <>
+                  <div className="mx-3 my-1 h-px bg-light-gray" />
+                  <NewWeaveButton className="justify-start" onClick={newWeave} />
+                </>
+              )}
             </PopoverContent>
           </Popover>
         </div>
       </div>
     </nav>
+  );
+}
+
+/** "+ New Weave": the call to action in the home page hero and, on other pages, the top right of the nav. */
+export function NewWeaveButton({ className, onClick }: { className?: string; onClick: () => void }) {
+  return (
+    <Button className={cn("gap-1.5", className)} onClick={onClick} type="button">
+      <Plus aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
+      New Weave
+    </Button>
   );
 }

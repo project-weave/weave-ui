@@ -14,7 +14,7 @@ import {
   startOfToday,
   sub
 } from "date-fns";
-import { Dispatch, LegacyRef, MouseEvent, SetStateAction, useEffect, useRef, useState } from "react";
+import { Dispatch, LegacyRef, MouseEvent, SetStateAction, useRef, useState } from "react";
 
 import useDragSelect, { extractDragSelectData } from "@/hooks/useDragSelect";
 import useRegisterNonPassiveTouchEvents from "@/hooks/useRegisterNonPassiveTouchEvents";
@@ -83,12 +83,13 @@ const EventDateCalendar = ({
         ? format(parseISO(earliestSelectedDate), MONTH_FORMAT)
         : format(startOfToday(), MONTH_FORMAT);
   const [currentMonth, setCurrentMonth] = useState(defaultMonth);
-
-  useEffect(() => {
-    if (currentMonthOverride !== undefined) {
-      setCurrentMonth(currentMonthOverride);
-    }
-  }, [currentMonthOverride]);
+  // follow the month the page asks for (e.g. the event page's grid scrolling into another month) in the same
+  // render, rather than one frame later from an effect: the late switch showed the old month for a frame
+  const [lastMonthOverride, setLastMonthOverride] = useState(currentMonthOverride);
+  if (currentMonthOverride !== lastMonthOverride) {
+    setLastMonthOverride(currentMonthOverride);
+    if (currentMonthOverride !== undefined) setCurrentMonth(currentMonthOverride);
+  }
   const { onMouseDragEnd, onMouseDragMove, onMouseDragStart, onTouchDragEnd, onTouchDragMove, onTouchDragStart } =
     useDragSelect<EventDate>(selectedDates, setSelectedDates!);
 
@@ -151,7 +152,7 @@ const EventDateCalendar = ({
   });
   const weekDays: string[] = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   // sizes are multiples of --u (16px). The large calendar fills its card with bigger text, but its days keep
-  // the small calendar's shape (37 x 27) instead of stretching into long bars.
+  // the small calendar's shape (37 x 31) instead of stretching into long bars.
   const weekDayClassName = cn("text-[calc(var(--u)*0.875)] sm:text-[calc(var(--u)*0.95)]", {
     "text-lg sm:text-lg": size === "large",
     "text-xs sm:text-xs": isViewMode
@@ -341,7 +342,7 @@ function DateButton({
       aria-label={format(day, "EEEE, MMMM d, yyyy")}
       aria-pressed={isViewMode ? !!isDayVisible : isDaySelected}
       className={cn(
-        "relative my-[calc(var(--u)*0.1875)] flex h-[calc(var(--u)*1.7)] cursor-pointer touch-none items-center justify-center rounded-[calc(var(--u)*0.5)] p-[1px] text-[calc(var(--u)*0.875)] font-normal outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
+        "relative my-[calc(var(--u)*0.1875)] flex h-[calc(var(--u)*2)] cursor-pointer touch-none items-center justify-center rounded-[calc(var(--u)*0.5)] p-[1px] text-[calc(var(--u)*0.875)] font-normal outline-none transition-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
         !isDaySelected
           ? {
               "border-transparent hover:bg-light-gray": true,
@@ -379,7 +380,7 @@ function DateButton({
           },
         {
           // same shape as the small calendar's days, just bigger
-          "my-1 aspect-[37/27] h-auto text-xl sm:text-xl": size === "large",
+          "my-1 aspect-[37/31] h-auto text-xl sm:text-xl": size === "large",
           "pointer-events-none opacity-20": !isViewMode && isBeforeToday(day) && !selectedDates.has(formattedDay)
         }
       )}
@@ -404,9 +405,9 @@ function DateButton({
         <span
           aria-hidden="true"
           className={cn(
-            "absolute left-1/2 top-[1px] h-[3px] w-[3px] -translate-x-1/2 rounded-full",
+            "absolute left-1/2 top-[4px] h-[3px] w-[3px] -translate-x-1/2 rounded-full",
             isDaySelected ? "bg-white" : "bg-red",
-            size === "large" && "top-[12%] h-1.5 w-1.5"
+            size === "large" && "top-[18%] h-1.5 w-1.5"
           )}
         />
       )}

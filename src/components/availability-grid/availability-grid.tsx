@@ -128,6 +128,7 @@ export default function AvailabilityGrid() {
     onMouseDragEnd,
     onMouseDragMove,
     onMouseDragStart,
+    onTouchDragCancel,
     onTouchDragEnd,
     onTouchDragMove,
     onTouchDragStart
@@ -147,6 +148,7 @@ export default function AvailabilityGrid() {
     isDragSelecting,
     onMouseDragMove,
     onMouseDragStart,
+    onTouchDragCancel,
     onTouchDragMove,
     onTouchDragStart,
     selectedTimeSlots

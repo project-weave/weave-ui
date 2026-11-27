@@ -1,5 +1,5 @@
 import { format, parseISO } from "date-fns";
-import { MouseEvent, useEffect, useRef, useState } from "react";
+import { MouseEvent, TouchEvent as ReactTouchEvent, useEffect, useRef, useState } from "react";
 
 import { DragMode } from "@/hooks/useDragSelect";
 import {
@@ -21,6 +21,7 @@ export type TimeSlotDragSelectionState = {
   isDragSelecting: boolean;
   onMouseDragMove: GridDragMoveHandler;
   onMouseDragStart: GridDragStartHandler;
+  onTouchDragCancel: () => void;
   onTouchDragMove: GridDragMoveHandler;
   onTouchDragStart: GridDragStartHandler;
   selectedTimeSlots: TimeSlot[];
@@ -52,6 +53,7 @@ export default function AvailabilityGridTimeSlot({
     isDragSelecting,
     onMouseDragMove,
     onMouseDragStart,
+    onTouchDragCancel,
     onTouchDragMove,
     onTouchDragStart,
     selectedTimeSlots
@@ -147,28 +149,56 @@ export default function AvailabilityGridTimeSlot({
     return [row, col];
   }
 
+  // While editing, a touch on the grid is either a drag that selects times or a sideways swipe through the
+  // dates. The cells allow sideways panning (touch-pan-x), so the browser scrolls the dates on its own; the
+  // first few pixels of movement decide which it is, and a swipe drops the selection it started.
+  const touchGestureRef = useRef<{ kind: "pending" | "scroll" | "select"; x: number; y: number } | null>(null);
+
   function handleTouchStart(e: TouchEvent) {
     if (isSaving) return;
-    // only block the browser's scrolling while editing (dragging selects times); in view mode swipes scroll the grid
-    if (isEditMode(mode) && e.cancelable) e.preventDefault();
     const [row, col] = extractRowCol(e);
 
-    if (isEditMode(mode)) onTouchDragStart(row, col);
+    if (isEditMode(mode)) {
+      const touch = e.touches[0];
+      touchGestureRef.current = { kind: "pending", x: touch.clientX, y: touch.clientY };
+      onTouchDragStart(row, col);
+    }
     if (row !== -1 && col !== -1) setHoveredTimeSlot(getTimeSlot(sortedEventTimes[row], sortedEventDates[col]));
   }
 
   function handleTouchMove(e: TouchEvent) {
     if (isSaving) return;
     if (!isEditMode(mode)) return;
+
+    const gesture = touchGestureRef.current;
+    if (gesture?.kind === "scroll") return;
+    if (gesture?.kind === "pending") {
+      const touch = e.touches[0];
+      const dx = Math.abs(touch.clientX - gesture.x);
+      const dy = Math.abs(touch.clientY - gesture.y);
+      if (dx > dy) {
+        // sideways: let the browser scroll the dates and drop the selection this touch started
+        gesture.kind = "scroll";
+        onTouchDragCancel();
+        setHoveredTimeSlot(null);
+        return;
+      }
+      // up or down: keep the touch for selecting (the browser must not start its own gesture first)
+      gesture.kind = "select";
+    }
     if (e.cancelable) e.preventDefault();
 
     const [row, col] = extractRowCol(e);
-    if (isEditMode(mode)) onTouchDragMove(row, col);
+    onTouchDragMove(row, col);
     if (row !== -1 && col !== -1) setHoveredTimeSlot(getTimeSlot(sortedEventTimes[row], sortedEventDates[col]));
   }
 
-  function handleTouchEnd() {
-    if (isEditMode(mode)) setHoveredTimeSlot(null);
+  function handleTouchEnd(e: ReactTouchEvent<HTMLButtonElement>) {
+    if (!isEditMode(mode)) return;
+    // a tap or drag: stop the browser from also sending mouse events, which would toggle the cell again
+    if (touchGestureRef.current?.kind !== "scroll" && e.cancelable) e.preventDefault();
+    touchGestureRef.current = null;
+    setHoveredTimeSlot(null);
   }
 
   useRegisterNonPassiveTouchEvents({
@@ -240,7 +270,7 @@ export default function AvailabilityGridTimeSlot({
       className={cn(
         "h-full w-full cursor-pointer appearance-none border-b-0 border-t-[1px] border-dark-gray outline-none focus-visible:relative focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-primary",
         borderXSizeStyles,
-        isEditMode(mode) ? "touch-none" : "touch-manipulation",
+        isEditMode(mode) ? "touch-pan-x" : "touch-manipulation",
         {
           "bg-primary-purple": (isSelected || isBeingAdded) && !isBeingRemoved,
           "border-r-2": hasDateGapRight,
