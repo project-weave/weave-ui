@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 
 import MainNav from "@/components/navbar";
+import SplashScreen from "@/components/splash-screen";
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from "@/utils/cn";
 
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html className="" lang="en">
       <body className={cn("relative flex items-center justify-center", dmSans.className)} suppressHydrationWarning>
+        <SplashScreen />
         <Analytics />
         <Providers>
           <div className="mx-auto flex w-full max-w-[85rem]">
